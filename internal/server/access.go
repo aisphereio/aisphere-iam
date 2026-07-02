@@ -29,9 +29,9 @@ func iamServerMiddlewares(resources *data.Resources) []middleware.Middleware {
 
 func iamRequestInfoResolver(ctx context.Context, operation string, req any) (requestx.Info, bool, error) {
 	resolvers := []requestx.Resolver{
-		v1.IAMAuthServiceRequestInfoResolver,
-		v1.IAMDirectoryServiceRequestInfoResolver,
-		v1.IAMPermissionServiceRequestInfoResolver,
+		v1.IAMAuthServiceKernelRequestInfoResolver,
+		v1.IAMDirectoryServiceKernelRequestInfoResolver,
+		v1.IAMPermissionServiceKernelRequestInfoResolver,
 	}
 	for _, resolver := range resolvers {
 		info, ok, err := resolver(ctx, operation, req)
@@ -44,9 +44,9 @@ func iamRequestInfoResolver(ctx context.Context, operation string, req any) (req
 
 func iamAccessResolver(ctx context.Context, operation string, req any) (accessx.Check, bool, error) {
 	resolvers := []mwaccess.Resolver{
-		v1.IAMAuthServiceAccessResolver,
-		v1.IAMDirectoryServiceAccessResolver,
-		v1.IAMPermissionServiceAccessResolver,
+		v1.IAMAuthServiceKernelAccessResolver,
+		v1.IAMDirectoryServiceKernelAccessResolver,
+		v1.IAMPermissionServiceKernelAccessResolver,
 	}
 	for _, resolver := range resolvers {
 		check, ok, err := resolver(ctx, operation, req)
