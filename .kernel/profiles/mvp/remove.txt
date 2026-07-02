@@ -1,0 +1,2 @@
+# Files/directories removed when applying --profile mvp
+api/aisphere

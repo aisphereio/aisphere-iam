@@ -1,0 +1,2 @@
+# Files removed when disabling this feature
+api/aisphere
