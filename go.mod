@@ -1,4 +1,4 @@
-module aisphere-iam
+module github.com/aisphereio/aisphere-iam
 
 go 1.25.8
 

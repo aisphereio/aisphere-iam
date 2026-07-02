@@ -4,3 +4,64 @@ coverage.out
 coverage.html
 docs/openapi/
 *.log
+*.exe
+# Build outputs
+.bin/
+bin/
+dist/
+build/
+out/
+coverage.out
+coverage.html
+coverage
+*.test
+*.prof
+*.cover
+*.out
+*.exe
+*.exe~
+*.dll
+*.dylib
+*.o
+*.a
+*.so
+*.zip
+
+# Go workspace and dependency caches
+vendor/
+go.work
+go.work.sum
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# IDE and editor state
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+.cache
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+
+# Certificates and keys
+*.cert
+*.key
+
+
+
+*.exe
+.bin/
+bin/
+

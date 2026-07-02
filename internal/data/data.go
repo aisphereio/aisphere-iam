@@ -20,7 +20,7 @@ import (
 	"github.com/aisphereio/kernel/objectstorex"
 	_ "github.com/aisphereio/kernel/objectstorex/minio"
 
-	"aisphere-iam/internal/conf"
+	"github.com/aisphereio/aisphere-iam/internal/conf"
 )
 
 type ResourceOptions struct {

@@ -3,6 +3,7 @@ BUF ?= buf
 
 KERNEL_MODULE ?= github.com/aisphereio/kernel
 KERNEL_VERSION ?= v0.1.18
+KERNEL_LOCAL ?= ../kernel
 
 APP_NAME ?= aisphere-iam
 APP_CMD ?= ./cmd/$(APP_NAME)
@@ -23,12 +24,13 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 export PATH := $(LOCAL_BIN):$(PATH)
 endif
 
-.PHONY: help init tools check-tools api proto-check config wire generate build run test tidy verify clean
+.PHONY: help init tools tools-local check-tools api proto-check config wire generate build run test tidy verify clean
 
 help:
 	@echo "Kernel service targets:"
 	@echo "  make init         install local toolchain into .bin"
 	@echo "  make tools        install codegen tools into .bin"
+	@echo "  make tools-local  install codegen tools from local KERNEL_LOCAL=../kernel"
 	@echo "  make check-tools  check required tools in .bin"
 	@echo "  make api          generate api proto code by buf.gen.yaml"
 	@echo "  make proto-check  run buf lint and aisphere proto contract checks"
@@ -76,6 +78,38 @@ else
 	@GOBIN=$(LOCAL_BIN) $(GO) install $(KERNEL_MODULE)/cmd/protoc-gen-go-gateway@$(KERNEL_VERSION)
 	@GOBIN=$(LOCAL_BIN) $(GO) install $(KERNEL_MODULE)/cmd/protoc-gen-go-kernel@$(KERNEL_VERSION)
 	@GOBIN=$(LOCAL_BIN) $(GO) install $(KERNEL_MODULE)/cmd/buf-check-aisphere@$(KERNEL_VERSION)
+	@GOBIN=$(LOCAL_BIN) $(GO) install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.29.0
+	@GOBIN=$(LOCAL_BIN) $(GO) install github.com/bufbuild/buf/cmd/buf@v1.50.0
+	@GOBIN=$(LOCAL_BIN) $(GO) install github.com/google/wire/cmd/wire@v0.7.0
+	@GOBIN=$(LOCAL_BIN) $(GO) install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.29.0
+endif
+
+
+tools-local:
+ifeq ($(OS),Windows_NT)
+	@cmd /c "if not exist .bin mkdir .bin"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install $(KERNEL_LOCAL)/cmd/protoc-gen-go-http"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install $(KERNEL_LOCAL)/cmd/protoc-gen-go-errors"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install $(KERNEL_LOCAL)/cmd/protoc-gen-go-authz"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install $(KERNEL_LOCAL)/cmd/protoc-gen-go-gateway"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install $(KERNEL_LOCAL)/cmd/protoc-gen-go-kernel"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install $(KERNEL_LOCAL)/cmd/buf-check-aisphere"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.29.0"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install github.com/bufbuild/buf/cmd/buf@v1.50.0"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install github.com/google/wire/cmd/wire@v0.7.0"
+	@cmd /c "set GOBIN=$(LOCAL_BIN)&& $(GO) install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.29.0"
+else
+	@mkdir -p $(LOCAL_BIN)
+	@GOBIN=$(LOCAL_BIN) $(GO) install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+	@GOBIN=$(LOCAL_BIN) $(GO) install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+	@GOBIN=$(LOCAL_BIN) $(GO) install $(KERNEL_LOCAL)/cmd/protoc-gen-go-http
+	@GOBIN=$(LOCAL_BIN) $(GO) install $(KERNEL_LOCAL)/cmd/protoc-gen-go-errors
+	@GOBIN=$(LOCAL_BIN) $(GO) install $(KERNEL_LOCAL)/cmd/protoc-gen-go-authz
+	@GOBIN=$(LOCAL_BIN) $(GO) install $(KERNEL_LOCAL)/cmd/protoc-gen-go-gateway
+	@GOBIN=$(LOCAL_BIN) $(GO) install $(KERNEL_LOCAL)/cmd/protoc-gen-go-kernel
+	@GOBIN=$(LOCAL_BIN) $(GO) install $(KERNEL_LOCAL)/cmd/buf-check-aisphere
 	@GOBIN=$(LOCAL_BIN) $(GO) install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.29.0
 	@GOBIN=$(LOCAL_BIN) $(GO) install github.com/bufbuild/buf/cmd/buf@v1.50.0
 	@GOBIN=$(LOCAL_BIN) $(GO) install github.com/google/wire/cmd/wire@v0.7.0

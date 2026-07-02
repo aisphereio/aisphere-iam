@@ -1,3 +1,23 @@
+# Aisphere IAM
+
+Aisphere IAM 是基于 `github.com/aisphereio/kernel` 的身份认证、目录查询和权限关系服务。它封装 Casdoor 和 SpiceDB，给 Hub/Gateway/Runtime 等业务组件提供统一 IAM API。
+
+本仓库不是 Kernel layout 模板仓库。开发规则见 `AGENTS.md`，本地运行见 `docs/run-local.md`，Kernel 合规说明见 `docs/kernel-compliance.md`。
+
+## 快速开始
+
+```powershell
+make tools-local KERNEL_LOCAL=../kernel
+make api
+make proto-check
+make test
+make run
+```
+
+默认端口：HTTP `18080`，gRPC `19080`，metrics `19180`。
+
+## 原始 layout 说明
+
 # Aisphere Kernel Layout
 
 Standalone full-feature service layout for `github.com/aisphereio/kernel/cmd/kernel`.

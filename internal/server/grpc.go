@@ -1,15 +1,16 @@
 package server
 
 import (
-	v1 "aisphere-iam/api/iam/v1"
-	"aisphere-iam/internal/conf"
-	"aisphere-iam/internal/service"
+	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
+	"github.com/aisphereio/aisphere-iam/internal/conf"
+	"github.com/aisphereio/aisphere-iam/internal/data"
+	"github.com/aisphereio/aisphere-iam/internal/service"
 	"github.com/aisphereio/kernel/logx"
 	"github.com/aisphereio/kernel/metricsx"
 	kgrpc "github.com/aisphereio/kernel/transportx/grpc"
 )
 
-func NewGRPCServer(c conf.ServerConfig, logCfg logx.Config, metricsCfg conf.MetricsConfig, logger logx.Logger, metrics metricsx.Manager, authSvc *service.IAMAuthService, dirSvc *service.IAMDirectoryService, permSvc *service.IAMPermissionService) *kgrpc.Server {
+func NewGRPCServer(c conf.ServerConfig, logCfg logx.Config, metricsCfg conf.MetricsConfig, logger logx.Logger, metrics metricsx.Manager, resources *data.Resources, authSvc *service.IAMAuthService, dirSvc *service.IAMDirectoryService, permSvc *service.IAMPermissionService) *kgrpc.Server {
 	var opts []kgrpc.ServerOption
 	if c.GRPC.Addr != "" {
 		opts = append(opts, kgrpc.Address(c.GRPC.Addr))
@@ -23,6 +24,9 @@ func NewGRPCServer(c conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Metr
 	)
 	if metricsCfg.Enabled {
 		opts = append(opts, kgrpc.Metrics(metrics))
+	}
+	if m := iamServerMiddlewares(resources); len(m) > 0 {
+		opts = append(opts, kgrpc.Middleware(m...))
 	}
 	srv := kgrpc.NewServer(opts...)
 	v1.RegisterIAMAuthServiceServer(srv, authSvc)

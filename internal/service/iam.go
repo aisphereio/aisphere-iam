@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	v1 "aisphere-iam/api/iam/v1"
+	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authz"

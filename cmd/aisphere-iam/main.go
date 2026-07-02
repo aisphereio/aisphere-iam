@@ -5,7 +5,7 @@ import (
 	"flag"
 	"time"
 
-	v1 "aisphere-iam/api/iam/v1"
+	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	kernel "github.com/aisphereio/kernel"
 	"github.com/aisphereio/kernel/configx"
 	configenv "github.com/aisphereio/kernel/configx/env"
@@ -16,11 +16,11 @@ import (
 	"github.com/aisphereio/kernel/metricsx"
 	"github.com/aisphereio/kernel/serverx"
 
-	"aisphere-iam/internal/conf"
-	"aisphere-iam/internal/data"
-	"aisphere-iam/internal/registry"
-	"aisphere-iam/internal/server"
-	"aisphere-iam/internal/service"
+	"github.com/aisphereio/aisphere-iam/internal/conf"
+	"github.com/aisphereio/aisphere-iam/internal/data"
+	"github.com/aisphereio/aisphere-iam/internal/registry"
+	"github.com/aisphereio/aisphere-iam/internal/server"
+	"github.com/aisphereio/aisphere-iam/internal/service"
 )
 
 var (
@@ -106,7 +106,7 @@ func main() {
 		}
 	}
 	httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, permissionService)
-	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, authService, directoryService, permissionService)
+	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, permissionService)
 
 	options := []kernel.Option{
 		kernel.Name(bc.Service.Name),

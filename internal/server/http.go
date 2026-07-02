@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	v1 "aisphere-iam/api/iam/v1"
-	"aisphere-iam/internal/conf"
-	"aisphere-iam/internal/data"
-	"aisphere-iam/internal/service"
+	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
+	"github.com/aisphereio/aisphere-iam/internal/conf"
+	"github.com/aisphereio/aisphere-iam/internal/data"
+	"github.com/aisphereio/aisphere-iam/internal/service"
 	"github.com/aisphereio/kernel/logx"
 	"github.com/aisphereio/kernel/metricsx"
 	khttp "github.com/aisphereio/kernel/transportx/http"
@@ -32,6 +32,9 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	}
 	if metricsCfg.Enabled {
 		opts = append(opts, khttp.Metrics(metrics))
+	}
+	if m := iamServerMiddlewares(resources); len(m) > 0 {
+		opts = append(opts, khttp.Middleware(m...))
 	}
 	srv := khttp.NewServer(opts...)
 	v1.RegisterIAMAuthServiceHTTPServer(srv, authSvc)

@@ -1,0 +1,77 @@
+﻿service:
+  name: iam-service
+  version: dev
+  env: dev
+
+server:
+  http:
+    network: tcp
+    addr: 0.0.0.0:18080
+    timeout: 5000000000
+    cors:
+      enabled: true
+      allow_origins: ["*"]
+      allow_methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+      allow_headers: ["*"]
+  grpc:
+    network: tcp
+    addr: 0.0.0.0:19080
+    timeout: 5000000000
+
+log:
+  level: debug
+  format: console
+  add_source: true
+  access_log:
+    enabled: true
+    slow_threshold: 500000000
+
+data:
+  database:
+    enabled: false
+  cache:
+    enabled: false
+  object_store:
+    enabled: false
+
+security:
+  authn:
+    enabled: true
+    provider: casdoor
+    casdoor:
+      endpoint: http://36.137.200.194:30082
+      client_id: bbdcfc272e2b990cb923
+      client_secret: ${CASDOOR_CLIENT_SECRET}
+      organization_name: aisphere
+      application_name: aisphere
+      jwt_certificate_file: ./configs/casdoor.pub
+  authz:
+    enabled: true
+    provider: spicedb
+    dev_allow_all: false
+    install_default_schema: true
+    spicedb:
+      endpoint: 36.137.200.194:30084
+      token: ${SPICEDB_TOKEN}
+      insecure: true
+
+gateway:
+  route_registry:
+    provider: etcd
+    prefix: /aisphere/kernel/routes/dev
+    endpoints:
+      - 36.137.200.194:30086
+
+audit:
+  enabled: true
+  backend: memory
+
+metrics:
+  enabled: true
+  addr: 127.0.0.1:19180
+  path: /metrics
+
+dtm:
+  enabled: false
+
+

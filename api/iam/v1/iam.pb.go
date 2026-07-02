@@ -2874,7 +2874,7 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x0fLookupResources\x12\x1e.iam.v1.LookupResourcesRequest\x1a\x1c.iam.v1.LookupResourcesReply\"\xc2\x01\x92\xf4\x18\x9a\x01\b\x04\x12%\n" +
 	"\x06lookup\x12\fiam:resource\x1a\viam-service \x01\x1a\x1f\b\x01\x12\x13iam.resource.lookup\x1a\x06medium2NAuthorization graph resource lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/iam/resources/lookup\x12\x8d\x02\n" +
 	"\x0eLookupSubjects\x12\x1d.iam.v1.LookupSubjectsRequest\x1a\x1b.iam.v1.LookupSubjectsReply\"\xbe\x01\x92\xf4\x18\x97\x01\b\x04\x12$\n" +
-	"\x06lookup\x12\viam:subject\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x12iam.subject.lookup\x1a\x06medium2MAuthorization graph subject lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/iam/subjects/lookupB\x1cZ\x1aaisphere-iam/api/iam/v1;v1b\x06proto3"
+	"\x06lookup\x12\viam:subject\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x12iam.subject.lookup\x1a\x06medium2MAuthorization graph subject lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/iam/subjects/lookupB2Z0github.com/aisphereio/aisphere-iam/api/iam/v1;v1b\x06proto3"
 
 var (
 	file_iam_v1_iam_proto_rawDescOnce sync.Once
