@@ -1,100 +1,115 @@
 # Aisphere IAM
 
-Aisphere IAM 是基于 `github.com/aisphereio/kernel` 的身份认证、目录查询和权限关系服务。它封装 Casdoor 和 SpiceDB，给 Hub/Gateway/Runtime 等业务组件提供统一 IAM API。
+Aisphere IAM 是基于 `github.com/aisphereio/kernel` 的身份认证、目录查询和权限关系服务。它封装 Casdoor（认证）和 SpiceDB（授权），为 Hub、Gateway、Runtime 等业务组件提供统一 IAM API。
 
 本仓库不是 Kernel layout 模板仓库。开发规则见 `AGENTS.md`，本地运行见 `docs/run-local.md`，Kernel 合规说明见 `docs/kernel-compliance.md`。
+
+## 架构
+
+```text
+外部请求
+  -> HTTP / gRPC server
+  -> IAMAuthService   (登录、令牌管理、用户信息)
+  -> IAMDirectoryService (用户、组织、组目录查询)
+  -> IAMPermissionService (权限检查、关系写入、资源/主体查找)
+  -> Casdoor (认证后端)
+  -> SpiceDB (授权后端)
+```
 
 ## 快速开始
 
 ```powershell
+# 安装工具链（使用本地 kernel 开发时）
 make tools-local KERNEL_LOCAL=../kernel
+
+# 生成 API 代码
 make api
+
+# 检查 proto
 make proto-check
+
+# 运行测试
 make test
+
+# 启动服务
 make run
 ```
 
-默认端口：HTTP `18080`，gRPC `19080`，metrics `19180`。
-
-## 原始 layout 说明
-
-# Aisphere Kernel Layout
-
-Standalone full-feature service layout for `github.com/aisphereio/kernel/cmd/kernel`.
-
-Default mode is **full**: config, logging, metrics, DB/cache/object storage wiring, audit, DTM, HTTP/gRPC transports, proto-first Todo CRUD, and governance code generation examples.
-
-Use MVP when you want the smallest runnable service skeleton:
+## 本地运行
 
 ```powershell
-kernel new skill-service --mvp
+go run ./cmd/aisphere-iam -conf ./configs/config.local.yaml
 ```
 
-Use feature disable when you want to remove optional layout parts:
+默认端口：
 
-```powershell
-kernel new skill-service --disable iam
-kernel new skill-service --disable gateway,dtmx
-```
-
-## Use
-
-```powershell
-go install github.com/aisphereio/kernel/cmd/kernel@latest
-kernel new skill-service
-cd skill-service
-make tools
-make api
-make proto-check
-make test
-make run
-```
-
-## Included defaults
-
-- Features: `dbx,cachex,objectstorex,authn,authz,auditx,metricsx,logx,configx`
-- Disabled features: `__KERNEL_DISABLED_FEATURES__`
-- Profile: `__KERNEL_PROFILE__`
-- DB: `dbx` with `postgres`
-- Cache: `cachex` with `redis`
-- Object storage: `objectstorex` with `minio`
-- Authn: `casdoor`
-- Authz: `spicedb`
-- Audit: `auditx` memory recorder by default
-- Logging: `logx` console output for local development
-- Metrics: shared `metricsx.Manager`, optional admin `/metrics` server
-- DTM: optional `dtmx.Manager`
-- Config: `configx` file source
-- Transports: Kernel HTTP and gRPC servers with access log and metrics hooks
-- API example: protobuf-first Todo CRUD with HTTP binding and optional governance annotations
-- Kernel version for generated Makefile tools: `__KERNEL_VERSION__`
-
-External dependencies are present in `configs/config.yaml`, but DB, cache, object storage, authn, authz, and DTM are disabled by default so the service starts without local Postgres, Redis, Minio, Casdoor, SpiceDB, or DTM.
+- HTTP: `0.0.0.0:18080`
+- gRPC: `0.0.0.0:19080`
+- Metrics: `127.0.0.1:19180`
 
 ## Layout
 
 ```text
-api/                 Protobuf APIs and generated HTTP/gRPC bindings
-cmd/server/          Application entrypoint, renamed to cmd/<service> by kernel new
-configs/             Local config with Kernel module defaults
-internal/conf/        Config DTOs scanned by configx
-internal/server/      Kernel HTTP and gRPC server construction
-internal/service/     Transport-facing Todo service
-internal/biz/         Use cases, domain contracts, errorx errors
-internal/data/        Repositories and Kernel resource initialization
-.kernel/              Layout profile/feature overlays consumed by kernel new
+cmd/aisphere-iam/      Application entrypoint
+configs/               Local config files
+internal/conf/         Config DTOs scanned by configx
+internal/data/         Kernel resource initialization (Casdoor, SpiceDB, etc.)
+internal/registry/     Route registry client (etcd)
+internal/server/       Kernel HTTP and gRPC server construction
+internal/service/      IAM 业务服务
+  ├── authn.go         IAMAuthService — 登录、令牌、用户信息
+  ├── directory.go    IAMDirectoryService — 用户/目录查询
+  └── permission.go   IAMPermissionService — 权限检查/关系管理
 ```
 
-## Generate
+## 提供的服务
+
+### IAMAuthService
+
+| 方法 | 说明 |
+|------|------|
+| `BuildLoginURL` | 构建 Casdoor 登录 URL |
+| `ExchangeCode` | 用 code 交换 token |
+| `RefreshToken` | 刷新令牌 |
+| `VerifyToken` | 验证令牌 |
+| `RevokeToken` | 撤销令牌 |
+| `GetMe` | 获取当前用户信息 |
+| `UpdateMe` | 更新当前用户信息 |
+| `GetUserPreferences` | 获取用户偏好 |
+| `UpdateUserPreferences` | 更新用户偏好 |
+
+### IAMDirectoryService
+
+| 方法 | 说明 |
+|------|------|
+| `GetUser` | 获取用户 |
+| `ListUsers` | 列出用户 |
+| `GetOrganization` | 获取组织 |
+| `ListGroups` | 列出组 |
+
+### IAMPermissionService
+
+| 方法 | 说明 |
+|------|------|
+| `CheckPermission` | 检查权限 |
+| `WriteRelationship` | 写入关系 |
+| `DeleteRelationship` | 删除关系 |
+| `LookupResources` | 查找资源 |
+| `LookupSubjects` | 查找主体 |
+
+## 验证
 
 ```bash
-make tools
-make api
-make proto-check
+# 健康检查
+curl http://127.0.0.1:18080/healthz
+
+# 获取登录 URL
+curl http://127.0.0.1:18080/v1/iam/login-url
 ```
 
-## Verify
+## 依赖
 
-```bash
-make verify
-```
+- `github.com/aisphereio/kernel` — 核心框架
+- Casdoor — 身份认证
+- SpiceDB — 关系授权
+- etcd — route registry 存储（可选）
