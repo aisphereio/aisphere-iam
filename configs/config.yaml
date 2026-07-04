@@ -45,7 +45,7 @@ log:
 
 data:
   database:
-    enabled: false
+    enabled: true
     config:
       driver: postgres
       dsn: "${POSTGRES_DSN}"
@@ -57,6 +57,16 @@ data:
       slow_query_threshold_ns: 200000000
       audit_enabled: true
       metrics_enabled: true
+  migration:
+    enabled: true
+    config:
+      enabled: true
+      engine: goose
+      dir: migrations
+      table: iam_schema_migrations
+      mode: validate
+      fail_on_pending: true
+      allow_concurrent: false
   cache:
     enabled: false
     config:
@@ -102,6 +112,7 @@ security:
     provider: spicedb
     dev_allow_all: false
     install_default_schema: true
+    schema_path: configs/spicedb/aisphere.schema.zed
     spicedb:
       endpoint: 36.137.200.194:30084
       token: "${SPICEDB_TOKEN}"
@@ -110,6 +121,15 @@ security:
       timeout: 5000000000
       fully_consistent: true
       metrics_enabled: true
+  access:
+    skip_operations:
+      - GetMe
+      - CreateOrganization
+
+control_plane:
+  defaults:
+    enabled: true
+    path: configs/resource/defaults.yaml
 
 gateway:
   route_registry:
