@@ -109,7 +109,7 @@ definition resource {
 // Resources are constructed.
 //
 // Behavior:
-//   - Binds identity group operations to OSZ relationship projection when
+//   - Binds identity group operations to AuthZ relationship projection when
 //     AuthzAdmin is configured.
 //   - If AuthzAdmin is nil (authz disabled), returns nil immediately.
 //   - If ReadSchema returns an error other than "schema not found",
@@ -125,7 +125,7 @@ definition resource {
 // no-op.
 func BootstrapAuthzSchema(ctx context.Context, resources *Resources, log logx.Logger) error {
 	if resources != nil {
-		resources.Identity = BindIdentityOSZ(resources.Identity, resources.AuthzAdmin)
+		resources.Identity = BindIdentityAuthZ(resources.Identity, resources.AuthzAdmin)
 	}
 	if resources == nil || resources.AuthzAdmin == nil {
 		if log != nil {
