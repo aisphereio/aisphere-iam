@@ -15,6 +15,7 @@ import (
 	"github.com/aisphereio/kernel/configx/file"
 	"github.com/aisphereio/kernel/dtmx"
 	_ "github.com/aisphereio/kernel/dtmx/dtm"
+	"github.com/aisphereio/kernel/gatewayx"
 	"github.com/aisphereio/kernel/logx"
 	"github.com/aisphereio/kernel/metricsx"
 	"github.com/aisphereio/kernel/serverx"
@@ -130,7 +131,7 @@ func main() {
 			panic(err)
 		}
 		defer registryCleanup()
-		if err := serverx.RegisterServiceGatewayRoutes(context.Background(), routeRegistry,
+		if err := serverx.RegisterServiceGatewayRoutesWithFilter(context.Background(), routeRegistry, gatewayx.PublicRouteFilter(),
 			v1.IAMAuthServiceKernelModule(),
 			v1.IAMDirectoryServiceKernelModule(),
 			v1.IAMPermissionServiceKernelModule(),
