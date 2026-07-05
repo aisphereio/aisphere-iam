@@ -6,7 +6,7 @@ import (
 	"time"
 
 	grantv1 "github.com/aisphereio/aisphere-iam/api/iam/grant/v1"
-	projectv1 "github.com/aisphere-iam/api/iam/project/v1"
+	projectv1 "github.com/aisphereio/aisphere-iam/api/iam/project/v1"
 	resourcev1 "github.com/aisphereio/aisphere-iam/api/iam/resource/v1"
 	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	"github.com/aisphereio/aisphere-iam/internal/biz/projection"
@@ -94,6 +94,10 @@ func registerProjectionBranches(srv *khttp.Server, projections *projection.Manag
 
 func writeJSON(w http.ResponseWriter, status int, body any) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
+	writeJSONHeader(w, status)
 	_ = json.NewEncoder(w).Encode(body)
+}
+
+func writeJSONHeader(w http.ResponseWriter, status int) {
+	w.WriteHeader(status)
 }
