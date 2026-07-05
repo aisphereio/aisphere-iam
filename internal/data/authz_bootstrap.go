@@ -114,11 +114,18 @@ definition resource {
   permission delete = owner + project->delete
 }`
 
-var requiredIAMAuthzPermissions = []string{
-	"create", "read", "list", "update", "disable", "delete", "manage",
-	"assign", "remove", "bind", "unbind", "move", "archive", "create_project",
-	"grant", "revoke", "explain", "write", "lookup", "check", "upsert",
-	"refresh", "verify",
+var requiredSchemaPermissions = map[string][]string{
+	"iam": {
+		"create", "read", "list", "update", "disable", "delete", "manage",
+		"assign", "remove", "bind", "unbind", "move", "archive", "create_project",
+		"grant", "revoke", "explain", "write", "lookup", "check", "upsert",
+		"refresh", "verify",
+	},
+	"organization": {"read", "list", "manage", "create_project"},
+	"group":        {"read", "list", "manage", "assign", "remove", "delete"},
+	"application":  {"read", "list", "manage"},
+	"project":      {"read", "list", "edit", "manage", "archive", "delete"},
+	"resource":     {"read", "list", "edit", "manage", "move", "archive", "delete"},
 }
 
 func BootstrapAuthzSchema(ctx context.Context, resources *Resources, log logx.Logger) error {
@@ -140,7 +147,7 @@ func BootstrapAuthzSchema(ctx context.Context, resources *Resources, log logx.Lo
 	if err != nil {
 		log.WithContext(ctx).Warn("read schema failed; will attempt to write default", logx.Err(err))
 	} else if schema.Text != "" {
-		if hasIAMAuthzDefinitions(schema.Text) && hasRequiredIAMAuthzPermissions(schema.Text) && hasRequiredResourcePermissions(schema.Text) {
+		if hasRequiredSchemaPermissions(schema.Text) {
 			log.WithContext(ctx).Info("authz schema already installed; skipping bootstrap",
 				logx.Int("size", len(schema.Text)),
 				logx.String("schema_version", IAMAuthzSchemaVersion),
@@ -164,32 +171,31 @@ func BootstrapAuthzSchema(ctx context.Context, resources *Resources, log logx.Lo
 	return nil
 }
 
-func hasIAMAuthzDefinitions(schema string) bool {
+func hasRequiredSchemaPermissions(schema string) bool {
 	normalized := strings.ToLower(schema)
-	return strings.Contains(normalized, "definition iam ")
-}
-
-func hasRequiredIAMAuthzPermissions(schema string) bool {
-	normalized := strings.ToLower(schema)
-	for _, permission := range requiredIAMAuthzPermissions {
-		if !strings.Contains(normalized, "permission "+permission+" =") {
+	for definition, permissions := range requiredSchemaPermissions {
+		block := schemaDefinitionBlock(normalized, definition)
+		if block == "" {
 			return false
+		}
+		for _, permission := range permissions {
+			if !strings.Contains(block, "permission "+permission+" =") {
+				return false
+			}
 		}
 	}
 	return true
 }
 
-func hasRequiredResourcePermissions(schema string) bool {
-	normalized := strings.ToLower(schema)
-	for _, needle := range []string{
-		"permission list =",
-		"permission create_project =",
-		"permission manage =",
-		"permission archive =",
-	} {
-		if !strings.Contains(normalized, needle) {
-			return false
-		}
+func schemaDefinitionBlock(schema string, definition string) string {
+	start := strings.Index(schema, "definition "+strings.ToLower(definition)+" ")
+	if start < 0 {
+		return ""
 	}
-	return true
+	rest := schema[start+len("definition "+definition+" "):]
+	next := strings.Index(rest, "\ndefinition ")
+	if next < 0 {
+		return schema[start:]
+	}
+	return schema[start : start+len("definition "+definition+" ")+next]
 }
