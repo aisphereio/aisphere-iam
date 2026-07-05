@@ -8,6 +8,9 @@ import (
 	"strings"
 
 	"github.com/aisphereio/aisphere-iam/internal/data"
+	"github.com/aisphereio/kernel/accessx"
+	"github.com/aisphereio/kernel/authn"
+	"github.com/aisphereio/kernel/authz"
 	"github.com/gorilla/mux"
 )
 
@@ -15,11 +18,16 @@ import (
 // These are registered as plain HTTP handlers (not protobuf/gRPC) to match
 // the legacy /v1/users API expected by the IAM frontend.
 type LocalUserHandler struct {
-	repo data.LocalUserRepository
+	repo  data.LocalUserRepository
+	guard accessx.Guard
 }
 
-func NewLocalUserHandler(repo data.LocalUserRepository) *LocalUserHandler {
-	return &LocalUserHandler{repo: repo}
+func NewLocalUserHandler(repo data.LocalUserRepository, guards ...accessx.Guard) *LocalUserHandler {
+	h := &LocalUserHandler{repo: repo}
+	if len(guards) > 0 {
+		h.guard = guards[0]
+	}
+	return h
 }
 
 type localUserResponse struct {
@@ -45,6 +53,9 @@ type localUserDeleteResponse struct {
 }
 
 func (h *LocalUserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
+	if !h.requireLocalUserPermission(w, r, "list") {
+		return
+	}
 	users, err := h.repo.ListUsers(r.Context())
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
@@ -58,6 +69,9 @@ func (h *LocalUserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *LocalUserHandler) SaveUser(w http.ResponseWriter, r *http.Request) {
+	if !h.requireLocalUserPermission(w, r, "upsert") {
+		return
+	}
 	var req localUserResponse
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "invalid request body: "+err.Error())
@@ -93,6 +107,9 @@ func (h *LocalUserHandler) SaveUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *LocalUserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	if !h.requireLocalUserPermission(w, r, "delete") {
+		return
+	}
 	vars := mux.Vars(r)
 	username := strings.TrimSpace(vars["username"])
 	if username == "" {
@@ -104,6 +121,28 @@ func (h *LocalUserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, localUserDeleteResponse{Success: true})
+}
+
+func (h *LocalUserHandler) requireLocalUserPermission(w http.ResponseWriter, r *http.Request, permission string) bool {
+	principal, ok := authn.PrincipalFromContext(r.Context())
+	if !ok || !principal.IsAuthenticated() {
+		writeJSONError(w, http.StatusUnauthorized, "authentication required")
+		return false
+	}
+	_, err := h.guard.Require(r.Context(), accessx.Check{
+		Principal:   principal,
+		Permission:  permission,
+		Resource:    authz.ObjectRef{Type: "iam", ID: "local_user"},
+		AuditAction: "iam.local_user." + permission,
+		Metadata: map[string]any{
+			"legacy_route": "/v1/users",
+		},
+	})
+	if err != nil {
+		writeJSONError(w, http.StatusForbidden, err.Error())
+		return false
+	}
+	return true
 }
 
 func modelToResponse(u data.LocalUserModel) localUserResponse {
