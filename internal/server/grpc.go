@@ -34,6 +34,7 @@ func NewGRPCServer(c conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Metr
 	srv := kgrpc.NewServer(opts...)
 	v1.RegisterIAMAuthServiceServer(srv, authSvc)
 	v1.RegisterIAMDirectoryServiceServer(srv, dirSvc)
+	registerIdentityAdminRPC(srv, resources)
 	v1.RegisterIAMPermissionServiceServer(srv, permSvc)
 	projectv1.RegisterProjectServiceServer(srv, projectSvc)
 	resourcev1.RegisterResourceServiceServer(srv, resourceSvc)
