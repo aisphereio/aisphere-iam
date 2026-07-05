@@ -94,10 +94,6 @@ func registerProjectionBranches(srv *khttp.Server, projections *projection.Manag
 
 func writeJSON(w http.ResponseWriter, status int, body any) {
 	w.Header().Set("Content-Type", "application/json")
-	writeJSONHeader(w, status)
-	_ = json.NewEncoder(w).Encode(body)
-}
-
-func writeJSONHeader(w http.ResponseWriter, status int) {
 	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(body)
 }
