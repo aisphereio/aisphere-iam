@@ -86,9 +86,9 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 			return nil, nil, err
 		}
 		r.DB = db
-r.ControlPlane = NewControlPlaneRepository(db)
-			r.LocalUsers = NewLocalUserRepository(db)
-			r.closers = append(r.closers, db.Close)
+		r.ControlPlane = NewControlPlaneRepository(db)
+		r.LocalUsers = NewLocalUserRepository(db)
+		r.closers = append(r.closers, db.Close)
 
 		if cfg.Data.Migration.Enabled {
 			migCfg := cfg.Data.Migration.Config
@@ -130,12 +130,17 @@ r.ControlPlane = NewControlPlaneRepository(db)
 			r.Close()
 			return nil, nil, err
 		}
-r.Authn = provider
-			r.Login = provider
-			r.Logout = provider
-			r.Tokens = provider
-			r.Profile = provider
-			r.Identity = provider
+		identity, err := identityForMode(cfg.Security.Authn.IdentityMode, provider)
+		if err != nil {
+			r.Close()
+			return nil, nil, err
+		}
+		r.Authn = provider
+		r.Login = provider
+		r.Logout = provider
+		r.Tokens = provider
+		r.Profile = provider
+		r.Identity = identity
 	}
 	if cfg.Security.Authz.Enabled && !cfg.Security.Authz.DevAllowAll {
 		provider, closeFn, err := newAuthorizer(cfg.Security.Authz, logger, metrics, cfg.Metrics.Enabled)
@@ -169,13 +174,13 @@ func NewData(resources *Resources) *Data {
 }
 
 type identityProvider interface {
-		authn.Authenticator
-		authn.LoginService
-		authn.LogoutService
-		authn.TokenService
-		authn.ProfileService
-		authn.IdentityAdmin
-	}
+	authn.Authenticator
+	authn.LoginService
+	authn.LogoutService
+	authn.TokenService
+	authn.ProfileService
+	authn.IdentityAdmin
+}
 
 func newAuthenticator(cfg conf.AuthnConfig, logger logx.Logger, metrics metricsx.Manager, metricsEnabled bool) (identityProvider, error) {
 	switch cfg.Provider {
