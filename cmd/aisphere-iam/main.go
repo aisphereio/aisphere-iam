@@ -115,6 +115,7 @@ func main() {
 	}
 	authService := service.NewIAMAuthService(deps)
 	directoryService := service.NewIAMDirectoryService(deps)
+	identityAdminService := service.NewIAMIdentityAdminService(deps)
 	permissionService := service.NewIAMPermissionService(deps)
 	projectService := service.NewProjectService(projectUsecase, resources.ControlPlane)
 	resourceService := service.NewResourceService(resourceUsecase, resources.ControlPlane)
@@ -134,6 +135,7 @@ func main() {
 		if err := serverx.RegisterServiceGatewayRoutesWithFilter(context.Background(), routeRegistry, gatewayx.PublicRouteFilter(),
 			v1.IAMAuthServiceKernelModule(),
 			v1.IAMDirectoryServiceKernelModule(),
+			v1.IAMIdentityAdminServiceKernelModule(),
 			v1.IAMPermissionServiceKernelModule(),
 			projectv1.ProjectServiceKernelModule(),
 			resourcev1.ResourceServiceKernelModule(),
@@ -142,8 +144,8 @@ func main() {
 			panic(err)
 		}
 	}
-	httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, permissionService, projectService, resourceService, grantService, bc.Security)
-	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, permissionService, projectService, resourceService, grantService, bc.Security)
+	httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, identityAdminService, permissionService, projectService, resourceService, grantService, bc.Security)
+	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, identityAdminService, permissionService, projectService, resourceService, grantService, bc.Security)
 
 	options := []kernel.Option{
 		kernel.Name(bc.Service.Name),
