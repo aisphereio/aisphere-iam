@@ -97,6 +97,38 @@ internal/service/      IAM 业务服务
 | `LookupResources` | 查找资源 |
 | `LookupSubjects` | 查找主体 |
 
+## 本地用户管理 API
+
+IAM 提供了一组非 protobuf 的 HTTP 端点用于管理本地用户（存储在 IAM 自有数据库中，非 Casdoor 用户）：
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `GET` | `/v1/users` | 列出所有本地用户 |
+| `POST` | `/v1/users` | 创建或更新本地用户 |
+| `DELETE` | `/v1/users/{username}` | 删除指定用户 |
+
+这些端点是普通 HTTP handler（不是 protobuf/gRPC），注册在 `internal/server/http.go` 中，使用 `gorilla/mux` 路由。
+
+### 数据模型
+
+```sql
+CREATE TABLE iam_local_users (
+  username text PRIMARY KEY,
+  subject_id text,
+  subject_type text NOT NULL DEFAULT 'human',
+  display_name text,
+  email text,
+  organization text,
+  roles_json jsonb NOT NULL DEFAULT '[]'::jsonb,
+  permissions_json jsonb NOT NULL DEFAULT '[]'::jsonb,
+  namespaces_json jsonb NOT NULL DEFAULT '[]'::jsonb,
+  password_hash text,
+  disabled boolean NOT NULL DEFAULT false,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+```
+
 ## 验证
 
 ```bash
@@ -104,7 +136,15 @@ internal/service/      IAM 业务服务
 curl http://127.0.0.1:18080/healthz
 
 # 获取登录 URL
-curl http://127.0.0.1:18080/v1/iam/login-url
+curl "http://127.0.0.1:18080/v1/iam/login-url?redirect_uri=http://localhost:3001/auth/callback&state=/"
+
+# 列出本地用户
+curl http://127.0.0.1:18080/v1/users
+
+# 创建本地用户
+curl -X POST http://127.0.0.1:18080/v1/users \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test","displayName":"Test User","email":"test@example.com","password":"test123"}'
 ```
 
 ## 依赖

@@ -5,6 +5,9 @@ import (
 	"flag"
 	"time"
 
+	grantv1 "github.com/aisphereio/aisphere-iam/api/iam/grant/v1"
+	projectv1 "github.com/aisphereio/aisphere-iam/api/iam/project/v1"
+	resourcev1 "github.com/aisphereio/aisphere-iam/api/iam/resource/v1"
 	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	kernel "github.com/aisphereio/kernel"
 	"github.com/aisphereio/kernel/configx"
@@ -16,6 +19,11 @@ import (
 	"github.com/aisphereio/kernel/metricsx"
 	"github.com/aisphereio/kernel/serverx"
 
+	defaults "github.com/aisphereio/aisphere-iam/internal/biz/defaults"
+	grantbiz "github.com/aisphereio/aisphere-iam/internal/biz/grant"
+	projectbiz "github.com/aisphereio/aisphere-iam/internal/biz/project"
+	"github.com/aisphereio/aisphere-iam/internal/biz/projection"
+	resourcebiz "github.com/aisphereio/aisphere-iam/internal/biz/resource"
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/aisphere-iam/internal/registry"
@@ -75,8 +83,30 @@ func main() {
 	}
 	defer cleanup()
 
+	// Bootstrap SpiceDB schema on startup. Idempotent: only writes when the
+	// schema is empty or missing IAM definitions. Skipped silently when authz
+	// is disabled.
+	if err := data.BootstrapAuthzSchema(context.Background(), resources, logger); err != nil {
+		logger.Warn("authz schema bootstrap failed; authz checks will fail until fixed", logx.Err(err))
+	}
+
+	projectionManager := projection.NewManager(resources.ControlPlane, resources.AuthzAdmin, resources.DTM)
+	projectUsecase := projectbiz.NewService(resources.ControlPlane, resources.AuthzAdmin, projectionManager)
+	resourceUsecase := resourcebiz.NewService(resources.ControlPlane, resources.AuthzAdmin, projectionManager)
+	grantUsecase := grantbiz.NewService(resources.ControlPlane, resources.Authz, resources.AuthzAdmin, projectionManager)
+	if bc.ControlPlane.Defaults.Enabled {
+		if _, err := defaults.ReconcileFile(context.Background(), bc.ControlPlane.Defaults.Path, defaults.Services{
+			Projects:  projectUsecase,
+			Resources: resourceUsecase,
+			Grants:    grantUsecase,
+		}); err != nil {
+			panic(err)
+		}
+	}
+
 	deps := service.IAMDeps{
 		Login:    resources.Login,
+		Logout:   resources.Logout,
 		Tokens:   resources.Tokens,
 		Profile:  resources.Profile,
 		Identity: resources.Identity,
@@ -85,6 +115,9 @@ func main() {
 	authService := service.NewIAMAuthService(deps)
 	directoryService := service.NewIAMDirectoryService(deps)
 	permissionService := service.NewIAMPermissionService(deps)
+	projectService := service.NewProjectService(projectUsecase, resources.ControlPlane)
+	resourceService := service.NewResourceService(resourceUsecase, resources.ControlPlane)
+	grantService := service.NewGrantService(grantUsecase, resources.ControlPlane)
 	if bc.Gateway.RouteRegistry.Provider != "" || len(bc.Gateway.RouteRegistry.Endpoints) > 0 {
 		routeRegistry, registryCleanup, err := registry.NewRouteRegistry(context.Background(), registry.Config{
 			Provider:       bc.Gateway.RouteRegistry.Provider,
@@ -101,12 +134,15 @@ func main() {
 			v1.IAMAuthServiceKernelModule(),
 			v1.IAMDirectoryServiceKernelModule(),
 			v1.IAMPermissionServiceKernelModule(),
+			projectv1.ProjectServiceKernelModule(),
+			resourcev1.ResourceServiceKernelModule(),
+			grantv1.GrantServiceKernelModule(),
 		); err != nil {
 			panic(err)
 		}
 	}
-	httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, permissionService)
-	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, permissionService)
+	httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, permissionService, projectService, resourceService, grantService, bc.Security)
+	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, permissionService, projectService, resourceService, grantService, bc.Security)
 
 	options := []kernel.Option{
 		kernel.Name(bc.Service.Name),

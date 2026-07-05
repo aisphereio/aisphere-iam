@@ -14,6 +14,7 @@ import (
 
 type IAMDeps struct {
 	Login    authn.LoginService
+	Logout   authn.LogoutService
 	Tokens   authn.TokenService
 	Profile  authn.ProfileService
 	Identity authn.IdentityAdmin
@@ -49,6 +50,28 @@ func (s *IAMAuthService) BuildLoginURL(ctx context.Context, req *v1.BuildLoginUR
 		RedirectUri: out.RedirectURI,
 		State:       out.State,
 		Scope:       out.Scope,
+	}, nil
+}
+
+func (s *IAMAuthService) BuildLogoutURL(ctx context.Context, req *v1.BuildLogoutURLRequest) (*v1.BuildLogoutURLReply, error) {
+	if s.deps.Logout == nil {
+		return nil, authn.ErrIdentityBackendFailed("logout provider is not configured", nil)
+	}
+	out, err := s.deps.Logout.BuildLogoutURL(ctx, authn.LogoutURLRequest{
+		PostLogoutRedirectURI: req.GetPostLogoutRedirectUri(),
+		IDTokenHint:           req.GetIdTokenHint(),
+		State:                 req.GetState(),
+		OrgID:                 req.GetOrgId(),
+		AppID:                 req.GetAppId(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v1.BuildLogoutURLReply{
+		LogoutUrl:             out.URL,
+		Provider:              out.Provider,
+		PostLogoutRedirectUri: out.PostLogoutRedirectURI,
+		State:                 out.State,
 	}, nil
 }
 
@@ -117,19 +140,30 @@ func (s *IAMAuthService) RevokeToken(ctx context.Context, req *v1.RevokeTokenReq
 }
 
 func (s *IAMAuthService) GetMe(ctx context.Context, req *v1.GetMeRequest) (*v1.GetMeReply, error) {
-	if s.deps.Tokens == nil {
-		return nil, authn.ErrIdentityBackendFailed("token provider is not configured", nil)
-	}
-	token, err := bearerTokenFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	principal, err := s.deps.Tokens.VerifyToken(ctx, authn.VerifyTokenRequest{Token: token, TokenType: "access_token"})
-	if err != nil {
-		return nil, err
+	principal, ok := authn.PrincipalFromContext(ctx)
+	if !ok || !principal.IsAuthenticated() {
+		if s.deps.Tokens == nil {
+			return nil, authn.ErrIdentityBackendFailed("token provider is not configured", nil)
+		}
+		token, err := bearerTokenFromContext(ctx)
+		if err != nil {
+			return nil, err
+		}
+		principal, err = s.deps.Tokens.VerifyToken(ctx, authn.VerifyTokenRequest{Token: token, TokenType: "access_token"})
+		if err != nil {
+			return nil, err
+		}
 	}
 	reply := &v1.GetMeReply{Principal: principalToProto(principal)}
 	if !req.GetIncludeProfile() || s.deps.Profile == nil {
+		return reply, nil
+	}
+	token, err := bearerTokenFromContext(ctx)
+	if err != nil {
+		// In gateway_trusted mode the verified Principal is authoritative enough for
+		// GetMe. Full Casdoor profile hydration requires the original bearer token,
+		// so return the Principal-only shape when it is unavailable.
+		reply.Warnings = append(reply.Warnings, "casdoor profile hydration skipped: bearer token not available")
 		return reply, nil
 	}
 	profile, err := s.deps.Profile.GetIdentityProfile(ctx, authn.IdentityProfileRequest{

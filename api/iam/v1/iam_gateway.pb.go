@@ -58,6 +58,13 @@ func IAMAuthServiceGatewayManifest() gatewayx.Manifest {
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthService/GetMe"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHENTICATED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
+			{
+				ID:       "i.a.m.auth.build.logout.u.r.l",
+				Method:   "GET",
+				Path:     "/v1/iam/logout-url",
+				Upstream: gatewayx.UpstreamRef{Service: "i.a.m.auth-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthService/BuildLogoutURL"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_PUBLIC, AuthnMode: gatewayx.AuthnModeNone, ForwardAuthorization: false},
+			},
 		},
 	}
 }
@@ -134,6 +141,18 @@ func IAMAuthServiceGatewayBindGetMe(req gatewayx.DispatchRequest, match gatewayx
 	return out, nil
 }
 
+// IAMAuthServiceGatewayBindBuildLogoutURL binds the matched HTTP Gateway request to the gRPC request for /iam.v1.IAMAuthService/BuildLogoutURL.
+func IAMAuthServiceGatewayBindBuildLogoutURL(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*BuildLogoutURLRequest, error) {
+	out := &BuildLogoutURLRequest{}
+	if v, ok := req.Body.(*BuildLogoutURLRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(BuildLogoutURLRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
 // RegisterIAMAuthServiceGatewayInvokers registers generated Gateway -> gRPC operation invokers for iam.v1.IAMAuthService.
 func RegisterIAMAuthServiceGatewayInvokers(registry *gatewayx.InvokerRegistry, client IAMAuthServiceClient) error {
 	if err := registry.Register("/iam.v1.IAMAuthService/BuildLoginURL", gatewayx.GRPCUnaryInvoker(IAMAuthServiceGatewayBindBuildLoginURL, client.BuildLoginURL)); err != nil {
@@ -152,6 +171,9 @@ func RegisterIAMAuthServiceGatewayInvokers(registry *gatewayx.InvokerRegistry, c
 		return err
 	}
 	if err := registry.Register("/iam.v1.IAMAuthService/GetMe", gatewayx.GRPCUnaryInvoker(IAMAuthServiceGatewayBindGetMe, client.GetMe)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMAuthService/BuildLogoutURL", gatewayx.GRPCUnaryInvoker(IAMAuthServiceGatewayBindBuildLogoutURL, client.BuildLogoutURL)); err != nil {
 		return err
 	}
 	return nil

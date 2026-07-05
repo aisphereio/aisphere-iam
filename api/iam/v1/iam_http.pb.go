@@ -19,6 +19,7 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationIAMAuthServiceBuildLoginURL = "/iam.v1.IAMAuthService/BuildLoginURL"
+const OperationIAMAuthServiceBuildLogoutURL = "/iam.v1.IAMAuthService/BuildLogoutURL"
 const OperationIAMAuthServiceExchangeCode = "/iam.v1.IAMAuthService/ExchangeCode"
 const OperationIAMAuthServiceGetMe = "/iam.v1.IAMAuthService/GetMe"
 const OperationIAMAuthServiceRefreshToken = "/iam.v1.IAMAuthService/RefreshToken"
@@ -27,6 +28,7 @@ const OperationIAMAuthServiceVerifyToken = "/iam.v1.IAMAuthService/VerifyToken"
 
 type IAMAuthServiceHTTPServer interface {
 	BuildLoginURL(context.Context, *BuildLoginURLRequest) (*BuildLoginURLReply, error)
+	BuildLogoutURL(context.Context, *BuildLogoutURLRequest) (*BuildLogoutURLReply, error)
 	ExchangeCode(context.Context, *ExchangeCodeRequest) (*ExchangeCodeReply, error)
 	GetMe(context.Context, *GetMeRequest) (*GetMeReply, error)
 	RefreshToken(context.Context, *RefreshTokenRequest) (*TokenSet, error)
@@ -37,6 +39,7 @@ type IAMAuthServiceHTTPServer interface {
 func RegisterIAMAuthServiceHTTPServer(s *http.Server, srv IAMAuthServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/v1/iam/login-url", _IAMAuthService_BuildLoginURL0_HTTP_Handler(srv))
+	r.Handle("GET", "/v1/iam/logout-url", _IAMAuthService_BuildLogoutURL0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/me", _IAMAuthService_GetMe0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/auth/exchange", _IAMAuthService_ExchangeCode0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/auth/refresh", _IAMAuthService_RefreshToken0_HTTP_Handler(srv))
@@ -62,6 +65,28 @@ func _IAMAuthService_BuildLoginURL0_HTTP_Handler(srv IAMAuthServiceHTTPServer) f
 			return err
 		}
 		reply := out.(*BuildLoginURLReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _IAMAuthService_BuildLogoutURL0_HTTP_Handler(srv IAMAuthServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in BuildLogoutURLRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationIAMAuthServiceBuildLogoutURL)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.BuildLogoutURL(ctx, req.(*BuildLogoutURLRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BuildLogoutURLReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -178,6 +203,7 @@ func _IAMAuthService_VerifyToken0_HTTP_Handler(srv IAMAuthServiceHTTPServer) fun
 
 type IAMAuthServiceHTTPClient interface {
 	BuildLoginURL(ctx context.Context, req *BuildLoginURLRequest, opts ...http.CallOption) (rsp *BuildLoginURLReply, err error)
+	BuildLogoutURL(ctx context.Context, req *BuildLogoutURLRequest, opts ...http.CallOption) (rsp *BuildLogoutURLReply, err error)
 	ExchangeCode(ctx context.Context, req *ExchangeCodeRequest, opts ...http.CallOption) (rsp *ExchangeCodeReply, err error)
 	GetMe(ctx context.Context, req *GetMeRequest, opts ...http.CallOption) (rsp *GetMeReply, err error)
 	RefreshToken(ctx context.Context, req *RefreshTokenRequest, opts ...http.CallOption) (rsp *TokenSet, err error)
@@ -200,6 +226,22 @@ func (c *IAMAuthServiceHTTPClientImpl) BuildLoginURL(ctx context.Context, in *Bu
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationIAMAuthServiceBuildLoginURL),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *IAMAuthServiceHTTPClientImpl) BuildLogoutURL(ctx context.Context, in *BuildLogoutURLRequest, opts ...http.CallOption) (*BuildLogoutURLReply, error) {
+	var out BuildLogoutURLReply
+	pattern := "/v1/iam/logout-url"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationIAMAuthServiceBuildLogoutURL),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

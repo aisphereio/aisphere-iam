@@ -1,0 +1,388 @@
+syntax = "proto3";
+
+package iam.resource.v1;
+
+import "aisphere/access/v1/access.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/aisphereio/aisphere-iam/api/iam/resource/v1;resourcev1";
+
+// ResourceService manages Aisphere resource-control-plane projections.
+// It does not own business resource bodies such as skill YAML, git objects,
+// agent definitions or sandbox runtime state.
+service ResourceService {
+  rpc RegisterResourceType(RegisterResourceTypeRequest) returns (ResourceType) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/resource-types" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage" resource: "iam:resource_type" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource_type.register" risk: "high" }
+    };
+  }
+
+  rpc GetResourceType(GetResourceTypeRequest) returns (ResourceType) {
+    option (google.api.http) = { get: "/v1/iam/control-plane/resource-types/{type}" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "read" resource: "iam:resource_type:{type}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource_type.get" risk: "low" }
+    };
+  }
+
+  rpc ListResourceTypes(ListResourceTypesRequest) returns (ListResourceTypesReply) {
+    option (google.api.http) = { get: "/v1/iam/control-plane/resource-types" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "list" resource: "iam:resource_type:*" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource_type.list" risk: "medium" }
+    };
+  }
+
+  rpc UpsertResource(UpsertResourceRequest) returns (Resource) {
+    option (google.api.http) = { put: "/v1/iam/control-plane/resources" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "upsert" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource.upsert" risk: "high" }
+      reason: "Resource projections are written by trusted owner services."
+    };
+  }
+
+  rpc GetResource(GetResourceRequest) returns (Resource) {
+    option (google.api.http) = { get: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "read" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource.get" risk: "low" }
+    };
+  }
+
+  rpc ListResources(ListResourcesRequest) returns (ListResourcesReply) {
+    option (google.api.http) = { get: "/v1/iam/control-plane/resources" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "list" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource.list" risk: "medium" }
+    };
+  }
+
+  rpc MoveResource(MoveResourceRequest) returns (Resource) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "move" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource.move" risk: "high" }
+    };
+  }
+
+  rpc ArchiveResource(ArchiveResourceRequest) returns (Resource) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "archive" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource.archive" risk: "high" }
+    };
+  }
+
+  rpc DeleteResource(DeleteResourceRequest) returns (DeleteResourceReply) {
+    option (google.api.http) = { delete: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "delete" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource.delete" risk: "high" }
+    };
+  }
+
+  rpc BindResource(BindResourceRequest) returns (ResourceBinding) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/resource-bindings" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "bind" resource: "iam:resource_binding" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource_binding.bind" risk: "high" }
+    };
+  }
+
+  rpc UnbindResource(UnbindResourceRequest) returns (UnbindResourceReply) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/resource-bindings/{binding_id}/unbind" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "unbind" resource: "iam:resource_binding:{binding_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource_binding.unbind" risk: "high" }
+    };
+  }
+
+  rpc ListResourceBindings(ListResourceBindingsRequest) returns (ListResourceBindingsReply) {
+    option (google.api.http) = { get: "/v1/iam/control-plane/resource-bindings" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "list" resource: "iam:resource_binding" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.resource_binding.list" risk: "medium" }
+    };
+  }
+
+  rpc BindExternalResource(BindExternalResourceRequest) returns (ExternalResourceBinding) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/external-resource-bindings" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "bind" resource: "iam:external_resource_binding" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.external_resource_binding.bind" risk: "high" }
+    };
+  }
+
+  rpc ListExternalResourceBindings(ListExternalResourceBindingsRequest) returns (ListExternalResourceBindingsReply) {
+    option (google.api.http) = { get: "/v1/iam/control-plane/external-resource-bindings" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "list" resource: "iam:external_resource_binding" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.external_resource_binding.list" risk: "medium" }
+    };
+  }
+}
+
+message ResourceRef {
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message SubjectRef {
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string relation = 3;
+}
+
+message ResourceType {
+  string type = 1;
+  string capability_id = 2;
+  string owner_service = 3;
+  string display_name = 4;
+  string description = 5;
+  repeated string parent_types = 6;
+  bool grantable = 7;
+  bool auditable = 8;
+  string spicedb_type = 9;
+  repeated string relations = 10;
+  repeated string permissions = 11;
+  map<string, string> labels = 12;
+  google.protobuf.Struct metadata = 13;
+  string status = 14;
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
+}
+
+message Resource {
+  ResourceRef ref = 1;
+  string org_id = 2;
+  string project_id = 3;
+  ResourceRef parent = 4;
+  string owner_service = 5;
+  string owner_resource_id = 6;
+  string slug = 7;
+  string display_name = 8;
+  string path = 9;
+  string status = 10;
+  string visibility = 11;
+  bool grantable = 12;
+  map<string, string> labels = 13;
+  map<string, string> annotations = 14;
+  google.protobuf.Struct metadata = 15;
+  SubjectRef created_by = 16;
+  google.protobuf.Timestamp created_at = 17;
+  google.protobuf.Timestamp updated_at = 18;
+  google.protobuf.Timestamp deleted_at = 19;
+}
+
+message ResourceBinding {
+  string id = 1;
+  ResourceRef source = 2;
+  string relation = 3;
+  ResourceRef target = 4;
+  string status = 5;
+  google.protobuf.Struct metadata = 6;
+  SubjectRef created_by = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message ExternalResourceBinding {
+  string id = 1;
+  ResourceRef resource = 2;
+  string provider = 3;
+  string external_type = 4;
+  string external_id = 5;
+  string external_path = 6;
+  string external_url = 7;
+  string sync_mode = 8;
+  string sync_status = 9;
+  google.protobuf.Timestamp last_synced_at = 10;
+  google.protobuf.Struct metadata = 11;
+}
+
+message RegisterResourceTypeRequest {
+  ResourceType resource_type = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetResourceTypeRequest {
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message ListResourceTypesRequest {
+  string capability_id = 1;
+  string owner_service = 2;
+  optional bool grantable = 3;
+  string status = 4;
+}
+
+message ListResourceTypesReply {
+  repeated ResourceType resource_types = 1;
+}
+
+message UpsertResourceRequest {
+  Resource resource = 1 [(google.api.field_behavior) = REQUIRED];
+  bool write_parent_relationship = 2;
+  bool create_default_owner_grant = 3;
+  SubjectRef owner = 4;
+}
+
+message GetResourceRequest {
+  string resource_type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string resource_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message ListResourcesRequest {
+  string type = 1;
+  string org_id = 2;
+  string project_id = 3;
+  ResourceRef parent = 4;
+  string owner_service = 5;
+  string status = 6;
+  string visibility = 7;
+  map<string, string> labels = 8;
+  int32 page_size = 9;
+  string page_token = 10;
+}
+
+message ListResourcesReply {
+  repeated Resource resources = 1;
+  string next_page_token = 2;
+  int64 total_size = 3;
+}
+
+message MoveResourceRequest {
+  string resource_type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string resource_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  ResourceRef new_parent = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ArchiveResourceRequest {
+  string resource_type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string resource_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string reason = 3;
+}
+
+message DeleteResourceRequest {
+  string resource_type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string resource_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  bool hard_delete = 3;
+  string reason = 4;
+}
+
+message DeleteResourceReply {
+  ResourceRef ref = 1;
+  bool deleted = 2;
+}
+
+message BindResourceRequest {
+  ResourceBinding binding = 1 [(google.api.field_behavior) = REQUIRED];
+  bool write_graph_relationship = 2;
+}
+
+message UnbindResourceRequest {
+  string binding_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  bool delete_graph_relationship = 2;
+}
+
+message UnbindResourceReply {
+  string binding_id = 1;
+  bool unbound = 2;
+}
+
+message ListResourceBindingsRequest {
+  ResourceRef source = 1;
+  ResourceRef target = 2;
+  string relation = 3;
+  string status = 4;
+  int32 page_size = 5;
+  string page_token = 6;
+}
+
+message ListResourceBindingsReply {
+  repeated ResourceBinding bindings = 1;
+  string next_page_token = 2;
+  int64 total_size = 3;
+}
+
+message BindExternalResourceRequest {
+  ExternalResourceBinding binding = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListExternalResourceBindingsRequest {
+  ResourceRef resource = 1;
+  string provider = 2;
+  string external_type = 3;
+  string external_id = 4;
+  string sync_status = 5;
+  int32 page_size = 6;
+  string page_token = 7;
+}
+
+message ListExternalResourceBindingsReply {
+  repeated ExternalResourceBinding bindings = 1;
+  string next_page_token = 2;
+  int64 total_size = 3;
+}

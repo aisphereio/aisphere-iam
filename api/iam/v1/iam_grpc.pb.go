@@ -20,12 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IAMAuthService_BuildLoginURL_FullMethodName = "/iam.v1.IAMAuthService/BuildLoginURL"
-	IAMAuthService_ExchangeCode_FullMethodName  = "/iam.v1.IAMAuthService/ExchangeCode"
-	IAMAuthService_RefreshToken_FullMethodName  = "/iam.v1.IAMAuthService/RefreshToken"
-	IAMAuthService_VerifyToken_FullMethodName   = "/iam.v1.IAMAuthService/VerifyToken"
-	IAMAuthService_RevokeToken_FullMethodName   = "/iam.v1.IAMAuthService/RevokeToken"
-	IAMAuthService_GetMe_FullMethodName         = "/iam.v1.IAMAuthService/GetMe"
+	IAMAuthService_BuildLoginURL_FullMethodName  = "/iam.v1.IAMAuthService/BuildLoginURL"
+	IAMAuthService_ExchangeCode_FullMethodName   = "/iam.v1.IAMAuthService/ExchangeCode"
+	IAMAuthService_RefreshToken_FullMethodName   = "/iam.v1.IAMAuthService/RefreshToken"
+	IAMAuthService_VerifyToken_FullMethodName    = "/iam.v1.IAMAuthService/VerifyToken"
+	IAMAuthService_RevokeToken_FullMethodName    = "/iam.v1.IAMAuthService/RevokeToken"
+	IAMAuthService_GetMe_FullMethodName          = "/iam.v1.IAMAuthService/GetMe"
+	IAMAuthService_BuildLogoutURL_FullMethodName = "/iam.v1.IAMAuthService/BuildLogoutURL"
 )
 
 // IAMAuthServiceClient is the client API for IAMAuthService service.
@@ -38,6 +39,7 @@ type IAMAuthServiceClient interface {
 	VerifyToken(ctx context.Context, in *VerifyTokenRequest, opts ...grpc.CallOption) (*Principal, error)
 	RevokeToken(ctx context.Context, in *RevokeTokenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeReply, error)
+	BuildLogoutURL(ctx context.Context, in *BuildLogoutURLRequest, opts ...grpc.CallOption) (*BuildLogoutURLReply, error)
 }
 
 type iAMAuthServiceClient struct {
@@ -108,6 +110,16 @@ func (c *iAMAuthServiceClient) GetMe(ctx context.Context, in *GetMeRequest, opts
 	return out, nil
 }
 
+func (c *iAMAuthServiceClient) BuildLogoutURL(ctx context.Context, in *BuildLogoutURLRequest, opts ...grpc.CallOption) (*BuildLogoutURLReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BuildLogoutURLReply)
+	err := c.cc.Invoke(ctx, IAMAuthService_BuildLogoutURL_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // IAMAuthServiceServer is the server API for IAMAuthService service.
 // All implementations must embed UnimplementedIAMAuthServiceServer
 // for forward compatibility.
@@ -118,6 +130,7 @@ type IAMAuthServiceServer interface {
 	VerifyToken(context.Context, *VerifyTokenRequest) (*Principal, error)
 	RevokeToken(context.Context, *RevokeTokenRequest) (*emptypb.Empty, error)
 	GetMe(context.Context, *GetMeRequest) (*GetMeReply, error)
+	BuildLogoutURL(context.Context, *BuildLogoutURLRequest) (*BuildLogoutURLReply, error)
 	mustEmbedUnimplementedIAMAuthServiceServer()
 }
 
@@ -145,6 +158,9 @@ func (UnimplementedIAMAuthServiceServer) RevokeToken(context.Context, *RevokeTok
 }
 func (UnimplementedIAMAuthServiceServer) GetMe(context.Context, *GetMeRequest) (*GetMeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMe not implemented")
+}
+func (UnimplementedIAMAuthServiceServer) BuildLogoutURL(context.Context, *BuildLogoutURLRequest) (*BuildLogoutURLReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BuildLogoutURL not implemented")
 }
 func (UnimplementedIAMAuthServiceServer) mustEmbedUnimplementedIAMAuthServiceServer() {}
 func (UnimplementedIAMAuthServiceServer) testEmbeddedByValue()                        {}
@@ -275,6 +291,24 @@ func _IAMAuthService_GetMe_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IAMAuthService_BuildLogoutURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BuildLogoutURLRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthServiceServer).BuildLogoutURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthService_BuildLogoutURL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthServiceServer).BuildLogoutURL(ctx, req.(*BuildLogoutURLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // IAMAuthService_ServiceDesc is the grpc.ServiceDesc for IAMAuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -305,6 +339,10 @@ var IAMAuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMe",
 			Handler:    _IAMAuthService_GetMe_Handler,
+		},
+		{
+			MethodName: "BuildLogoutURL",
+			Handler:    _IAMAuthService_BuildLogoutURL_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

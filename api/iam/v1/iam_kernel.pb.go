@@ -63,9 +63,9 @@ var IAMAuthServiceKernelAuthzRules = authz.Rules{
 		Method:     "GetMe",
 		FullMethod: "/iam.v1.IAMAuthService/GetMe",
 		Action:     "read",
-		Resource:   "iam:user:self",
+		Resource:   "iam:self",
 		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
+		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.get_me",
 		AuditRisk:  "low",
 	},
@@ -152,12 +152,24 @@ func IAMAuthServiceKernelRequestInfoResolver(ctx context.Context, operation stri
 			Operation:     "/iam.v1.IAMAuthService/GetMe",
 			Exposure:      v1.Exposure_AUTHENTICATED,
 			Action:        "read",
-			Resource:      "iam:user:self",
+			Resource:      "iam:self",
 			TargetService: "iam-service",
 			Labels:        map[string]string{},
 		}
-		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["authz_mode"] = "SELF_CHECK"
 		info.Labels["audit_event"] = "iam.get_me"
+		info.Labels["audit_risk"] = "low"
+		return info.Normalize(), true, nil
+	case "/iam.v1.IAMAuthService/BuildLogoutURL":
+		info := requestx.Info{
+			Service:   "iam.v1.IAMAuthService",
+			Method:    "BuildLogoutURL",
+			Operation: "/iam.v1.IAMAuthService/BuildLogoutURL",
+			Exposure:  v1.Exposure_PUBLIC,
+			Labels:    map[string]string{},
+		}
+		info.Labels["authz_mode"] = "UNSPECIFIED"
+		info.Labels["audit_event"] = "iam.logout_url"
 		info.Labels["audit_risk"] = "low"
 		return info.Normalize(), true, nil
 	default:
@@ -202,6 +214,8 @@ func _IAMAuthServiceKernelNormalizeOperation(operation string) string {
 		return "/iam.v1.IAMAuthService/RevokeToken"
 	case "GetMe", "iam.v1.IAMAuthService/GetMe":
 		return "/iam.v1.IAMAuthService/GetMe"
+	case "BuildLogoutURL", "iam.v1.IAMAuthService/BuildLogoutURL":
+		return "/iam.v1.IAMAuthService/BuildLogoutURL"
 	default:
 		return operation
 	}

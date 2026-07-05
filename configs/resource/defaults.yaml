@@ -1,0 +1,270 @@
+# Built-in Aisphere resource-control-plane defaults.
+# This file is Phase 2 contract data. Phase 5 will load it during bootstrap and
+# reconcile it into IAM DB + SpiceDB schema relationships.
+capabilities:
+  - id: hub
+    name: hub
+    display_name: Aisphere Hub
+    owner_service: aisphere-hub
+    status: active
+  - id: git
+    name: git
+    display_name: Git Service
+    owner_service: aisphere-git-server
+    status: active
+  - id: agent
+    name: agent
+    display_name: Agent Service
+    owner_service: aisphere-agent
+    status: active
+  - id: tools
+    name: tools
+    display_name: Tool Registry
+    owner_service: aisphere-tools
+    status: active
+  - id: sandbox
+    name: sandbox
+    display_name: Sandbox Service
+    owner_service: aisphere-sandbox
+    status: active
+  - id: runtime
+    name: runtime
+    display_name: Runtime Service
+    owner_service: aisphere-runtime
+    status: active
+
+resource_types:
+  - type: skill_space
+    capability_id: hub
+    owner_service: aisphere-hub
+    parent_types: [project]
+    grantable: true
+    auditable: true
+    spicedb_type: skill_space
+    relations: [owner, editor, viewer]
+    permissions: [manage, edit, view]
+    status: active
+  - type: skill
+    capability_id: hub
+    owner_service: aisphere-hub
+    parent_types: [skill_space]
+    grantable: true
+    auditable: true
+    spicedb_type: skill
+    relations: [owner, editor, reviewer, viewer]
+    permissions: [manage, edit, review, publish, view]
+    status: active
+  - type: git_namespace
+    capability_id: git
+    owner_service: aisphere-git-server
+    parent_types: [project]
+    grantable: true
+    auditable: true
+    spicedb_type: git_namespace
+    relations: [owner, developer, viewer]
+    permissions: [manage, write, read]
+    status: active
+  - type: git_repository
+    capability_id: git
+    owner_service: aisphere-git-server
+    parent_types: [git_namespace]
+    grantable: true
+    auditable: true
+    spicedb_type: git_repository
+    relations: [owner, maintainer, writer, reader, backing_skill]
+    permissions: [admin, write, read]
+    status: active
+  - type: agent_space
+    capability_id: agent
+    owner_service: aisphere-agent
+    parent_types: [project]
+    grantable: true
+    auditable: true
+    spicedb_type: agent_space
+    relations: [owner, editor, viewer]
+    permissions: [manage, edit, view]
+    status: active
+  - type: agent
+    capability_id: agent
+    owner_service: aisphere-agent
+    parent_types: [agent_space]
+    grantable: true
+    auditable: true
+    spicedb_type: agent
+    relations: [owner, editor, operator, executor, viewer]
+    permissions: [manage, edit, operate, execute, view]
+    status: active
+  - type: tool_space
+    capability_id: tools
+    owner_service: aisphere-tools
+    parent_types: [project]
+    grantable: true
+    auditable: true
+    spicedb_type: tool_space
+    relations: [owner, editor, viewer]
+    permissions: [manage, edit, view]
+    status: active
+  - type: tool
+    capability_id: tools
+    owner_service: aisphere-tools
+    parent_types: [tool_space]
+    grantable: true
+    auditable: true
+    spicedb_type: tool
+    relations: [owner, editor, executor, viewer]
+    permissions: [manage, edit, execute, view]
+    status: active
+  - type: sandbox_space
+    capability_id: sandbox
+    owner_service: aisphere-sandbox
+    parent_types: [project]
+    grantable: true
+    auditable: true
+    spicedb_type: sandbox_space
+    relations: [owner, operator, viewer]
+    permissions: [manage, operate, view]
+    status: active
+  - type: sandbox
+    capability_id: sandbox
+    owner_service: aisphere-sandbox
+    parent_types: [sandbox_space]
+    grantable: true
+    auditable: true
+    spicedb_type: sandbox
+    relations: [owner, operator, viewer]
+    permissions: [manage, operate, view]
+    status: active
+  - type: runtime_environment
+    capability_id: runtime
+    owner_service: aisphere-runtime
+    parent_types: [project]
+    grantable: true
+    auditable: true
+    spicedb_type: runtime_environment
+    relations: [owner, deployer, operator, viewer]
+    permissions: [manage, deploy, operate, view]
+    status: active
+  - type: deployment
+    capability_id: runtime
+    owner_service: aisphere-runtime
+    parent_types: [runtime_environment]
+    grantable: true
+    auditable: true
+    spicedb_type: deployment
+    relations: [owner, operator, viewer, runs_agent]
+    permissions: [manage, operate, view]
+    status: active
+
+role_templates:
+  - resource_type: organization
+    role_key: owner
+    display_name: Organization Owner
+    relation: owner
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: organization
+    role_key: admin
+    display_name: Organization Admin
+    relation: admin
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: organization
+    role_key: member
+    display_name: Organization Member
+    relation: member
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: project
+    role_key: owner
+    display_name: Project Owner
+    relation: owner
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: project
+    role_key: admin
+    display_name: Project Admin
+    relation: admin
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: project
+    role_key: developer
+    display_name: Project Developer
+    relation: developer
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: project
+    role_key: operator
+    display_name: Project Operator
+    relation: operator
+    built_in: true
+    enabled: true
+    sort_order: 40
+  - resource_type: project
+    role_key: viewer
+    display_name: Project Viewer
+    relation: viewer
+    built_in: true
+    enabled: true
+    sort_order: 50
+  - resource_type: skill
+    role_key: owner
+    display_name: Skill Owner
+    relation: owner
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: skill
+    role_key: editor
+    display_name: Skill Editor
+    relation: editor
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: skill
+    role_key: reviewer
+    display_name: Skill Reviewer
+    relation: reviewer
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: git_repository
+    role_key: maintainer
+    display_name: Repository Maintainer
+    relation: maintainer
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: git_repository
+    role_key: writer
+    display_name: Repository Writer
+    relation: writer
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: git_repository
+    role_key: reader
+    display_name: Repository Reader
+    relation: reader
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: agent
+    role_key: operator
+    display_name: Agent Operator
+    relation: operator
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: sandbox
+    role_key: operator
+    display_name: Sandbox Operator
+    relation: operator
+    built_in: true
+    enabled: true
+    sort_order: 20

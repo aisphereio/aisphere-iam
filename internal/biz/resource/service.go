@@ -1,0 +1,411 @@
+// Package resource owns Aisphere resource-type, resource-projection and
+// cross-resource binding use cases.
+package resource
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"strings"
+	"time"
+
+	"github.com/aisphereio/kernel/authz"
+
+	"github.com/aisphereio/aisphere-iam/internal/biz/graph"
+	"github.com/aisphereio/aisphere-iam/internal/biz/idgen"
+	"github.com/aisphereio/aisphere-iam/internal/biz/projection"
+	"github.com/aisphereio/aisphere-iam/internal/data"
+)
+
+const (
+	RelationParent       = "parent"
+	RelationBackingRepo  = "backing_repo"
+	RelationBackingSkill = "backing_skill"
+)
+
+type ResourceRef struct{ Type, ID string }
+type SubjectRef struct{ Type, ID, Relation string }
+
+type RegisterResourceTypeRequest struct {
+	Type            string
+	CapabilityID    string
+	OwnerService    string
+	ParentTypesJSON string
+	Grantable       bool
+	Auditable       bool
+	SpiceDBType     string
+	RelationsJSON   string
+	PermissionsJSON string
+	MetadataSchema  string
+}
+
+type UpsertResourceRequest struct {
+	Ref             ResourceRef
+	OrgID           string
+	ProjectID       string
+	Parent          ResourceRef
+	OwnerService    string
+	OwnerResourceID string
+	Slug            string
+	DisplayName     string
+	Path            string
+	Status          string
+	Visibility      string
+	LabelsJSON      string
+	AnnotationsJSON string
+	MetadataJSON    string
+	CreatedBy       SubjectRef
+	Owner           SubjectRef
+}
+
+type BindResourceRequest struct {
+	ID        string
+	Source    ResourceRef
+	Relation  string
+	Target    ResourceRef
+	CreatedBy SubjectRef
+}
+
+type BindExternalResourceRequest struct {
+	ID           string
+	Resource     ResourceRef
+	Provider     string
+	ExternalType string
+	ExternalID   string
+	ExternalPath string
+	ExternalURL  string
+	SyncMode     string
+	MetadataJSON string
+}
+
+type Service struct {
+	repo       data.ControlPlaneRepository
+	projection *projection.Manager
+	now        func() time.Time
+}
+
+func NewService(repo data.ControlPlaneRepository, writer authz.RelationshipWriter, managers ...*projection.Manager) *Service {
+	pm := firstProjectionManager(managers)
+	if pm == nil {
+		pm = projection.NewManager(repo, writer, nil)
+	}
+	return &Service{repo: repo, projection: pm, now: func() time.Time { return time.Now().UTC() }}
+}
+
+func (s *Service) RegisterResourceType(ctx context.Context, req RegisterResourceTypeRequest) (*data.ResourceTypeModel, error) {
+	if s.repo == nil {
+		return nil, errors.New("resource service repository is nil")
+	}
+	req.Type = strings.TrimSpace(req.Type)
+	if req.Type == "" {
+		return nil, errors.New("resource type is required")
+	}
+	if strings.TrimSpace(req.SpiceDBType) == "" {
+		req.SpiceDBType = req.Type
+	}
+	now := s.now()
+	rt := &data.ResourceTypeModel{
+		Type:            req.Type,
+		CapabilityID:    strings.TrimSpace(req.CapabilityID),
+		OwnerService:    strings.TrimSpace(req.OwnerService),
+		ParentTypesJSON: jsonOr(req.ParentTypesJSON, "[]"),
+		Grantable:       req.Grantable,
+		Auditable:       req.Auditable,
+		SpiceDBType:     strings.TrimSpace(req.SpiceDBType),
+		RelationsJSON:   jsonOr(req.RelationsJSON, "[]"),
+		PermissionsJSON: jsonOr(req.PermissionsJSON, "[]"),
+		MetadataSchema:  jsonOr(req.MetadataSchema, "{}"),
+		Status:          data.StatusActive,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}
+	if rt.OwnerService == "" {
+		rt.OwnerService = "aisphere-iam"
+	}
+	if err := s.repo.UpsertResourceType(ctx, rt); err != nil {
+		return nil, err
+	}
+	return rt, nil
+}
+
+func (s *Service) UpsertResource(ctx context.Context, req UpsertResourceRequest) (*data.ResourceModel, authz.WriteResult, error) {
+	if s.repo == nil {
+		return nil, authz.WriteResult{}, errors.New("resource service repository is nil")
+	}
+	req.Ref.Type = strings.TrimSpace(req.Ref.Type)
+	req.Ref.ID = strings.TrimSpace(req.Ref.ID)
+	if req.Ref.Type == "" {
+		return nil, authz.WriteResult{}, errors.New("resource type is required")
+	}
+	if req.Ref.ID == "" {
+		req.Ref.ID = idgen.New(req.Ref.Type)
+	}
+	rt, err := s.repo.GetResourceType(ctx, req.Ref.Type)
+	if err != nil {
+		return nil, authz.WriteResult{}, err
+	}
+	if req.Parent.Type != "" {
+		if err := requireListed(rt.ParentTypesJSON, req.Parent.Type, "parent type is not allowed for resource type"); err != nil {
+			return nil, authz.WriteResult{}, err
+		}
+		if err := s.requireResourceExists(ctx, req.Parent); err != nil {
+			return nil, authz.WriteResult{}, err
+		}
+	}
+	now := s.now()
+	model := &data.ResourceModel{
+		ID:              req.Ref.ID,
+		Type:            req.Ref.Type,
+		OrgID:           strings.TrimSpace(req.OrgID),
+		ProjectID:       strings.TrimSpace(req.ProjectID),
+		ParentType:      strings.TrimSpace(req.Parent.Type),
+		ParentID:        strings.TrimSpace(req.Parent.ID),
+		OwnerService:    nonEmpty(req.OwnerService, rt.OwnerService),
+		OwnerResourceID: nonEmpty(req.OwnerResourceID, req.Ref.ID),
+		Slug:            strings.TrimSpace(req.Slug),
+		DisplayName:     strings.TrimSpace(req.DisplayName),
+		Path:            strings.TrimSpace(req.Path),
+		Status:          nonEmpty(req.Status, data.StatusActive),
+		Visibility:      nonEmpty(req.Visibility, "private"),
+		LabelsJSON:      jsonOr(req.LabelsJSON, "{}"),
+		AnnotationsJSON: jsonOr(req.AnnotationsJSON, "{}"),
+		MetadataJSON:    jsonOr(req.MetadataJSON, "{}"),
+		CreatedBy:       subjectString(req.CreatedBy),
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}
+	if model.OrgID == "" {
+		return nil, authz.WriteResult{}, errors.New("org_id is required")
+	}
+	rels := make([]authz.Relationship, 0, 2)
+	if model.ParentType != "" && model.ParentID != "" {
+		parentType, err := s.spiceType(ctx, model.ParentType)
+		if err != nil {
+			return model, authz.WriteResult{}, err
+		}
+		rels = append(rels, authz.Relationship{
+			Resource: graph.Object(rt.SpiceDBType, model.ID),
+			Relation: RelationParent,
+			Subject:  graph.Subject(parentType, model.ParentID, ""),
+		})
+	}
+	if !subjectZero(req.Owner) {
+		rels = append(rels, authz.Relationship{
+			Resource: graph.Object(rt.SpiceDBType, model.ID),
+			Relation: "owner",
+			Subject:  toAuthzSubject(req.Owner),
+		})
+	}
+	event, err := s.projection.NewWriteEvent("resource", model.Type+":"+model.ID, rels...)
+	if err != nil {
+		return nil, authz.WriteResult{}, err
+	}
+	if err := s.repo.UpsertResource(ctx, model, event); err != nil {
+		return nil, authz.WriteResult{}, err
+	}
+	wr, err := s.projection.Dispatch(ctx, event)
+	return model, wr, err
+}
+
+func (s *Service) BindResource(ctx context.Context, req BindResourceRequest) (*data.ResourceBindingModel, authz.WriteResult, error) {
+	if s.repo == nil {
+		return nil, authz.WriteResult{}, errors.New("resource service repository is nil")
+	}
+	req.Source.Type, req.Source.ID = strings.TrimSpace(req.Source.Type), strings.TrimSpace(req.Source.ID)
+	req.Target.Type, req.Target.ID = strings.TrimSpace(req.Target.Type), strings.TrimSpace(req.Target.ID)
+	req.Relation = strings.TrimSpace(req.Relation)
+	if req.Source.Type == "" || req.Source.ID == "" || req.Target.Type == "" || req.Target.ID == "" || req.Relation == "" {
+		return nil, authz.WriteResult{}, errors.New("source, target and relation are required")
+	}
+	sourceType, err := s.repo.GetResourceType(ctx, req.Source.Type)
+	if err != nil {
+		return nil, authz.WriteResult{}, err
+	}
+	if req.Relation != RelationBackingRepo {
+		if err := requireListed(sourceType.RelationsJSON, req.Relation, "relation is not allowed for source resource type"); err != nil {
+			return nil, authz.WriteResult{}, err
+		}
+	}
+	if err := s.requireResourceExists(ctx, req.Source); err != nil {
+		return nil, authz.WriteResult{}, err
+	}
+	if err := s.requireResourceExists(ctx, req.Target); err != nil {
+		return nil, authz.WriteResult{}, err
+	}
+	id := strings.TrimSpace(req.ID)
+	if id == "" {
+		id = idgen.New("binding")
+	}
+	now := s.now()
+	binding := &data.ResourceBindingModel{
+		ID:         id,
+		SourceType: req.Source.Type,
+		SourceID:   req.Source.ID,
+		Relation:   req.Relation,
+		TargetType: req.Target.Type,
+		TargetID:   req.Target.ID,
+		Status:     data.StatusActive,
+		CreatedBy:  subjectString(req.CreatedBy),
+		CreatedAt:  now,
+		UpdatedAt:  now,
+	}
+	rel, err := s.bindingRelationship(ctx, req)
+	if err != nil {
+		return binding, authz.WriteResult{}, err
+	}
+	event, err := s.projection.NewWriteEvent("resource_binding", binding.ID, rel)
+	if err != nil {
+		return nil, authz.WriteResult{}, err
+	}
+	if err := s.repo.BindResource(ctx, binding, event); err != nil {
+		return nil, authz.WriteResult{}, err
+	}
+	wr, err := s.projection.Dispatch(ctx, event)
+	return binding, wr, err
+}
+
+func (s *Service) BindExternalResource(ctx context.Context, req BindExternalResourceRequest) (*data.ExternalResourceBindingModel, error) {
+	if s.repo == nil {
+		return nil, errors.New("resource service repository is nil")
+	}
+	if strings.TrimSpace(req.Resource.Type) == "" || strings.TrimSpace(req.Resource.ID) == "" || strings.TrimSpace(req.Provider) == "" || strings.TrimSpace(req.ExternalType) == "" || strings.TrimSpace(req.ExternalID) == "" {
+		return nil, errors.New("resource, provider, external_type and external_id are required")
+	}
+	id := strings.TrimSpace(req.ID)
+	if id == "" {
+		id = idgen.New("extbind")
+	}
+	now := s.now()
+	b := &data.ExternalResourceBindingModel{
+		ID:           id,
+		ResourceType: strings.TrimSpace(req.Resource.Type),
+		ResourceID:   strings.TrimSpace(req.Resource.ID),
+		Provider:     strings.TrimSpace(req.Provider),
+		ExternalType: strings.TrimSpace(req.ExternalType),
+		ExternalID:   strings.TrimSpace(req.ExternalID),
+		ExternalPath: strings.TrimSpace(req.ExternalPath),
+		ExternalURL:  strings.TrimSpace(req.ExternalURL),
+		SyncMode:     nonEmpty(req.SyncMode, "owner"),
+		SyncStatus:   data.StatusPending,
+		MetadataJSON: jsonOr(req.MetadataJSON, "{}"),
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	}
+	if err := s.repo.BindExternalResource(ctx, b); err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func (s *Service) spiceType(ctx context.Context, typ string) (string, error) {
+	switch strings.TrimSpace(typ) {
+	case "organization", "project":
+		return strings.TrimSpace(typ), nil
+	}
+	rt, err := s.repo.GetResourceType(ctx, typ)
+	if err != nil {
+		return "", err
+	}
+	if strings.TrimSpace(rt.SpiceDBType) == "" {
+		return rt.Type, nil
+	}
+	return rt.SpiceDBType, nil
+}
+
+func (s *Service) bindingRelationship(ctx context.Context, req BindResourceRequest) (authz.Relationship, error) {
+	srcType, err := s.spiceType(ctx, req.Source.Type)
+	if err != nil {
+		return authz.Relationship{}, err
+	}
+	tgtType, err := s.spiceType(ctx, req.Target.Type)
+	if err != nil {
+		return authz.Relationship{}, err
+	}
+
+	// Product-facing relation names do not have to be identical to SpiceDB
+	// relation names. Keep the first cross-domain alias explicit so Skill ->
+	// backing repo maps to git_repository#backing_skill@skill.
+	if req.Relation == RelationBackingRepo {
+		return authz.Relationship{
+			Resource: graph.Object(tgtType, req.Target.ID),
+			Relation: RelationBackingSkill,
+			Subject:  graph.Subject(srcType, req.Source.ID, ""),
+		}, nil
+	}
+	return authz.Relationship{
+		Resource: graph.Object(srcType, req.Source.ID),
+		Relation: req.Relation,
+		Subject:  graph.Subject(tgtType, req.Target.ID, ""),
+	}, nil
+}
+
+func nonEmpty(v, fallback string) string {
+	if strings.TrimSpace(v) != "" {
+		return strings.TrimSpace(v)
+	}
+	return strings.TrimSpace(fallback)
+}
+func jsonOr(v, fallback string) string {
+	if strings.TrimSpace(v) != "" {
+		return strings.TrimSpace(v)
+	}
+	return fallback
+}
+func subjectZero(s SubjectRef) bool {
+	return strings.TrimSpace(s.Type) == "" || strings.TrimSpace(s.ID) == ""
+}
+func toAuthzSubject(s SubjectRef) authz.SubjectRef {
+	rel := strings.TrimSpace(s.Relation)
+	if strings.TrimSpace(s.Type) == authz.SubjectTypeGroup && rel == "" {
+		rel = "member"
+	}
+	return graph.Subject(s.Type, s.ID, rel)
+}
+func subjectString(s SubjectRef) string {
+	if subjectZero(s) {
+		return ""
+	}
+	return toAuthzSubject(s).String()
+}
+
+func (s *Service) requireResourceExists(ctx context.Context, ref ResourceRef) error {
+	switch strings.TrimSpace(ref.Type) {
+	case "":
+		return errors.New("resource type is required")
+	case "organization":
+		_, err := s.repo.GetOrganization(ctx, ref.ID)
+		return err
+	case "project":
+		_, err := s.repo.GetProject(ctx, ref.ID)
+		return err
+	default:
+		_, err := s.repo.GetResource(ctx, ref.Type, ref.ID)
+		return err
+	}
+}
+
+func requireListed(raw, value, message string) error {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil
+	}
+	var items []string
+	if err := json.Unmarshal([]byte(jsonOr(raw, "[]")), &items); err != nil {
+		return err
+	}
+	for _, item := range items {
+		if strings.TrimSpace(item) == value {
+			return nil
+		}
+	}
+	return errors.New(message + ": " + value)
+}
+
+func firstProjectionManager(managers []*projection.Manager) *projection.Manager {
+	for _, manager := range managers {
+		if manager != nil {
+			return manager
+		}
+	}
+	return nil
+}

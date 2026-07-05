@@ -3,7 +3,10 @@ package conf
 import (
 	"time"
 
+	"github.com/aisphereio/kernel/accessx"
+	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authn/casdoor"
+	"github.com/aisphereio/kernel/authn/oidcx"
 	"github.com/aisphereio/kernel/authz/spicedb"
 	"github.com/aisphereio/kernel/cachex"
 	"github.com/aisphereio/kernel/dbx"
@@ -77,37 +80,22 @@ type ObjectStoreConfig struct {
 }
 
 type SecurityConfig struct {
-	Authn  AuthnConfig  `json:"authn" yaml:"authn"`
-	Authz  AuthzConfig  `json:"authz" yaml:"authz"`
-	Access AccessConfig `json:"access" yaml:"access"`
-}
-
-// AccessConfig controls per-operation access policies. Each entry maps an
-// operation pattern to its access mode. This allows operators to override
-// the default authorization behavior without code changes.
-type AccessConfig struct {
-	// SkipOperations lists operations that should skip the SpiceDB
-	// authorization check but still require authentication and record audit.
-	// This is the recommended replacement for the deprecated AllowAllOperations.
-	SkipOperations []string `json:"skip_operations" yaml:"skip_operations"`
-
-	// PublicOperations lists operations that skip both authentication AND
-	// authorization. Use for endpoints that must be accessible without any
-	// credentials.
-	PublicOperations []string `json:"public_operations" yaml:"public_operations"`
-
-	// AllowAllOperations lists operations where any authenticated user is
-	// allowed. This is the legacy field — new deployments should use
-	// SkipOperations instead.
-	//
-	// Deprecated: Use SkipOperations instead.
-	AllowAllOperations []string `json:"allow_all_operations" yaml:"allow_all_operations"`
+	Authn        AuthnConfig                      `json:"authn" yaml:"authn"`
+	Authz        AuthzConfig                      `json:"authz" yaml:"authz"`
+	Access       accessx.AccessConfig             `json:"access" yaml:"access"`
+	InternalCall authn.InternalServiceTokenConfig `json:"internal_call" yaml:"internal_call"`
 }
 
 type AuthnConfig struct {
-	Enabled  bool           `json:"enabled" yaml:"enabled"`
+	Enabled bool `json:"enabled" yaml:"enabled"`
+	// Mode controls how IAM authenticates inbound service requests.
+	// casdoor_jwt: verify the external Casdoor JWT locally with OIDC/JWKS.
+	// gateway_trusted: trust Gateway-injected X-Aisphere-* identity headers.
+	Mode     string         `json:"mode" yaml:"mode"`
 	Provider string         `json:"provider" yaml:"provider"`
+	OIDC     oidcx.Config   `json:"oidc" yaml:"oidc"`
 	Casdoor  casdoor.Config `json:"casdoor" yaml:"casdoor"`
+	CacheTTL time.Duration  `json:"cache_ttl_ns" yaml:"cache_ttl_ns"`
 }
 
 type AuthzConfig struct {

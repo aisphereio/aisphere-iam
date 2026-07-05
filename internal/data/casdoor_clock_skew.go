@@ -10,6 +10,7 @@ import (
 
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authn/casdoor"
+	"github.com/aisphereio/kernel/logx"
 	casdoorsdk "github.com/casdoor/casdoor-go-sdk/casdoorsdk"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/oauth2"
@@ -21,6 +22,7 @@ var jwtTimeFuncMu sync.Mutex
 
 type casdoorClockSkewProvider struct {
 	*casdoor.Client
+	cfg casdoor.Config
 	sdk *casdoorsdk.Client
 }
 
@@ -39,16 +41,43 @@ func newCasdoorClockSkewProvider(cfg casdoor.Config, client *casdoor.Client) *ca
 		cfg.OrganizationName,
 		cfg.ApplicationName,
 	)
-	return &casdoorClockSkewProvider{Client: client, sdk: sdk}
+	return &casdoorClockSkewProvider{Client: client, cfg: cfg, sdk: sdk}
 }
 
 func (p *casdoorClockSkewProvider) ExchangeCode(ctx context.Context, req authn.AuthCodeExchangeRequest) (authn.TokenSet, authn.Principal, error) {
 	if strings.TrimSpace(req.Code) == "" {
 		return authn.TokenSet{}, authn.Principal{}, authn.ErrInvalidTokenRequest("authorization code is required")
 	}
-	token, err := p.sdk.GetOAuthToken(req.Code, req.State)
+	// Build the oauth2 config with RedirectURL set from the request.
+	// The Casdoor SDK's GetOAuthToken omits RedirectURL, which can cause
+	// Casdoor to reject the exchange when the app requires redirect_uri
+	// matching. We replicate the kernel's exchangeOAuthToken logic here.
+	endpoint := strings.TrimRight(strings.TrimSpace(p.cfg.Endpoint), "/")
+	config := oauth2.Config{
+		ClientID:     p.cfg.ClientID,
+		ClientSecret: p.cfg.ClientSecret,
+		RedirectURL:  strings.TrimSpace(req.RedirectURI),
+		Endpoint: oauth2.Endpoint{
+			AuthURL:   endpoint + "/api/login/oauth/authorize",
+			TokenURL:  endpoint + "/api/login/oauth/access_token",
+			AuthStyle: oauth2.AuthStyleInParams,
+		},
+	}
+	if p.cfg.HTTPClient != nil {
+		ctx = context.WithValue(ctx, oauth2.HTTPClient, p.cfg.HTTPClient)
+	}
+	opts := make([]oauth2.AuthCodeOption, 0, 1)
+	if verifier := strings.TrimSpace(req.CodeVerifier); verifier != "" {
+		opts = append(opts, oauth2.SetAuthURLParam("code_verifier", verifier))
+	}
+token, err := config.Exchange(ctx, req.Code, opts...)
 	if err != nil {
-		return authn.TokenSet{}, authn.Principal{}, authn.ErrIdentityBackendFailed("casdoor code exchange failed", err)
+		logx.DefaultLogger().Error("casdoor code exchange failed",
+			logx.Err(err),
+			logx.String("redirect_uri", req.RedirectURI),
+			logx.String("code_prefix", safePrefix(req.Code, 10)),
+		)
+		return authn.TokenSet{}, authn.Principal{}, authn.ErrIdentityBackendFailed("casdoor code exchange failed: "+err.Error(), err)
 	}
 	principal, err := p.principalFromAccessToken(ctx, token.AccessToken, req.OrgID, req.AppID)
 	if err != nil {
@@ -186,4 +215,11 @@ func firstNonEmptyString(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func safePrefix(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	return s[:n] + "..."
 }

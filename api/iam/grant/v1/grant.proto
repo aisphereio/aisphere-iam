@@ -1,0 +1,186 @@
+syntax = "proto3";
+
+package iam.grant.v1;
+
+import "aisphere/access/v1/access.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "iam/resource/v1/resource.proto";
+
+option go_package = "github.com/aisphereio/aisphere-iam/api/iam/grant/v1;grantv1";
+
+// GrantService exposes product-level RBAC operations. Every grant is persisted
+// by IAM and projected to SpiceDB as a ReBAC relationship.
+service GrantService {
+  rpc RegisterRoleTemplate(RegisterRoleTemplateRequest) returns (RoleTemplate) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/role-templates" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage" resource: "iam:role_template" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.role_template.register" risk: "high" }
+    };
+  }
+
+  rpc ListRoleTemplates(ListRoleTemplatesRequest) returns (ListRoleTemplatesReply) {
+    option (google.api.http) = { get: "/v1/iam/control-plane/role-templates" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "list" resource: "iam:role_template" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.role_template.list" risk: "medium" }
+    };
+  }
+
+  rpc GrantAccess(GrantAccessRequest) returns (Grant) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/grants" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "grant" resource: "iam:grant" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.grant.create" risk: "high" }
+    };
+  }
+
+  rpc RevokeAccess(RevokeAccessRequest) returns (RevokeAccessReply) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/grants/{grant_id}/revoke" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "revoke" resource: "iam:grant:{grant_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.grant.revoke" risk: "high" }
+    };
+  }
+
+  rpc ListGrants(ListGrantsRequest) returns (ListGrantsReply) {
+    option (google.api.http) = { get: "/v1/iam/control-plane/grants" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "list" resource: "iam:grant" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.grant.list" risk: "medium" }
+    };
+  }
+
+  rpc ExplainAccess(ExplainAccessRequest) returns (ExplainAccessReply) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/access:explain" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "explain" resource: "iam:grant" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.access.explain" risk: "medium" }
+    };
+  }
+}
+
+message RoleTemplate {
+  string id = 1;
+  string resource_type = 2;
+  string role_key = 3;
+  string display_name = 4;
+  string description = 5;
+  string relation = 6;
+  bool built_in = 7;
+  bool enabled = 8;
+  int32 sort_order = 9;
+  google.protobuf.Struct metadata = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+message Grant {
+  string id = 1;
+  iam.resource.v1.ResourceRef resource = 2;
+  string role_key = 3;
+  string relation = 4;
+  iam.resource.v1.SubjectRef subject = 5;
+  string source = 6;
+  string reason = 7;
+  google.protobuf.Timestamp expires_at = 8;
+  iam.resource.v1.SubjectRef created_by = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp revoked_at = 11;
+  string consistency_token = 12;
+  google.protobuf.Struct metadata = 13;
+}
+
+message RegisterRoleTemplateRequest {
+  RoleTemplate role_template = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListRoleTemplatesRequest {
+  string resource_type = 1;
+  string role_key = 2;
+  optional bool enabled = 3;
+}
+
+message ListRoleTemplatesReply {
+  repeated RoleTemplate role_templates = 1;
+}
+
+message GrantAccessRequest {
+  iam.resource.v1.ResourceRef resource = 1 [(google.api.field_behavior) = REQUIRED];
+  string role_key = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  iam.resource.v1.SubjectRef subject = 3 [(google.api.field_behavior) = REQUIRED];
+  string source = 4;
+  string reason = 5;
+  google.protobuf.Timestamp expires_at = 6;
+  google.protobuf.Struct metadata = 7;
+}
+
+message RevokeAccessRequest {
+  string grant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string reason = 2;
+  bool delete_graph_relationship = 3;
+}
+
+message RevokeAccessReply {
+  string grant_id = 1;
+  bool revoked = 2;
+  string consistency_token = 3;
+}
+
+message ListGrantsRequest {
+  iam.resource.v1.ResourceRef resource = 1;
+  iam.resource.v1.SubjectRef subject = 2;
+  string relation = 3;
+  string role_key = 4;
+  string source = 5;
+  optional bool active = 6;
+  int32 page_size = 7;
+  string page_token = 8;
+}
+
+message ListGrantsReply {
+  repeated Grant grants = 1;
+  string next_page_token = 2;
+  int64 total_size = 3;
+}
+
+message ExplainAccessRequest {
+  iam.resource.v1.ResourceRef resource = 1 [(google.api.field_behavior) = REQUIRED];
+  string permission = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  iam.resource.v1.SubjectRef subject = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ExplainStep {
+  string source = 1;
+  string relation = 2;
+  iam.resource.v1.ResourceRef resource = 3;
+  iam.resource.v1.SubjectRef subject = 4;
+  string reason = 5;
+}
+
+message ExplainAccessReply {
+  bool allowed = 1;
+  string effect = 2;
+  string reason = 3;
+  repeated ExplainStep steps = 4;
+  string consistency_token = 5;
+}

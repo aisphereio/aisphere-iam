@@ -62,8 +62,17 @@ service IAMAuthService {
     option (google.api.http) = { get: "/v1/iam/me" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHENTICATED
-      authz: { action: "read" resource: "iam:user:self" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "read" resource: "iam:self" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.get_me" risk: "low" }
+    };
+  }
+
+  rpc BuildLogoutURL(BuildLogoutURLRequest) returns (BuildLogoutURLReply) {
+    option (google.api.http) = { get: "/v1/iam/logout-url" };
+    option (aisphere.access.v1.policy) = {
+      exposure: PUBLIC
+      audit: { enabled: true event: "iam.logout_url" risk: "low" }
+      rate_limit: { enabled: true key: "ip" qps: 5 burst: 10 backend: MEMORY }
     };
   }
 }
@@ -231,6 +240,21 @@ message GetMeReply {
   repeated Group groups = 3;
   Application application = 4;
   repeated string warnings = 5;
+}
+
+message BuildLogoutURLRequest {
+  string post_logout_redirect_uri = 1;
+  string id_token_hint = 2;
+  string state = 3;
+  string org_id = 4;
+  string app_id = 5;
+}
+
+message BuildLogoutURLReply {
+  string logout_url = 1;
+  string provider = 2;
+  string post_logout_redirect_uri = 3;
+  string state = 4;
 }
 
 message GetUserRequest {
