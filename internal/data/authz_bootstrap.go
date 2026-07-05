@@ -28,7 +28,7 @@ import (
 
 // IAMAuthzSchemaVersion is the schema version. Bump this when the schema
 // text below changes.
-const IAMAuthzSchemaVersion = "1.0.0"
+const IAMAuthzSchemaVersion = "1.0.1"
 
 // IAMAuthzSchema is the default SpiceDB schema for aisphere-iam. It
 // extends kernel/authz/spicedb.DefaultSchema with the iam control-plane
@@ -51,7 +51,21 @@ definition iam {
 
   permission create = admin
   permission read = admin
+  permission list = admin
   permission manage = admin
+  permission create_project = admin
+  permission upsert = admin
+  permission bind = admin
+  permission unbind = admin
+  permission move = admin
+  permission archive = admin
+  permission delete = admin
+  permission grant = admin
+  permission revoke = admin
+  permission explain = admin
+  permission write = admin
+  permission lookup = admin
+  permission check = admin
 }
 
 definition organization {
