@@ -8,11 +8,9 @@ import (
 	"github.com/aisphereio/kernel/logx"
 )
 
-// IAMAuthzSchemaVersion is the schema version. Bump this when the schema
-// text below changes.
-const IAMAuthzSchemaVersion = "1.0.1"
+const IAMAuthzSchemaVersion = "1.0.2"
 
-// IAMAuthzSchema is the default SpiceDB schema for aisphere-iam. The iam
+// IAMAuthzSchema is the default SpiceDB schema for aisphere-iam. The
 // permissions must stay aligned with aisphere.access.v1.policy actions in
 // IAM proto contracts.
 const IAMAuthzSchema = `definition user {}
@@ -46,6 +44,9 @@ definition iam {
   permission write = admin
   permission lookup = admin
   permission check = admin
+  permission upsert = admin
+  permission refresh = admin
+  permission verify = admin
 }
 
 definition organization {
@@ -56,6 +57,8 @@ definition organization {
 
   permission manage = owner + admin + platform->admin
   permission read = owner + admin + member + platform->admin
+  permission list = owner + admin + member + platform->admin
+  permission create_project = owner + admin + platform->admin
 }
 
 definition group {
@@ -64,6 +67,11 @@ definition group {
   relation member: user | service | group#member
 
   permission read = member + parent->read + org->read
+  permission list = org->read
+  permission manage = org->manage
+  permission assign = org->manage
+  permission remove = org->manage
+  permission delete = org->manage
 }
 
 definition application {
@@ -74,6 +82,7 @@ definition application {
 
   permission manage = owner + admin + org->manage
   permission read = owner + admin + member + org->read
+  permission list = org->read
 }
 
 definition project {
@@ -83,7 +92,10 @@ definition project {
   relation viewer: user | service | group#member
 
   permission read = viewer + editor + owner + org->read
+  permission list = org->read
   permission edit = editor + owner + org->manage
+  permission manage = editor + owner + org->manage
+  permission archive = owner + org->manage
   permission delete = owner + org->manage
 }
 
@@ -94,18 +106,21 @@ definition resource {
   relation viewer: user | service | group#member
 
   permission read = viewer + editor + owner + project->read
+  permission list = project->read
   permission edit = editor + owner + project->edit
+  permission manage = editor + owner + project->manage
+  permission move = owner + project->manage
+  permission archive = owner + project->manage
   permission delete = owner + project->delete
 }`
 
 var requiredIAMAuthzPermissions = []string{
 	"create", "read", "list", "update", "disable", "delete", "manage",
 	"assign", "remove", "bind", "unbind", "move", "archive", "create_project",
-	"grant", "revoke", "explain", "write", "lookup", "check",
+	"grant", "revoke", "explain", "write", "lookup", "check", "upsert",
+	"refresh", "verify",
 }
 
-// BootstrapAuthzSchema writes the default IAM authz schema to SpiceDB when the
-// schema is missing or lacks the IAM permissions required by generated policy.
 func BootstrapAuthzSchema(ctx context.Context, resources *Resources, log logx.Logger) error {
 	if resources != nil {
 		resources.Identity = BindIdentityAuthZ(resources.Identity, resources.AuthzAdmin)
@@ -125,14 +140,14 @@ func BootstrapAuthzSchema(ctx context.Context, resources *Resources, log logx.Lo
 	if err != nil {
 		log.WithContext(ctx).Warn("read schema failed; will attempt to write default", logx.Err(err))
 	} else if schema.Text != "" {
-		if hasIAMAuthzDefinitions(schema.Text) && hasRequiredIAMAuthzPermissions(schema.Text) {
+		if hasIAMAuthzDefinitions(schema.Text) && hasRequiredIAMAuthzPermissions(schema.Text) && hasRequiredResourcePermissions(schema.Text) {
 			log.WithContext(ctx).Info("authz schema already installed; skipping bootstrap",
 				logx.Int("size", len(schema.Text)),
 				logx.String("schema_version", IAMAuthzSchemaVersion),
 			)
 			return nil
 		}
-		log.WithContext(ctx).Warn("authz schema missing IAM definitions or permissions; applying IAM schema",
+		log.WithContext(ctx).Warn("authz schema missing definitions or permissions; applying IAM schema",
 			logx.Int("current_size", len(schema.Text)),
 			logx.String("schema_version", IAMAuthzSchemaVersion),
 		)
@@ -158,6 +173,21 @@ func hasRequiredIAMAuthzPermissions(schema string) bool {
 	normalized := strings.ToLower(schema)
 	for _, permission := range requiredIAMAuthzPermissions {
 		if !strings.Contains(normalized, "permission "+permission+" =") {
+			return false
+		}
+	}
+	return true
+}
+
+func hasRequiredResourcePermissions(schema string) bool {
+	normalized := strings.ToLower(schema)
+	for _, needle := range []string{
+		"permission list =",
+		"permission create_project =",
+		"permission manage =",
+		"permission archive =",
+	} {
+		if !strings.Contains(normalized, needle) {
 			return false
 		}
 	}
