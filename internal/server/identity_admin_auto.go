@@ -4,7 +4,7 @@ import (
 	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/aisphere-iam/internal/service"
-	kgrpc "github.com/aisphereio/kernel/transportx/grpc"
+	krpc "github.com/aisphereio/kernel/transportx/grpc"
 	khttp "github.com/aisphereio/kernel/transportx/http"
 )
 
@@ -30,7 +30,7 @@ func registerIdentityAdminHTTP(srv *khttp.Server, resources *data.Resources) {
 	v1.RegisterIAMIdentityAdminServiceHTTPServer(srv, identityAdminSvc)
 }
 
-func registerIdentityAdminGRPC(srv *kgrpc.Server, resources *data.Resources) {
+func registerIdentityAdminRPC(srv *krpc.Server, resources *data.Resources) {
 	identityAdminSvc := newIdentityAdminService(resources)
 	if identityAdminSvc == nil {
 		return
