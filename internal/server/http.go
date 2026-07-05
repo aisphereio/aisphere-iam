@@ -6,7 +6,7 @@ import (
 	"time"
 
 	grantv1 "github.com/aisphereio/aisphere-iam/api/iam/grant/v1"
-	projectv1 "github.com/aisphereio/aisphere-iam/api/iam/project/v1"
+	projectv1 "github.com/aisphere-iam/api/iam/project/v1"
 	resourcev1 "github.com/aisphereio/aisphere-iam/api/iam/resource/v1"
 	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	"github.com/aisphereio/aisphere-iam/internal/biz/projection"
@@ -48,19 +48,6 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	resourcev1.RegisterResourceServiceHTTPServer(srv, resourceSvc)
 	grantv1.RegisterGrantServiceHTTPServer(srv, grantSvc)
 	registerProjectionBranches(srv, projections)
-	// Register legacy /v1/users endpoints for local user management
-	localUserHandler := service.NewLocalUserHandler(resources.LocalUsers)
-	srv.HandleFunc("/v1/users", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			localUserHandler.ListUsers(w, r)
-		case http.MethodPost:
-			localUserHandler.SaveUser(w, r)
-		default:
-			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
-		}
-	})
-	srv.HandleFunc("/v1/users/{username}", localUserHandler.DeleteUser)
 
 	srv.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
