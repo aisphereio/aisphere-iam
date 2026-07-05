@@ -87,15 +87,13 @@ type SecurityConfig struct {
 }
 
 type AuthnConfig struct {
-	Enabled bool `json:"enabled" yaml:"enabled"`
-	// Mode controls how IAM authenticates inbound service requests.
-	// casdoor_jwt: verify the external Casdoor JWT locally with OIDC/JWKS.
-	// gateway_trusted: trust Gateway-injected X-Aisphere-* identity headers.
-	Mode     string         `json:"mode" yaml:"mode"`
-	Provider string         `json:"provider" yaml:"provider"`
-	OIDC     oidcx.Config   `json:"oidc" yaml:"oidc"`
-	Casdoor  casdoor.Config `json:"casdoor" yaml:"casdoor"`
-	CacheTTL time.Duration  `json:"cache_ttl_ns" yaml:"cache_ttl_ns"`
+	Enabled      bool           `json:"enabled" yaml:"enabled"`
+	Mode         string         `json:"mode" yaml:"mode"`
+	IdentityMode string         `json:"identity_mode" yaml:"identity_mode"`
+	Provider     string         `json:"provider" yaml:"provider"`
+	OIDC         oidcx.Config   `json:"oidc" yaml:"oidc"`
+	Casdoor      casdoor.Config `json:"casdoor" yaml:"casdoor"`
+	CacheTTL     time.Duration  `json:"cache_ttl_ns" yaml:"cache_ttl_ns"`
 }
 
 type AuthzConfig struct {
