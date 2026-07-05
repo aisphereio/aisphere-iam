@@ -40,15 +40,15 @@ func identityForMode(mode string, next authn.IdentityAdmin) (authn.IdentityAdmin
 	return next, nil
 }
 
-// BindIdentityOSZ projects local application group changes into the OSZ/AuthZ
+// BindIdentityAuthZ projects local application group changes into the AuthZ
 // relationship graph. It is intentionally independent from identity_mode:
 // casdoor_local and external_oidc both use local application groups for
 // Aisphere resource authorization.
-func BindIdentityOSZ(next authn.IdentityAdmin, relationships authz.RelationshipWriter) authn.IdentityAdmin {
+func BindIdentityAuthZ(next authn.IdentityAdmin, relationships authz.RelationshipWriter) authn.IdentityAdmin {
 	if next == nil || relationships == nil {
 		return next
 	}
-	return oszProjectingIdentityAdmin{IdentityAdmin: next, relationships: relationships}
+	return authzProjectingIdentityAdmin{IdentityAdmin: next, relationships: relationships}
 }
 
 // externalOIDCIdentityAdmin protects the upstream user/org directory while still
@@ -171,12 +171,12 @@ func externalDirectoryReadOnlyError(operation string) error {
 	return authn.ErrIdentityBackendFailed("identity user/org directory is read-only in external_oidc mode: "+operation, nil)
 }
 
-type oszProjectingIdentityAdmin struct {
+type authzProjectingIdentityAdmin struct {
 	authn.IdentityAdmin
 	relationships authz.RelationshipWriter
 }
 
-func (a oszProjectingIdentityAdmin) CreateGroup(ctx context.Context, req authn.CreateGroupRequest) (authn.Group, error) {
+func (a authzProjectingIdentityAdmin) CreateGroup(ctx context.Context, req authn.CreateGroupRequest) (authn.Group, error) {
 	group, err := a.IdentityAdmin.CreateGroup(ctx, req)
 	if err != nil {
 		return authn.Group{}, err
@@ -187,7 +187,7 @@ func (a oszProjectingIdentityAdmin) CreateGroup(ctx context.Context, req authn.C
 	return group, nil
 }
 
-func (a oszProjectingIdentityAdmin) UpdateGroup(ctx context.Context, req authn.UpdateGroupRequest) (authn.Group, error) {
+func (a authzProjectingIdentityAdmin) UpdateGroup(ctx context.Context, req authn.UpdateGroupRequest) (authn.Group, error) {
 	group, err := a.IdentityAdmin.UpdateGroup(ctx, req)
 	if err != nil {
 		return authn.Group{}, err
@@ -198,28 +198,28 @@ func (a oszProjectingIdentityAdmin) UpdateGroup(ctx context.Context, req authn.U
 	return group, nil
 }
 
-func (a oszProjectingIdentityAdmin) DeleteGroup(ctx context.Context, req authn.DeleteGroupRequest) error {
+func (a authzProjectingIdentityAdmin) DeleteGroup(ctx context.Context, req authn.DeleteGroupRequest) error {
 	if err := a.IdentityAdmin.DeleteGroup(ctx, req); err != nil {
 		return err
 	}
 	return a.deleteGroupEdges(ctx, req.GroupID)
 }
 
-func (a oszProjectingIdentityAdmin) AssignUserToGroup(ctx context.Context, req authn.AssignUserToGroupRequest) error {
+func (a authzProjectingIdentityAdmin) AssignUserToGroup(ctx context.Context, req authn.AssignUserToGroupRequest) error {
 	if err := a.IdentityAdmin.AssignUserToGroup(ctx, req); err != nil {
 		return err
 	}
 	return a.writeGroupMember(ctx, req.GroupID, req.UserID)
 }
 
-func (a oszProjectingIdentityAdmin) RemoveUserFromGroup(ctx context.Context, req authn.AssignUserToGroupRequest) error {
+func (a authzProjectingIdentityAdmin) RemoveUserFromGroup(ctx context.Context, req authn.AssignUserToGroupRequest) error {
 	if err := a.IdentityAdmin.RemoveUserFromGroup(ctx, req); err != nil {
 		return err
 	}
 	return a.deleteGroupMember(ctx, req.GroupID, req.UserID)
 }
 
-func (a oszProjectingIdentityAdmin) writeGroupParent(ctx context.Context, parentID, groupID string) error {
+func (a authzProjectingIdentityAdmin) writeGroupParent(ctx context.Context, parentID, groupID string) error {
 	parentID = strings.TrimSpace(parentID)
 	groupID = strings.TrimSpace(groupID)
 	if parentID == "" || groupID == "" || parentID == groupID {
@@ -233,7 +233,7 @@ func (a oszProjectingIdentityAdmin) writeGroupParent(ctx context.Context, parent
 	return err
 }
 
-func (a oszProjectingIdentityAdmin) writeGroupMember(ctx context.Context, groupID, userID string) error {
+func (a authzProjectingIdentityAdmin) writeGroupMember(ctx context.Context, groupID, userID string) error {
 	groupID = strings.TrimSpace(groupID)
 	userID = strings.TrimSpace(userID)
 	if groupID == "" || userID == "" {
@@ -247,7 +247,7 @@ func (a oszProjectingIdentityAdmin) writeGroupMember(ctx context.Context, groupI
 	return err
 }
 
-func (a oszProjectingIdentityAdmin) deleteGroupMember(ctx context.Context, groupID, userID string) error {
+func (a authzProjectingIdentityAdmin) deleteGroupMember(ctx context.Context, groupID, userID string) error {
 	groupID = strings.TrimSpace(groupID)
 	userID = strings.TrimSpace(userID)
 	if groupID == "" || userID == "" {
@@ -263,7 +263,7 @@ func (a oszProjectingIdentityAdmin) deleteGroupMember(ctx context.Context, group
 	return err
 }
 
-func (a oszProjectingIdentityAdmin) deleteGroupEdges(ctx context.Context, groupID string) error {
+func (a authzProjectingIdentityAdmin) deleteGroupEdges(ctx context.Context, groupID string) error {
 	groupID = strings.TrimSpace(groupID)
 	if groupID == "" {
 		return nil
@@ -285,4 +285,4 @@ func firstNonEmpty(values ...string) string {
 }
 
 var _ authn.IdentityAdmin = externalOIDCIdentityAdmin{}
-var _ authn.IdentityAdmin = oszProjectingIdentityAdmin{}
+var _ authn.IdentityAdmin = authzProjectingIdentityAdmin{}
