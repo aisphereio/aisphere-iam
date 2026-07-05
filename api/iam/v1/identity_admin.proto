@@ -1,0 +1,220 @@
+syntax = "proto3";
+
+package iam.v1;
+
+import "aisphere/access/v1/access.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "iam/v1/iam.proto";
+
+option go_package = "github.com/aisphereio/aisphere-iam/api/iam/v1;v1";
+
+// IAMIdentityAdminService is the generated identity-management surface.
+//
+// This replaces the old plain HTTP /v1/users local-user endpoint. User writes
+// go through the configured identity provider. In casdoor_local mode they are
+// writable; in external_oidc mode user/org writes are rejected by the runtime
+// identity_mode guard while local application groups remain writable.
+service IAMIdentityAdminService {
+  rpc CreateUser(CreateUserRequest) returns (User) {
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/users" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "create" resource: "iam:org:{org_id}:user:*" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.user.create" risk: "high" }
+    };
+  }
+
+  rpc UpdateUser(UpdateUserRequest) returns (User) {
+    option (google.api.http) = { put: "/v1/iam/orgs/{org_id}/users/{user_id}" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "update" resource: "iam:org:{org_id}:user:{user_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.user.update" risk: "high" }
+    };
+  }
+
+  rpc DisableUser(DisableUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/users/{user_id}:disable" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "disable" resource: "iam:org:{org_id}:user:{user_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.user.disable" risk: "high" }
+    };
+  }
+
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/iam/orgs/{org_id}/users/{user_id}" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "delete" resource: "iam:org:{org_id}:user:{user_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.user.delete" risk: "critical" }
+    };
+  }
+
+  rpc CreateGroup(CreateGroupRequest) returns (Group) {
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/groups" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "create" resource: "iam:org:{org_id}:group:*" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.create" risk: "high" }
+    };
+  }
+
+  rpc UpdateGroup(UpdateGroupRequest) returns (Group) {
+    option (google.api.http) = { put: "/v1/iam/orgs/{org_id}/groups/{group_id}" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "update" resource: "iam:org:{org_id}:group:{group_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.update" risk: "high" }
+    };
+  }
+
+  rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/iam/orgs/{org_id}/groups/{group_id}" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "delete" resource: "iam:org:{org_id}:group:{group_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.delete" risk: "critical" }
+    };
+  }
+
+  rpc AssignUserToGroup(AssignUserToGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "assign" resource: "iam:org:{org_id}:group:{group_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.user.assign" risk: "high" }
+    };
+  }
+
+  rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "remove" resource: "iam:org:{org_id}:group:{group_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.user.remove" risk: "high" }
+    };
+  }
+}
+
+message CreateUserRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  User user = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  string idempotency_key = 3;
+}
+
+message UpdateUserRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string user_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  User user = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+message DisableUserRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string user_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message DeleteUserRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string user_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  bool hard = 3;
+}
+
+message CreateGroupRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  Group group = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  string idempotency_key = 3;
+}
+
+message UpdateGroupRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string group_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  Group group = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+message DeleteGroupRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string group_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  bool recursive = 3;
+}
+
+message AssignUserToGroupRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string group_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string user_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message RemoveUserFromGroupRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string group_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string user_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
