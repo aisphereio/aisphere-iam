@@ -48,8 +48,10 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	resourcev1.RegisterResourceServiceHTTPServer(srv, resourceSvc)
 	grantv1.RegisterGrantServiceHTTPServer(srv, grantSvc)
 	registerProjectionBranches(srv, projections)
-	// Register legacy /v1/users endpoints for local user management
-	localUserHandler := service.NewLocalUserHandler(resources.LocalUsers)
+	// Register legacy /v1/users endpoints for local user management.
+	// The handler performs an explicit accessx check because these routes are not
+	// generated proto operations and therefore do not have generated resolvers.
+	localUserHandler := service.NewLocalUserHandler(resources.LocalUsers, resources.Access)
 	srv.HandleFunc("/v1/users", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
