@@ -1,21 +1,3 @@
-// Package data authz_bootstrap.go — startup-time SpiceDB schema loader.
-//
-// On IAM startup, after Resources are constructed, BootstrapAuthzSchema
-// checks whether SpiceDB already has a schema. If not (or if the schema
-// is empty), it writes a default schema that covers all resource types
-// the IAM control plane uses.
-//
-// This is idempotent: WriteSchema on SpiceDB replaces the schema in
-// place, so re-running on an already-initialized SpiceDB is safe (but
-// will invalidate any tuples that reference relations not present in
-// the new schema — operators should review the schema text before
-// deploying a new IAM version).
-//
-// The default schema is sourced from kernel/authz/spicedb.DefaultSchema
-// extended with IAM-specific resource types. Keeping the kernel default
-// ensures platform / organization / group / application / project /
-// resource types stay in sync with the kernel IAM projection layer.
-
 package data
 
 import (
@@ -26,18 +8,11 @@ import (
 	"github.com/aisphereio/kernel/logx"
 )
 
-// IAMAuthzSchemaVersion is the schema version. Bump this when the schema
-// text below changes.
-const IAMAuthzSchemaVersion = "1.0.0"
+const IAMAuthzSchemaVersion = "1.0.2"
 
-// IAMAuthzSchema is the default SpiceDB schema for aisphere-iam. It
-// extends kernel/authz/spicedb.DefaultSchema with the iam control-plane
-// resource type and its relations/permissions.
-//
-// The "iam" type represents control-plane admin resources (organization,
-// capability, resource_type, etc.) that are bootstrapped with admin
-// relationships. The "create" permission allows authorized subjects to
-// create new organizations.
+// IAMAuthzSchema is the default SpiceDB schema for aisphere-iam. The
+// permissions must stay aligned with aisphere.access.v1.policy actions in
+// IAM proto contracts.
 const IAMAuthzSchema = `definition user {}
 definition service {}
 
@@ -51,7 +26,27 @@ definition iam {
 
   permission create = admin
   permission read = admin
+  permission list = admin
+  permission update = admin
+  permission disable = admin
+  permission delete = admin
   permission manage = admin
+  permission assign = admin
+  permission remove = admin
+  permission bind = admin
+  permission unbind = admin
+  permission move = admin
+  permission archive = admin
+  permission create_project = admin
+  permission grant = admin
+  permission revoke = admin
+  permission explain = admin
+  permission write = admin
+  permission lookup = admin
+  permission check = admin
+  permission upsert = admin
+  permission refresh = admin
+  permission verify = admin
 }
 
 definition organization {
@@ -62,6 +57,8 @@ definition organization {
 
   permission manage = owner + admin + platform->admin
   permission read = owner + admin + member + platform->admin
+  permission list = owner + admin + member + platform->admin
+  permission create_project = owner + admin + platform->admin
 }
 
 definition group {
@@ -70,6 +67,11 @@ definition group {
   relation member: user | service | group#member
 
   permission read = member + parent->read + org->read
+  permission list = org->read
+  permission manage = org->manage
+  permission assign = org->manage
+  permission remove = org->manage
+  permission delete = org->manage
 }
 
 definition application {
@@ -80,6 +82,7 @@ definition application {
 
   permission manage = owner + admin + org->manage
   permission read = owner + admin + member + org->read
+  permission list = org->read
 }
 
 definition project {
@@ -89,7 +92,10 @@ definition project {
   relation viewer: user | service | group#member
 
   permission read = viewer + editor + owner + org->read
+  permission list = org->read
   permission edit = editor + owner + org->manage
+  permission manage = editor + owner + org->manage
+  permission archive = owner + org->manage
   permission delete = owner + org->manage
 }
 
@@ -100,29 +106,28 @@ definition resource {
   relation viewer: user | service | group#member
 
   permission read = viewer + editor + owner + project->read
+  permission list = project->read
   permission edit = editor + owner + project->edit
+  permission manage = editor + owner + project->manage
+  permission move = owner + project->manage
+  permission archive = owner + project->manage
   permission delete = owner + project->delete
 }`
 
-// BootstrapAuthzSchema writes the default IAM authz schema to SpiceDB
-// when the schema is empty or missing. Called from main.go after
-// Resources are constructed.
-//
-// Behavior:
-//   - Binds identity group operations to AuthZ relationship projection when
-//     AuthzAdmin is configured.
-//   - If AuthzAdmin is nil (authz disabled), returns nil immediately.
-//   - If ReadSchema returns an error other than "schema not found",
-//     returns the error so main.go can surface it.
-//   - If ReadSchema returns a non-empty schema text that already contains
-//     IAM definitions (definition iam), returns nil.
-//   - If ReadSchema returns a non-empty schema text that only contains the
-//     Kernel base definitions, writes IAMAuthzSchema to add the iam type.
-//   - If ReadSchema returns empty schema text, writes IAMAuthzSchema.
-//
-// The function is safe to call on every startup — it only writes when
-// the schema is empty, so re-running on an initialized SpiceDB is a
-// no-op.
+var requiredSchemaPermissions = map[string][]string{
+	"iam": {
+		"create", "read", "list", "update", "disable", "delete", "manage",
+		"assign", "remove", "bind", "unbind", "move", "archive", "create_project",
+		"grant", "revoke", "explain", "write", "lookup", "check", "upsert",
+		"refresh", "verify",
+	},
+	"organization": {"read", "list", "manage", "create_project"},
+	"group":        {"read", "list", "manage", "assign", "remove", "delete"},
+	"application":  {"read", "list", "manage"},
+	"project":      {"read", "list", "edit", "manage", "archive", "delete"},
+	"resource":     {"read", "list", "edit", "manage", "move", "archive", "delete"},
+}
+
 func BootstrapAuthzSchema(ctx context.Context, resources *Resources, log logx.Logger) error {
 	if resources != nil {
 		resources.Identity = BindIdentityAuthZ(resources.Identity, resources.AuthzAdmin)
@@ -140,35 +145,57 @@ func BootstrapAuthzSchema(ctx context.Context, resources *Resources, log logx.Lo
 
 	schema, err := resources.AuthzAdmin.ReadSchema(ctx)
 	if err != nil {
-		log.WithContext(ctx).Warn("read schema failed; will attempt to write default",
-			logx.Err(err),
-		)
+		log.WithContext(ctx).Warn("read schema failed; will attempt to write default", logx.Err(err))
 	} else if schema.Text != "" {
-		if hasIAMAuthzDefinitions(schema.Text) {
+		if hasRequiredSchemaPermissions(schema.Text) {
 			log.WithContext(ctx).Info("authz schema already installed; skipping bootstrap",
 				logx.Int("size", len(schema.Text)),
+				logx.String("schema_version", IAMAuthzSchemaVersion),
 			)
 			return nil
 		}
-		log.WithContext(ctx).Warn("authz schema missing IAM definitions; applying IAM schema",
+		log.WithContext(ctx).Warn("authz schema missing definitions or permissions; applying IAM schema",
 			logx.Int("current_size", len(schema.Text)),
 			logx.String("schema_version", IAMAuthzSchemaVersion),
 		)
 	}
 
 	if err := resources.AuthzAdmin.WriteSchema(ctx, authz.Schema{Text: IAMAuthzSchema}); err != nil {
-		log.WithContext(ctx).Error("authz schema bootstrap failed",
-			logx.Err(err),
-		)
+		log.WithContext(ctx).Error("authz schema bootstrap failed", logx.Err(err))
 		return err
 	}
 	log.WithContext(ctx).Info("authz schema bootstrapped",
 		logx.Int("size", len(IAMAuthzSchema)),
+		logx.String("schema_version", IAMAuthzSchemaVersion),
 	)
 	return nil
 }
 
-func hasIAMAuthzDefinitions(schema string) bool {
+func hasRequiredSchemaPermissions(schema string) bool {
 	normalized := strings.ToLower(schema)
-	return strings.Contains(normalized, "definition iam ")
+	for definition, permissions := range requiredSchemaPermissions {
+		block := schemaDefinitionBlock(normalized, definition)
+		if block == "" {
+			return false
+		}
+		for _, permission := range permissions {
+			if !strings.Contains(block, "permission "+permission+" =") {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func schemaDefinitionBlock(schema string, definition string) string {
+	start := strings.Index(schema, "definition "+strings.ToLower(definition)+" ")
+	if start < 0 {
+		return ""
+	}
+	rest := schema[start+len("definition "+definition+" "):]
+	next := strings.Index(rest, "\ndefinition ")
+	if next < 0 {
+		return schema[start:]
+	}
+	return schema[start : start+len("definition "+definition+" ")+next]
 }
