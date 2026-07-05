@@ -53,10 +53,34 @@ Groups are not treated as upstream user-directory ownership in this mode. IAM us
 ```text
 external OIDC user
   -> IAM/Casdoor local application group membership
-  -> SpiceDB relationship projection
+  -> OSZ / SpiceDB relationship projection
   -> Aisphere resource authorization
 ```
 
 This allows Customer EC / external OIDC deployments to keep users and identity organizations read-only while still supporting local application authorization groups, multi-level group trees, and group-based access control.
+
+## OSZ relationship projection
+
+IAM binds identity group operations to OSZ during authz bootstrap. Once `AuthzAdmin` is configured, the identity admin is wrapped by `BindIdentityOSZ` so group writes also update the authorization graph.
+
+Projected relationships:
+
+```text
+AssignUserToGroup(user_id, group_id)
+  -> group:<group_id>#member@user:<user_id>
+
+CreateGroup(parent_id, group_id)
+UpdateGroup(parent_id, group_id)
+  -> group:<parent_id>#member@group:<group_id>#member
+
+RemoveUserFromGroup(user_id, group_id)
+  -> delete group:<group_id>#member@user:<user_id>
+
+DeleteGroup(group_id)
+  -> delete relationships where resource is group:<group_id>
+  -> delete relationships where subject is group:<group_id>#member
+```
+
+This projection is intentionally independent of `identity_mode`: both `casdoor_local` and `external_oidc` need local application groups to participate in OSZ authorization checks.
 
 This is independent of Gateway route exposure. Gateway decides which generated proto routes are externally reachable; `identity_mode` decides whether identity mutations are allowed after the request reaches IAM.
