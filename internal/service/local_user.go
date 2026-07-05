@@ -53,7 +53,7 @@ type localUserDeleteResponse struct {
 }
 
 func (h *LocalUserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
-	if !h.requireLocalUserPermission(w, r, "list") {
+	if !h.requireLocalUserPermission(w, r, "read") {
 		return
 	}
 	users, err := h.repo.ListUsers(r.Context())
@@ -69,7 +69,7 @@ func (h *LocalUserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *LocalUserHandler) SaveUser(w http.ResponseWriter, r *http.Request) {
-	if !h.requireLocalUserPermission(w, r, "upsert") {
+	if !h.requireLocalUserPermission(w, r, "manage") {
 		return
 	}
 	var req localUserResponse
@@ -107,7 +107,7 @@ func (h *LocalUserHandler) SaveUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *LocalUserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	if !h.requireLocalUserPermission(w, r, "delete") {
+	if !h.requireLocalUserPermission(w, r, "manage") {
 		return
 	}
 	vars := mux.Vars(r)
@@ -132,10 +132,11 @@ func (h *LocalUserHandler) requireLocalUserPermission(w http.ResponseWriter, r *
 	_, err := h.guard.Require(r.Context(), accessx.Check{
 		Principal:   principal,
 		Permission:  permission,
-		Resource:    authz.ObjectRef{Type: "iam", ID: "local_user"},
+		Resource:    authz.ObjectRef{Type: "iam", ID: "organization"},
 		AuditAction: "iam.local_user." + permission,
 		Metadata: map[string]any{
-			"legacy_route": "/v1/users",
+			"legacy_route":    "/v1/users",
+			"legacy_resource": "iam:local_user",
 		},
 	})
 	if err != nil {
