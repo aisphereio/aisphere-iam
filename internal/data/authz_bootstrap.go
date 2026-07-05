@@ -28,16 +28,15 @@ import (
 
 // IAMAuthzSchemaVersion is the schema version. Bump this when the schema
 // text below changes.
-const IAMAuthzSchemaVersion = "1.0.0"
+const IAMAuthzSchemaVersion = "1.0.1"
 
 // IAMAuthzSchema is the default SpiceDB schema for aisphere-iam. It
 // extends kernel/authz/spicedb.DefaultSchema with the iam control-plane
 // resource type and its relations/permissions.
 //
 // The "iam" type represents control-plane admin resources (organization,
-// capability, resource_type, etc.) that are bootstrapped with admin
-// relationships. The "create" permission allows authorized subjects to
-// create new organizations.
+// capability, resource_type, generated identity admin resources, etc.) that are
+// bootstrapped with admin relationships.
 const IAMAuthzSchema = `definition user {}
 definition service {}
 
@@ -51,7 +50,19 @@ definition iam {
 
   permission create = admin
   permission read = admin
+  permission list = admin
   permission manage = admin
+  permission update = admin
+  permission disable = admin
+  permission delete = admin
+  permission assign = admin
+  permission remove = admin
+  permission upsert = admin
+  permission bind = admin
+  permission unbind = admin
+  permission write = admin
+  permission lookup = admin
+  permission check = admin
 }
 
 definition organization {
