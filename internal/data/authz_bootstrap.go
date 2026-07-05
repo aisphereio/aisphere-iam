@@ -109,6 +109,8 @@ definition resource {
 // Resources are constructed.
 //
 // Behavior:
+//   - Binds identity group operations to OSZ relationship projection when
+//     AuthzAdmin is configured.
 //   - If AuthzAdmin is nil (authz disabled), returns nil immediately.
 //   - If ReadSchema returns an error other than "schema not found",
 //     returns the error so main.go can surface it.
@@ -122,6 +124,9 @@ definition resource {
 // the schema is empty, so re-running on an initialized SpiceDB is a
 // no-op.
 func BootstrapAuthzSchema(ctx context.Context, resources *Resources, log logx.Logger) error {
+	if resources != nil {
+		resources.Identity = BindIdentityOSZ(resources.Identity, resources.AuthzAdmin)
+	}
 	if resources == nil || resources.AuthzAdmin == nil {
 		if log != nil {
 			log.WithContext(ctx).Info("authz schema bootstrap skipped: authz not configured")
