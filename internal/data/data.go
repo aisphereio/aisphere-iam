@@ -278,6 +278,7 @@ func defaultControlPlaneAdminResources() []conf.ControlPlaneAdminResource {
 		{Type: "iam", ID: "external_resource_binding"},
 		{Type: "iam", ID: "role_template"},
 		{Type: "iam", ID: "grant"},
+		{Type: "iam", ID: "local_user"},
 	}
 }
 
