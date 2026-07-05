@@ -35,7 +35,6 @@ type ResourceOptions struct {
 type Resources struct {
 	DB           dbx.DB
 	ControlPlane ControlPlaneRepository
-	LocalUsers   LocalUserRepository
 	Cache        cachex.Cache
 	ObjectStore  objectstorex.Client
 	Audit        auditx.Recorder
@@ -87,7 +86,6 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 		}
 		r.DB = db
 		r.ControlPlane = NewControlPlaneRepository(db)
-		r.LocalUsers = NewLocalUserRepository(db)
 		r.closers = append(r.closers, db.Close)
 
 		if cfg.Data.Migration.Enabled {
