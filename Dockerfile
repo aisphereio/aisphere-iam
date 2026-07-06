@@ -1,24 +1,29 @@
-FROM golang:1.25 AS builder
+FROM golang:1.26 AS builder
 
-COPY . /src
 WORKDIR /src
 
-RUN GOPROXY=https://goproxy.cn make build
+# Cache dependencies
+COPY go.mod go.sum ./
+RUN go mod download
 
-FROM debian:stable-slim
+# Build
+COPY . .
+RUN CGO_ENABLED=0 go build \
+    -ldflags "-X main.Name=aisphere-iam -X main.Version=$(git describe --tags --always --dirty 2>/dev/null || echo dev)" \
+    -o /app/server \
+    ./cmd/aisphere-iam
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates \
-        netbase \
-        && rm -rf /var/lib/apt/lists/ \
-        && apt-get autoremove -y && apt-get autoclean -y
-
-COPY --from=builder /src/bin /app
-
+# Runtime stage
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates tzdata
+COPY --from=builder /app/server /app/server
+COPY --from=builder /src/configs /app/configs
+COPY --from=builder /src/migrations /app/migrations
 WORKDIR /app
 
-EXPOSE 8000
-EXPOSE 9000
-VOLUME /data/conf
+EXPOSE 18080 19080
 
-CMD ["./aisphere-iam", "-conf", "/data/conf"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:18080/healthz || exit 1
+
+CMD ["./server", "-conf", "./configs/config.yaml"]

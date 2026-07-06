@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aisphere-iam
+  namespace: aisphere
+  labels:
+    app: aisphere-iam
+    service: iam
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aisphere-iam
+  template:
+    metadata:
+      labels:
+        app: aisphere-iam
+        service: iam
+    spec:
+      serviceAccountName: aisphere-iam
+      volumes:
+        - name: config
+          configMap:
+            name: aisphere-iam-config
+      initContainers:
+        - name: sysctl
+          image: alpine:3.20
+          command:
+            - sh
+            - -c
+            - |
+              sysctl -w fs.inotify.max_user_watches=524288
+              sysctl -w fs.inotify.max_user_instances=512
+          securityContext:
+            privileged: true
+      containers:
+        - name: iam
+          image: registry.cn-beijing.aliyuncs.com/ainfracn/aisphere-iam:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 18080
+              name: http
+            - containerPort: 19080
+              name: grpc
+          env:
+            - name: KERNEL_ENV
+              value: "production"
+            - name: TZ
+              value: "Asia/Shanghai"
+          volumeMounts:
+            - name: config
+              mountPath: /app/configs/config.yaml
+              subPath: config.yaml
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 18080
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 18080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aisphere-iam
+  namespace: aisphere
