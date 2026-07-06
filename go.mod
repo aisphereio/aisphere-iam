@@ -4,7 +4,7 @@ go 1.25.8
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
-	github.com/aisphereio/kernel v0.2.3-0.20260706010652-0f88c272b4ef
+	github.com/aisphereio/kernel v0.2.4
 	github.com/casdoor/casdoor-go-sdk v1.46.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0
@@ -13,6 +13,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20260511170946-3700d4141b60
 	google.golang.org/grpc v1.81.1
 	google.golang.org/protobuf v1.36.11
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -93,7 +94,6 @@ require (
 	golang.org/x/text v0.37.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	gopkg.in/ini.v1 v1.67.2 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 	gorm.io/gorm v1.31.2 // indirect
 )
