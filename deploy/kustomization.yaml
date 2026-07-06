@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: aisphere
 
 resources:
+  - configmap.yaml
   - deployment.yaml
   - service.yaml
 

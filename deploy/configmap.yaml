@@ -1,0 +1,170 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aisphere-iam-config
+  namespace: aisphere
+data:
+  config.yaml: |
+    service:
+      name: iam-service
+      version: dev
+      env: production
+
+    server:
+      http:
+        addr: 0.0.0.0:18080
+        timeout_ns: 5000000000
+        cors:
+          enabled: true
+          allowed_origins:
+            - http://localhost:3000
+            - http://localhost:3001
+            - http://127.0.0.1:3000
+            - http://127.0.0.1:3001
+          allowed_methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+          allowed_headers: [Authorization, Content-Type, X-Request-ID, X-Trace-ID, Traceparent, Tracestate]
+          exposed_headers: [X-Request-ID]
+          allow_credentials: true
+          max_age_ns: 3600000000000
+      grpc:
+        addr: 0.0.0.0:19080
+        timeout_ns: 5000000000
+
+    log:
+      service_name: iam-service
+      env: production
+      version: dev
+      level: info
+      format: console
+      output: stdout
+      add_source: true
+      redact:
+        enabled: true
+        keys: [password, secret, token, access_key, secret_key, client_secret]
+        value: "***"
+      access_log:
+        enabled: true
+        skip_paths: [/healthz, /readyz, /metrics]
+        slow_threshold: 1000000000
+        request_id_header: X-Request-ID
+        route_header: X-Route-Pattern
+        log_user_agent: true
+
+    data:
+      database:
+        enabled: true
+        config:
+          auto_create_database: true
+          driver: postgres
+          dsn: "postgres://postgres:ChangeMe_PostgreSQL_123@apps-postgre.aisphere:5432/aisphere_iam?sslmode=disable"
+          max_open_conns: 20
+          max_idle_conns: 10
+          conn_max_lifetime_ns: 1800000000000
+          conn_max_idle_time_ns: 300000000000
+          query_timeout_ns: 5000000000
+          slow_query_threshold_ns: 200000000
+          audit_enabled: true
+          metrics_enabled: true
+      migration:
+        enabled: true
+        config:
+          enabled: true
+          engine: goose
+          dir: migrations
+          table: iam_schema_migrations
+          mode: apply
+          fail_on_pending: false
+          allow_concurrent: false
+      cache:
+        enabled: false
+      object_store:
+        enabled: false
+
+    security:
+      authn:
+        enabled: true
+        mode: gateway_trusted
+        provider: casdoor
+        cache_ttl_ns: 300000000000
+        oidc:
+          provider: casdoor
+          issuer: http://casdoor.aisphere:8000
+          discovery_url: http://casdoor.aisphere:8000/.well-known/openid-configuration
+          jwks_url: http://casdoor.aisphere:8000/.well-known/jwks
+          audience: [bbdcfc272e2b990cb923]
+          allowed_owners: [aisphere]
+          allowed_algs: [RS256, RS512, ES256, ES512]
+          jwks_cache_ttl_ns: 600000000000
+          clock_skew_ns: 60000000000
+        casdoor:
+          endpoint: http://casdoor.aisphere:8000
+          organization_name: aisphere
+          application_name: aisphere
+          client_id: bbdcfc272e2b990cb923
+          client_secret: "c4d351406d40251b267624328e50e8a1f7352a65"
+          jwt_certificate_file: /app/configs/casdoor.pub
+          timeout: 10000000000
+          metrics_enabled: true
+          admin:
+            enabled: true
+            organization_name: aisphere
+            application_name: iam-service
+            client_id: "bbdcfc272e2b990cb923"
+            client_secret: "c4d351406d40251b267624328e50e8a1f7352a65"
+            jwt_certificate_file: /app/configs/casdoor.pub
+      internal_call:
+        enabled: true
+        header: X-Aisphere-Internal-Token
+        token: "aisphere-internal-token-2026"
+      authz:
+        enabled: true
+        provider: spicedb
+        dev_allow_all: true
+        install_default_schema: true
+        schema_path: configs/spicedb/aisphere.schema.zed
+        spicedb:
+          endpoint: spicedb.aisphere:50051
+          token: "keykeykey"
+          transport: grpc
+          insecure: true
+          timeout: 5000000000
+          fully_consistent: true
+          metrics_enabled: true
+      access:
+        public_operations:
+          - BuildLoginURL
+          - ExchangeCode
+          - RefreshToken
+          - RevokeToken
+          - /healthz
+          - /readyz
+        skip_operations:
+          - GetMe
+          - CreateOrganization
+
+    control_plane:
+      defaults:
+        enabled: true
+        path: configs/resource/defaults.yaml
+
+    gateway:
+      route_registry:
+        provider: etcd
+        prefix: /aisphere/kernel/routes/dev
+        endpoints: [etcd-client.etcd-cluster:2379]
+        dial_timeout_ns: 5000000000
+        request_timeout_ns: 5000000000
+
+    audit:
+      enabled: true
+      store: memory
+
+    metrics:
+      enabled: true
+      addr: 0.0.0.0:19180
+      path: /metrics
+      pprof: false
+      runtime: true
+
+    dtm:
+      enabled: false
