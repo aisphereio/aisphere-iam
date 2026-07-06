@@ -3,7 +3,6 @@ package conf
 import (
 	"time"
 
-	"github.com/aisphereio/kernel/accessx"
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authn/casdoor"
 	"github.com/aisphereio/kernel/authn/oidcx"
@@ -24,7 +23,6 @@ type Bootstrap struct {
 	Data         DataConfig         `json:"data" yaml:"data"`
 	Security     SecurityConfig     `json:"security" yaml:"security"`
 	ControlPlane ControlPlaneConfig `json:"control_plane" yaml:"control_plane"`
-	Gateway      GatewayConfig      `json:"gateway" yaml:"gateway"`
 	Audit        AuditConfig        `json:"audit" yaml:"audit"`
 	Metrics      MetricsConfig      `json:"metrics" yaml:"metrics"`
 	DTM          dtmx.Config        `json:"dtm" yaml:"dtm"`
@@ -82,7 +80,6 @@ type ObjectStoreConfig struct {
 type SecurityConfig struct {
 	Authn        AuthnConfig                      `json:"authn" yaml:"authn"`
 	Authz        AuthzConfig                      `json:"authz" yaml:"authz"`
-	Access       accessx.AccessConfig             `json:"access" yaml:"access"`
 	InternalCall authn.InternalServiceTokenConfig `json:"internal_call" yaml:"internal_call"`
 }
 
@@ -130,18 +127,6 @@ type ControlPlaneAdminSubject struct {
 type ControlPlaneAdminResource struct {
 	Type string `json:"type" yaml:"type"`
 	ID   string `json:"id" yaml:"id"`
-}
-
-type GatewayConfig struct {
-	RouteRegistry RouteRegistryConfig `json:"route_registry" yaml:"route_registry"`
-}
-
-type RouteRegistryConfig struct {
-	Provider       string        `json:"provider" yaml:"provider"`
-	Prefix         string        `json:"prefix" yaml:"prefix"`
-	Endpoints      []string      `json:"endpoints" yaml:"endpoints"`
-	DialTimeout    time.Duration `json:"dial_timeout_ns" yaml:"dial_timeout_ns"`
-	RequestTimeout time.Duration `json:"request_timeout_ns" yaml:"request_timeout_ns"`
 }
 
 type AuditConfig struct {

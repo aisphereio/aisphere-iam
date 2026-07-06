@@ -11,7 +11,6 @@ import (
 	"github.com/aisphereio/kernel/configx/file"
 	"github.com/aisphereio/kernel/dtmx"
 	_ "github.com/aisphereio/kernel/dtmx/dtm"
-	"github.com/aisphereio/kernel/gatewayx"
 	"github.com/aisphereio/kernel/logx"
 	"github.com/aisphereio/kernel/metricsx"
 
@@ -22,7 +21,6 @@ import (
 	resourcebiz "github.com/aisphereio/aisphere-iam/internal/biz/resource"
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
-	"github.com/aisphereio/aisphere-iam/internal/registry"
 	"github.com/aisphereio/aisphere-iam/internal/server"
 	"github.com/aisphereio/aisphere-iam/internal/service"
 )
@@ -96,17 +94,6 @@ func main() {
 	projectService := service.NewProjectService(projectUsecase, resources.ControlPlane)
 	resourceService := service.NewResourceService(resourceUsecase, resources.ControlPlane)
 	grantService := service.NewGrantService(grantUsecase, resources.ControlPlane)
-
-	if bc.Gateway.RouteRegistry.Provider != "" || len(bc.Gateway.RouteRegistry.Endpoints) > 0 {
-		routeRegistry, registryCleanup, err := registry.NewRouteRegistry(context.Background(), registry.Config{Provider: bc.Gateway.RouteRegistry.Provider, Prefix: bc.Gateway.RouteRegistry.Prefix, Endpoints: bc.Gateway.RouteRegistry.Endpoints, DialTimeout: bc.Gateway.RouteRegistry.DialTimeout, RequestTimeout: bc.Gateway.RouteRegistry.RequestTimeout})
-		if err != nil {
-			panic(err)
-		}
-		defer registryCleanup()
-		if err := server.IAMCatalog().RegisterGatewayRoutesWithFilter(context.Background(), routeRegistry, gatewayx.PublicRouteFilter()); err != nil {
-			panic(err)
-		}
-	}
 
 	httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, permissionService, projectService, resourceService, grantService, bc.Security)
 	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, permissionService, projectService, resourceService, grantService, bc.Security)
