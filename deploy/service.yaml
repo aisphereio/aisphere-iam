@@ -17,3 +17,6 @@ spec:
     - name: grpc
       port: 19080
       targetPort: 19080
+    - name: metrics
+      port: 19180
+      targetPort: 19180
