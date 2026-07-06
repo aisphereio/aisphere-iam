@@ -4,7 +4,7 @@ go 1.25.8
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
-	github.com/aisphereio/kernel v0.2.2
+	github.com/aisphereio/kernel v0.2.3-0.20260706010653-0f88c272b4ef
 	github.com/casdoor/casdoor-go-sdk v1.46.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0
@@ -54,7 +54,7 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v7 v7.2.1 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
-	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8f8f2 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
