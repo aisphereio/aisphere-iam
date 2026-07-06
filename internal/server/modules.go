@@ -8,12 +8,7 @@ import (
 	"github.com/aisphereio/kernel/serverx"
 )
 
-// IAMGatewayModules returns every generated IAM service module that should be
-// published into the Gateway route registry.
-//
-// Keep service discovery centralized here instead of scattering generated module
-// calls through cmd/aisphere-iam/main.go.
-func IAMGatewayModules() []serverx.ServiceModule {
+func IAMModules() []serverx.ServiceModule {
 	return []serverx.ServiceModule{
 		v1.IAMAuthServiceKernelModule(),
 		v1.IAMDirectoryServiceKernelModule(),
@@ -23,4 +18,8 @@ func IAMGatewayModules() []serverx.ServiceModule {
 		resourcev1.ResourceServiceKernelModule(),
 		grantv1.GrantServiceKernelModule(),
 	}
+}
+
+func IAMCatalog() serverx.ServiceCatalog {
+	return serverx.MustServiceCatalog(IAMModules()...)
 }

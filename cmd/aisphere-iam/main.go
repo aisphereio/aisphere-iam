@@ -14,7 +14,6 @@ import (
 	"github.com/aisphereio/kernel/gatewayx"
 	"github.com/aisphereio/kernel/logx"
 	"github.com/aisphereio/kernel/metricsx"
-	"github.com/aisphereio/kernel/serverx"
 
 	defaults "github.com/aisphereio/aisphere-iam/internal/biz/defaults"
 	grantbiz "github.com/aisphereio/aisphere-iam/internal/biz/grant"
@@ -104,7 +103,7 @@ func main() {
 			panic(err)
 		}
 		defer registryCleanup()
-		if err := serverx.RegisterServiceGatewayRoutesWithFilter(context.Background(), routeRegistry, gatewayx.PublicRouteFilter(), server.IAMGatewayModules()...); err != nil {
+		if err := server.IAMCatalog().RegisterGatewayRoutesWithFilter(context.Background(), routeRegistry, gatewayx.PublicRouteFilter()); err != nil {
 			panic(err)
 		}
 	}
