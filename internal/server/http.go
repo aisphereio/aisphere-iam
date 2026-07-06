@@ -43,6 +43,7 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	srv := khttp.NewServer(opts...)
 	v1.RegisterIAMAuthServiceHTTPServer(srv, authSvc)
 	v1.RegisterIAMDirectoryServiceHTTPServer(srv, dirSvc)
+	registerIdentityAdminHTTP(srv, resources)
 	v1.RegisterIAMPermissionServiceHTTPServer(srv, permSvc)
 	projectv1.RegisterProjectServiceHTTPServer(srv, projectSvc)
 	resourcev1.RegisterResourceServiceHTTPServer(srv, resourceSvc)

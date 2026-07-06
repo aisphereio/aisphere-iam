@@ -1,34 +1,36 @@
-# Identity Admin Wiring TODO
+# Identity Admin Auto Registration
 
-This branch adds the service implementation but leaves the final generated wiring for local completion after `make api`.
+Identity admin is now wired through the IAM server registration layer instead of being manually passed from `cmd/aisphere-iam/main.go`.
+
+## Automatic registration points
+
+1. HTTP server
+
+```go
+registerIdentityAdminHTTP(srv, resources)
+```
+
+`registerIdentityAdminHTTP` creates `IAMIdentityAdminService` from `resources.Identity` and registers the generated HTTP server when the identity provider is configured.
+
+2. RPC server
+
+```go
+registerIdentityAdminRPC(srv, resources)
+```
+
+`registerIdentityAdminRPC` creates the same service from `resources.Identity` and registers the generated RPC server when the identity provider is configured.
+
+3. Gateway route registry
+
+```go
+server.IAMGatewayModules()
+```
+
+`cmd/aisphere-iam/main.go` now asks the server package for the full generated IAM module catalog instead of listing service modules one by one.
 
 ## Local follow-up
 
-1. Create the service in `cmd/aisphere-iam/main.go`:
-
-```go
-identityAdminService := service.NewIAMIdentityAdminService(deps)
-```
-
-2. Add the generated Gateway module to route registration:
-
-```go
-v1.IAMIdentityAdminServiceKernelModule(),
-```
-
-3. Pass the service to HTTP server construction and register it in `internal/server/http.go`:
-
-```go
-v1.RegisterIAMIdentityAdminServiceHTTPServer(srv, identityAdminSvc)
-```
-
-4. Pass the service to gRPC server construction and register it in `internal/server/grpc.go`:
-
-```go
-v1.RegisterIAMIdentityAdminServiceServer(srv, identityAdminSvc)
-```
-
-5. Run local generation and verification:
+`make api` is still required locally because `IAMIdentityAdminService` generated Go types come from `api/iam/v1/identity_admin.proto`.
 
 ```bash
 make api
@@ -36,3 +38,9 @@ make proto-check
 make test
 make build
 ```
+
+After generation, the identity admin service should be available in all three places automatically:
+
+- HTTP binding
+- RPC binding
+- Gateway route registry
