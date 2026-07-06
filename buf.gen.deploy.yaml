@@ -1,0 +1,17 @@
+version: v2
+
+inputs:
+  - directory: api
+
+plugins:
+  - local: protoc-gen-go-deploy
+    out: .
+    strategy: all
+    opt:
+      - service=aisphere-iam
+      - namespace=aisphere
+      - backend_port=19080
+      - parent_namespace=aisphere-system
+      - public_gateway=public-gateway
+      - authenticated_gateway=authenticated-gateway
+      - internal_gateway=internal-gateway

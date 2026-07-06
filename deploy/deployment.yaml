@@ -18,6 +18,8 @@ spec:
         service: iam
     spec:
       serviceAccountName: aisphere-iam
+      imagePullSecrets:
+        - name: aliyun-registry
       volumes:
         - name: config
           configMap:
@@ -42,6 +44,8 @@ spec:
               name: http
             - containerPort: 19080
               name: grpc
+            - containerPort: 19180
+              name: metrics
           env:
             - name: KERNEL_ENV
               value: "production"
