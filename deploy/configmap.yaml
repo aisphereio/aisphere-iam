@@ -56,7 +56,7 @@ data:
         config:
           auto_create_database: true
           driver: postgres
-          dsn: "postgres://postgres:ChangeMe_PostgreSQL_123@apps-postgre.aisphere:5432/aisphere_iam?sslmode=disable"
+          dsn: "postgres://postgres:CHANGE_ME@apps-postgre.aisphere:5432/aisphere_iam?sslmode=disable"
           max_open_conns: 20
           max_idle_conns: 10
           conn_max_lifetime_ns: 1800000000000
@@ -91,7 +91,7 @@ data:
           issuer: http://casdoor.aisphere:8000
           discovery_url: http://casdoor.aisphere:8000/.well-known/openid-configuration
           jwks_url: http://casdoor.aisphere:8000/.well-known/jwks
-          audience: [bbdcfc272e2b990cb923]
+          audience: [CHANGE_ME_CLIENT_ID]
           allowed_owners: [aisphere]
           allowed_algs: [RS256, RS512, ES256, ES512]
           jwks_cache_ttl_ns: 600000000000
@@ -100,8 +100,8 @@ data:
           endpoint: http://casdoor.aisphere:8000
           organization_name: aisphere
           application_name: aisphere
-          client_id: bbdcfc272e2b990cb923
-          client_secret: "c4d351406d40251b267624328e50e8a1f7352a65"
+          client_id: CHANGE_ME_CLIENT_ID
+          client_secret: "CHANGE_ME_CLIENT_SECRET"
           jwt_certificate_file: /app/configs/casdoor.pub
           timeout: 10000000000
           metrics_enabled: true
@@ -109,13 +109,13 @@ data:
             enabled: true
             organization_name: aisphere
             application_name: iam-service
-            client_id: "bbdcfc272e2b990cb923"
-            client_secret: "c4d351406d40251b267624328e50e8a1f7352a65"
+            client_id: "CHANGE_ME_M2M_CLIENT_ID"
+            client_secret: "CHANGE_ME_M2M_CLIENT_SECRET"
             jwt_certificate_file: /app/configs/casdoor.pub
       internal_call:
         enabled: true
         header: X-Aisphere-Internal-Token
-        token: "aisphere-internal-token-2026"
+        token: "CHANGE_ME_INTERNAL_TOKEN"
       authz:
         enabled: true
         provider: spicedb
@@ -124,7 +124,7 @@ data:
         schema_path: configs/spicedb/aisphere.schema.zed
         spicedb:
           endpoint: spicedb.aisphere:50051
-          token: "keykeykey"
+          token: "CHANGE_ME_SPICEDB_TOKEN"
           transport: grpc
           insecure: true
           timeout: 5000000000
