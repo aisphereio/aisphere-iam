@@ -1,27 +1,34 @@
-FROM golang:1.26 AS builder
+ARG GO_VERSION=1.25.8
+
+FROM golang:${GO_VERSION}-alpine AS builder
 
 WORKDIR /src
+RUN apk add --no-cache ca-certificates git tzdata
 
-# Cache dependencies
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Build
 COPY . .
-RUN CGO_ENABLED=0 go build \
-    -ldflags "-X main.Name=aisphere-iam -X main.Version=$(git describe --tags --always --dirty 2>/dev/null || echo dev)" \
+ARG VERSION=dev
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -trimpath \
+    -ldflags "-s -w -X main.Name=aisphere-iam -X main.Version=${VERSION}" \
     -o /app/server \
     ./cmd/aisphere-iam
 
-# Runtime stage
 FROM alpine:3.20
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata wget \
+    && addgroup -S app \
+    && adduser -S -G app app
+
+WORKDIR /app
 COPY --from=builder /app/server /app/server
 COPY --from=builder /src/configs /app/configs
 COPY --from=builder /src/migrations /app/migrations
-WORKDIR /app
+RUN chown -R app:app /app
 
-EXPOSE 18080 19080
+USER app
+EXPOSE 18080 19080 19180
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:18080/healthz || exit 1
