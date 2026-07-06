@@ -13,10 +13,10 @@ spec:
   ports:
     - name: http
       port: 18080
-      targetPort: 18080
+      targetPort: http
     - name: grpc
       port: 19080
-      targetPort: 19080
+      targetPort: grpc
     - name: metrics
       port: 19180
-      targetPort: 19180
+      targetPort: metrics

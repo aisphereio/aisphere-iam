@@ -20,25 +20,24 @@ spec:
       serviceAccountName: aisphere-iam
       imagePullSecrets:
         - name: aliyun-registry
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 101
+        fsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
       volumes:
         - name: config
           configMap:
             name: aisphere-iam-config
-      initContainers:
-        - name: sysctl
-          image: alpine:3.20
-          command:
-            - sh
-            - -c
-            - |
-              sysctl -w fs.inotify.max_user_watches=524288
-              sysctl -w fs.inotify.max_user_instances=512
-          securityContext:
-            privileged: true
       containers:
         - name: iam
           image: registry.cn-beijing.aliyuncs.com/ainfracn/aisphere-iam:latest
           imagePullPolicy: Always
+          args:
+            - -conf
+            - /app/configs/config.yaml
           ports:
             - containerPort: 18080
               name: http
@@ -56,16 +55,22 @@ spec:
               mountPath: /app/configs/config.yaml
               subPath: config.yaml
               readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 18080
+              port: http
             initialDelaySeconds: 20
             periodSeconds: 20
           readinessProbe:
             httpGet:
-              path: /healthz
-              port: 18080
+              path: /readyz
+              port: http
             initialDelaySeconds: 10
             periodSeconds: 10
           resources:
