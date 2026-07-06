@@ -61,6 +61,7 @@ func iamRequestInfoResolver(ctx context.Context, operation string, req any) (req
 	resolvers := []requestx.Resolver{
 		v1.IAMAuthServiceKernelRequestInfoResolver,
 		v1.IAMDirectoryServiceKernelRequestInfoResolver,
+		v1.IAMIdentityAdminServiceKernelRequestInfoResolver,
 		v1.IAMPermissionServiceKernelRequestInfoResolver,
 		projectv1.ProjectServiceKernelRequestInfoResolver,
 		resourcev1.ResourceServiceKernelRequestInfoResolver,
@@ -79,6 +80,7 @@ func iamAccessResolver(ctx context.Context, operation string, req any) (accessx.
 	resolvers := []mwaccess.Resolver{
 		v1.IAMAuthServiceKernelAccessResolver,
 		v1.IAMDirectoryServiceKernelAccessResolver,
+		v1.IAMIdentityAdminServiceKernelAccessResolver,
 		v1.IAMPermissionServiceKernelAccessResolver,
 		projectv1.ProjectServiceKernelAccessResolver,
 		resourcev1.ResourceServiceKernelAccessResolver,
