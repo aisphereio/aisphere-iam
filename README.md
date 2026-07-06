@@ -1,43 +1,83 @@
 # Aisphere IAM
 
-Aisphere IAM 是基于 `github.com/aisphereio/kernel` 的身份认证、目录查询和权限关系服务。它封装 Casdoor（认证）和 SpiceDB（授权），为 Hub、Gateway、Runtime 等业务组件提供统一 IAM API。
+Aisphere IAM 是基于 `github.com/aisphereio/kernel` 的身份认证、目录查询、资源控制面和权限关系服务。它封装 Casdoor（认证）和 SpiceDB（授权），为 Hub、Gateway、Runtime 等业务组件提供统一 IAM API。
 
-本仓库不是 Kernel layout 模板仓库。开发规则见 `AGENTS.md`，本地运行见 `docs/run-local.md`，Kernel 合规说明见 `docs/kernel-compliance.md`。
+本仓库不是 Kernel layout 模板仓库。开发规则见 `AGENTS.md`，本地运行见 `docs/run-local.md`，部署方案见 `docs/deploy.md`，Kernel 合规说明见 `docs/kernel-compliance.md`。
 
 ## 架构
 
 ```text
 外部请求
-  -> HTTP / gRPC server
-  -> IAMAuthService   (登录、令牌管理、用户信息)
-  -> IAMDirectoryService (用户、组织、组目录查询)
-  -> IAMPermissionService (权限检查、关系写入、资源/主体查找)
-  -> Casdoor (认证后端)
-  -> SpiceDB (授权后端)
+  -> Gateway API / Gateway Controller
+  -> aisphere-iam HTTP / gRPC server
+  -> IAMAuthService        登录、令牌管理、用户信息
+  -> IAMDirectoryService   用户、组织、组目录查询
+  -> IAMPermissionService  权限检查、关系写入、资源/主体查找
+  -> ProjectService        组织、项目、能力开关
+  -> ResourceService       资源控制面投影
+  -> GrantService          角色模板和授权 Grant
+  -> Casdoor               认证后端
+  -> SpiceDB               授权后端
+```
+
+## Kernel 版本
+
+当前目标 Kernel 版本：`github.com/aisphereio/kernel v0.2.5`。
+
+工具链默认安装 v0.2.5：
+
+```bash
+make tools
+```
+
+本地开发 Kernel generator 时：
+
+```bash
+make tools-local KERNEL_LOCAL=../kernel
 ```
 
 ## 快速开始
 
-```powershell
-# 安装工具链（使用本地 kernel 开发时）
-make tools-local KERNEL_LOCAL=../kernel
-
-# 生成 API 代码
+```bash
+make tools
 make api
-
-# 检查 proto
+make deploy
 make proto-check
-
-# 运行测试
 make test
-
-# 启动服务
 make run
 ```
 
+## 部署
+
+IAM 部署分两类清单：
+
+| 类型 | 来源 |
+|---|---|
+| Deployment / Service / ConfigMap / Namespace | `deploy/*.yaml` |
+| Gateway API HTTPRoute 等生成清单 | `make deploy` 生成到 `deploy/generated` |
+
+一键生成并部署：
+
+```bash
+make deploy-apply
+```
+
+等价于：
+
+```bash
+make deploy
+kubectl apply -f deploy/namespace.yaml
+kubectl apply -f deploy/configmap.yaml
+kubectl apply -f deploy/service.yaml
+kubectl apply -f deploy/deployment.yaml
+kubectl apply -R -f deploy/generated
+```
+
+路由事实源是 proto，不是 `config.yaml`。公开、认证、内部路由由 `api/**.proto` 的 `aisphere.access.v1.policy` 和 Kernel deploy generator 决定。
+
 ## 本地运行
 
-```powershell
+```bash
 go run ./cmd/aisphere-iam -conf ./configs/config.local.yaml
 ```
 
@@ -51,15 +91,13 @@ go run ./cmd/aisphere-iam -conf ./configs/config.local.yaml
 
 ```text
 cmd/aisphere-iam/      Application entrypoint
-configs/               Local config files
+configs/               Runtime config files
 internal/conf/         Config DTOs scanned by configx
-internal/data/         Kernel resource initialization (Casdoor, SpiceDB, etc.)
-internal/registry/     Route registry client (etcd)
+internal/data/         Kernel resource initialization
 internal/server/       Kernel HTTP and gRPC server construction
 internal/service/      IAM 业务服务
-  ├── authn.go         IAMAuthService — 登录、令牌、用户信息
-  ├── directory.go    IAMDirectoryService — 用户/目录查询
-  └── permission.go   IAMPermissionService — 权限检查/关系管理
+deploy/                K8s service manifests
+deploy/generated/      Generated Gateway API manifests, created by make deploy
 ```
 
 ## 提供的服务
@@ -97,54 +135,12 @@ internal/service/      IAM 业务服务
 | `LookupResources` | 查找资源 |
 | `LookupSubjects` | 查找主体 |
 
-## 本地用户管理 API
-
-IAM 提供了一组非 protobuf 的 HTTP 端点用于管理本地用户（存储在 IAM 自有数据库中，非 Casdoor 用户）：
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| `GET` | `/v1/users` | 列出所有本地用户 |
-| `POST` | `/v1/users` | 创建或更新本地用户 |
-| `DELETE` | `/v1/users/{username}` | 删除指定用户 |
-
-这些端点是普通 HTTP handler（不是 protobuf/gRPC），注册在 `internal/server/http.go` 中，使用 `gorilla/mux` 路由。
-
-### 数据模型
-
-```sql
-CREATE TABLE iam_local_users (
-  username text PRIMARY KEY,
-  subject_id text,
-  subject_type text NOT NULL DEFAULT 'human',
-  display_name text,
-  email text,
-  organization text,
-  roles_json jsonb NOT NULL DEFAULT '[]'::jsonb,
-  permissions_json jsonb NOT NULL DEFAULT '[]'::jsonb,
-  namespaces_json jsonb NOT NULL DEFAULT '[]'::jsonb,
-  password_hash text,
-  disabled boolean NOT NULL DEFAULT false,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
-```
-
 ## 验证
 
 ```bash
-# 健康检查
 curl http://127.0.0.1:18080/healthz
-
-# 获取登录 URL
+curl http://127.0.0.1:18080/readyz
 curl "http://127.0.0.1:18080/v1/iam/login-url?redirect_uri=http://localhost:3001/auth/callback&state=/"
-
-# 列出本地用户
-curl http://127.0.0.1:18080/v1/users
-
-# 创建本地用户
-curl -X POST http://127.0.0.1:18080/v1/users \
-  -H "Content-Type: application/json" \
-  -d '{"username":"test","displayName":"Test User","email":"test@example.com","password":"test123"}'
 ```
 
 ## 依赖
@@ -152,4 +148,5 @@ curl -X POST http://127.0.0.1:18080/v1/users \
 - `github.com/aisphereio/kernel` — 核心框架
 - Casdoor — 身份认证
 - SpiceDB — 关系授权
-- etcd — route registry 存储（可选）
+- PostgreSQL — IAM 控制面存储
+- Gateway API — Kubernetes 路由发布

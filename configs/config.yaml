@@ -118,7 +118,7 @@ security:
   authz:
     enabled: true
     provider: spicedb
-    dev_allow_all: true
+    dev_allow_all: false
     install_default_schema: true
     schema_path: configs/spicedb/aisphere.schema.zed
     spicedb:
@@ -129,30 +129,11 @@ security:
       timeout: 5000000000
       fully_consistent: true
       metrics_enabled: true
-  access:
-    public_operations:
-      - BuildLoginURL
-      - ExchangeCode
-      - RefreshToken
-      - RevokeToken
-      - /healthz
-      - /readyz
-    skip_operations:
-      - GetMe
-      - CreateOrganization
 
 control_plane:
   defaults:
     enabled: true
     path: configs/resource/defaults.yaml
-
-gateway:
-  route_registry:
-    provider: etcd
-    prefix: /aisphere/kernel/routes/dev
-    endpoints: [127.0.0.1:2379]
-    dial_timeout_ns: 5000000000
-    request_timeout_ns: 5000000000
 
 audit:
   enabled: true

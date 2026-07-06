@@ -51,7 +51,7 @@ data:
     config:
       auto_create_database: true
       driver: postgres
-      dsn: "postgres://postgres:ChangeMe_PostgreSQL_123@36.137.200.194:30080/aisphere_iam?sslmode=disable"
+      dsn: "postgres://postgres:CHANGE_ME@127.0.0.1:5432/aisphere_iam?sslmode=disable"
       max_open_conns: 20
       max_idle_conns: 10
       conn_max_lifetime_ns: 1800000000000
@@ -78,68 +78,46 @@ data:
 security:
   authn:
     enabled: true
-    # IAM is normally behind Gateway. Authenticated business/admin requests
-    # use Gateway-verified X-Aisphere-* headers. IAM still keeps Casdoor
-    # OAuth client config for login callback, refresh, logout and M2M admin.
     mode: gateway_trusted
     provider: casdoor
     cache_ttl_ns: 300000000000
     oidc:
       provider: casdoor
-      issuer: http://36.137.200.194:30082
-      discovery_url: http://36.137.200.194:30082/.well-known/openid-configuration
-      jwks_url: http://36.137.200.194:30082/.well-known/jwks
-      audience: [bbdcfc272e2b990cb923]
+      issuer: http://127.0.0.1:8000
+      discovery_url: http://127.0.0.1:8000/.well-known/openid-configuration
+      jwks_url: http://127.0.0.1:8000/.well-known/jwks
+      audience: [CHANGE_ME_CLIENT_ID]
       allowed_owners: [aisphere]
       allowed_algs: [RS256, RS512, ES256, ES512]
       jwks_cache_ttl_ns: 600000000000
       clock_skew_ns: 60000000000
     casdoor:
-      endpoint: http://36.137.200.194:30082
-      issuer: http://36.137.200.194:30082
-      discovery_url: http://36.137.200.194:30082/.well-known/openid-configuration
-      jwks_url: http://36.137.200.194:30082/.well-known/jwks
-      audience: [3319f6430828f3b2bd8f]
+      endpoint: http://127.0.0.1:8000
+      issuer: http://127.0.0.1:8000
+      discovery_url: http://127.0.0.1:8000/.well-known/openid-configuration
+      jwks_url: http://127.0.0.1:8000/.well-known/jwks
+      audience: [CHANGE_ME_CLIENT_ID]
       allowed_owners: [aisphere]
       allowed_algs: [RS256, RS512, ES256, ES512]
       jwks_cache_ttl_ns: 600000000000
-      client_id: 3319f6430828f3b2bd8f
-      client_secret: 6d37fc7a95c21c45e543207704345b2ac80586d2
+      client_id: CHANGE_ME_CLIENT_ID
+      client_secret: "CHANGE_ME_CLIENT_SECRET"
       organization_name: aisphere
       application_name: aisphere-iam
       jwt_certificate_file: ./configs/casdoor.pub
       timeout: 10000000000
       metrics_enabled: true
-      # Dedicated Casdoor M2M application for IAM control-plane calls.
-      # Do not use built-in/admin for normal runtime calls; IAM checks actor
-      # permissions through SpiceDB first, then calls Casdoor as iam-service.
       admin:
         enabled: true
         organization_name: aisphere
         application_name: iam-service
-        client_id: "bbdcfc272e2b990cb923"
-        client_secret: "c4d351406d40251b267624328e50e8a1f7352a65"
+        client_id: "CHANGE_ME_M2M_CLIENT_ID"
+        client_secret: "CHANGE_ME_M2M_CLIENT_SECRET"
         jwt_certificate_file: configs/casdoor.pub
   internal_call:
-    # Required when authn.mode=gateway_trusted. Gateway injects this after
-    # validating the external Casdoor JWT; IAM rejects trusted headers without it.
     enabled: true
     header: X-Aisphere-Internal-Token
-    token: "aisphere-internal-token-2026"
-  access:
-    # SkipAll: public browser/auth entrypoints.
-    public_operations:
-      - BuildLoginURL
-      - ExchangeCode
-      - RefreshToken
-      - RevokeToken
-      - /healthz
-      - /readyz
-    # SkipAuthz: still requires authn and audit, but bypasses SpiceDB because
-    # the operation is self-service or creates the root authorization object.
-    skip_operations:
-      - GetMe
-      - CreateOrganization
+    token: "CHANGE_ME_INTERNAL_TOKEN"
   authz:
     enabled: true
     provider: spicedb
@@ -147,8 +125,8 @@ security:
     install_default_schema: true
     schema_path: configs/spicedb/aisphere.schema.zed
     spicedb:
-      endpoint: 36.137.200.194:30084
-      token: "keykeykey"
+      endpoint: 127.0.0.1:50051
+      token: "CHANGE_ME_SPICEDB_TOKEN"
       transport: grpc
       insecure: true
       timeout: 5000000000
@@ -160,18 +138,8 @@ control_plane:
     enabled: true
     path: configs/resource/defaults.yaml
   bootstrap_admins:
-    enabled: true
-    subjects:
-      - type: user
-        id: 360f0772-1658-4325-9eee-35052615954e
-
-gateway:
-  route_registry:
-    provider: etcd
-    prefix: /aisphere/kernel/routes/dev
-    endpoints: [36.137.200.194:30086]
-    dial_timeout_ns: 5000000000
-    request_timeout_ns: 5000000000
+    enabled: false
+    subjects: []
 
 audit:
   enabled: true
