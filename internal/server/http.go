@@ -5,16 +5,13 @@ import (
 	"net/http"
 	"time"
 
-	grantv1 "github.com/aisphereio/aisphere-iam/api/iam/grant/v1"
-	projectv1 "github.com/aisphereio/aisphere-iam/api/iam/project/v1"
-	resourcev1 "github.com/aisphereio/aisphere-iam/api/iam/resource/v1"
-	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	"github.com/aisphereio/aisphere-iam/internal/biz/projection"
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/aisphere-iam/internal/service"
 	"github.com/aisphereio/kernel/logx"
 	"github.com/aisphereio/kernel/metricsx"
+	"github.com/aisphereio/kernel/serverx"
 	khttp "github.com/aisphereio/kernel/transportx/http"
 )
 
@@ -41,13 +38,9 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 		opts = append(opts, khttp.Middleware(m...))
 	}
 	srv := khttp.NewServer(opts...)
-	v1.RegisterIAMAuthServiceHTTPServer(srv, authSvc)
-	v1.RegisterIAMDirectoryServiceHTTPServer(srv, dirSvc)
-	registerIdentityAdminHTTP(srv, resources)
-	v1.RegisterIAMPermissionServiceHTTPServer(srv, permSvc)
-	projectv1.RegisterProjectServiceHTTPServer(srv, projectSvc)
-	resourcev1.RegisterResourceServiceHTTPServer(srv, resourceSvc)
-	grantv1.RegisterGrantServiceHTTPServer(srv, grantSvc)
+	if err := serverx.RegisterHTTPServices(srv, IAMBindings(resources, authSvc, dirSvc, permSvc, projectSvc, resourceSvc, grantSvc)...); err != nil {
+		panic(err)
+	}
 	registerProjectionBranches(srv, projections)
 
 	srv.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
