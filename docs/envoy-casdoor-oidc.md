@@ -21,37 +21,26 @@ Browser / CLI / Agent
   -> Envoy Gateway
   -> Gateway 清理客户端伪造的 x-aisphere-* / x-internal-*
   -> Gateway OIDC/JWT 验证 Casdoor token
-  -> Gateway claimToHeaders 提取 x-aisphere-external-*
+  -> Gateway claimToHeaders 提取 x-aisphere-* 身份头
   -> Gateway 转发到 Hub/IAM/Runtime/Git
-  -> 后端 Kernel middleware 读取 external identity
+  -> 后端 Kernel v0.4.0+ middleware 从 Gateway claim header 恢复 authn.Principal
+  -> 后端通过 authn.PrincipalFromContext(ctx) 获取调用者
   -> 后端按需调用 IAM 做 user/principal 映射和业务授权
 ```
 
 ## 3. Gateway 输出给后端的 Header
 
-本阶段 Gateway 只输出 external identity header：
+基础 external identity header：
 
 ```text
 x-aisphere-external-sub
+x-aisphere-external-issuer
 x-aisphere-external-email
 x-aisphere-external-name
 x-aisphere-external-username
 ```
 
-语义：
-
-| Header | 来源 | 说明 |
-|---|---|---|
-| `x-aisphere-external-sub` | Casdoor JWT `sub` | Casdoor subject |
-| `x-aisphere-external-email` | Casdoor JWT `email` | 外部邮箱 |
-| `x-aisphere-external-name` | Casdoor JWT `name` | 展示名 |
-| `x-aisphere-external-username` | Casdoor JWT `preferred_username` | 外部用户名 |
-
-这些 header 不等价于 Aisphere internal principal。
-
-## 4. 本阶段不使用的 Header
-
-Gateway 不输出：
+可选内部投影 header：
 
 ```text
 x-aisphere-principal
@@ -59,11 +48,55 @@ x-aisphere-user-id
 x-aisphere-org-id
 x-aisphere-project-id
 x-aisphere-roles
-x-aisphere-authz-decision-id
-x-aisphere-internal-jwt
+x-aisphere-groups
+x-aisphere-scopes
 ```
 
-这些 header 预留给后续 IAM ExternalAuth 阶段。
+Kernel v0.4.0+ 的恢复规则：
+
+```text
+SubjectID = x-aisphere-principal > x-aisphere-user-id > x-aisphere-external-sub
+ExternalID = x-aisphere-external-sub
+Issuer = x-aisphere-external-issuer
+Email = x-aisphere-external-email
+Name = x-aisphere-external-name
+Username = x-aisphere-external-username
+OrgID = x-aisphere-org-id
+ProjectID = x-aisphere-project-id
+Roles = x-aisphere-roles
+Groups = x-aisphere-groups
+Scopes = x-aisphere-scopes
+```
+
+业务 handler 不要自己解析 header，统一使用：
+
+```go
+principal, ok := authn.PrincipalFromContext(ctx)
+```
+
+## 4. IAM 不再承担浏览器 OAuth 流程
+
+当前架构下，浏览器登录、callback、code exchange、session cookie、access token forwarding 都归 Envoy Gateway 负责。
+
+IAM 不再提供旧的前端 OAuth flow：
+
+```text
+/v1/iam/login-url
+/v1/iam/auth/exchange
+/v1/iam/auth/refresh
+/v1/iam/auth/revoke
+/v1/iam/logout-url
+```
+
+这些接口即使仍存在于旧生成代码里，也会直接返回不支持。前端不得再调用它们。
+
+正确入口是访问受 Gateway 保护的接口，例如：
+
+```text
+https://api.weagent.cc:30723/v1/iam/me
+```
+
+未登录时由 Envoy Gateway 自动跳转到 Casdoor。登录完成后，Gateway 注入 claim header，IAM 后端只读取 Kernel context 中的 Principal。
 
 ## 5. IAM 在本阶段的职责
 
@@ -72,7 +105,7 @@ IAM 作为普通后端服务提供：
 ```text
 1. Casdoor 用户/组织/组目录适配。
 2. external_issuer + external_subject -> Aisphere user 映射查询。
-3. GetMe / profile / directory API。
+3. GetMe / directory API。
 4. Project / Organization / Grant / Permission API。
 5. 后端服务主动调用的 CheckPermission。
 ```
@@ -82,8 +115,9 @@ IAM 不承担：
 ```text
 1. Gateway ExternalAuth。
 2. Gateway 请求前置授权决策。
-3. Gateway 注入 x-aisphere-principal。
-4. Gateway 注入 x-aisphere-internal-jwt。
+3. 浏览器 OAuth code exchange。
+4. 前端 token refresh / revoke。
+5. 前端本地 token session 管理。
 ```
 
 ## 6. 后端映射逻辑
@@ -92,13 +126,14 @@ IAM 不承担：
 
 ```http
 x-aisphere-external-sub: casdoor_user_sub
+x-aisphere-external-issuer: https://casdoor.weagent.cc:30723
 x-aisphere-external-email: user@example.com
 ```
 
-后端 Kernel middleware 或业务服务可以通过 IAM client 查询：
+后端通过 Kernel middleware 得到 Principal 后，可以通过 IAM client 查询：
 
 ```text
-external_issuer = https://casdoor.aisphere.local
+external_issuer = https://casdoor.weagent.cc:30723
 external_subject = casdoor_user_sub
 ```
 
@@ -124,8 +159,7 @@ Casdoor application 需要配置：
 ```text
 client_id: aisphere-gateway
 redirect_uri:
-  https://hub.aisphere.local/oauth2/callback
-  https://iam.aisphere.local/oauth2/callback
+  https://api.weagent.cc:30723/v1/iam/oauth2/callback
 scopes:
   openid
   profile
@@ -142,7 +176,7 @@ Gateway 的 issuer 必须与 Casdoor token 的 `iss` 完全一致。
 deploy/examples/envoy-casdoor-oidc-security-policy.yaml
 ```
 
-该示例只包含：
+该示例包含：
 
 ```text
 ClientTrafficPolicy header sanitize
@@ -157,17 +191,17 @@ claimToHeaders
 
 ```bash
 # public route 不应触发登录
-curl -i https://hub.aisphere.local/healthz
+curl -i https://api.weagent.cc:30723/healthz
 
-# authn/protected route 未登录应触发 OIDC 或 401
-curl -i https://hub.aisphere.local/api/v1/me
+# 未登录访问受保护接口，应触发 OIDC 302
+curl -vk https://api.weagent.cc:30723/v1/iam/me
 
-# Bearer token 请求应通过 JWT 验签
-curl -i https://hub.aisphere.local/api/v1/me \
-  -H "Authorization: Bearer <casdoor-token>"
+# 登录后访问 GetMe，应返回 Gateway header 恢复出来的 Principal
+# 浏览器访问：
+# https://api.weagent.cc:30723/v1/iam/me
 
-# 伪造 principal 必须被清理
-curl -i https://hub.aisphere.local/api/v1/me \
+# 伪造 principal 必须被 Gateway 清理
+curl -i https://api.weagent.cc:30723/v1/iam/me \
   -H "x-aisphere-principal: user:admin"
 ```
 
@@ -176,7 +210,7 @@ curl -i https://hub.aisphere.local/api/v1/me \
 后续再增加：
 
 ```text
-Gateway ExternalAuth -> IAM /v1/extauth/check
+Gateway ExternalAuth -> IAM ext-authz endpoint
 IAM 返回 x-aisphere-principal
 IAM 签发 x-aisphere-internal-jwt
 后端校验 IAM JWKS
