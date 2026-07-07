@@ -42,8 +42,8 @@ func (s *IAMAuthService) ExternalAuthorize(ctx context.Context, _ *emptypb.Empty
 		for key, value := range identityHeaders {
 			tr.ReplyHeader().Set(key, value)
 		}
-		if cfg := externalAuthInternalCall.Normalized(); cfg.Enabled && cfg.Token() != "" {
-			tr.ReplyHeader().Set(cfg.Header(), cfg.Token())
+if cfg := externalAuthInternalCall.Normalized(); cfg.Enabled && cfg.Token != "" {
+				tr.ReplyHeader().Set(cfg.HeaderName, cfg.Token)
 		}
 	}
 	return principalToProto(principal), nil
