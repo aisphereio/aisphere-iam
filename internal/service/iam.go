@@ -12,9 +12,12 @@ import (
 )
 
 type IAMDeps struct {
-	// Browser OAuth login, callback exchange, refresh and logout are owned by
-	// Envoy Gateway OIDC. IAM keeps only backend-facing token verification and
-	// identity-directory capabilities.
+	// Login, Logout and Profile are kept as wiring fields while services migrate
+	// to the Gateway OIDC contract. IAM no longer uses them for browser auth flow.
+	Login   authn.LoginService
+	Logout  authn.LogoutService
+	Profile authn.ProfileService
+
 	Tokens   authn.TokenService
 	Identity authn.IdentityAdmin
 	Authz    authz.AdminProvider
