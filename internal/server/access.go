@@ -52,10 +52,7 @@ func iamSkipPolicyResolver(catalog serverx.ServiceCatalog) accessmw.SkipPolicyRe
 	return func(operation string) accessx.SkipPolicy {
 		op := strings.TrimSpace(operation)
 		switch strings.TrimPrefix(op, "/") {
-		case "healthz", "readyz", "metrics", "iam.v1.IAMAuthService/ExternalAuthorize":
-			return accessx.SkipAll
-		}
-		if op == "ExternalAuthorize" {
+		case "healthz", "readyz", "metrics":
 			return accessx.SkipAll
 		}
 		info, ok, err := catalog.RequestInfoResolver(context.Background(), op, nil)
