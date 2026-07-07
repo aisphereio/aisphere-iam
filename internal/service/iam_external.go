@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	"github.com/aisphereio/kernel/authn"
@@ -43,8 +45,26 @@ func (s *IAMAuthService) ExternalAuthorize(ctx context.Context, _ *emptypb.Empty
 			tr.ReplyHeader().Set(key, value)
 		}
 if cfg := externalAuthInternalCall.Normalized(); cfg.Enabled && cfg.Token != "" {
-				tr.ReplyHeader().Set(cfg.HeaderName, cfg.Token)
+					tr.ReplyHeader().Set(cfg.HeaderName, cfg.Token)
+			}
 		}
+		return principalToProto(principal), nil
 	}
-	return principalToProto(principal), nil
+
+// bearerTokenFromContext extracts the Bearer token from the Authorization
+// header via the kernel transport context.
+func bearerTokenFromContext(ctx context.Context) (string, error) {
+	tr, ok := transport.FromServerContext(ctx)
+	if !ok || tr == nil {
+		return "", errors.New("no transport context")
+	}
+	auth := tr.RequestHeader().Get("Authorization")
+	if auth == "" {
+		return "", errors.New("missing Authorization header")
+	}
+	parts := strings.SplitN(auth, " ", 2)
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") || parts[1] == "" {
+		return "", errors.New("invalid Authorization header format")
+	}
+	return strings.TrimSpace(parts[1]), nil
 }

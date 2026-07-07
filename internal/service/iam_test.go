@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -9,41 +10,35 @@ import (
 
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authz"
-	"github.com/aisphereio/kernel/gatewayx"
 )
 
-func TestIAMAuthServiceBuildLoginURLUsesKernelLoginProvider(t *testing.T) {
-	svc := NewIAMAuthService(IAMDeps{Login: fakeLoginProvider{}})
+func TestIAMAuthServiceBuildLoginURLReturnsErrorInGatewayMode(t *testing.T) {
+	svc := NewIAMAuthService(IAMDeps{})
 
-	reply, err := svc.BuildLoginURL(context.Background(), &v1.BuildLoginURLRequest{
+	_, err := svc.BuildLoginURL(context.Background(), &v1.BuildLoginURLRequest{
 		RedirectUri: "http://localhost:18000/callback",
 		State:       "state-1",
-		Scope:       "openid profile",
-		OrgId:       "aisphere",
-		AppId:       "aisphere",
 	})
 
-	if err != nil {
-		t.Fatalf("BuildLoginURL returned error: %v", err)
+	if err == nil {
+		t.Fatal("BuildLoginURL should return error in gateway-only mode")
 	}
-	if reply.LoginUrl != "http://casdoor.example/login?state=state-1" {
-		t.Fatalf("login URL = %q", reply.LoginUrl)
-	}
-	if reply.Provider != "casdoor" || reply.RedirectUri != "http://localhost:18000/callback" {
-		t.Fatalf("unexpected login reply: %+v", reply)
+	if !strings.Contains(err.Error(), "legacy IAM-managed OAuth browser flow is removed") {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
-func TestIAMAuthServiceGetMeLoadsProfileWhenRequested(t *testing.T) {
-	svc := NewIAMAuthService(IAMDeps{
-		Tokens:  fakeTokenProvider{},
-		Profile: fakeProfileProvider{},
-	})
+func TestIAMAuthServiceGetMeReturnsPrincipalFromContext(t *testing.T) {
+	svc := NewIAMAuthService(IAMDeps{})
 
-	ctx := gatewayx.GRPCServerContextFromDispatch(context.Background(), gatewayx.DispatchRequest{
-		Headers: map[string]string{"Authorization": "Bearer access-token"},
-	}, gatewayx.RouteMatch{})
-	reply, err := svc.GetMe(ctx, &v1.GetMeRequest{IncludeProfile: true})
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{
+		SubjectID:   "user-1",
+		SubjectType: authn.SubjectTypeUser,
+		Provider:    "casdoor",
+		OrgID:       "aisphere",
+		Username:    "alice",
+	})
+	reply, err := svc.GetMe(ctx, &v1.GetMeRequest{})
 
 	if err != nil {
 		t.Fatalf("GetMe returned error: %v", err)
@@ -51,24 +46,21 @@ func TestIAMAuthServiceGetMeLoadsProfileWhenRequested(t *testing.T) {
 	if reply.Principal.SubjectId != "user-1" {
 		t.Fatalf("subject id = %q", reply.Principal.SubjectId)
 	}
-	if reply.User.Username != "alice" {
-		t.Fatalf("profile user = %+v", reply.User)
-	}
-	if len(reply.Groups) != 1 || reply.Groups[0].ParentId != "root" {
-		t.Fatalf("groups = %+v", reply.Groups)
+	if reply.Principal.Username != "alice" {
+		t.Fatalf("username = %q", reply.Principal.Username)
 	}
 }
 
-func TestIAMAuthServiceGetMeRequiresBearerHeader(t *testing.T) {
-	svc := NewIAMAuthService(IAMDeps{
-		Tokens:  fakeTokenProvider{},
-		Profile: fakeProfileProvider{},
-	})
+func TestIAMAuthServiceGetMeRequiresGatewayPrincipal(t *testing.T) {
+	svc := NewIAMAuthService(IAMDeps{})
 
 	_, err := svc.GetMe(context.Background(), &v1.GetMeRequest{IncludeProfile: true})
 
 	if err == nil {
-		t.Fatal("GetMe expected missing credential error")
+		t.Fatal("GetMe expected gateway principal error")
+	}
+	if !strings.Contains(err.Error(), "gateway principal is required") {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
