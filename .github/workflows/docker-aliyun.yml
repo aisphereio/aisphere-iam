@@ -38,7 +38,9 @@ jobs:
           cache: true
 
       - name: Test
-        run: go build ./...
+        run: |
+          go mod download
+          go build ./...
 
   docker:
     name: Build and push
