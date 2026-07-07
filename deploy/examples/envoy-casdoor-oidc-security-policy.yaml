@@ -1,0 +1,145 @@
+# Example only. Generated manifests should come from Kernel protoc/deploy generators.
+# This file documents the target shape for Envoy Gateway + Casdoor OIDC + IAM ExtAuth.
+
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: aisphere-sanitize-headers
+  namespace: aisphere-system
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: aisphere-gateway
+  headers:
+    earlyRequestHeaders:
+      remove:
+        - x-aisphere-external-sub
+        - x-aisphere-external-email
+        - x-aisphere-external-name
+        - x-aisphere-external-username
+        - x-aisphere-principal
+        - x-aisphere-user-id
+        - x-aisphere-org-id
+        - x-aisphere-project-id
+        - x-aisphere-roles
+        - x-aisphere-authz-decision-id
+        - x-aisphere-internal-jwt
+        - x-internal-jwt
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: hub-authn-policy
+  namespace: aisphere-system
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: hub-authn-route
+  oidc:
+    provider:
+      issuer: "https://casdoor.aisphere.local"
+    clientID: "aisphere-gateway"
+    clientSecret:
+      name: casdoor-gateway-client-secret
+    redirectURL: "https://hub.aisphere.local/oauth2/callback"
+    logoutPath: "/logout"
+    scopes:
+      - openid
+      - profile
+      - email
+    refreshToken: true
+    forwardAccessToken: true
+    passThroughAuthHeader: true
+    disableTokenEncryption: false
+  jwt:
+    providers:
+      - name: casdoor
+        issuer: "https://casdoor.aisphere.local"
+        audiences:
+          - "aisphere-gateway"
+        remoteJWKS:
+          uri: "https://casdoor.aisphere.local/.well-known/jwks"
+        extractFrom:
+          headers:
+            - name: Authorization
+              valuePrefix: "Bearer "
+        claimToHeaders:
+          - claim: sub
+            header: x-aisphere-external-sub
+          - claim: email
+            header: x-aisphere-external-email
+          - claim: name
+            header: x-aisphere-external-name
+          - claim: preferred_username
+            header: x-aisphere-external-username
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: hub-protected-policy
+  namespace: aisphere-system
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: hub-protected-route
+  oidc:
+    provider:
+      issuer: "https://casdoor.aisphere.local"
+    clientID: "aisphere-gateway"
+    clientSecret:
+      name: casdoor-gateway-client-secret
+    redirectURL: "https://hub.aisphere.local/oauth2/callback"
+    logoutPath: "/logout"
+    scopes:
+      - openid
+      - profile
+      - email
+    refreshToken: true
+    forwardAccessToken: true
+    passThroughAuthHeader: true
+    disableTokenEncryption: false
+  jwt:
+    providers:
+      - name: casdoor
+        issuer: "https://casdoor.aisphere.local"
+        audiences:
+          - "aisphere-gateway"
+        remoteJWKS:
+          uri: "https://casdoor.aisphere.local/.well-known/jwks"
+        extractFrom:
+          headers:
+            - name: Authorization
+              valuePrefix: "Bearer "
+        claimToHeaders:
+          - claim: sub
+            header: x-aisphere-external-sub
+          - claim: email
+            header: x-aisphere-external-email
+  extAuth:
+    http:
+      backendRefs:
+        - name: aisphere-iam
+          port: 8080
+      pathOverride: /v1/extauth/check
+      headersToBackend:
+        - x-aisphere-principal
+        - x-aisphere-user-id
+        - x-aisphere-org-id
+        - x-aisphere-project-id
+        - x-aisphere-roles
+        - x-aisphere-authz-decision-id
+        - x-aisphere-internal-jwt
+    headersToExtAuth:
+      - Authorization
+      - Cookie
+      - X-Request-Id
+      - X-Forwarded-For
+      - X-Forwarded-Proto
+      - X-Forwarded-Host
+      - x-aisphere-external-sub
+      - x-aisphere-external-email
+    failOpen: false
+    timeout: 2s
