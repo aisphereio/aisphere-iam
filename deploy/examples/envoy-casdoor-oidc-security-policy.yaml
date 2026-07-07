@@ -1,5 +1,6 @@
 # Example only. Generated manifests should come from Kernel protoc/deploy generators.
-# This file documents the target shape for Envoy Gateway + Casdoor OIDC + IAM ExtAuth.
+# This file documents the OIDC-only phase for Envoy Gateway + Casdoor.
+# It intentionally does not configure Gateway ExternalAuth.
 
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: ClientTrafficPolicy
@@ -118,28 +119,7 @@ spec:
             header: x-aisphere-external-sub
           - claim: email
             header: x-aisphere-external-email
-  extAuth:
-    http:
-      backendRefs:
-        - name: aisphere-iam
-          port: 8080
-      pathOverride: /v1/extauth/check
-      headersToBackend:
-        - x-aisphere-principal
-        - x-aisphere-user-id
-        - x-aisphere-org-id
-        - x-aisphere-project-id
-        - x-aisphere-roles
-        - x-aisphere-authz-decision-id
-        - x-aisphere-internal-jwt
-    headersToExtAuth:
-      - Authorization
-      - Cookie
-      - X-Request-Id
-      - X-Forwarded-For
-      - X-Forwarded-Proto
-      - X-Forwarded-Host
-      - x-aisphere-external-sub
-      - x-aisphere-external-email
-    failOpen: false
-    timeout: 2s
+          - claim: name
+            header: x-aisphere-external-name
+          - claim: preferred_username
+            header: x-aisphere-external-username
