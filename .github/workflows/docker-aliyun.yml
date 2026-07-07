@@ -66,8 +66,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.ALIYUN_REGISTRY_USERNAME }}
-          password: ${{ secrets.ALIYUN_REGISTRY_PASSWORD }}
+username: ${{ secrets.ALIYUN_DOCKER_USERNAME }}
+	          password: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
 
       - name: Build and optionally push
         uses: docker/build-push-action@v6
