@@ -87,7 +87,7 @@ func main() {
 		}
 	}
 
-	deps := service.IAMDeps{Login: resources.Login, Logout: resources.Logout, Tokens: resources.Tokens, Profile: resources.Profile, Identity: resources.Identity, Authz: resources.AuthzAdmin}
+	deps := service.IAMDeps{Login: resources.Login, Logout: resources.Logout, Tokens: resources.Tokens, Profile: resources.Profile, Identity: resources.Identity, Authz: resources.AuthzAdmin, InternalCall: bc.Security.InternalCall}
 	authService := service.NewIAMAuthService(deps)
 	directoryService := service.NewIAMDirectoryService(deps)
 	permissionService := service.NewIAMPermissionService(deps)

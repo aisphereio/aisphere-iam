@@ -14,26 +14,68 @@ IAM 运行时只负责服务本身。Gateway API 路由清单由 proto 中的 `g
 
 ## Gateway API ExternalAuth
 
-IAM 不再假设平台自研 Gateway 已经完成认证，也不再依赖 Gateway 注入 `X-Aisphere-*` Principal headers。
+IAM 不再依赖平台自研 Gateway 认证链路，但仍保留 Gateway-trusted 身份传递模型：认证由 IAM 完成，身份头由 Envoy Gateway 在 ExternalAuth 成功后注入到上游，业务服务不需要重复校验外部 Casdoor/OIDC JWT。
 
 推荐链路：
 
 ```text
 Client
   -> Gateway API / Envoy ExternalAuth
-  -> IAM /internal/iam/ext-authz validates Authorization: Bearer <token>
-  -> upstream service receives the original Authorization header
-  -> upstream service verifies the JWT with oidc_jwt/casdoor_jwt mode
+  -> IAM ExternalAuthorize validates Authorization: Bearer <external-token>
+  -> IAM returns Gateway-controlled X-Aisphere-* headers and X-Aisphere-Internal-Token
+  -> Envoy strips any client-supplied X-Aisphere-* headers, then forwards only IAM-returned headers
+  -> upstream service runs gateway_trusted authn and restores Principal from trusted headers
 ```
 
-`/internal/iam/ext-authz` 是 allow/deny 边界：
+ExternalAuth 端点来自 proto：
 
-- `200`：token 有效，允许 Gateway 继续转发。
-- `401`：token 缺失或无效。
-- 不向上游注入 `X-Aisphere-*` 身份头。
-- 上游服务仍应保留 `Authorization` header，并使用 `security.authn.mode: oidc_jwt` 或 `casdoor_jwt` 自行恢复 Principal。
+```text
+POST /internal/iam/ext-authz -> iam.v1.IAMAuthService/ExternalAuthorize
+```
 
-`gateway_trusted` 只作为旧链路兼容模式，不作为 Gateway API ExternalAuth 主线。
+`ExternalAuthorize` 的语义：
+
+- 输入使用请求头 `Authorization: Bearer <external-token>`。
+- 成功时返回 `200`，并在 response headers 写入 `X-Aisphere-*` Principal headers。
+- 成功时可同时写入 `X-Aisphere-Internal-Token`，后端服务在 `gateway_trusted` 模式下用它校验调用确实来自可信 Gateway。
+- 失败时返回认证错误，Gateway 不应继续转发。
+
+Envoy/Gateway 必须先清理外部伪造头：
+
+```text
+X-Aisphere-Auth-Verified
+X-Aisphere-Subject
+X-Aisphere-Subject-Type
+X-Aisphere-Provider
+X-Aisphere-External-ID
+X-Aisphere-Issuer
+X-Aisphere-Audience
+X-Aisphere-Owner
+X-Aisphere-Org-ID
+X-Aisphere-App-ID
+X-Aisphere-Username
+X-Aisphere-Name
+X-Aisphere-Email
+X-Aisphere-Groups
+X-Aisphere-Roles
+X-Aisphere-Scopes
+X-Aisphere-Internal-Token
+```
+
+后端服务默认仍使用：
+
+```yaml
+security:
+  authn:
+    enabled: true
+    mode: gateway_trusted
+  internal_call:
+    enabled: true
+    header: X-Aisphere-Internal-Token
+    token: CHANGE_ME_INTERNAL_TOKEN
+```
+
+`oidc_jwt/casdoor_jwt` 可用于高安全服务的二次校验模式，但不是普通业务服务默认心智负担。
 
 ## 生成与部署
 
@@ -73,7 +115,7 @@ kubectl apply -R -f deploy/generated
   - `authenticated-gateway`
   - `internal-gateway`
 - Gateway ExternalAuth / ext-authz 指向 IAM 的 `http://aisphere-iam.aisphere:18080/internal/iam/ext-authz`。
-- Gateway 转发到上游服务时保留 `Authorization` header。
+- Gateway 转发到上游服务时只保留或注入 IAM 返回的 `X-Aisphere-*` 和 `X-Aisphere-Internal-Token` 可信头。
 - `aisphere` namespace 下存在镜像拉取 Secret：`aliyun-registry`。
 - PostgreSQL、Casdoor、SpiceDB 服务地址和凭据已按环境替换。
 
@@ -88,7 +130,6 @@ kubectl apply -R -f deploy/generated
 - internal route list
 - gateway route registry
 - etcd route prefix
-- Gateway-injected Principal header allowlist
 
 这些路由信息由 proto contract 和 Kernel v0.2.5 的生成器产出，部署时应用 `deploy/generated` 即可。
 
