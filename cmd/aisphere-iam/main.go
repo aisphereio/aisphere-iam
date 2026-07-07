@@ -6,6 +6,7 @@ import (
 	"time"
 
 	kernel "github.com/aisphereio/kernel"
+	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/configx"
 	configenv "github.com/aisphereio/kernel/configx/env"
 	"github.com/aisphereio/kernel/configx/file"
@@ -88,7 +89,8 @@ func main() {
 	}
 
 	service.ConfigureExternalAuthInternalCall(bc.Security.InternalCall)
-	deps := service.IAMDeps{Login: resources.Login, Logout: resources.Logout, Tokens: resources.Tokens, Profile: resources.Profile, Identity: resources.Identity, Authz: resources.AuthzAdmin}
+	tokens := authn.NewIdempotentTokenService(resources.Tokens, authn.IdempotentExchangeConfig{})
+	deps := service.IAMDeps{Login: resources.Login, Logout: resources.Logout, Tokens: tokens, Profile: resources.Profile, Identity: resources.Identity, Authz: resources.AuthzAdmin}
 	authService := service.NewIAMAuthService(deps)
 	directoryService := service.NewIAMDirectoryService(deps)
 	permissionService := service.NewIAMPermissionService(deps)
