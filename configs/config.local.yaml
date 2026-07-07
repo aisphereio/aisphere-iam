@@ -78,7 +78,7 @@ data:
 security:
   authn:
     enabled: true
-    mode: gateway_trusted
+    mode: oidc_jwt
     provider: casdoor
     cache_ttl_ns: 300000000000
     oidc:
@@ -98,7 +98,7 @@ security:
       jwks_url: http://127.0.0.1:8000/.well-known/jwks
       audience: [CHANGE_ME_CLIENT_ID]
       allowed_owners: [aisphere]
-      allowed_algs: [RS256, RS512, ES256, ES512]
+      allowed_algs: [RS256, ES256, RS512, ES512]
       jwks_cache_ttl_ns: 600000000000
       client_id: CHANGE_ME_CLIENT_ID
       client_secret: "CHANGE_ME_CLIENT_SECRET"

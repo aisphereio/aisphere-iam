@@ -75,7 +75,7 @@ data:
 security:
   authn:
     enabled: true
-    mode: gateway_trusted
+    mode: oidc_jwt
     provider: casdoor
     cache_ttl_ns: 300000000000
     oidc:

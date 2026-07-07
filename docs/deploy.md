@@ -12,6 +12,29 @@ IAM 运行时只负责服务本身。Gateway API 路由清单由 proto 中的 `g
 | 服务 Deployment/Service/ConfigMap | `deploy/*.yaml` |
 | 公开/认证/内部路由列表 | 生成产物，不写入 `configs/config*.yaml` |
 
+## Gateway API ExternalAuth
+
+IAM 不再假设平台自研 Gateway 已经完成认证，也不再依赖 Gateway 注入 `X-Aisphere-*` Principal headers。
+
+推荐链路：
+
+```text
+Client
+  -> Gateway API / Envoy ExternalAuth
+  -> IAM /internal/iam/ext-authz validates Authorization: Bearer <token>
+  -> upstream service receives the original Authorization header
+  -> upstream service verifies the JWT with oidc_jwt/casdoor_jwt mode
+```
+
+`/internal/iam/ext-authz` 是 allow/deny 边界：
+
+- `200`：token 有效，允许 Gateway 继续转发。
+- `401`：token 缺失或无效。
+- 不向上游注入 `X-Aisphere-*` 身份头。
+- 上游服务仍应保留 `Authorization` header，并使用 `security.authn.mode: oidc_jwt` 或 `casdoor_jwt` 自行恢复 Principal。
+
+`gateway_trusted` 只作为旧链路兼容模式，不作为 Gateway API ExternalAuth 主线。
+
 ## 生成与部署
 
 ```bash
@@ -49,6 +72,8 @@ kubectl apply -R -f deploy/generated
   - `public-gateway`
   - `authenticated-gateway`
   - `internal-gateway`
+- Gateway ExternalAuth / ext-authz 指向 IAM 的 `http://aisphere-iam.aisphere:18080/internal/iam/ext-authz`。
+- Gateway 转发到上游服务时保留 `Authorization` header。
 - `aisphere` namespace 下存在镜像拉取 Secret：`aliyun-registry`。
 - PostgreSQL、Casdoor、SpiceDB 服务地址和凭据已按环境替换。
 
@@ -56,13 +81,14 @@ kubectl apply -R -f deploy/generated
 
 `configs/config.yaml` 和 `deploy/configmap.yaml` 只保留运行时依赖配置，例如数据库、Casdoor、SpiceDB、metrics、audit。
 
-不要在 IAM 配置中维护这些内容：
+不在 IAM 配置中维护这些内容：
 
 - public route list
 - authenticated route list
 - internal route list
 - gateway route registry
 - etcd route prefix
+- Gateway-injected Principal header allowlist
 
 这些路由信息由 proto contract 和 Kernel v0.2.5 的生成器产出，部署时应用 `deploy/generated` 即可。
 

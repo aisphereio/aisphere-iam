@@ -51,8 +51,8 @@ func mustSecurityRuntime(cfg conf.SecurityConfig) *securityx.Runtime {
 func iamSkipPolicyResolver(catalog serverx.ServiceCatalog) accessmw.SkipPolicyResolver {
 	return func(operation string) accessx.SkipPolicy {
 		op := strings.TrimSpace(operation)
-		switch op {
-		case "/healthz", "/readyz", "/metrics":
+		switch strings.TrimPrefix(op, "/") {
+		case "healthz", "readyz", "metrics", "internal/iam/ext-authz":
 			return accessx.SkipAll
 		}
 		info, ok, err := catalog.RequestInfoResolver(context.Background(), op, nil)
