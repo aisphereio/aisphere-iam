@@ -7,16 +7,15 @@ import (
 
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authz"
-	transport "github.com/aisphereio/kernel/transportx"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type IAMDeps struct {
-	Login    authn.LoginService
-	Logout   authn.LogoutService
+	// Browser OAuth login, callback exchange, refresh and logout are owned by
+	// Envoy Gateway OIDC. IAM keeps only backend-facing token verification and
+	// identity-directory capabilities.
 	Tokens   authn.TokenService
-	Profile  authn.ProfileService
 	Identity authn.IdentityAdmin
 	Authz    authz.AdminProvider
 }
@@ -30,82 +29,24 @@ func NewIAMAuthService(deps IAMDeps) *IAMAuthService {
 	return &IAMAuthService{deps: deps}
 }
 
+func legacyGatewayOIDCOnlyError() error {
+	return authn.ErrInvalidTokenRequest("legacy IAM-managed OAuth browser flow is removed; authenticate through Envoy Gateway OIDC")
+}
+
 func (s *IAMAuthService) BuildLoginURL(ctx context.Context, req *v1.BuildLoginURLRequest) (*v1.BuildLoginURLReply, error) {
-	if s.deps.Login == nil {
-		return nil, authn.ErrIdentityBackendFailed("login provider is not configured", nil)
-	}
-	out, err := s.deps.Login.BuildLoginURL(ctx, authn.LoginURLRequest{
-		RedirectURI: req.GetRedirectUri(),
-		State:       req.GetState(),
-		Scope:       req.GetScope(),
-		OrgID:       req.GetOrgId(),
-		AppID:       req.GetAppId(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &v1.BuildLoginURLReply{
-		LoginUrl:    out.URL,
-		Provider:    out.Provider,
-		RedirectUri: out.RedirectURI,
-		State:       out.State,
-		Scope:       out.Scope,
-	}, nil
+	return nil, legacyGatewayOIDCOnlyError()
 }
 
 func (s *IAMAuthService) BuildLogoutURL(ctx context.Context, req *v1.BuildLogoutURLRequest) (*v1.BuildLogoutURLReply, error) {
-	if s.deps.Logout == nil {
-		return nil, authn.ErrIdentityBackendFailed("logout provider is not configured", nil)
-	}
-	out, err := s.deps.Logout.BuildLogoutURL(ctx, authn.LogoutURLRequest{
-		PostLogoutRedirectURI: req.GetPostLogoutRedirectUri(),
-		IDTokenHint:           req.GetIdTokenHint(),
-		State:                 req.GetState(),
-		OrgID:                 req.GetOrgId(),
-		AppID:                 req.GetAppId(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &v1.BuildLogoutURLReply{
-		LogoutUrl:             out.URL,
-		Provider:              out.Provider,
-		PostLogoutRedirectUri: out.PostLogoutRedirectURI,
-		State:                 out.State,
-	}, nil
+	return nil, legacyGatewayOIDCOnlyError()
 }
 
 func (s *IAMAuthService) ExchangeCode(ctx context.Context, req *v1.ExchangeCodeRequest) (*v1.ExchangeCodeReply, error) {
-	if s.deps.Tokens == nil {
-		return nil, authn.ErrIdentityBackendFailed("token provider is not configured", nil)
-	}
-	tokens, principal, err := s.deps.Tokens.ExchangeCode(ctx, authn.AuthCodeExchangeRequest{
-		Code:        req.GetCode(),
-		State:       req.GetState(),
-		RedirectURI: req.GetRedirectUri(),
-		OrgID:       req.GetOrgId(),
-		AppID:       req.GetAppId(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &v1.ExchangeCodeReply{Tokens: tokenSetToProto(tokens), Principal: principalToProto(principal)}, nil
+	return nil, legacyGatewayOIDCOnlyError()
 }
 
 func (s *IAMAuthService) RefreshToken(ctx context.Context, req *v1.RefreshTokenRequest) (*v1.TokenSet, error) {
-	if s.deps.Tokens == nil {
-		return nil, authn.ErrIdentityBackendFailed("token provider is not configured", nil)
-	}
-	tokens, err := s.deps.Tokens.RefreshToken(ctx, authn.RefreshTokenRequest{
-		RefreshToken: req.GetRefreshToken(),
-		Scope:        req.GetScope(),
-		OrgID:        req.GetOrgId(),
-		AppID:        req.GetAppId(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return tokenSetToProto(tokens), nil
+	return nil, legacyGatewayOIDCOnlyError()
 }
 
 func (s *IAMAuthService) VerifyToken(ctx context.Context, req *v1.VerifyTokenRequest) (*v1.Principal, error) {
@@ -125,76 +66,15 @@ func (s *IAMAuthService) VerifyToken(ctx context.Context, req *v1.VerifyTokenReq
 }
 
 func (s *IAMAuthService) RevokeToken(ctx context.Context, req *v1.RevokeTokenRequest) (*emptypb.Empty, error) {
-	if s.deps.Tokens == nil {
-		return nil, authn.ErrIdentityBackendFailed("token provider is not configured", nil)
-	}
-	if err := s.deps.Tokens.RevokeToken(ctx, authn.RevokeTokenRequest{
-		Token:     req.GetToken(),
-		TokenType: req.GetTokenType(),
-		OrgID:     req.GetOrgId(),
-		AppID:     req.GetAppId(),
-	}); err != nil {
-		return nil, err
-	}
-	return &emptypb.Empty{}, nil
+	return nil, legacyGatewayOIDCOnlyError()
 }
 
 func (s *IAMAuthService) GetMe(ctx context.Context, req *v1.GetMeRequest) (*v1.GetMeReply, error) {
 	principal, ok := authn.PrincipalFromContext(ctx)
 	if !ok || !principal.IsAuthenticated() {
-		if s.deps.Tokens == nil {
-			return nil, authn.ErrIdentityBackendFailed("token provider is not configured", nil)
-		}
-		token, err := bearerTokenFromContext(ctx)
-		if err != nil {
-			return nil, err
-		}
-		principal, err = s.deps.Tokens.VerifyToken(ctx, authn.VerifyTokenRequest{Token: token, TokenType: "access_token"})
-		if err != nil {
-			return nil, err
-		}
+		return nil, authn.ErrMissingCredential("gateway principal is required")
 	}
-	reply := &v1.GetMeReply{Principal: principalToProto(principal)}
-	if !req.GetIncludeProfile() || s.deps.Profile == nil {
-		return reply, nil
-	}
-	token, err := bearerTokenFromContext(ctx)
-	if err != nil {
-		// In gateway_trusted mode the verified Principal is authoritative enough for
-		// GetMe. Full Casdoor profile hydration requires the original bearer token,
-		// so return the Principal-only shape when it is unavailable.
-		reply.Warnings = append(reply.Warnings, "casdoor profile hydration skipped: bearer token not available")
-		return reply, nil
-	}
-	profile, err := s.deps.Profile.GetIdentityProfile(ctx, authn.IdentityProfileRequest{
-		Principal:                 principal,
-		Token:                     token,
-		IncludeUser:               true,
-		IncludeGroups:             true,
-		IncludeCurrentApplication: true,
-		AllowPartial:              true,
-	})
-	if err != nil {
-		return nil, err
-	}
-	reply.Principal = principalToProto(profile.Principal)
-	reply.User = userToProto(profile.User)
-	reply.Groups = groupsToProto(profile.Groups)
-	reply.Application = applicationToProto(profile.CurrentApplication)
-	reply.Warnings = append([]string(nil), profile.Warnings...)
-	return reply, nil
-}
-
-func bearerTokenFromContext(ctx context.Context) (string, error) {
-	tr, ok := transport.FromServerContext(ctx)
-	if !ok || tr.RequestHeader() == nil {
-		return "", authn.ErrMissingCredential("authorization bearer token is required")
-	}
-	cred, ok := authn.BearerCredential(tr.RequestHeader().Get("Authorization"))
-	if !ok || cred.Token == "" {
-		return "", authn.ErrMissingCredential("authorization bearer token is required")
-	}
-	return cred.Token, nil
+	return &v1.GetMeReply{Principal: principalToProto(principal)}, nil
 }
 
 type IAMDirectoryService struct {
