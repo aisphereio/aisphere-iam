@@ -87,6 +87,7 @@ func main() {
 		}
 	}
 
+	service.ConfigureExternalAuthInternalCall(bc.Security.InternalCall)
 	deps := service.IAMDeps{Login: resources.Login, Logout: resources.Logout, Tokens: resources.Tokens, Profile: resources.Profile, Identity: resources.Identity, Authz: resources.AuthzAdmin}
 	authService := service.NewIAMAuthService(deps)
 	directoryService := service.NewIAMDirectoryService(deps)

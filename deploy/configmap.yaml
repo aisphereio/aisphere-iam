@@ -8,7 +8,7 @@ data:
     service:
       name: iam-service
       version: dev
-      env: production
+      env: prod
 
     server:
       http:
@@ -16,15 +16,11 @@ data:
         timeout_ns: 5000000000
         cors:
           enabled: true
-          allowed_origins:
-            - http://localhost:3000
-            - http://localhost:3001
-            - http://127.0.0.1:3000
-            - http://127.0.0.1:3001
+          allowed_origins: ["*"]
           allowed_methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
           allowed_headers: [Authorization, Content-Type, X-Request-ID, X-Trace-ID, Traceparent, Tracestate]
           exposed_headers: [X-Request-ID]
-          allow_credentials: true
+          allow_credentials: false
           max_age_ns: 3600000000000
       grpc:
         addr: 0.0.0.0:19080
@@ -32,12 +28,12 @@ data:
 
     log:
       service_name: iam-service
-      env: production
+      env: prod
       version: dev
       level: info
-      format: console
+      format: json
       output: stdout
-      add_source: true
+      add_source: false
       redact:
         enabled: true
         keys: [password, secret, token, access_key, secret_key, client_secret]
@@ -56,11 +52,11 @@ data:
         config:
           auto_create_database: false
           driver: postgres
-          dsn: "postgres://postgres:CHANGE_ME@apps-postgre.aisphere:5432/aisphere_iam?sslmode=disable"
+          dsn: "postgres://postgres:CHANGE_ME_PASSWORD@postgres.aisphere:5432/aisphere_iam?sslmode=disable"
           max_open_conns: 20
           max_idle_conns: 10
-          conn_max_lifetime_ns: 1800000000000
-          conn_max_idle_time_ns: 300000000000
+          conn_max_lifetime_ns: 1800000000
+          conn_max_idle_time_ns: 300000000
           query_timeout_ns: 5000000000
           slow_query_threshold_ns: 200000000
           audit_enabled: true
