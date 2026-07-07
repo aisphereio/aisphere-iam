@@ -91,8 +91,8 @@ service IAMDirectoryService {
     option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/users/{user_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "iam:user" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.get_user" risk: "low" }
+      authz: { action: "read" resource: "iam:org:{org_id}:user:{user_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.user.get" risk: "low" }
     };
   }
 
@@ -100,8 +100,8 @@ service IAMDirectoryService {
     option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/users" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:user" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.list_users" risk: "low" }
+      authz: { action: "list" resource: "iam:org:{org_id}:user:*" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.user.list" risk: "medium" }
     };
   }
 
@@ -109,8 +109,8 @@ service IAMDirectoryService {
     option (google.api.http) = { get: "/v1/iam/orgs/{org_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "iam:org" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.get_org" risk: "low" }
+      authz: { action: "read" resource: "iam:org:{org_id}:organization:{org_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.org.get" risk: "low" }
     };
   }
 
@@ -118,8 +118,8 @@ service IAMDirectoryService {
     option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/groups" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:group" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.list_groups" risk: "low" }
+      authz: { action: "list" resource: "iam:org:{org_id}:group:*" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.list" risk: "medium" }
     };
   }
 }
@@ -128,9 +128,10 @@ service IAMPermissionService {
   rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionReply) {
     option (google.api.http) = { post: "/v1/iam/permissions/check" body: "*" };
     option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
+      exposure: INTERNAL
       authz: { action: "check" resource: "iam:permission" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.check_permission" risk: "medium" }
+      audit: { enabled: true event: "iam.permission.check" risk: "medium" }
+      reason: "Permission decisions are exposed to platform services, not directly to external clients."
     };
   }
 
@@ -139,66 +140,382 @@ service IAMPermissionService {
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
       authz: { action: "write" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.write_relationship" risk: "high" }
+      audit: { enabled: true event: "iam.relationship.write" risk: "high" }
     };
   }
 
   rpc DeleteRelationship(DeleteRelationshipRequest) returns (DeleteRelationshipReply) {
-    option (google.api.http) = { delete: "/v1/iam/relationships" };
+    option (google.api.http) = { post: "/v1/iam/relationships/delete" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
       authz: { action: "delete" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.delete_relationship" risk: "high" }
+      audit: { enabled: true event: "iam.relationship.delete" risk: "high" }
     };
   }
 
   rpc LookupResources(LookupResourcesRequest) returns (LookupResourcesReply) {
-    option (google.api.http) = { post: "/v1/iam/lookup/resources" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/resources/lookup" body: "*" };
     option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
+      exposure: INTERNAL
       authz: { action: "lookup" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.lookup_resources" risk: "medium" }
+      audit: { enabled: true event: "iam.resource.lookup" risk: "medium" }
+      reason: "Authorization graph resource lookup is restricted to trusted backend services."
     };
   }
 
   rpc LookupSubjects(LookupSubjectsRequest) returns (LookupSubjectsReply) {
-    option (google.api.http) = { post: "/v1/iam/lookup/subjects" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/subjects/lookup" body: "*" };
     option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
+      exposure: INTERNAL
       authz: { action: "lookup" resource: "iam:subject" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.lookup_subjects" risk: "medium" }
+      audit: { enabled: true event: "iam.subject.lookup" risk: "medium" }
+      reason: "Authorization graph subject lookup is restricted to trusted backend services."
     };
   }
 }
 
-message BuildLoginURLRequest { string redirect_uri = 1; string state = 2; string scope = 3; string org_id = 4; string app_id = 5; }
-message BuildLoginURLReply { string login_url = 1; string provider = 2; string redirect_uri = 3; string state = 4; string scope = 5; }
-message ExchangeCodeRequest { string code = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string state = 2; string redirect_uri = 3; string org_id = 4; string app_id = 5; }
-message ExchangeCodeReply { TokenSet tokens = 1; Principal principal = 2; }
-message RefreshTokenRequest { string refresh_token = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string scope = 2; string org_id = 3; string app_id = 4; }
-message VerifyTokenRequest { string token = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string token_type = 2; string org_id = 3; string app_id = 4; }
-message RevokeTokenRequest { string token = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string token_type = 2; }
-message GetMeRequest { bool include_profile = 1; }
-message GetMeReply { Principal principal = 1; repeated string warnings = 2; }
-message BuildLogoutURLRequest { string post_logout_redirect_uri = 1; string id_token_hint = 2; string state = 3; string org_id = 4; string app_id = 5; }
-message TokenSet { string access_token = 1; string refresh_token = 2; string id_token = 3; string token_type = 4; int64 expires_in = 5; google.protobuf.Timestamp expires_at = 6; map<string, string> raw = 7; }
-message Principal { string subject = 1; string subject_type = 2; string provider = 3; string external_id = 4; string issuer = 5; repeated string audience = 6; string owner = 7; string org_id = 8; string app_id = 9; string project_id = 10; string username = 11; string name = 12; string email = 13; repeated string groups = 14; repeated string roles = 15; repeated string scopes = 16; map<string, string> attributes = 17; }
-message User { string id = 1; string owner = 2; string name = 3; string display_name = 4; string email = 5; bool is_admin = 6; bool is_forbidden = 7; repeated string groups = 8; repeated string roles = 9; map<string, string> raw = 10; }
-message Organization { string id = 1; string name = 2; string display_name = 3; string owner = 4; string parent_id = 5; map<string, string> raw = 6; }
-message Group { string id = 1; string name = 2; string display_name = 3; string owner = 4; string parent_id = 5; repeated string users = 6; map<string, string> raw = 7; }
-message GetUserRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED]; string user_id = 2 [(google.api.field_behavior) = REQUIRED]; }
-message ListUsersRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED]; string keyword = 2; int32 page = 3; int32 page_size = 4; }
-message ListUsersReply { repeated User users = 1; int64 total = 2; }
-message GetOrganizationRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED]; }
-message ListGroupsRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED]; string keyword = 2; }
-message ListGroupsReply { repeated Group groups = 1; }
-message CheckPermissionRequest { Principal principal = 1; string subject = 2; string relation = 3; string resource = 4; }
-message CheckPermissionReply { bool allowed = 1; string reason = 2; }
-message WriteRelationshipRequest { string resource = 1; string relation = 2; string subject = 3; }
-message WriteRelationshipReply { bool written = 1; }
-message DeleteRelationshipRequest { string resource = 1; string relation = 2; string subject = 3; }
-message DeleteRelationshipReply { bool deleted = 1; }
-message LookupResourcesRequest { string subject = 1; string relation = 2; string resource_type = 3; }
-message LookupResourcesReply { repeated string resources = 1; }
-message LookupSubjectsRequest { string resource = 1; string relation = 2; string subject_type = 3; }
-message LookupSubjectsReply { repeated string subjects = 1; }
+message BuildLoginURLRequest {
+  string redirect_uri = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string state = 2;
+  string scope = 3;
+  string org_id = 4;
+  string app_id = 5;
+}
+
+message BuildLoginURLReply {
+  string login_url = 1;
+  string provider = 2;
+  string redirect_uri = 3;
+  string state = 4;
+  string scope = 5;
+}
+
+message ExchangeCodeRequest {
+  string code = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string state = 2;
+  string redirect_uri = 3;
+  string org_id = 4;
+  string app_id = 5;
+}
+
+message ExchangeCodeReply {
+  TokenSet tokens = 1;
+  Principal principal = 2;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string scope = 2;
+  string org_id = 3;
+  string app_id = 4;
+}
+
+message VerifyTokenRequest {
+  string token = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string token_type = 2;
+  string org_id = 3;
+  string app_id = 4;
+}
+
+message RevokeTokenRequest {
+  string token = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string token_type = 2;
+  string org_id = 3;
+  string app_id = 4;
+}
+
+message GetMeRequest {
+  bool include_profile = 1;
+}
+
+message GetMeReply {
+  Principal principal = 1;
+  User user = 2;
+  repeated Group groups = 3;
+  Application application = 4;
+  repeated string warnings = 5;
+}
+
+message BuildLogoutURLRequest {
+  string post_logout_redirect_uri = 1;
+  string id_token_hint = 2;
+  string state = 3;
+  string org_id = 4;
+  string app_id = 5;
+}
+
+message BuildLogoutURLReply {
+  string logout_url = 1;
+  string provider = 2;
+  string post_logout_redirect_uri = 3;
+  string state = 4;
+}
+
+message GetUserRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string user_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message ListUsersRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string query = 2;
+  string group_id = 3;
+  string role = 4;
+  int32 page_size = 5;
+  string page_token = 6;
+}
+
+message ListUsersReply {
+  repeated User users = 1;
+  string next_page_token = 2;
+}
+
+message GetOrganizationRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message ListGroupsRequest {
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string parent_id = 2;
+  string type = 3;
+  string user_id = 4;
+  bool include_inherited = 5;
+}
+
+message ListGroupsReply {
+  repeated Group groups = 1;
+}
+
+message CheckPermissionRequest {
+  SubjectRef subject = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  ObjectRef resource = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  string permission = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string org_id = 4;
+  string project_id = 5;
+}
+
+message CheckPermissionReply {
+  bool allowed = 1;
+  string effect = 2;
+  string reason = 3;
+  string consistency_token = 4;
+}
+
+message WriteRelationshipRequest {
+  Relationship relationship = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+message WriteRelationshipReply {
+  int32 written = 1;
+  string consistency_token = 2;
+}
+
+message DeleteRelationshipRequest {
+  RelationshipFilter filter = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+message DeleteRelationshipReply {
+  int32 deleted = 1;
+  string consistency_token = 2;
+}
+
+message LookupResourcesRequest {
+  SubjectRef subject = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  string resource_type = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string permission = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  int32 limit = 4;
+  string cursor = 5;
+}
+
+message LookupResourcesReply {
+  repeated ObjectRef resources = 1;
+  string next_cursor = 2;
+  string consistency_token = 3;
+}
+
+message LookupSubjectsRequest {
+  ObjectRef resource = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  string permission = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string subject_type = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  int32 limit = 4;
+  string cursor = 5;
+}
+
+message LookupSubjectsReply {
+  repeated SubjectRef subjects = 1;
+  string next_cursor = 2;
+  string consistency_token = 3;
+}
+
+message TokenSet {
+  string access_token = 1;
+  string refresh_token = 2;
+  string id_token = 3;
+  string token_type = 4;
+  string scope = 5;
+  google.protobuf.Timestamp expires_at = 6;
+}
+
+message Principal {
+  string subject_id = 1;
+  string subject_type = 2;
+  string provider = 3;
+  string external_id = 4;
+  string issuer = 5;
+  repeated string audience = 6;
+  string tenant_id = 7;
+  string org_id = 8;
+  string app_id = 9;
+  string project_id = 10;
+  string username = 11;
+  string name = 12;
+  string email = 13;
+  string phone = 14;
+  repeated string roles = 15;
+  repeated string groups = 16;
+  repeated string scopes = 17;
+  string auth_method = 18;
+  google.protobuf.Timestamp issued_at = 19;
+  google.protobuf.Timestamp expires_at = 20;
+}
+
+message User {
+  string id = 1;
+  string external_id = 2;
+  string provider = 3;
+  string org_id = 4;
+  string username = 5;
+  string display_name = 6;
+  string email = 7;
+  string phone = 8;
+  repeated string roles = 9;
+  repeated string groups = 10;
+  bool enabled = 11;
+}
+
+message Organization {
+  string id = 1;
+  string external_id = 2;
+  string name = 3;
+  string display_name = 4;
+  string owner_id = 5;
+  string parent_id = 6;
+  repeated string tags = 7;
+  bool enabled = 8;
+}
+
+message Group {
+  string id = 1;
+  string external_id = 2;
+  string org_id = 3;
+  string parent_id = 4;
+  string name = 5;
+  string display_name = 6;
+  string type = 7;
+  string path = 8;
+  repeated string users = 9;
+}
+
+message Application {
+  string id = 1;
+  string external_id = 2;
+  string org_id = 3;
+  string name = 4;
+  string display_name = 5;
+  string client_id = 6;
+  repeated string redirect_uris = 7;
+  repeated string grant_types = 8;
+  repeated string scopes = 9;
+  repeated string providers = 10;
+  bool enable_password = 11;
+  bool enable_signup = 12;
+}
+
+message ObjectRef {
+  string type = 1;
+  string id = 2;
+}
+
+message SubjectRef {
+  string type = 1;
+  string id = 2;
+  string relation = 3;
+}
+
+message Relationship {
+  ObjectRef resource = 1;
+  string relation = 2;
+  SubjectRef subject = 3;
+}
+
+message RelationshipFilter {
+  string resource_type = 1;
+  string resource_id = 2;
+  string relation = 3;
+  string subject_type = 4;
+  string subject_id = 5;
+  string subject_relation = 6;
+}
