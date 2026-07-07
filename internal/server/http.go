@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	"github.com/aisphereio/aisphere-iam/internal/biz/projection"
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
@@ -41,6 +42,7 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	if err := serverx.RegisterHTTPServices(srv, IAMBindings(resources, authSvc, dirSvc, permSvc, projectSvc, resourceSvc, grantSvc)...); err != nil {
 		panic(err)
 	}
+	v1.RegisterIAMAuthServiceExternalAuthorizeHTTPServer(srv, authSvc)
 	registerProjectionBranches(srv, projections)
 
 	srv.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
