@@ -179,7 +179,7 @@ func (s *IAMAuthorizationAdminService) GetEffectivePermissions(ctx context.Conte
 	if err := s.requireGlobalAuthz(ctx, "view_relationships"); err != nil {
 		return nil, err
 	}
-	permissions := req.GetPermissions()
+	permissions := expandPermissionNames(req.GetPermissions())
 	if len(permissions) == 0 {
 		permissions = []string{"read", "view", "manage", "edit", "delete", "view_users", "manage_users", "view_groups", "manage_groups", "view_permissions", "manage_permissions"}
 	}
@@ -187,10 +187,6 @@ func (s *IAMAuthorizationAdminService) GetEffectivePermissions(ctx context.Conte
 	resource := &v1.ObjectRef{Type: req.GetResourceType(), Id: req.GetResourceId()}
 	out := make(map[string]*v1.PermissionDecision, len(permissions))
 	for _, permission := range permissions {
-		permission = strings.TrimSpace(permission)
-		if permission == "" {
-			continue
-		}
 		decision, err := s.deps.Authz.Check(ctx, authz.CheckRequest{Subject: subjectFromProto(subject), Resource: objectFromProto(resource), Permission: permission})
 		if err != nil {
 			out[permission] = &v1.PermissionDecision{Allowed: false, Effect: "error", Reason: err.Error()}
@@ -231,4 +227,23 @@ func (s *IAMAuthorizationAdminService) requireGlobalAuthz(ctx context.Context, p
 
 func relationshipToProto(in authz.Relationship) *v1.Relationship {
 	return &v1.Relationship{Resource: objectToProto(in.Resource), Relation: in.Relation, Subject: subjectToProto(in.Subject)}
+}
+
+func expandPermissionNames(values []string) []string {
+	out := make([]string, 0, len(values))
+	seen := map[string]struct{}{}
+	for _, value := range values {
+		for _, part := range strings.Split(value, ",") {
+			part = strings.TrimSpace(part)
+			if part == "" {
+				continue
+			}
+			if _, ok := seen[part]; ok {
+				continue
+			}
+			seen[part] = struct{}{}
+			out = append(out, part)
+		}
+	}
+	return out
 }
