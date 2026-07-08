@@ -139,7 +139,14 @@ control_plane:
     path: configs/resource/defaults.yaml
   bootstrap_admins:
     enabled: false
-    subjects: []
+    subjects:
+      - type: user
+        id: CHANGE_ME_CASDOOR_LOCAL_ADMIN_SUBJECT
+        zone_id: aisphere
+        casdoor_org: aisphere
+        role: zone_owner
+        source: bootstrap
+        reason: initial local operator
 
 audit:
   enabled: true
