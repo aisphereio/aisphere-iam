@@ -119,9 +119,21 @@ type ControlPlaneBootstrapAdminsConfig struct {
 }
 
 type ControlPlaneAdminSubject struct {
+	// Legacy direct subject form. Still supported for service accounts or exact user IDs.
 	Type     string `json:"type" yaml:"type"`
 	ID       string `json:"id" yaml:"id"`
 	Relation string `json:"relation" yaml:"relation"`
+
+	// Zone bootstrap form. Casdoor local admin can be declared as:
+	// zone_id: aisphere, casdoor_org: aisphere, username: admin, role: zone_owner.
+	ZoneID          string `json:"zone_id" yaml:"zone_id"`
+	Role            string `json:"role" yaml:"role"`
+	ExternalIssuer  string `json:"external_issuer" yaml:"external_issuer"`
+	ExternalSubject string `json:"external_subject" yaml:"external_subject"`
+	CasdoorOrg      string `json:"casdoor_org" yaml:"casdoor_org"`
+	Username        string `json:"username" yaml:"username"`
+	Source          string `json:"source" yaml:"source"`
+	Reason          string `json:"reason" yaml:"reason"`
 }
 
 type ControlPlaneAdminResource struct {
