@@ -152,7 +152,7 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 				return nil, nil, err
 			}
 		}
-		if err := bootstrapControlPlaneAdmins(ctx, cfg.ControlPlane.BootstrapAdmins, provider, logger); err != nil {
+		if err := bootstrapControlPlaneAdmins(ctx, cfg.ControlPlane.BootstrapAdmins, provider, r.Identity, logger); err != nil {
 			r.Close()
 			return nil, nil, err
 		}
@@ -226,7 +226,7 @@ func installSchema(ctx context.Context, provider *spicedb.Client, schemaPath str
 	return provider.WriteSchema(ctx, authz.Schema{Text: string(body)})
 }
 
-func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBootstrapAdminsConfig, writer authz.RelationshipWriter, logger logx.Logger) error {
+func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBootstrapAdminsConfig, writer authz.RelationshipWriter, directory authn.UserDirectory, logger logx.Logger) error {
 	if !cfg.Enabled || writer == nil || len(cfg.Subjects) == 0 {
 		return nil
 	}
@@ -253,31 +253,33 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 		}
 
 		zoneID := firstNonEmpty(subject.ZoneID, subject.CasdoorOrg)
-		subjectID := firstNonEmpty(subject.ExternalSubject, subject.ID)
-		if zoneID == "" || subjectID == "" {
+		zoneSubject, hasZoneSubject, err := resolveBootstrapZoneSubject(ctx, subject, directory)
+		if err != nil {
+			return err
+		}
+		if zoneID == "" || !hasZoneSubject {
 			continue
 		}
-		zoneSubject := authz.SubjectRef{Type: firstNonEmpty(subject.Type, authz.SubjectTypeUser), ID: subjectID, Relation: strings.TrimSpace(subject.Relation)}
 		relation := bootstrapRoleToRelation(subject.Role)
 		rels = append(rels, authz.Relationship{
 			Resource: authz.ObjectRef{Type: "zone", ID: zoneID},
 			Relation: relation,
 			Subject:  zoneSubject,
 		})
-if !hasLegacy && (relation == "owner" || relation == "admin") {
-				for _, resource := range resources {
-					resource.Type = strings.TrimSpace(resource.Type)
-					resource.ID = strings.TrimSpace(resource.ID)
-					if resource.Type == "" || resource.ID == "" {
-						continue
-					}
-					rels = append(rels, authz.Relationship{
-						Resource: authz.ObjectRef{Type: resource.Type, ID: resource.ID},
-						Relation: "admin",
-						Subject:  zoneSubject,
-					})
+		if !hasLegacy && (relation == "owner" || relation == "admin") {
+			for _, resource := range resources {
+				resource.Type = strings.TrimSpace(resource.Type)
+				resource.ID = strings.TrimSpace(resource.ID)
+				if resource.Type == "" || resource.ID == "" {
+					continue
 				}
+				rels = append(rels, authz.Relationship{
+					Resource: authz.ObjectRef{Type: resource.Type, ID: resource.ID},
+					Relation: "admin",
+					Subject:  zoneSubject,
+				})
 			}
+		}
 	}
 	if len(rels) == 0 {
 		return nil
@@ -298,6 +300,40 @@ func legacyBootstrapSubject(subject conf.ControlPlaneAdminSubject) (authz.Subjec
 		return authz.SubjectRef{}, false
 	}
 	return authz.SubjectRef{Type: subject.Type, ID: subject.ID, Relation: subject.Relation}, true
+}
+
+func resolveBootstrapZoneSubject(ctx context.Context, subject conf.ControlPlaneAdminSubject, directory authn.UserDirectory) (authz.SubjectRef, bool, error) {
+	subjectType := strings.TrimSpace(subject.Type)
+	if subjectType == "" {
+		subjectType = authz.SubjectTypeUser
+	}
+	relation := strings.TrimSpace(subject.Relation)
+	if subjectID := firstNonEmpty(subject.ID, subject.ExternalSubject); subjectID != "" {
+		return authz.SubjectRef{Type: subjectType, ID: subjectID, Relation: relation}, true, nil
+	}
+
+	username := strings.TrimSpace(subject.Username)
+	if username == "" {
+		return authz.SubjectRef{}, false, nil
+	}
+	if directory == nil {
+		return authz.SubjectRef{}, false, authn.ErrIdentityBackendFailed("bootstrap admin username requires identity provider", nil)
+	}
+	orgID := firstNonEmpty(subject.CasdoorOrg, subject.ZoneID)
+	users, err := directory.FindUsers(ctx, authn.UserFilter{OrgID: orgID, Username: username, Limit: 20})
+	if err != nil {
+		return authz.SubjectRef{}, false, authn.ErrIdentityBackendFailed("resolve bootstrap admin user failed", err)
+	}
+	for _, user := range users {
+		if !strings.EqualFold(user.Username, username) {
+			continue
+		}
+		if user.ID == "" {
+			return authz.SubjectRef{}, false, authn.ErrIdentityBackendFailed("bootstrap admin user has empty stable id", nil)
+		}
+		return authz.SubjectRef{Type: subjectType, ID: user.ID, Relation: relation}, true, nil
+	}
+	return authz.SubjectRef{}, false, authn.ErrIdentityBackendFailed("bootstrap admin user not found: "+orgID+"/"+username, nil)
 }
 
 func bootstrapRoleToRelation(role string) string {
@@ -331,6 +367,7 @@ func defaultControlPlaneAdminResources() []conf.ControlPlaneAdminResource {
 		{Type: "iam", ID: "external_resource_binding"},
 		{Type: "iam", ID: "role_template"},
 		{Type: "iam", ID: "grant"},
+		{Type: "iam_authz", ID: "global"},
 	}
 }
 

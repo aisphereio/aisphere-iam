@@ -18,6 +18,7 @@ Casdoor OIDC Provider
 - [`docs/envoy-casdoor-oidc.md`](docs/envoy-casdoor-oidc.md)
 - [`docs/deploy.md`](docs/deploy.md)
 - [`docs/kernel-compliance.md`](docs/kernel-compliance.md)
+- [`docs/authz-bootstrap-and-permission-console.md`](docs/authz-bootstrap-and-permission-console.md)
 
 本阶段不做 Gateway 前置授权，不注入 `x-aisphere-principal`，也不注入 `x-aisphere-internal-jwt`。
 
