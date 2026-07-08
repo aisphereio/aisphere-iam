@@ -45,6 +45,7 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	}
 	v1.RegisterIAMAuthorizationAdminServiceHTTPServer(srv, authzAdminSvc)
 	registerIdentityGroupRoutes(srv, resources)
+	registerIdentityMembershipRoutes(srv, resources)
 	registerProjectionBranches(srv, projections)
 
 	srv.HandleFunc("/v1/iam/ui/login", func(w http.ResponseWriter, r *http.Request) {
