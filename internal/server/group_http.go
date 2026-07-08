@@ -7,7 +7,6 @@ import (
 
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/kernel/authn"
-	"github.com/aisphereio/kernel/middleware"
 	khttp "github.com/aisphereio/kernel/transportx/http"
 )
 
@@ -144,9 +143,7 @@ func runWithGatewayPrincipal(c khttp.Context, fn func(context.Context) (any, err
 			return nil, authn.ErrMissingCredential("gateway principal is required")
 		}
 		return fn(ctx)
-	})(middleware.Handler(func(ctx context.Context, req any) (any, error) {
-		return fn(ctx)
-	}))(c, nil)
+	})(c, nil)
 }
 
 func normalizeGroupPayload(in groupWritePayload) groupWritePayload {
