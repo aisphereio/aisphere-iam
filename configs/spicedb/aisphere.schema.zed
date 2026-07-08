@@ -53,6 +53,21 @@ definition zone {
   permission manage_permissions = owner + admin + permission_admin
 }
 
+definition iam_authz {
+  // Global IAM authorization-control resource for SpiceDB schema, relationships,
+  // permission explain, drift repair, and Permission Console operations.
+  relation owner: user | service | service_account | group#member
+  relation admin: user | service | service_account | group#member
+  relation schema_admin: user | service | service_account | group#member
+  relation auditor: user | service | service_account | group#member
+
+  permission view_schema = owner + admin + schema_admin + auditor
+  permission publish_schema = owner + admin + schema_admin
+  permission view_relationships = owner + admin + schema_admin + auditor
+  permission repair_relationships = owner + admin + schema_admin
+  permission manage = owner + admin + schema_admin
+}
+
 definition iam {
   relation admin: user | group#member | service | service_account
 
