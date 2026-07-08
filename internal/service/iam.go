@@ -90,6 +90,9 @@ func NewIAMDirectoryService(deps IAMDeps) *IAMDirectoryService {
 }
 
 func (s *IAMDirectoryService) GetUser(ctx context.Context, req *v1.GetUserRequest) (*v1.User, error) {
+	if err := s.requireZonePermission(ctx, req.GetOrgId(), "view_users"); err != nil {
+		return nil, err
+	}
 	if s.deps.Identity == nil {
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
@@ -101,6 +104,9 @@ func (s *IAMDirectoryService) GetUser(ctx context.Context, req *v1.GetUserReques
 }
 
 func (s *IAMDirectoryService) ListUsers(ctx context.Context, req *v1.ListUsersRequest) (*v1.ListUsersReply, error) {
+	if err := s.requireZonePermission(ctx, req.GetOrgId(), "view_users"); err != nil {
+		return nil, err
+	}
 	if s.deps.Identity == nil {
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
@@ -117,6 +123,9 @@ func (s *IAMDirectoryService) ListUsers(ctx context.Context, req *v1.ListUsersRe
 }
 
 func (s *IAMDirectoryService) GetOrganization(ctx context.Context, req *v1.GetOrganizationRequest) (*v1.Organization, error) {
+	if err := s.requireZonePermission(ctx, req.GetOrgId(), "view_zone"); err != nil {
+		return nil, err
+	}
 	if s.deps.Identity == nil {
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
@@ -128,6 +137,9 @@ func (s *IAMDirectoryService) GetOrganization(ctx context.Context, req *v1.GetOr
 }
 
 func (s *IAMDirectoryService) ListGroups(ctx context.Context, req *v1.ListGroupsRequest) (*v1.ListGroupsReply, error) {
+	if err := s.requireZonePermission(ctx, req.GetOrgId(), "view_groups"); err != nil {
+		return nil, err
+	}
 	if s.deps.Identity == nil {
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
@@ -141,6 +153,33 @@ func (s *IAMDirectoryService) ListGroups(ctx context.Context, req *v1.ListGroups
 		return nil, err
 	}
 	return &v1.ListGroupsReply{Groups: groupsToProto(groups)}, nil
+}
+
+func (s *IAMDirectoryService) requireZonePermission(ctx context.Context, orgID string, permission string) error {
+	principal, ok := authn.PrincipalFromContext(ctx)
+	if !ok || !principal.IsAuthenticated() {
+		return authn.ErrMissingCredential("gateway principal is required")
+	}
+	if s.deps.Authz == nil {
+		return authz.ErrBackendFailed("authz provider is not configured", nil)
+	}
+	subjectType := principal.SubjectType
+	if subjectType == "" {
+		subjectType = authz.SubjectTypeUser
+	}
+	decision, err := s.deps.Authz.Check(ctx, authz.CheckRequest{
+		Subject:    authz.SubjectRef{Type: subjectType, ID: principal.SubjectID},
+		Resource:   authz.ObjectRef{Type: "zone", ID: orgID},
+		Permission: permission,
+		OrgID:      orgID,
+	})
+	if err != nil {
+		return err
+	}
+	if !decision.IsAllowed() {
+		return authz.ErrPermissionDenied("spicedb check permission failed: zone:" + orgID + "#" + permission + "@" + subjectType + ":" + principal.SubjectID)
+	}
+	return nil
 }
 
 type IAMPermissionService struct {
