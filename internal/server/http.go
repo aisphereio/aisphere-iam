@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"time"
 
 	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
@@ -46,6 +47,9 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	registerIdentityGroupRoutes(srv, resources)
 	registerProjectionBranches(srv, projections)
 
+	srv.HandleFunc("/v1/iam/ui/login", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, safeUILoginReturnURL(r.URL.Query().Get("return_to")), http.StatusFound)
+	})
 	srv.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
@@ -57,6 +61,23 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ready"})
 	})
 	return srv
+}
+
+func safeUILoginReturnURL(raw string) string {
+	const fallback = "http://localhost:3001/"
+	u, err := url.Parse(raw)
+	if err != nil || u == nil || !u.IsAbs() {
+		return fallback
+	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return fallback
+	}
+	switch u.Host {
+	case "localhost:3000", "localhost:3001", "127.0.0.1:3000", "127.0.0.1:3001":
+		return u.String()
+	default:
+		return fallback
+	}
 }
 
 func registerProjectionBranches(srv *khttp.Server, projections *projection.Manager) {

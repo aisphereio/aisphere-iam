@@ -14,6 +14,8 @@ server:
         - http://127.0.0.1:18000
         - http://localhost:3000
         - http://127.0.0.1:3000
+        - http://localhost:3001
+        - http://127.0.0.1:3001
       allowed_methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
       allowed_headers: [Authorization, Content-Type, X-Request-ID, X-Trace-ID, Traceparent, Tracestate]
       exposed_headers: [X-Request-ID]
@@ -95,35 +97,35 @@ table: iam_schema_migrations
 security:
   authn:
     enabled: true
-    # IAM is normally behind Gateway. Authenticated business/admin requests
-    # use Gateway-verified X-Aisphere-* headers. IAM still keeps Casdoor
-    # OAuth client config for login callback, refresh, logout and M2M admin.
-    mode: gateway_trusted
+    # Envoy Gateway performs browser OIDC and forwards the verified access token
+    # to IAM. IAM verifies the forwarded Bearer token with the same issuer and
+    # audience as the Envoy OIDC client.
+    mode: oidc_jwt
     provider: casdoor
     cache_ttl_ns: 300000000000
     oidc:
       provider: casdoor
-      issuer: http://36.137.200.194:30082
-      discovery_url: http://36.137.200.194:30082/.well-known/openid-configuration
-      jwks_url: http://36.137.200.194:30082/.well-known/jwks
-      audience: [bbdcfc272e2b990cb923]
+      issuer: https://casdoor.weagent.cc:30723
+      discovery_url: https://casdoor.weagent.cc:30723/.well-known/openid-configuration
+      jwks_url: https://casdoor.weagent.cc:30723/.well-known/jwks
+      audience: [869aff97ab0408cbbd1c]
       allowed_owners: [aisphere]
       allowed_algs: [RS256, RS512, ES256, ES512]
       jwks_cache_ttl_ns: 600000000000
       clock_skew_ns: 60000000000
     casdoor:
       endpoint: http://36.137.200.194:30082
-      issuer: http://36.137.200.194:30082
-      discovery_url: http://36.137.200.194:30082/.well-known/openid-configuration
-      jwks_url: http://36.137.200.194:30082/.well-known/jwks
-      audience: [bbdcfc272e2b990cb923]
+      issuer: https://casdoor.weagent.cc:30723
+      discovery_url: https://casdoor.weagent.cc:30723/.well-known/openid-configuration
+      jwks_url: https://casdoor.weagent.cc:30723/.well-known/jwks
+      audience: [869aff97ab0408cbbd1c]
       allowed_owners: [aisphere]
       allowed_algs: [RS256, RS512, ES256, ES512]
       jwks_cache_ttl_ns: 600000000000
       organization_name: aisphere
       application_name: aisphere
-      client_id: bbdcfc272e2b990cb923
-      client_secret: "c4d351406d40251b267624328e50e8a1f7352a65"
+      client_id: 869aff97ab0408cbbd1c
+      client_secret: "dbd4c663c6dbd947da0d23616cddaf532dcee7be"
       jwt_certificate_file: configs/casdoor.pub
       timeout: 10000000000
       metrics_enabled: true
@@ -134,12 +136,12 @@ security:
         enabled: true
         organization_name: aisphere
         application_name: iam-service
-        client_id: "bbdcfc272e2b990cb923"
-        client_secret: "c4d351406d40251b267624328e50e8a1f7352a65"
+        client_id: "869aff97ab0408cbbd1c"
+        client_secret: "dbd4c663c6dbd947da0d23616cddaf532dcee7be"
         jwt_certificate_file: configs/casdoor.pub
   internal_call:
-    # Required when authn.mode=gateway_trusted. Gateway injects this after
-    # validating the external Casdoor JWT; IAM rejects trusted headers without it.
+    # Used by internal platform calls. Browser traffic reaches IAM through
+    # Envoy OIDC and is authenticated by forwarded Bearer tokens.
     enabled: true
     header: X-Aisphere-Internal-Token
     token: "aisphere-internal-token-2026"
