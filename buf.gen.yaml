@@ -14,16 +14,13 @@ plugins:
     opt:
       - paths=source_relative
 
+  # Kernel transportx/http is the only runtime HTTP binding used by IAM.
+  # Do not also generate grpc-gateway handlers for the same google.api.http
+  # annotations, otherwise generated handler ownership becomes ambiguous.
   - local: protoc-gen-go-http
     out: api
     opt:
       - paths=source_relative
-
-  - local: protoc-gen-grpc-gateway
-    out: api
-    opt:
-      - paths=source_relative
-      - generate_unbound_methods=false
 
   - local: protoc-gen-go-errors
     out: api
