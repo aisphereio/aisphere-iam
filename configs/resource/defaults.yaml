@@ -2,6 +2,11 @@
 # This file is Phase 2 contract data. Phase 5 will load it during bootstrap and
 # reconcile it into IAM DB + SpiceDB schema relationships.
 capabilities:
+  - id: iam
+    name: iam
+    display_name: Aisphere IAM
+    owner_service: aisphere-iam
+    status: active
   - id: hub
     name: hub
     display_name: Aisphere Hub
@@ -34,6 +39,26 @@ capabilities:
     status: active
 
 resource_types:
+  - type: zone
+    capability_id: iam
+    owner_service: aisphere-iam
+    parent_types: []
+    grantable: true
+    auditable: true
+    spicedb_type: zone
+    relations: [owner, admin, user_viewer, user_manager, group_viewer, group_manager, permission_admin, member]
+    permissions: [view_zone, view_users, manage_users, view_groups, create_groups, manage_groups, view_permissions, manage_permissions]
+    status: active
+  - type: group
+    capability_id: iam
+    owner_service: aisphere-iam
+    parent_types: [zone, group]
+    grantable: true
+    auditable: true
+    spicedb_type: group
+    relations: [zone, parent, member, owner, manager, viewer, permission_admin]
+    permissions: [view, manage, create_child_groups, manage_members, view_permissions, manage_permissions]
+    status: active
   - type: skill_space
     capability_id: hub
     owner_service: aisphere-hub
@@ -156,6 +181,83 @@ resource_types:
     status: active
 
 role_templates:
+  - resource_type: zone
+    role_key: zone_owner
+    display_name: Zone Owner
+    relation: owner
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: zone
+    role_key: zone_admin
+    display_name: Zone Admin
+    relation: admin
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: zone
+    role_key: user_viewer
+    display_name: User Viewer
+    relation: user_viewer
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: zone
+    role_key: user_manager
+    display_name: User Manager
+    relation: user_manager
+    built_in: true
+    enabled: true
+    sort_order: 40
+  - resource_type: zone
+    role_key: group_viewer
+    display_name: Group Viewer
+    relation: group_viewer
+    built_in: true
+    enabled: true
+    sort_order: 50
+  - resource_type: zone
+    role_key: group_manager
+    display_name: Group Manager
+    relation: group_manager
+    built_in: true
+    enabled: true
+    sort_order: 60
+  - resource_type: zone
+    role_key: permission_admin
+    display_name: Permission Admin
+    relation: permission_admin
+    built_in: true
+    enabled: true
+    sort_order: 70
+  - resource_type: group
+    role_key: group_owner
+    display_name: Group Owner
+    relation: owner
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: group
+    role_key: group_manager
+    display_name: Group Manager
+    relation: manager
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: group
+    role_key: group_viewer
+    display_name: Group Viewer
+    relation: viewer
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: group
+    role_key: group_member
+    display_name: Group Member
+    relation: member
+    built_in: true
+    enabled: true
+    sort_order: 40
   - resource_type: organization
     role_key: owner
     display_name: Organization Owner
