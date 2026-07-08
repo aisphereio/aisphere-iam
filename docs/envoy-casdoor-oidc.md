@@ -1,10 +1,10 @@
 # Envoy Gateway + Casdoor OIDC 接入
 
-本文定义 Aisphere IAM 在 OIDC-only 第一阶段中的职责。
+本文定义 Aisphere IAM 在 Gateway OIDC 阶段中的职责，以及 IAM 业务代码如何从 Kernel ctx 获取调用者身份。
 
 ## 1. 阶段定位
 
-第一阶段只做 Gateway OIDC/JWT 接入，不启用 Gateway ExternalAuth。
+当前阶段只做 Gateway OIDC/JWT 接入，不启用 Gateway ExternalAuth。
 
 ```text
 Casdoor = OIDC Provider
@@ -37,7 +37,11 @@ x-aisphere-external-sub
 x-aisphere-external-issuer
 x-aisphere-external-email
 x-aisphere-external-name
-x-aisphere-external-username
+x-aisphere-external-display-name
+x-aisphere-external-phone
+x-aisphere-external-owner
+x-aisphere-external-id
+x-aisphere-external-scope
 ```
 
 可选内部投影 header：
@@ -52,20 +56,21 @@ x-aisphere-groups
 x-aisphere-scopes
 ```
 
-Kernel v0.4.0+ 的恢复规则：
+Kernel 的恢复规则：
 
 ```text
-SubjectID = x-aisphere-principal > x-aisphere-user-id > x-aisphere-external-sub
-ExternalID = x-aisphere-external-sub
+SubjectID = x-aisphere-principal > x-aisphere-user-id > x-aisphere-external-id > x-aisphere-external-sub
+ExternalID = x-aisphere-external-id 或 x-aisphere-external-sub
 Issuer = x-aisphere-external-issuer
 Email = x-aisphere-external-email
-Name = x-aisphere-external-name
-Username = x-aisphere-external-username
-OrgID = x-aisphere-org-id
+Username = x-aisphere-external-name 或 x-aisphere-external-username
+Name = x-aisphere-external-display-name > x-aisphere-external-name
+Phone = x-aisphere-external-phone
+OrgID/TenantID = x-aisphere-org-id > x-aisphere-external-owner
 ProjectID = x-aisphere-project-id
 Roles = x-aisphere-roles
 Groups = x-aisphere-groups
-Scopes = x-aisphere-scopes
+Scopes = x-aisphere-scopes 或 x-aisphere-external-scope
 ```
 
 业务 handler 不要自己解析 header，统一使用：
@@ -74,7 +79,36 @@ Scopes = x-aisphere-scopes
 principal, ok := authn.PrincipalFromContext(ctx)
 ```
 
-## 4. IAM 不再承担浏览器 OAuth 流程
+## 4. IAM 业务代码使用规则
+
+IAM 内部代码把 Kernel ctx 中的 `authn.Principal` 当作服务端权威身份来源：
+
+```go
+principal, ok := authn.PrincipalFromContext(ctx)
+if !ok || !principal.IsAuthenticated() {
+    return nil, authn.ErrMissingCredential("kernel principal is required")
+}
+
+userID := principal.SubjectID // 稳定用户 UUID
+orgID := principal.OrgID      // Casdoor owner / Aisphere org 投影
+```
+
+控制面写操作不得信任请求体里的 `owner`、`created_by`、`actor` 来代表当前调用者。IAM 服务层应使用 ctx Principal 填充：
+
+```text
+CreateOrganization.Owner = ctx Principal
+CreateProject.CreatedBy = ctx Principal
+CreateProject.Owner = request owner 或 ctx Principal fallback
+UpsertResource.CreatedBy = ctx Principal
+UpsertResource.Owner = request owner 或 ctx Principal fallback
+BindResource.CreatedBy = ctx Principal
+GrantAccess.CreatedBy = ctx Principal
+RevokeAccess.Actor = ctx Principal
+```
+
+这样可以保证 SpiceDB 关系和审计主体使用稳定的用户 UUID，而不是客户端传入的 name/email/displayName。
+
+## 5. IAM 不再承担浏览器 OAuth 流程
 
 当前架构下，浏览器登录、callback、code exchange、session cookie、access token forwarding 都归 Envoy Gateway 负责。
 
@@ -98,7 +132,7 @@ https://api.weagent.cc:30723/v1/iam/me
 
 未登录时由 Envoy Gateway 自动跳转到 Casdoor。登录完成后，Gateway 注入 claim header，IAM 后端只读取 Kernel context 中的 Principal。
 
-## 5. IAM 在本阶段的职责
+## 6. IAM 在本阶段的职责
 
 IAM 作为普通后端服务提供：
 
@@ -120,7 +154,7 @@ IAM 不承担：
 5. 前端本地 token session 管理。
 ```
 
-## 6. 后端映射逻辑
+## 7. 后端映射逻辑
 
 业务服务收到：
 
@@ -152,7 +186,7 @@ roles/grants
 external_issuer + external_subject
 ```
 
-## 7. Casdoor OIDC 配置要求
+## 8. Casdoor OIDC 配置要求
 
 Casdoor application 需要配置：
 
@@ -168,7 +202,7 @@ scopes:
 
 Gateway 的 issuer 必须与 Casdoor token 的 `iss` 完全一致。
 
-## 8. Envoy Gateway 示例
+## 9. Envoy Gateway 示例
 
 示例清单位于：
 
@@ -187,7 +221,7 @@ claimToHeaders
 
 不包含 ExtAuth。
 
-## 9. 验收
+## 10. 验收
 
 ```bash
 # public route 不应触发登录
@@ -205,7 +239,7 @@ curl -i https://api.weagent.cc:30723/v1/iam/me \
   -H "x-aisphere-principal: user:admin"
 ```
 
-## 10. 后续阶段
+## 11. 后续阶段
 
 后续再增加：
 
