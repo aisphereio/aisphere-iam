@@ -146,28 +146,27 @@ func (s *IAMAuthorizationAdminService) CheckAuthorization(ctx context.Context, r
 	return &v1.CheckPermissionReply{Allowed: decision.IsAllowed(), Effect: string(decision.Effect), Reason: decision.Reason, ConsistencyToken: decision.ConsistencyToken}, nil
 }
 
-func (s *IAMAuthorizationAdminService) ExplainAuthorization(ctx context.Context, req *v1.ExplainAuthorizationRequest) (*v1.ExplainAuthorizationReply, error) {
+func (s *IAMAuthorizationAdminService) ExplainAuthorization(ctx context.Context, req *v1.CheckPermissionRequest) (*v1.ExplainAuthorizationReply, error) {
 	if err := s.requireGlobalAuthz(ctx, "view_relationships"); err != nil {
 		return nil, err
 	}
-	check := req.GetCheck()
-	if check == nil {
+	if req == nil {
 		return nil, authn.ErrInvalidTokenRequest("check request is required")
 	}
 	decision, err := s.deps.Authz.Check(ctx, authz.CheckRequest{
-		Subject:    subjectFromProto(check.GetSubject()),
-		Resource:   objectFromProto(check.GetResource()),
-		Permission: check.GetPermission(),
-		OrgID:      check.GetOrgId(),
-		ProjectID:  check.GetProjectId(),
+		Subject:    subjectFromProto(req.GetSubject()),
+		Resource:   objectFromProto(req.GetResource()),
+		Permission: req.GetPermission(),
+		OrgID:      req.GetOrgId(),
+		ProjectID:  req.GetProjectId(),
 	})
 	if err != nil {
 		return nil, err
 	}
 	steps := []string{
-		"subject=" + subjectFromProto(check.GetSubject()).String(),
-		"resource=" + objectFromProto(check.GetResource()).String(),
-		"permission=" + strings.TrimSpace(check.GetPermission()),
+		"subject=" + subjectFromProto(req.GetSubject()).String(),
+		"resource=" + objectFromProto(req.GetResource()).String(),
+		"permission=" + strings.TrimSpace(req.GetPermission()),
 		"decision=" + string(decision.Effect),
 	}
 	if decision.Reason != "" {
@@ -184,20 +183,22 @@ func (s *IAMAuthorizationAdminService) GetEffectivePermissions(ctx context.Conte
 	if len(permissions) == 0 {
 		permissions = []string{"read", "view", "manage", "edit", "delete", "view_users", "manage_users", "view_groups", "manage_groups", "view_permissions", "manage_permissions"}
 	}
+	subject := &v1.SubjectRef{Type: req.GetSubjectType(), Id: req.GetSubjectId(), Relation: req.GetSubjectRelation()}
+	resource := &v1.ObjectRef{Type: req.GetResourceType(), Id: req.GetResourceId()}
 	out := make(map[string]*v1.PermissionDecision, len(permissions))
 	for _, permission := range permissions {
 		permission = strings.TrimSpace(permission)
 		if permission == "" {
 			continue
 		}
-		decision, err := s.deps.Authz.Check(ctx, authz.CheckRequest{Subject: subjectFromProto(req.GetSubject()), Resource: objectFromProto(req.GetResource()), Permission: permission})
+		decision, err := s.deps.Authz.Check(ctx, authz.CheckRequest{Subject: subjectFromProto(subject), Resource: objectFromProto(resource), Permission: permission})
 		if err != nil {
 			out[permission] = &v1.PermissionDecision{Allowed: false, Effect: "error", Reason: err.Error()}
 			continue
 		}
 		out[permission] = &v1.PermissionDecision{Allowed: decision.IsAllowed(), Effect: string(decision.Effect), Reason: decision.Reason}
 	}
-	return &v1.GetEffectivePermissionsReply{Subject: req.GetSubject(), Resource: req.GetResource(), Permissions: out}, nil
+	return &v1.GetEffectivePermissionsReply{Subject: subject, Resource: resource, Permissions: out}, nil
 }
 
 func (s *IAMAuthorizationAdminService) requireGlobalAuthz(ctx context.Context, permission string) error {
