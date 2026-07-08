@@ -1,0 +1,12 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: GRPCRoute
+metadata:
+  name: iam-grpc
+  namespace: aisphere
+spec:
+  parentRefs:
+    - name: aisphere-gateway
+  rules:
+    - backendRefs:
+        - name: aisphere-iam
+          port: 19080

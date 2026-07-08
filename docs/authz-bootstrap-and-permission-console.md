@@ -21,6 +21,7 @@ subject_id   = b22888d1-5cd0-4700-8e67-aa4a622fd715
 subject_type = user
 provider     = casdoor
 external_id  = aisphere/use
+issuer       = https://casdoor.weagent.cc:30723
 org_id       = aisphere
 username     = use
 groups       = []
@@ -51,7 +52,69 @@ This makes the user-list failure explicit and easier to diagnose:
 spicedb check permission failed: zone:aisphere#view_users@user:<uuid>
 ```
 
-## 3. Bootstrap admin
+## 3. Casdoor JWKS and certificate contract
+
+Bootstrap admin resolution and JWT verification are separate concerns.
+
+### 3.1 Bootstrap admin resolution
+
+Resolving `aisphere/admin` into a stable Casdoor user UUID is a Casdoor Admin / M2M directory call. It needs:
+
+```yaml
+security:
+  authn:
+    casdoor:
+      endpoint: https://casdoor.weagent.cc:30723
+      admin:
+        enabled: true
+        organization_name: aisphere
+        application_name: iam-service
+        client_id: CHANGE_ME_M2M_CLIENT_ID
+        client_secret: CHANGE_ME_M2M_CLIENT_SECRET
+```
+
+This lookup does not itself require IAM to verify an inbound JWT signature.
+
+### 3.2 Token verification
+
+IAM still needs OIDC Discovery / JWKS whenever it verifies Casdoor tokens directly, for example:
+
+- `security.authn.mode: casdoor_jwt` or `oidc_jwt`;
+- `VerifyToken` / token introspection style APIs;
+- future ExternalAuth modes where IAM validates the external bearer token instead of trusting Gateway headers;
+- local development or fallback flows that bypass Gateway OIDC.
+
+Production should prefer JWKS over a static `casdoor.pub` file:
+
+```yaml
+security:
+  authn:
+    oidc:
+      issuer: https://casdoor.weagent.cc:30723
+      discovery_url: https://casdoor.weagent.cc:30723/.well-known/openid-configuration
+      jwks_url: https://casdoor.weagent.cc:30723/.well-known/jwks
+      audience: [869aff97ab0408cbbd1c]
+      allowed_owners: [aisphere]
+    casdoor:
+      issuer: https://casdoor.weagent.cc:30723
+      discovery_url: https://casdoor.weagent.cc:30723/.well-known/openid-configuration
+      jwks_url: https://casdoor.weagent.cc:30723/.well-known/jwks
+      audience: [869aff97ab0408cbbd1c]
+      allowed_owners: [aisphere]
+      jwks_cache_ttl_ns: 600000000000
+```
+
+`jwt_certificate_file` remains a local/dev fallback only. In production it should not be the primary certificate rotation mechanism because it cannot automatically track Casdoor key rotation.
+
+The issuer configured in IAM must exactly match the token issuer. For the observed Principal this is:
+
+```text
+https://casdoor.weagent.cc:30723
+```
+
+Do not configure IAM token verification with an internal issuer such as `http://casdoor.aisphere:8000` unless Casdoor actually issues tokens with that issuer.
+
+## 4. Bootstrap admin
 
 IAM can bootstrap the initial Casdoor admin user by username.
 
@@ -89,7 +152,7 @@ iam:grant#admin@user:<admin_uuid>
 iam_authz:global#admin@user:<admin_uuid>
 ```
 
-## 4. Permission Console resource
+## 5. Permission Console resource
 
 The SpiceDB schema now includes a global IAM authorization-control resource:
 
@@ -116,7 +179,7 @@ This will back the UI module for:
 - permission explain;
 - drift detection and repair.
 
-## 5. Next implementation slices
+## 6. Next implementation slices
 
 1. Add IAM AuthZ Admin API:
    - `GetAuthzSchema`

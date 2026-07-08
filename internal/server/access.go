@@ -74,10 +74,10 @@ func iamSkipPolicyResolver(catalog serverx.ServiceCatalog) accessmw.SkipPolicyRe
 			// concrete zone:{org_id} permissions against SpiceDB using ctx Principal.
 			return accessx.SkipAuthz
 		}
-		if isManualGroupManagementOperation(op) {
-			// Manual group routes are implemented before the generated proto catalog.
-			// Keep authn + audit in accessx; the HTTP handler performs the concrete
-			// SpiceDB checks against zone/group permissions.
+		if isManualGroupManagementOperation(op) || isManualAuthzAdminOperation(op) {
+			// Manual HTTP routes are implemented before the generated proto catalog.
+			// Keep authn + audit in accessx; the handler performs concrete SpiceDB
+			// checks against zone/group/iam_authz permissions.
 			return accessx.SkipAuthz
 		}
 		info, ok, err := catalog.RequestInfoResolver(context.Background(), op, nil)
@@ -114,4 +114,9 @@ func isDirectoryReadOperation(op string) bool {
 func isManualGroupManagementOperation(op string) bool {
 	op = strings.TrimPrefix(strings.TrimSpace(op), "/")
 	return op == "v1/iam/orgs/{org_id}/groups" || op == "v1/iam/orgs/{org_id}/groups/{group_id}"
+}
+
+func isManualAuthzAdminOperation(op string) bool {
+	op = strings.TrimPrefix(strings.TrimSpace(op), "/")
+	return strings.HasPrefix(op, "v1/iam/authz/")
 }
