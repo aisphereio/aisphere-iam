@@ -3,14 +3,17 @@ ARG GO_VERSION=1.25.8
 FROM golang:${GO_VERSION}-alpine AS builder
 
 WORKDIR /src
-RUN apk add --no-cache ca-certificates git tzdata
+RUN apk add --no-cache ca-certificates git make tzdata
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 ARG VERSION=dev
-RUN go mod tidy \
+RUN make tools \
+    && make api \
+    && make deploy \
+    && go mod tidy \
     && go mod download \
     && CGO_ENABLED=0 GOOS=linux go build \
       -trimpath \
@@ -27,6 +30,7 @@ WORKDIR /app
 COPY --from=builder /app/server /app/server
 COPY --from=builder /src/configs /app/configs
 COPY --from=builder /src/migrations /app/migrations
+COPY --from=builder /src/deploy/generated /app/deploy/generated
 RUN chown -R app:app /app
 
 USER app
