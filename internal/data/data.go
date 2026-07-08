@@ -234,25 +234,49 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 	if len(resources) == 0 {
 		resources = defaultControlPlaneAdminResources()
 	}
-	rels := make([]authz.Relationship, 0, len(resources)*len(cfg.Subjects))
-	for _, resource := range resources {
-		resource.Type = strings.TrimSpace(resource.Type)
-		resource.ID = strings.TrimSpace(resource.ID)
-		if resource.Type == "" || resource.ID == "" {
+	rels := make([]authz.Relationship, 0, len(resources)*len(cfg.Subjects)+len(cfg.Subjects))
+	for _, subject := range cfg.Subjects {
+		legacySubject, hasLegacy := legacyBootstrapSubject(subject)
+		if hasLegacy {
+			for _, resource := range resources {
+				resource.Type = strings.TrimSpace(resource.Type)
+				resource.ID = strings.TrimSpace(resource.ID)
+				if resource.Type == "" || resource.ID == "" {
+					continue
+				}
+				rels = append(rels, authz.Relationship{
+					Resource: authz.ObjectRef{Type: resource.Type, ID: resource.ID},
+					Relation: "admin",
+					Subject:  legacySubject,
+				})
+			}
+		}
+
+		zoneID := firstNonEmpty(subject.ZoneID, subject.CasdoorOrg)
+		subjectID := firstNonEmpty(subject.ExternalSubject, subject.ID)
+		if zoneID == "" || subjectID == "" {
 			continue
 		}
-		for _, subject := range cfg.Subjects {
-			subject.Type = strings.TrimSpace(subject.Type)
-			subject.ID = strings.TrimSpace(subject.ID)
-			subject.Relation = strings.TrimSpace(subject.Relation)
-			if subject.Type == "" || subject.ID == "" {
-				continue
+		zoneSubject := authz.SubjectRef{Type: firstNonEmpty(subject.Type, authz.SubjectTypeUser), ID: subjectID, Relation: strings.TrimSpace(subject.Relation)}
+		relation := bootstrapRoleToRelation(subject.Role)
+		rels = append(rels, authz.Relationship{
+			Resource: authz.ObjectRef{Type: "zone", ID: zoneID},
+			Relation: relation,
+			Subject:  zoneSubject,
+		})
+		if relation == "owner" || relation == "admin" {
+			for _, resource := range resources {
+				resource.Type = strings.TrimSpace(resource.Type)
+				resource.ID = strings.TrimSpace(resource.ID)
+				if resource.Type == "" || resource.ID == "" {
+					continue
+				}
+				rels = append(rels, authz.Relationship{
+					Resource: authz.ObjectRef{Type: resource.Type, ID: resource.ID},
+					Relation: "admin",
+					Subject:  zoneSubject,
+				})
 			}
-			rels = append(rels, authz.Relationship{
-				Resource: authz.ObjectRef{Type: resource.Type, ID: resource.ID},
-				Relation: "admin",
-				Subject:  authz.SubjectRef{Type: subject.Type, ID: subject.ID, Relation: subject.Relation},
-			})
 		}
 	}
 	if len(rels) == 0 {
@@ -266,6 +290,37 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 	return nil
 }
 
+func legacyBootstrapSubject(subject conf.ControlPlaneAdminSubject) (authz.SubjectRef, bool) {
+	subject.Type = strings.TrimSpace(subject.Type)
+	subject.ID = strings.TrimSpace(subject.ID)
+	subject.Relation = strings.TrimSpace(subject.Relation)
+	if subject.Type == "" || subject.ID == "" {
+		return authz.SubjectRef{}, false
+	}
+	return authz.SubjectRef{Type: subject.Type, ID: subject.ID, Relation: subject.Relation}, true
+}
+
+func bootstrapRoleToRelation(role string) string {
+	switch strings.TrimSpace(role) {
+	case "zone_admin", "admin":
+		return "admin"
+	case "user_viewer":
+		return "user_viewer"
+	case "user_manager":
+		return "user_manager"
+	case "group_viewer":
+		return "group_viewer"
+	case "group_manager":
+		return "group_manager"
+	case "permission_admin":
+		return "permission_admin"
+	case "zone_owner", "owner", "":
+		return "owner"
+	default:
+		return strings.TrimSpace(role)
+	}
+}
+
 func defaultControlPlaneAdminResources() []conf.ControlPlaneAdminResource {
 	return []conf.ControlPlaneAdminResource{
 		{Type: "iam", ID: "organization"},
@@ -277,6 +332,16 @@ func defaultControlPlaneAdminResources() []conf.ControlPlaneAdminResource {
 		{Type: "iam", ID: "role_template"},
 		{Type: "iam", ID: "grant"},
 	}
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 func pingEnabled(ctx context.Context, r *Resources) error {
