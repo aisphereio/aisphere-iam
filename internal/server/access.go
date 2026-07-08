@@ -68,6 +68,12 @@ func iamSkipPolicyResolver(catalog serverx.ServiceCatalog) accessmw.SkipPolicyRe
 		if op == "ExternalAuthorize" {
 			return accessx.SkipAll
 		}
+		if isDirectoryReadOperation(op) {
+			// Directory proto annotations still use the older iam:org:* resource strings.
+			// Skip the generated check here and let IAMDirectoryService enforce the
+			// concrete zone:{org_id} permissions against SpiceDB using ctx Principal.
+			return accessx.SkipAuthz
+		}
 		if isManualGroupManagementOperation(op) {
 			// Manual group routes are implemented before the generated proto catalog.
 			// Keep authn + audit in accessx; the HTTP handler performs the concrete
@@ -88,6 +94,20 @@ func iamSkipPolicyResolver(catalog serverx.ServiceCatalog) accessmw.SkipPolicyRe
 			return accessx.SkipAuthz
 		}
 		return accessx.SkipDefault
+	}
+}
+
+func isDirectoryReadOperation(op string) bool {
+	op = strings.TrimPrefix(strings.TrimSpace(op), "/")
+	switch op {
+	case "GetUser", "ListUsers", "GetOrganization", "ListGroups",
+		"iam.v1.IAMDirectoryService/GetUser",
+		"iam.v1.IAMDirectoryService/ListUsers",
+		"iam.v1.IAMDirectoryService/GetOrganization",
+		"iam.v1.IAMDirectoryService/ListGroups":
+		return true
+	default:
+		return false
 	}
 }
 
