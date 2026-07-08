@@ -13,6 +13,8 @@ Casdoor OIDC Provider
   -> services call IAM when they need user/org/project/permission mapping
 ```
 
+生产环境 IAM 的 Casdoor/OIDC 配置应优先使用 `discovery_url` / `jwks_url` 获取当前签名公钥；`jwt_certificate_file` 只作为本地开发或静态兜底使用。IAM 中配置的 `issuer` 必须与 Casdoor token 的 `iss` 完全一致。
+
 详细说明见：
 
 - [`docs/envoy-casdoor-oidc.md`](docs/envoy-casdoor-oidc.md)
