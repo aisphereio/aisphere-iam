@@ -1,6 +1,6 @@
 # AuthZ Bootstrap and Permission Console
 
-This document records the first implementation slice for the IAM authorization model.
+This document records the implementation slice for the IAM authorization model.
 
 ## 1. Principal contract
 
@@ -95,24 +95,9 @@ security:
       jwks_url: https://casdoor.weagent.cc:30723/.well-known/jwks
       audience: [869aff97ab0408cbbd1c]
       allowed_owners: [aisphere]
-    casdoor:
-      issuer: https://casdoor.weagent.cc:30723
-      discovery_url: https://casdoor.weagent.cc:30723/.well-known/openid-configuration
-      jwks_url: https://casdoor.weagent.cc:30723/.well-known/jwks
-      audience: [869aff97ab0408cbbd1c]
-      allowed_owners: [aisphere]
-      jwks_cache_ttl_ns: 600000000000
 ```
 
 `jwt_certificate_file` remains a local/dev fallback only. In production it should not be the primary certificate rotation mechanism because it cannot automatically track Casdoor key rotation.
-
-The issuer configured in IAM must exactly match the token issuer. For the observed Principal this is:
-
-```text
-https://casdoor.weagent.cc:30723
-```
-
-Do not configure IAM token verification with an internal issuer such as `http://casdoor.aisphere:8000` unless Casdoor actually issues tokens with that issuer.
 
 ## 4. Bootstrap admin
 
@@ -171,7 +156,7 @@ definition iam_authz {
 }
 ```
 
-This will back the UI module for:
+This backs the UI module for:
 
 - schema view / validate / publish / diff;
 - relationship explorer;
@@ -179,17 +164,66 @@ This will back the UI module for:
 - permission explain;
 - drift detection and repair.
 
-## 6. Next implementation slices
+## 6. Proto-first development workflow
 
-1. Add IAM AuthZ Admin API:
-   - `GetAuthzSchema`
-   - `ValidateAuthzSchema`
-   - `PublishAuthzSchema`
-   - `ListRelationships`
-   - `GrantRelationship`
-   - `RevokeRelationship`
-   - `ExplainPermission`
-2. Add frontend Permission Console tab.
-3. Add Resource/Subject selector components.
+AuthZ Admin API must be developed from `api/iam/v1/iam.proto` first. Do not add final product APIs as hand-written HTTP routes.
+
+The workflow is:
+
+```bash
+make tools
+make api
+make deploy
+make proto-check
+go test ./...
+```
+
+`make api` regenerates:
+
+- protobuf Go types;
+- gRPC service bindings;
+- Kernel HTTP bindings;
+- grpc-gateway bindings;
+- Kernel service catalog / access metadata;
+- OpenAPI docs.
+
+`make deploy` regenerates Gateway API manifests under:
+
+```text
+deploy/generated
+```
+
+The Docker build and GitHub Actions workflow both run `make api` and `make deploy` before building the binary.
+
+## 7. AuthZ Admin API contract
+
+The Permission Console API is now represented by `IAMAuthorizationAdminService` in proto:
+
+```text
+GET  /v1/iam/authz/schema
+POST /v1/iam/authz/schema:validate
+POST /v1/iam/authz/schema:publish
+GET  /v1/iam/authz/relationships
+POST /v1/iam/authz/relationships
+POST /v1/iam/authz/relationships:delete
+POST /v1/iam/authz/permissions:check
+POST /v1/iam/authz/permissions:explain
+GET  /v1/iam/authz/effective-permissions
+```
+
+Generated access metadata uses `SELF_CHECK`, and `IAMAuthorizationAdminService` performs concrete SpiceDB checks against:
+
+```text
+iam_authz:global#view_schema
+iam_authz:global#publish_schema
+iam_authz:global#view_relationships
+iam_authz:global#repair_relationships
+```
+
+## 8. Next implementation slices
+
+1. Run `make api` and commit generated files.
+2. Run `make deploy` and commit or publish generated Gateway API manifests according to the repo release policy.
+3. Replace first-slice UI direct relationship writes with a higher-level Grant Wizard.
 4. Add audit events for schema publish, grant, revoke, and repair.
-5. Add integration tests for admin bootstrap and user-list authorization.
+5. Add integration tests for admin bootstrap, user-list authorization, schema validation, and relationship explorer.

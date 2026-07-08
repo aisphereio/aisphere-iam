@@ -175,348 +175,150 @@ service IAMPermissionService {
   }
 }
 
+service IAMAuthorizationAdminService {
+  rpc GetAuthorizationSchema(GetAuthorizationSchemaRequest) returns (AuthorizationSchema) {
+    option (google.api.http) = { get: "/v1/iam/authz/schema" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_schema" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.schema.get" risk: "medium" }
+    };
+  }
+
+  rpc ValidateAuthorizationSchema(ValidateAuthorizationSchemaRequest) returns (ValidateAuthorizationSchemaReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/schema:validate" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "publish_schema" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.schema.validate" risk: "high" }
+    };
+  }
+
+  rpc PublishAuthorizationSchema(PublishAuthorizationSchemaRequest) returns (PublishAuthorizationSchemaReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/schema:publish" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "publish_schema" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.schema.publish" risk: "critical" }
+    };
+  }
+
+  rpc ListRelationships(ListRelationshipsRequest) returns (ListRelationshipsReply) {
+    option (google.api.http) = { get: "/v1/iam/authz/relationships" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.relationship.list" risk: "medium" }
+    };
+  }
+
+  rpc WriteRelationships(WriteRelationshipsRequest) returns (WriteRelationshipsReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/relationships" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "repair_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.relationship.write" risk: "critical" }
+    };
+  }
+
+  rpc DeleteRelationships(DeleteRelationshipsRequest) returns (DeleteRelationshipsReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/relationships:delete" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "repair_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.relationship.delete" risk: "critical" }
+    };
+  }
+
+  rpc CheckAuthorization(CheckPermissionRequest) returns (CheckPermissionReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/permissions:check" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.permission.check" risk: "medium" }
+    };
+  }
+
+  rpc ExplainAuthorization(CheckPermissionRequest) returns (ExplainAuthorizationReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/permissions:explain" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.permission.explain" risk: "medium" }
+    };
+  }
+
+  rpc GetEffectivePermissions(GetEffectivePermissionsRequest) returns (GetEffectivePermissionsReply) {
+    option (google.api.http) = { get: "/v1/iam/authz/effective-permissions" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.effective_permissions" risk: "medium" }
+    };
+  }
+}
+
 message BuildLoginURLRequest {
-  string redirect_uri = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
+  string redirect_uri = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1];
   string state = 2;
   string scope = 3;
   string org_id = 4;
   string app_id = 5;
 }
 
-message BuildLoginURLReply {
-  string login_url = 1;
-  string provider = 2;
-  string redirect_uri = 3;
-  string state = 4;
-  string scope = 5;
-}
+message BuildLoginURLReply { string login_url = 1; string provider = 2; string redirect_uri = 3; string state = 4; string scope = 5; }
+message ExchangeCodeRequest { string code = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string state = 2; string redirect_uri = 3; string org_id = 4; string app_id = 5; }
+message ExchangeCodeReply { TokenSet tokens = 1; Principal principal = 2; }
+message RefreshTokenRequest { string refresh_token = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string scope = 2; string org_id = 3; string app_id = 4; }
+message VerifyTokenRequest { string token = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string token_type = 2; string org_id = 3; string app_id = 4; }
+message RevokeTokenRequest { string token = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string token_type = 2; string org_id = 3; string app_id = 4; }
+message GetMeRequest { bool include_profile = 1; }
+message GetMeReply { Principal principal = 1; User user = 2; repeated Group groups = 3; Application application = 4; repeated string warnings = 5; }
+message BuildLogoutURLRequest { string post_logout_redirect_uri = 1; string id_token_hint = 2; string state = 3; string org_id = 4; string app_id = 5; }
+message BuildLogoutURLReply { string logout_url = 1; string provider = 2; string post_logout_redirect_uri = 3; string state = 4; }
 
-message ExchangeCodeRequest {
-  string code = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string state = 2;
-  string redirect_uri = 3;
-  string org_id = 4;
-  string app_id = 5;
-}
+message GetUserRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string user_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
+message ListUsersRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string query = 2; string group_id = 3; string role = 4; int32 page_size = 5; string page_token = 6; }
+message ListUsersReply { repeated User users = 1; string next_page_token = 2; }
+message GetOrganizationRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
+message ListGroupsRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string parent_id = 2; string type = 3; string user_id = 4; bool include_inherited = 5; }
+message ListGroupsReply { repeated Group groups = 1; }
 
-message ExchangeCodeReply {
-  TokenSet tokens = 1;
-  Principal principal = 2;
-}
+message CheckPermissionRequest { SubjectRef subject = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; ObjectRef resource = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; string permission = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string org_id = 4; string project_id = 5; }
+message CheckPermissionReply { bool allowed = 1; string effect = 2; string reason = 3; string consistency_token = 4; }
+message WriteRelationshipRequest { Relationship relationship = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; }
+message WriteRelationshipReply { int32 written = 1; string consistency_token = 2; }
+message DeleteRelationshipRequest { RelationshipFilter filter = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; }
+message DeleteRelationshipReply { int32 deleted = 1; string consistency_token = 2; }
+message LookupResourcesRequest { SubjectRef subject = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; string resource_type = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string permission = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; int32 limit = 4; string cursor = 5; }
+message LookupResourcesReply { repeated ObjectRef resources = 1; string next_cursor = 2; string consistency_token = 3; }
+message LookupSubjectsRequest { ObjectRef resource = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; string permission = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string subject_type = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; int32 limit = 4; string cursor = 5; }
+message LookupSubjectsReply { repeated SubjectRef subjects = 1; string next_cursor = 2; string consistency_token = 3; }
 
-message RefreshTokenRequest {
-  string refresh_token = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string scope = 2;
-  string org_id = 3;
-  string app_id = 4;
-}
+message GetAuthorizationSchemaRequest {}
+message AuthorizationSchema { string text = 1; string version = 2; }
+message ValidateAuthorizationSchemaRequest { string text = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
+message ValidateAuthorizationSchemaReply { bool valid = 1; string error = 2; }
+message PublishAuthorizationSchemaRequest { string text = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
+message PublishAuthorizationSchemaReply { bool published = 1; }
+message ListRelationshipsRequest { string resource_type = 1; string resource_id = 2; string relation = 3; string subject_type = 4; string subject_id = 5; string subject_relation = 6; }
+message ListRelationshipsReply { repeated Relationship relationships = 1; }
+message WriteRelationshipsRequest { repeated Relationship relationships = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).repeated.min_items = 1]; }
+message WriteRelationshipsReply { int32 written = 1; string consistency_token = 2; }
+message DeleteRelationshipsRequest { RelationshipFilter filter = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; }
+message DeleteRelationshipsReply { int32 deleted = 1; string consistency_token = 2; }
+message ExplainAuthorizationReply { bool allowed = 1; string effect = 2; string reason = 3; string consistency_token = 4; repeated string steps = 5; }
+message GetEffectivePermissionsRequest { string subject_type = 1; string subject_id = 2; string subject_relation = 3; string resource_type = 4; string resource_id = 5; repeated string permissions = 6; }
+message GetEffectivePermissionsReply { SubjectRef subject = 1; ObjectRef resource = 2; map<string, PermissionDecision> permissions = 3; }
+message PermissionDecision { bool allowed = 1; string effect = 2; string reason = 3; }
 
-message VerifyTokenRequest {
-  string token = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string token_type = 2;
-  string org_id = 3;
-  string app_id = 4;
-}
-
-message RevokeTokenRequest {
-  string token = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string token_type = 2;
-  string org_id = 3;
-  string app_id = 4;
-}
-
-message GetMeRequest {
-  bool include_profile = 1;
-}
-
-message GetMeReply {
-  Principal principal = 1;
-  User user = 2;
-  repeated Group groups = 3;
-  Application application = 4;
-  repeated string warnings = 5;
-}
-
-message BuildLogoutURLRequest {
-  string post_logout_redirect_uri = 1;
-  string id_token_hint = 2;
-  string state = 3;
-  string org_id = 4;
-  string app_id = 5;
-}
-
-message BuildLogoutURLReply {
-  string logout_url = 1;
-  string provider = 2;
-  string post_logout_redirect_uri = 3;
-  string state = 4;
-}
-
-message GetUserRequest {
-  string org_id = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string user_id = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-}
-
-message ListUsersRequest {
-  string org_id = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string query = 2;
-  string group_id = 3;
-  string role = 4;
-  int32 page_size = 5;
-  string page_token = 6;
-}
-
-message ListUsersReply {
-  repeated User users = 1;
-  string next_page_token = 2;
-}
-
-message GetOrganizationRequest {
-  string org_id = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-}
-
-message ListGroupsRequest {
-  string org_id = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string parent_id = 2;
-  string type = 3;
-  string user_id = 4;
-  bool include_inherited = 5;
-}
-
-message ListGroupsReply {
-  repeated Group groups = 1;
-}
-
-message CheckPermissionRequest {
-  SubjectRef subject = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
-  ObjectRef resource = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
-  string permission = 3 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string org_id = 4;
-  string project_id = 5;
-}
-
-message CheckPermissionReply {
-  bool allowed = 1;
-  string effect = 2;
-  string reason = 3;
-  string consistency_token = 4;
-}
-
-message WriteRelationshipRequest {
-  Relationship relationship = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
-}
-
-message WriteRelationshipReply {
-  int32 written = 1;
-  string consistency_token = 2;
-}
-
-message DeleteRelationshipRequest {
-  RelationshipFilter filter = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
-}
-
-message DeleteRelationshipReply {
-  int32 deleted = 1;
-  string consistency_token = 2;
-}
-
-message LookupResourcesRequest {
-  SubjectRef subject = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
-  string resource_type = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string permission = 3 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  int32 limit = 4;
-  string cursor = 5;
-}
-
-message LookupResourcesReply {
-  repeated ObjectRef resources = 1;
-  string next_cursor = 2;
-  string consistency_token = 3;
-}
-
-message LookupSubjectsRequest {
-  ObjectRef resource = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
-  string permission = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string subject_type = 3 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  int32 limit = 4;
-  string cursor = 5;
-}
-
-message LookupSubjectsReply {
-  repeated SubjectRef subjects = 1;
-  string next_cursor = 2;
-  string consistency_token = 3;
-}
-
-message TokenSet {
-  string access_token = 1;
-  string refresh_token = 2;
-  string id_token = 3;
-  string token_type = 4;
-  string scope = 5;
-  google.protobuf.Timestamp expires_at = 6;
-}
-
-message Principal {
-  string subject_id = 1;
-  string subject_type = 2;
-  string provider = 3;
-  string external_id = 4;
-  string issuer = 5;
-  repeated string audience = 6;
-  string tenant_id = 7;
-  string org_id = 8;
-  string app_id = 9;
-  string project_id = 10;
-  string username = 11;
-  string name = 12;
-  string email = 13;
-  string phone = 14;
-  repeated string roles = 15;
-  repeated string groups = 16;
-  repeated string scopes = 17;
-  string auth_method = 18;
-  google.protobuf.Timestamp issued_at = 19;
-  google.protobuf.Timestamp expires_at = 20;
-}
-
-message User {
-  string id = 1;
-  string external_id = 2;
-  string provider = 3;
-  string org_id = 4;
-  string username = 5;
-  string display_name = 6;
-  string email = 7;
-  string phone = 8;
-  repeated string roles = 9;
-  repeated string groups = 10;
-  bool enabled = 11;
-}
-
-message Organization {
-  string id = 1;
-  string external_id = 2;
-  string name = 3;
-  string display_name = 4;
-  string owner_id = 5;
-  string parent_id = 6;
-  repeated string tags = 7;
-  bool enabled = 8;
-}
-
-message Group {
-  string id = 1;
-  string external_id = 2;
-  string org_id = 3;
-  string parent_id = 4;
-  string name = 5;
-  string display_name = 6;
-  string type = 7;
-  string path = 8;
-  repeated string users = 9;
-}
-
-message Application {
-  string id = 1;
-  string external_id = 2;
-  string org_id = 3;
-  string name = 4;
-  string display_name = 5;
-  string client_id = 6;
-  repeated string redirect_uris = 7;
-  repeated string grant_types = 8;
-  repeated string scopes = 9;
-  repeated string providers = 10;
-  bool enable_password = 11;
-  bool enable_signup = 12;
-}
-
-message ObjectRef {
-  string type = 1;
-  string id = 2;
-}
-
-message SubjectRef {
-  string type = 1;
-  string id = 2;
-  string relation = 3;
-}
-
-message Relationship {
-  ObjectRef resource = 1;
-  string relation = 2;
-  SubjectRef subject = 3;
-}
-
-message RelationshipFilter {
-  string resource_type = 1;
-  string resource_id = 2;
-  string relation = 3;
-  string subject_type = 4;
-  string subject_id = 5;
-  string subject_relation = 6;
-}
+message TokenSet { string access_token = 1; string refresh_token = 2; string id_token = 3; string token_type = 4; string scope = 5; google.protobuf.Timestamp expires_at = 6; }
+message Principal { string subject_id = 1; string subject_type = 2; string provider = 3; string external_id = 4; string issuer = 5; repeated string audience = 6; string tenant_id = 7; string org_id = 8; string app_id = 9; string project_id = 10; string username = 11; string name = 12; string email = 13; string phone = 14; repeated string roles = 15; repeated string groups = 16; repeated string scopes = 17; string auth_method = 18; google.protobuf.Timestamp issued_at = 19; google.protobuf.Timestamp expires_at = 20; }
+message User { string id = 1; string external_id = 2; string provider = 3; string org_id = 4; string username = 5; string display_name = 6; string email = 7; string phone = 8; repeated string roles = 9; repeated string groups = 10; bool enabled = 11; }
+message Organization { string id = 1; string external_id = 2; string name = 3; string display_name = 4; string owner_id = 5; string parent_id = 6; repeated string tags = 7; bool enabled = 8; }
+message Group { string id = 1; string external_id = 2; string org_id = 3; string parent_id = 4; string name = 5; string display_name = 6; string type = 7; string path = 8; repeated string users = 9; }
+message Application { string id = 1; string external_id = 2; string org_id = 3; string name = 4; string display_name = 5; string client_id = 6; repeated string redirect_uris = 7; repeated string grant_types = 8; repeated string scopes = 9; repeated string providers = 10; bool enable_password = 11; bool enable_signup = 12; }
+message ObjectRef { string type = 1; string id = 2; }
+message SubjectRef { string type = 1; string id = 2; string relation = 3; }
+message Relationship { ObjectRef resource = 1; string relation = 2; SubjectRef subject = 3; }
+message RelationshipFilter { string resource_type = 1; string resource_id = 2; string relation = 3; string subject_type = 4; string subject_id = 5; string subject_relation = 6; }

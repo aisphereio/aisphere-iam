@@ -17,7 +17,7 @@ import (
 	khttp "github.com/aisphereio/kernel/transportx/http"
 )
 
-func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.MetricsConfig, logger logx.Logger, metrics metricsx.Manager, resources *data.Resources, projections *projection.Manager, authSvc *service.IAMAuthService, dirSvc *service.IAMDirectoryService, permSvc *service.IAMPermissionService, projectSvc *service.ProjectService, resourceSvc *service.ResourceService, grantSvc *service.GrantService, securityCfg conf.SecurityConfig) *khttp.Server {
+func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.MetricsConfig, logger logx.Logger, metrics metricsx.Manager, resources *data.Resources, projections *projection.Manager, authSvc *service.IAMAuthService, dirSvc *service.IAMDirectoryService, permSvc *service.IAMPermissionService, authzAdminSvc *service.IAMAuthorizationAdminService, projectSvc *service.ProjectService, resourceSvc *service.ResourceService, grantSvc *service.GrantService, securityCfg conf.SecurityConfig) *khttp.Server {
 	addr := cfg.HTTP.Addr
 	if addr == "" {
 		addr = "0.0.0.0:8000"
@@ -44,8 +44,8 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 		panic(err)
 	}
 	v1.RegisterIAMAuthServiceExternalAuthorizeHTTPServer(srv, authSvc)
+	v1.RegisterIAMAuthorizationAdminServiceHTTPServer(srv, authzAdminSvc)
 	registerIdentityGroupRoutes(srv, resources)
-	registerAuthzAdminRoutes(srv, resources)
 	registerProjectionBranches(srv, projections)
 
 	srv.HandleFunc("/v1/iam/ui/login", func(w http.ResponseWriter, r *http.Request) {
