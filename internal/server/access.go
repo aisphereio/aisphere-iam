@@ -68,6 +68,12 @@ func iamSkipPolicyResolver(catalog serverx.ServiceCatalog) accessmw.SkipPolicyRe
 		if op == "ExternalAuthorize" {
 			return accessx.SkipAll
 		}
+		if isManualGroupManagementOperation(op) {
+			// Manual group write routes are not generated from proto yet. Keep authn
+			// and audit through accessx, but skip resource-level SpiceDB checks until
+			// the group-management contract is promoted into generated API metadata.
+			return accessx.SkipAuthz
+		}
 		info, ok, err := catalog.RequestInfoResolver(context.Background(), op, nil)
 		if err == nil && ok {
 			if info.Exposure == accessv1.Exposure_PUBLIC {
@@ -83,4 +89,9 @@ func iamSkipPolicyResolver(catalog serverx.ServiceCatalog) accessmw.SkipPolicyRe
 		}
 		return accessx.SkipDefault
 	}
+}
+
+func isManualGroupManagementOperation(op string) bool {
+	op = strings.TrimPrefix(strings.TrimSpace(op), "/")
+	return op == "v1/iam/orgs/{org_id}/groups" || op == "v1/iam/orgs/{org_id}/groups/{group_id}"
 }
