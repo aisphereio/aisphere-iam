@@ -43,6 +43,7 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 		panic(err)
 	}
 	v1.RegisterIAMAuthServiceExternalAuthorizeHTTPServer(srv, authSvc)
+	registerIdentityGroupRoutes(srv, resources)
 	registerProjectionBranches(srv, projections)
 
 	srv.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
