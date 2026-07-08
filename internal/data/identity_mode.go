@@ -268,21 +268,12 @@ func (a authzProjectingIdentityAdmin) deleteGroupEdges(ctx context.Context, grou
 	if groupID == "" {
 		return nil
 	}
-	if _, err := a.relationships.DeleteRelationships(ctx, authz.RelationshipFilter{ResourceType: "group", ResourceID: groupID}); err != nil {
+if _, err := a.relationships.DeleteRelationships(ctx, authz.RelationshipFilter{ResourceType: "group", ResourceID: groupID}); err != nil {
+			return err
+		}
+		_, err := a.relationships.DeleteRelationships(ctx, authz.RelationshipFilter{SubjectType: "group", SubjectID: groupID, SubjectRel: "member"})
 		return err
 	}
-	_, err := a.relationships.DeleteRelationships(ctx, authz.RelationshipFilter{SubjectType: "group", SubjectID: groupID, SubjectRel: "member"})
-	return err
-}
-
-func firstNonEmpty(values ...string) string {
-	for _, value := range values {
-		if strings.TrimSpace(value) != "" {
-			return strings.TrimSpace(value)
-		}
-	}
-	return ""
-}
-
-var _ authn.IdentityAdmin = externalOIDCIdentityAdmin{}
-var _ authn.IdentityAdmin = authzProjectingIdentityAdmin{}
+	
+	var _ authn.IdentityAdmin = externalOIDCIdentityAdmin{}
+	var _ authn.IdentityAdmin = authzProjectingIdentityAdmin{}
