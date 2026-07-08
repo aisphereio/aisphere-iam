@@ -264,20 +264,20 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 			Relation: relation,
 			Subject:  zoneSubject,
 		})
-		if relation == "owner" || relation == "admin" {
-			for _, resource := range resources {
-				resource.Type = strings.TrimSpace(resource.Type)
-				resource.ID = strings.TrimSpace(resource.ID)
-				if resource.Type == "" || resource.ID == "" {
-					continue
+if !hasLegacy && (relation == "owner" || relation == "admin") {
+				for _, resource := range resources {
+					resource.Type = strings.TrimSpace(resource.Type)
+					resource.ID = strings.TrimSpace(resource.ID)
+					if resource.Type == "" || resource.ID == "" {
+						continue
+					}
+					rels = append(rels, authz.Relationship{
+						Resource: authz.ObjectRef{Type: resource.Type, ID: resource.ID},
+						Relation: "admin",
+						Subject:  zoneSubject,
+					})
 				}
-				rels = append(rels, authz.Relationship{
-					Resource: authz.ObjectRef{Type: resource.Type, ID: resource.ID},
-					Relation: "admin",
-					Subject:  zoneSubject,
-				})
 			}
-		}
 	}
 	if len(rels) == 0 {
 		return nil
