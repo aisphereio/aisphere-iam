@@ -69,9 +69,9 @@ func iamSkipPolicyResolver(catalog serverx.ServiceCatalog) accessmw.SkipPolicyRe
 			return accessx.SkipAll
 		}
 		if isManualGroupManagementOperation(op) {
-			// Manual group write routes are not generated from proto yet. Keep authn
-			// and audit through accessx, but skip resource-level SpiceDB checks until
-			// the group-management contract is promoted into generated API metadata.
+			// Manual group routes are implemented before the generated proto catalog.
+			// Keep authn + audit in accessx; the HTTP handler performs the concrete
+			// SpiceDB checks against zone/group permissions.
 			return accessx.SkipAuthz
 		}
 		info, ok, err := catalog.RequestInfoResolver(context.Background(), op, nil)
