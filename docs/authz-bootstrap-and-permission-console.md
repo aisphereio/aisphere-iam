@@ -183,7 +183,6 @@ go test ./...
 - protobuf Go types;
 - gRPC service bindings;
 - Kernel HTTP bindings;
-- grpc-gateway bindings;
 - Kernel service catalog / access metadata;
 - OpenAPI docs.
 
@@ -194,6 +193,18 @@ deploy/generated
 ```
 
 The Docker build and GitHub Actions workflow both run `make api` and `make deploy` before building the binary.
+
+### 6.1 HTTP generator ownership
+
+IAM uses Kernel `transportx/http` as the runtime HTTP server. Therefore, `protoc-gen-go-http` is the only HTTP handler generator in `buf.gen.yaml`.
+
+Do not enable `protoc-gen-grpc-gateway` for the same proto module unless the service actually runs a grpc-gateway runtime. Running both generators against the same `google.api.http` annotations makes handler ownership ambiguous and can produce duplicate or stale generated handlers.
+
+`ExternalAuthorize` is now generated with the normal `IAMAuthServiceHTTPServer` binding. The stale split file below must not exist after regeneration:
+
+```text
+api/iam/v1/iam_external_http.pb.go
+```
 
 ## 7. AuthZ Admin API contract
 
