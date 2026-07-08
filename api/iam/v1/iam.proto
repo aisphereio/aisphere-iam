@@ -175,6 +175,89 @@ service IAMPermissionService {
   }
 }
 
+service IAMAuthorizationAdminService {
+  rpc GetAuthorizationSchema(GetAuthorizationSchemaRequest) returns (AuthorizationSchema) {
+    option (google.api.http) = { get: "/v1/iam/authz/schema" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_schema" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.schema.get" risk: "medium" }
+    };
+  }
+
+  rpc ValidateAuthorizationSchema(ValidateAuthorizationSchemaRequest) returns (ValidateAuthorizationSchemaReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/schema:validate" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "publish_schema" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.schema.validate" risk: "high" }
+    };
+  }
+
+  rpc PublishAuthorizationSchema(PublishAuthorizationSchemaRequest) returns (PublishAuthorizationSchemaReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/schema:publish" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "publish_schema" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.schema.publish" risk: "critical" }
+    };
+  }
+
+  rpc ListRelationships(ListRelationshipsRequest) returns (ListRelationshipsReply) {
+    option (google.api.http) = { get: "/v1/iam/authz/relationships" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.relationship.list" risk: "medium" }
+    };
+  }
+
+  rpc WriteRelationships(WriteRelationshipsRequest) returns (WriteRelationshipsReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/relationships" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "repair_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.relationship.write" risk: "critical" }
+    };
+  }
+
+  rpc DeleteRelationships(DeleteRelationshipsRequest) returns (DeleteRelationshipsReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/relationships:delete" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "repair_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.relationship.delete" risk: "critical" }
+    };
+  }
+
+  rpc CheckAuthorization(CheckPermissionRequest) returns (CheckPermissionReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/permissions:check" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.permission.check" risk: "medium" }
+    };
+  }
+
+  rpc ExplainAuthorization(ExplainAuthorizationRequest) returns (ExplainAuthorizationReply) {
+    option (google.api.http) = { post: "/v1/iam/authz/permissions:explain" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.permission.explain" risk: "medium" }
+    };
+  }
+
+  rpc GetEffectivePermissions(GetEffectivePermissionsRequest) returns (GetEffectivePermissionsReply) {
+    option (google.api.http) = { get: "/v1/iam/authz/effective-permissions" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.authz.effective_permissions" risk: "medium" }
+    };
+  }
+}
+
 message BuildLoginURLRequest {
   string redirect_uri = 1 [
     (google.api.field_behavior) = REQUIRED,
@@ -409,6 +492,112 @@ message LookupSubjectsReply {
   repeated SubjectRef subjects = 1;
   string next_cursor = 2;
   string consistency_token = 3;
+}
+
+message GetAuthorizationSchemaRequest {}
+
+message AuthorizationSchema {
+  string text = 1;
+  string version = 2;
+}
+
+message ValidateAuthorizationSchemaRequest {
+  string text = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message ValidateAuthorizationSchemaReply {
+  bool valid = 1;
+  string error = 2;
+}
+
+message PublishAuthorizationSchemaRequest {
+  string text = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message PublishAuthorizationSchemaReply {
+  bool published = 1;
+}
+
+message ListRelationshipsRequest {
+  string resource_type = 1;
+  string resource_id = 2;
+  string relation = 3;
+  string subject_type = 4;
+  string subject_id = 5;
+  string subject_relation = 6;
+}
+
+message ListRelationshipsReply {
+  repeated Relationship relationships = 1;
+}
+
+message WriteRelationshipsRequest {
+  repeated Relationship relationships = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).repeated.min_items = 1
+  ];
+}
+
+message WriteRelationshipsReply {
+  int32 written = 1;
+  string consistency_token = 2;
+}
+
+message DeleteRelationshipsRequest {
+  RelationshipFilter filter = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+message DeleteRelationshipsReply {
+  int32 deleted = 1;
+  string consistency_token = 2;
+}
+
+message ExplainAuthorizationRequest {
+  CheckPermissionRequest check = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+message ExplainAuthorizationReply {
+  bool allowed = 1;
+  string effect = 2;
+  string reason = 3;
+  string consistency_token = 4;
+  repeated string steps = 5;
+}
+
+message GetEffectivePermissionsRequest {
+  SubjectRef subject = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  ObjectRef resource = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  repeated string permissions = 3;
+}
+
+message GetEffectivePermissionsReply {
+  SubjectRef subject = 1;
+  ObjectRef resource = 2;
+  map<string, PermissionDecision> permissions = 3;
+}
+
+message PermissionDecision {
+  bool allowed = 1;
+  string effect = 2;
+  string reason = 3;
 }
 
 message TokenSet {
