@@ -14,6 +14,7 @@ import (
 	projectbiz "github.com/aisphereio/aisphere-iam/internal/biz/project"
 	resourcebiz "github.com/aisphereio/aisphere-iam/internal/biz/resource"
 	"github.com/aisphereio/aisphere-iam/internal/data"
+	"github.com/aisphereio/kernel/authn"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -32,9 +33,13 @@ func NewProjectService(biz *projectbiz.Service, repo data.ControlPlaneRepository
 }
 
 func (s *ProjectService) CreateOrganization(ctx context.Context, req *projectv1.CreateOrganizationRequest) (*projectv1.Organization, error) {
+	owner, err := currentProjectSubject(ctx)
+	if err != nil {
+		return nil, err
+	}
 	org, _, err := s.biz.CreateOrganization(ctx, projectbiz.CreateOrganizationRequest{
 		Slug: req.GetSlug(), DisplayName: req.GetDisplayName(), CasdoorOrg: req.GetCasdoorOrg(), Plan: req.GetPlan(), Region: req.GetRegion(),
-		MetadataJSON: structToJSON(req.GetMetadata(), "{}"), Owner: projectSubject(req.GetOwner()),
+		MetadataJSON: structToJSON(req.GetMetadata(), "{}"), Owner: owner,
 	})
 	if err != nil {
 		return nil, err
@@ -85,10 +90,14 @@ func (s *ProjectService) ArchiveOrganization(ctx context.Context, req *projectv1
 }
 
 func (s *ProjectService) CreateProject(ctx context.Context, req *projectv1.CreateProjectRequest) (*projectv1.Project, error) {
+	actor, err := currentProjectSubject(ctx)
+	if err != nil {
+		return nil, err
+	}
 	project, _, err := s.biz.CreateProject(ctx, projectbiz.CreateProjectRequest{
 		OrgID: req.GetOrgId(), Slug: req.GetSlug(), DisplayName: req.GetDisplayName(), Description: req.GetDescription(),
 		Visibility: visibilityToStatus(req.GetVisibility()), LabelsJSON: mapStringToJSON(req.GetLabels()), AnnotationsJSON: mapStringToJSON(req.GetAnnotations()),
-		Owner: projectSubject(req.GetOwner()),
+		CreatedBy: actor, Owner: projectSubjectOr(req.GetOwner(), actor),
 	})
 	if err != nil {
 		return nil, err
@@ -217,13 +226,17 @@ func (s *ResourceService) ListResourceTypes(ctx context.Context, req *resourcev1
 }
 
 func (s *ResourceService) UpsertResource(ctx context.Context, req *resourcev1.UpsertResourceRequest) (*resourcev1.Resource, error) {
+	actor, err := currentResourceSubject(ctx)
+	if err != nil {
+		return nil, err
+	}
 	in := req.GetResource()
 	model, _, err := s.biz.UpsertResource(ctx, resourcebiz.UpsertResourceRequest{
 		Ref: resourceRef(in.GetRef()), OrgID: in.GetOrgId(), ProjectID: in.GetProjectId(), Parent: resourceRef(in.GetParent()),
 		OwnerService: in.GetOwnerService(), OwnerResourceID: in.GetOwnerResourceId(), Slug: in.GetSlug(), DisplayName: in.GetDisplayName(),
 		Path: in.GetPath(), Status: in.GetStatus(), Visibility: in.GetVisibility(), LabelsJSON: mapStringToJSON(in.GetLabels()),
 		AnnotationsJSON: mapStringToJSON(in.GetAnnotations()), MetadataJSON: structToJSON(in.GetMetadata(), "{}"),
-		CreatedBy: resourceSubject(in.GetCreatedBy()), Owner: resourceSubject(req.GetOwner()),
+		CreatedBy: actor, Owner: resourceSubjectOr(req.GetOwner(), actor),
 	})
 	if err != nil {
 		return nil, err
@@ -267,8 +280,12 @@ func (s *ResourceService) DeleteResource(context.Context, *resourcev1.DeleteReso
 }
 
 func (s *ResourceService) BindResource(ctx context.Context, req *resourcev1.BindResourceRequest) (*resourcev1.ResourceBinding, error) {
+	actor, err := currentResourceSubject(ctx)
+	if err != nil {
+		return nil, err
+	}
 	in := req.GetBinding()
-	model, _, err := s.biz.BindResource(ctx, resourcebiz.BindResourceRequest{ID: in.GetId(), Source: resourceRef(in.GetSource()), Relation: in.GetRelation(), Target: resourceRef(in.GetTarget()), CreatedBy: resourceSubject(in.GetCreatedBy())})
+	model, _, err := s.biz.BindResource(ctx, resourcebiz.BindResourceRequest{ID: in.GetId(), Source: resourceRef(in.GetSource()), Relation: in.GetRelation(), Target: resourceRef(in.GetTarget()), CreatedBy: actor})
 	if err != nil {
 		return nil, err
 	}
@@ -339,7 +356,11 @@ func (s *GrantService) ListRoleTemplates(ctx context.Context, req *grantv1.ListR
 }
 
 func (s *GrantService) GrantAccess(ctx context.Context, req *grantv1.GrantAccessRequest) (*grantv1.Grant, error) {
-	grant, wr, err := s.biz.GrantAccess(ctx, grantbiz.GrantAccessRequest{Resource: grantResource(req.GetResource()), RoleKey: req.GetRoleKey(), Subject: grantSubject(req.GetSubject()), Source: req.GetSource(), Reason: req.GetReason(), ExpiresAt: timestampPtr(req.GetExpiresAt())})
+	actor, err := currentGrantSubject(ctx)
+	if err != nil {
+		return nil, err
+	}
+	grant, wr, err := s.biz.GrantAccess(ctx, grantbiz.GrantAccessRequest{Resource: grantResource(req.GetResource()), RoleKey: req.GetRoleKey(), Subject: grantSubject(req.GetSubject()), Source: req.GetSource(), Reason: req.GetReason(), ExpiresAt: timestampPtr(req.GetExpiresAt()), CreatedBy: actor})
 	if err != nil {
 		return nil, err
 	}
@@ -349,7 +370,11 @@ func (s *GrantService) GrantAccess(ctx context.Context, req *grantv1.GrantAccess
 }
 
 func (s *GrantService) RevokeAccess(ctx context.Context, req *grantv1.RevokeAccessRequest) (*grantv1.RevokeAccessReply, error) {
-	wr, err := s.biz.RevokeAccess(ctx, grantbiz.RevokeAccessRequest{GrantID: req.GetGrantId(), Reason: req.GetReason(), DeleteGraphRelationship: true})
+	actor, err := currentGrantSubject(ctx)
+	if err != nil {
+		return nil, err
+	}
+	wr, err := s.biz.RevokeAccess(ctx, grantbiz.RevokeAccessRequest{GrantID: req.GetGrantId(), Reason: req.GetReason(), DeleteGraphRelationship: true, Actor: actor})
 	if err != nil {
 		return nil, err
 	}
@@ -477,6 +502,58 @@ func grantResource(in *resourcev1.ResourceRef) grantbiz.ResourceRef {
 		return grantbiz.ResourceRef{}
 	}
 	return grantbiz.ResourceRef{Type: in.GetType(), ID: in.GetId()}
+}
+
+func currentPrincipalSubject(ctx context.Context) (string, string, error) {
+	principal, ok := authn.PrincipalFromContext(ctx)
+	if !ok || !principal.IsAuthenticated() {
+		return "", "", authn.ErrMissingCredential("kernel principal is required")
+	}
+	subjectType := strings.TrimSpace(principal.SubjectType)
+	if subjectType == "" {
+		subjectType = authn.SubjectTypeUser
+	}
+	return subjectType, strings.TrimSpace(principal.SubjectID), nil
+}
+
+func currentProjectSubject(ctx context.Context) (projectbiz.SubjectRef, error) {
+	subjectType, subjectID, err := currentPrincipalSubject(ctx)
+	if err != nil {
+		return projectbiz.SubjectRef{}, err
+	}
+	return projectbiz.SubjectRef{Type: subjectType, ID: subjectID}, nil
+}
+
+func currentResourceSubject(ctx context.Context) (resourcebiz.SubjectRef, error) {
+	subjectType, subjectID, err := currentPrincipalSubject(ctx)
+	if err != nil {
+		return resourcebiz.SubjectRef{}, err
+	}
+	return resourcebiz.SubjectRef{Type: subjectType, ID: subjectID}, nil
+}
+
+func currentGrantSubject(ctx context.Context) (grantbiz.SubjectRef, error) {
+	subjectType, subjectID, err := currentPrincipalSubject(ctx)
+	if err != nil {
+		return grantbiz.SubjectRef{}, err
+	}
+	return grantbiz.SubjectRef{Type: subjectType, ID: subjectID}, nil
+}
+
+func projectSubjectOr(in *resourcev1.SubjectRef, fallback projectbiz.SubjectRef) projectbiz.SubjectRef {
+	subject := projectSubject(in)
+	if strings.TrimSpace(subject.Type) == "" || strings.TrimSpace(subject.ID) == "" {
+		return fallback
+	}
+	return subject
+}
+
+func resourceSubjectOr(in *resourcev1.SubjectRef, fallback resourcebiz.SubjectRef) resourcebiz.SubjectRef {
+	subject := resourceSubject(in)
+	if strings.TrimSpace(subject.Type) == "" || strings.TrimSpace(subject.ID) == "" {
+		return fallback
+	}
+	return subject
 }
 
 func structToJSON(in *structpb.Struct, fallback string) string {
