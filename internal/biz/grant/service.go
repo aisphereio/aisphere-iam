@@ -258,7 +258,7 @@ func (s *Service) findRoleTemplate(ctx context.Context, resourceType, roleKey st
 func (s *Service) spiceType(ctx context.Context, typ string) (string, error) {
 	typ = strings.TrimSpace(typ)
 	switch typ {
-	case "organization", "project":
+	case "organization", "project", "zone", "group":
 		return typ, nil
 	}
 	rt, err := s.repo.GetResourceType(ctx, typ)
@@ -328,6 +328,11 @@ func (s *Service) resourceByRef(ctx context.Context, ref ResourceRef) (any, erro
 		return s.repo.GetOrganization(ctx, ref.ID)
 	case "project":
 		return s.repo.GetProject(ctx, ref.ID)
+	case "zone", "group":
+		if strings.TrimSpace(ref.ID) == "" {
+			return nil, errors.New("resource id is required")
+		}
+		return ref, nil
 	default:
 		return s.repo.GetResource(ctx, ref.Type, ref.ID)
 	}
