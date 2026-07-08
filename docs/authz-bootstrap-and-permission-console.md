@@ -215,7 +215,7 @@ Generated access metadata uses `SELF_CHECK`, and `IAMAuthorizationAdminService` 
 
 ```text
 iam_authz:global#view_schema
-ia m_authz:global#publish_schema
+iam_authz:global#publish_schema
 iam_authz:global#view_relationships
 iam_authz:global#repair_relationships
 ```
