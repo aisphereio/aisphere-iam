@@ -95,7 +95,7 @@ security:
       jwks_url: http://127.0.0.1:8000/.well-known/jwks
       audience: [CHANGE_ME_CLIENT_ID]
       allowed_owners: [aisphere]
-      allowed_algs: [RS256, RS512, ES256, ES512]
+      allowed_algs: [RS256, ES256, RS512, ES512]
       jwks_cache_ttl_ns: 600000000000
       organization_name: aisphere
       application_name: aisphere
@@ -134,6 +134,16 @@ control_plane:
   defaults:
     enabled: true
     path: configs/resource/defaults.yaml
+  bootstrap_admins:
+    enabled: false
+    subjects:
+      - type: user
+        id: CHANGE_ME_CASDOOR_LOCAL_ADMIN_SUBJECT
+        zone_id: aisphere
+        casdoor_org: aisphere
+        role: zone_owner
+        source: bootstrap
+        reason: initial local operator
 
 audit:
   enabled: true
