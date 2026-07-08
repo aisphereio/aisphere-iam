@@ -147,9 +147,9 @@ func runWithGatewayPrincipal(c khttp.Context, fn func(context.Context) (any, err
 }
 
 func normalizeGroupPayload(in groupWritePayload) groupWritePayload {
-	in.ParentID = firstNonEmpty(strings.TrimSpace(in.ParentID), strings.TrimSpace(in.ParentIDAlt))
+	in.ParentID = firstNonEmptyString(strings.TrimSpace(in.ParentID), strings.TrimSpace(in.ParentIDAlt))
 	in.Name = strings.TrimSpace(in.Name)
-	in.DisplayName = firstNonEmpty(strings.TrimSpace(in.DisplayName), strings.TrimSpace(in.DisplayAlt))
+	in.DisplayName = firstNonEmptyString(strings.TrimSpace(in.DisplayName), strings.TrimSpace(in.DisplayAlt))
 	in.Type = strings.TrimSpace(in.Type)
 	return in
 }
@@ -181,7 +181,7 @@ func cleanStrings(values []string) []string {
 
 func groupToReply(group authn.Group) groupReply {
 	return groupReply{
-		ID:          firstNonEmpty(group.ID, group.Name),
+		ID:          firstNonEmptyString(group.ID, group.Name),
 		ExternalID:  group.ExternalID,
 		OrgID:       group.OrgID,
 		ParentID:    group.ParentID,
@@ -191,4 +191,14 @@ func groupToReply(group authn.Group) groupReply {
 		Path:        group.Path,
 		Users:       append([]string(nil), group.Users...),
 	}
+}
+
+func firstNonEmptyString(values ...string) string {
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			return value
+		}
+	}
+	return ""
 }
