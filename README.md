@@ -13,7 +13,9 @@ Casdoor OIDC Provider
   -> services call IAM when they need user/org/project/permission mapping
 ```
 
-生产环境 IAM 的 Casdoor/OIDC 配置应优先使用 `discovery_url` / `jwks_url` 获取当前签名公钥；`jwt_certificate_file` 只作为本地开发或静态兜底使用。IAM 中配置的 `issuer` 必须与 Casdoor token 的 `iss` 完全一致。
+在 Gateway-trusted 模式下，用户登录态由 Gateway 完成 OIDC/JWT 校验，IAM 后端主要读取 Gateway 注入的可信 Principal headers 并恢复 `ctx.Principal`。因此，bootstrap admin 通过 Casdoor M2M 查询用户 UUID 时不依赖 JWKS。
+
+IAM 只有在自己直接校验 Casdoor token 时才需要 `discovery_url` / `jwks_url`，例如 `VerifyToken`、`casdoor_jwt` / `oidc_jwt` 模式、未来 IAM ExternalAuth token 校验或本地绕过 Gateway 的调试场景。`jwt_certificate_file` 仅作为本地开发或静态兜底使用。IAM 中配置的 `issuer` 必须与 Casdoor token 的 `iss` 完全一致。
 
 详细说明见：
 
@@ -22,11 +24,9 @@ Casdoor OIDC Provider
 - [`docs/kernel-compliance.md`](docs/kernel-compliance.md)
 - [`docs/authz-bootstrap-and-permission-console.md`](docs/authz-bootstrap-and-permission-console.md)
 
-本阶段不做 Gateway 前置授权，不注入 `x-aisphere-principal`，也不注入 `x-aisphere-internal-jwt`。
-
 ## Kernel 版本
 
-当前目标 Kernel 版本：`github.com/aisphereio/kernel v0.2.5`。
+当前目标 Kernel 版本：`github.com/aisphereio/kernel v0.4.0`。
 
 ```bash
 make tools
