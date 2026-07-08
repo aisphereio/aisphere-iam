@@ -421,3 +421,216 @@ func RegisterIAMPermissionServiceGatewayInvokers(registry *gatewayx.InvokerRegis
 	}
 	return nil
 }
+
+// IAMAuthorizationAdminServiceGatewayManifest returns the generated Gateway route manifest for iam.v1.IAMAuthorizationAdminService.
+func IAMAuthorizationAdminServiceGatewayManifest() gatewayx.Manifest {
+	return gatewayx.Manifest{
+		Service:   "i.a.m.authorization.admin-service",
+		Namespace: "aisphere",
+		Routes: []gatewayx.GatewayRoute{
+			{
+				ID:       "i.a.m.authorization.admin.get.authorization.schema",
+				Method:   "GET",
+				Path:     "/v1/iam/authz/schema",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/GetAuthorizationSchema"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true, Profiles: nil, Tags: nil},
+			},
+			{
+				ID:       "i.a.m.authorization.admin.validate.authorization.schema",
+				Method:   "POST",
+				Path:     "/v1/iam/authz/schema:validate",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/ValidateAuthorizationSchema"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true, Profiles: nil, Tags: nil},
+			},
+			{
+				ID:       "i.a.m.authorization.admin.publish.authorization.schema",
+				Method:   "POST",
+				Path:     "/v1/iam/authz/schema:publish",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/PublishAuthorizationSchema"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true, Profiles: nil, Tags: nil},
+			},
+			{
+				ID:       "i.a.m.authorization.admin.list.relationships",
+				Method:   "GET",
+				Path:     "/v1/iam/authz/relationships",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/ListRelationships"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true, Profiles: nil, Tags: nil},
+			},
+			{
+				ID:       "i.a.m.authorization.admin.write.relationships",
+				Method:   "POST",
+				Path:     "/v1/iam/authz/relationships",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/WriteRelationships"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true, Profiles: nil, Tags: nil},
+			},
+			{
+				ID:       "i.a.m.authorization.admin.delete.relationships",
+				Method:   "POST",
+				Path:     "/v1/iam/authz/relationships:delete",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true, Profiles: nil, Tags: nil},
+			},
+			{
+				ID:       "i.a.m.authorization.admin.check.authorization",
+				Method:   "POST",
+				Path:     "/v1/iam/authz/permissions:check",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/CheckAuthorization"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true, Profiles: nil, Tags: nil},
+			},
+			{
+				ID:       "i.a.m.authorization.admin.explain.authorization",
+				Method:   "POST",
+				Path:     "/v1/iam/authz/permissions:explain",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/ExplainAuthorization"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true, Profiles: nil, Tags: nil},
+			},
+			{
+				ID:       "i.a.m.authorization.admin.get.effective.permissions",
+				Method:   "GET",
+				Path:     "/v1/iam/authz/effective-permissions",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/GetEffectivePermissions"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true, Profiles: nil, Tags: nil},
+			},
+		},
+	}
+}
+
+// IAMAuthorizationAdminServiceGatewayBindGetAuthorizationSchema binds the matched HTTP Gateway request to the gRPC request for /iam.v1.IAMAuthorizationAdminService/GetAuthorizationSchema.
+func IAMAuthorizationAdminServiceGatewayBindGetAuthorizationSchema(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*GetAuthorizationSchemaRequest, error) {
+	out := &GetAuthorizationSchemaRequest{}
+	if v, ok := req.Body.(*GetAuthorizationSchemaRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(GetAuthorizationSchemaRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+// IAMAuthorizationAdminServiceGatewayBindValidateAuthorizationSchema binds the matched HTTP Gateway request to the gRPC request for /iam.v1.IAMAuthorizationAdminService/ValidateAuthorizationSchema.
+func IAMAuthorizationAdminServiceGatewayBindValidateAuthorizationSchema(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*ValidateAuthorizationSchemaRequest, error) {
+	out := &ValidateAuthorizationSchemaRequest{}
+	if v, ok := req.Body.(*ValidateAuthorizationSchemaRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(ValidateAuthorizationSchemaRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+// IAMAuthorizationAdminServiceGatewayBindPublishAuthorizationSchema binds the matched HTTP Gateway request to the gRPC request for /iam.v1.IAMAuthorizationAdminService/PublishAuthorizationSchema.
+func IAMAuthorizationAdminServiceGatewayBindPublishAuthorizationSchema(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*PublishAuthorizationSchemaRequest, error) {
+	out := &PublishAuthorizationSchemaRequest{}
+	if v, ok := req.Body.(*PublishAuthorizationSchemaRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(PublishAuthorizationSchemaRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+// IAMAuthorizationAdminServiceGatewayBindListRelationships binds the matched HTTP Gateway request to the gRPC request for /iam.v1.IAMAuthorizationAdminService/ListRelationships.
+func IAMAuthorizationAdminServiceGatewayBindListRelationships(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*ListRelationshipsRequest, error) {
+	out := &ListRelationshipsRequest{}
+	if v, ok := req.Body.(*ListRelationshipsRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(ListRelationshipsRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+// IAMAuthorizationAdminServiceGatewayBindWriteRelationships binds the matched HTTP Gateway request to the gRPC request for /iam.v1.IAMAuthorizationAdminService/WriteRelationships.
+func IAMAuthorizationAdminServiceGatewayBindWriteRelationships(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*WriteRelationshipsRequest, error) {
+	out := &WriteRelationshipsRequest{}
+	if v, ok := req.Body.(*WriteRelationshipsRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(WriteRelationshipsRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+// IAMAuthorizationAdminServiceGatewayBindDeleteRelationships binds the matched HTTP Gateway request to the gRPC request for /iam.v1.IAMAuthorizationAdminService/DeleteRelationships.
+func IAMAuthorizationAdminServiceGatewayBindDeleteRelationships(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*DeleteRelationshipsRequest, error) {
+	out := &DeleteRelationshipsRequest{}
+	if v, ok := req.Body.(*DeleteRelationshipsRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(DeleteRelationshipsRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+// IAMAuthorizationAdminServiceGatewayBindCheckAuthorization binds the matched HTTP Gateway request to the gRPC request for /iam.v1.IAMAuthorizationAdminService/CheckAuthorization.
+func IAMAuthorizationAdminServiceGatewayBindCheckAuthorization(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*CheckPermissionRequest, error) {
+	out := &CheckPermissionRequest{}
+	if v, ok := req.Body.(*CheckPermissionRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(CheckPermissionRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+// IAMAuthorizationAdminServiceGatewayBindExplainAuthorization binds the matched HTTP Gateway request to the gRPC request for /iam.v1.IAMAuthorizationAdminService/ExplainAuthorization.
+func IAMAuthorizationAdminServiceGatewayBindExplainAuthorization(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*CheckPermissionRequest, error) {
+	out := &CheckPermissionRequest{}
+	if v, ok := req.Body.(*CheckPermissionRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(CheckPermissionRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+// IAMAuthorizationAdminServiceGatewayBindGetEffectivePermissions binds the matched HTTP Gateway request to the gRPC request for /iam.v1.IAMAuthorizationAdminService/GetEffectivePermissions.
+func IAMAuthorizationAdminServiceGatewayBindGetEffectivePermissions(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*GetEffectivePermissionsRequest, error) {
+	out := &GetEffectivePermissionsRequest{}
+	if v, ok := req.Body.(*GetEffectivePermissionsRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(GetEffectivePermissionsRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+// RegisterIAMAuthorizationAdminServiceGatewayInvokers registers generated Gateway -> gRPC operation invokers for iam.v1.IAMAuthorizationAdminService.
+func RegisterIAMAuthorizationAdminServiceGatewayInvokers(registry *gatewayx.InvokerRegistry, client IAMAuthorizationAdminServiceClient) error {
+	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/GetAuthorizationSchema", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindGetAuthorizationSchema, client.GetAuthorizationSchema)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/ValidateAuthorizationSchema", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindValidateAuthorizationSchema, client.ValidateAuthorizationSchema)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/PublishAuthorizationSchema", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindPublishAuthorizationSchema, client.PublishAuthorizationSchema)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/ListRelationships", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindListRelationships, client.ListRelationships)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/WriteRelationships", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindWriteRelationships, client.WriteRelationships)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/DeleteRelationships", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindDeleteRelationships, client.DeleteRelationships)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/CheckAuthorization", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindCheckAuthorization, client.CheckAuthorization)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/ExplainAuthorization", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindExplainAuthorization, client.ExplainAuthorization)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/GetEffectivePermissions", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindGetEffectivePermissions, client.GetEffectivePermissions)); err != nil {
+		return err
+	}
+	return nil
+}

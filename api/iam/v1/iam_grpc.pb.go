@@ -20,13 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IAMAuthService_BuildLoginURL_FullMethodName  = "/iam.v1.IAMAuthService/BuildLoginURL"
-	IAMAuthService_ExchangeCode_FullMethodName   = "/iam.v1.IAMAuthService/ExchangeCode"
-	IAMAuthService_RefreshToken_FullMethodName   = "/iam.v1.IAMAuthService/RefreshToken"
-	IAMAuthService_VerifyToken_FullMethodName    = "/iam.v1.IAMAuthService/VerifyToken"
-	IAMAuthService_RevokeToken_FullMethodName    = "/iam.v1.IAMAuthService/RevokeToken"
-	IAMAuthService_GetMe_FullMethodName          = "/iam.v1.IAMAuthService/GetMe"
-	IAMAuthService_BuildLogoutURL_FullMethodName = "/iam.v1.IAMAuthService/BuildLogoutURL"
+	IAMAuthService_BuildLoginURL_FullMethodName     = "/iam.v1.IAMAuthService/BuildLoginURL"
+	IAMAuthService_ExchangeCode_FullMethodName      = "/iam.v1.IAMAuthService/ExchangeCode"
+	IAMAuthService_RefreshToken_FullMethodName      = "/iam.v1.IAMAuthService/RefreshToken"
+	IAMAuthService_VerifyToken_FullMethodName       = "/iam.v1.IAMAuthService/VerifyToken"
+	IAMAuthService_ExternalAuthorize_FullMethodName = "/iam.v1.IAMAuthService/ExternalAuthorize"
+	IAMAuthService_RevokeToken_FullMethodName       = "/iam.v1.IAMAuthService/RevokeToken"
+	IAMAuthService_GetMe_FullMethodName             = "/iam.v1.IAMAuthService/GetMe"
+	IAMAuthService_BuildLogoutURL_FullMethodName    = "/iam.v1.IAMAuthService/BuildLogoutURL"
 )
 
 // IAMAuthServiceClient is the client API for IAMAuthService service.
@@ -37,6 +38,7 @@ type IAMAuthServiceClient interface {
 	ExchangeCode(ctx context.Context, in *ExchangeCodeRequest, opts ...grpc.CallOption) (*ExchangeCodeReply, error)
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*TokenSet, error)
 	VerifyToken(ctx context.Context, in *VerifyTokenRequest, opts ...grpc.CallOption) (*Principal, error)
+	ExternalAuthorize(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Principal, error)
 	RevokeToken(ctx context.Context, in *RevokeTokenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeReply, error)
 	BuildLogoutURL(ctx context.Context, in *BuildLogoutURLRequest, opts ...grpc.CallOption) (*BuildLogoutURLReply, error)
@@ -90,6 +92,16 @@ func (c *iAMAuthServiceClient) VerifyToken(ctx context.Context, in *VerifyTokenR
 	return out, nil
 }
 
+func (c *iAMAuthServiceClient) ExternalAuthorize(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Principal, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Principal)
+	err := c.cc.Invoke(ctx, IAMAuthService_ExternalAuthorize_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *iAMAuthServiceClient) RevokeToken(ctx context.Context, in *RevokeTokenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -128,6 +140,7 @@ type IAMAuthServiceServer interface {
 	ExchangeCode(context.Context, *ExchangeCodeRequest) (*ExchangeCodeReply, error)
 	RefreshToken(context.Context, *RefreshTokenRequest) (*TokenSet, error)
 	VerifyToken(context.Context, *VerifyTokenRequest) (*Principal, error)
+	ExternalAuthorize(context.Context, *emptypb.Empty) (*Principal, error)
 	RevokeToken(context.Context, *RevokeTokenRequest) (*emptypb.Empty, error)
 	GetMe(context.Context, *GetMeRequest) (*GetMeReply, error)
 	BuildLogoutURL(context.Context, *BuildLogoutURLRequest) (*BuildLogoutURLReply, error)
@@ -152,6 +165,9 @@ func (UnimplementedIAMAuthServiceServer) RefreshToken(context.Context, *RefreshT
 }
 func (UnimplementedIAMAuthServiceServer) VerifyToken(context.Context, *VerifyTokenRequest) (*Principal, error) {
 	return nil, status.Error(codes.Unimplemented, "method VerifyToken not implemented")
+}
+func (UnimplementedIAMAuthServiceServer) ExternalAuthorize(context.Context, *emptypb.Empty) (*Principal, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExternalAuthorize not implemented")
 }
 func (UnimplementedIAMAuthServiceServer) RevokeToken(context.Context, *RevokeTokenRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method RevokeToken not implemented")
@@ -255,6 +271,24 @@ func _IAMAuthService_VerifyToken_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _IAMAuthService_ExternalAuthorize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthServiceServer).ExternalAuthorize(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthService_ExternalAuthorize_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthServiceServer).ExternalAuthorize(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _IAMAuthService_RevokeToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RevokeTokenRequest)
 	if err := dec(in); err != nil {
@@ -331,6 +365,10 @@ var IAMAuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "VerifyToken",
 			Handler:    _IAMAuthService_VerifyToken_Handler,
+		},
+		{
+			MethodName: "ExternalAuthorize",
+			Handler:    _IAMAuthService_ExternalAuthorize_Handler,
 		},
 		{
 			MethodName: "RevokeToken",
@@ -813,6 +851,413 @@ var IAMPermissionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LookupSubjects",
 			Handler:    _IAMPermissionService_LookupSubjects_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "iam/v1/iam.proto",
+}
+
+const (
+	IAMAuthorizationAdminService_GetAuthorizationSchema_FullMethodName      = "/iam.v1.IAMAuthorizationAdminService/GetAuthorizationSchema"
+	IAMAuthorizationAdminService_ValidateAuthorizationSchema_FullMethodName = "/iam.v1.IAMAuthorizationAdminService/ValidateAuthorizationSchema"
+	IAMAuthorizationAdminService_PublishAuthorizationSchema_FullMethodName  = "/iam.v1.IAMAuthorizationAdminService/PublishAuthorizationSchema"
+	IAMAuthorizationAdminService_ListRelationships_FullMethodName           = "/iam.v1.IAMAuthorizationAdminService/ListRelationships"
+	IAMAuthorizationAdminService_WriteRelationships_FullMethodName          = "/iam.v1.IAMAuthorizationAdminService/WriteRelationships"
+	IAMAuthorizationAdminService_DeleteRelationships_FullMethodName         = "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships"
+	IAMAuthorizationAdminService_CheckAuthorization_FullMethodName          = "/iam.v1.IAMAuthorizationAdminService/CheckAuthorization"
+	IAMAuthorizationAdminService_ExplainAuthorization_FullMethodName        = "/iam.v1.IAMAuthorizationAdminService/ExplainAuthorization"
+	IAMAuthorizationAdminService_GetEffectivePermissions_FullMethodName     = "/iam.v1.IAMAuthorizationAdminService/GetEffectivePermissions"
+)
+
+// IAMAuthorizationAdminServiceClient is the client API for IAMAuthorizationAdminService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type IAMAuthorizationAdminServiceClient interface {
+	GetAuthorizationSchema(ctx context.Context, in *GetAuthorizationSchemaRequest, opts ...grpc.CallOption) (*AuthorizationSchema, error)
+	ValidateAuthorizationSchema(ctx context.Context, in *ValidateAuthorizationSchemaRequest, opts ...grpc.CallOption) (*ValidateAuthorizationSchemaReply, error)
+	PublishAuthorizationSchema(ctx context.Context, in *PublishAuthorizationSchemaRequest, opts ...grpc.CallOption) (*PublishAuthorizationSchemaReply, error)
+	ListRelationships(ctx context.Context, in *ListRelationshipsRequest, opts ...grpc.CallOption) (*ListRelationshipsReply, error)
+	WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...grpc.CallOption) (*WriteRelationshipsReply, error)
+	DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...grpc.CallOption) (*DeleteRelationshipsReply, error)
+	CheckAuthorization(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*CheckPermissionReply, error)
+	ExplainAuthorization(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*ExplainAuthorizationReply, error)
+	GetEffectivePermissions(ctx context.Context, in *GetEffectivePermissionsRequest, opts ...grpc.CallOption) (*GetEffectivePermissionsReply, error)
+}
+
+type iAMAuthorizationAdminServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewIAMAuthorizationAdminServiceClient(cc grpc.ClientConnInterface) IAMAuthorizationAdminServiceClient {
+	return &iAMAuthorizationAdminServiceClient{cc}
+}
+
+func (c *iAMAuthorizationAdminServiceClient) GetAuthorizationSchema(ctx context.Context, in *GetAuthorizationSchemaRequest, opts ...grpc.CallOption) (*AuthorizationSchema, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuthorizationSchema)
+	err := c.cc.Invoke(ctx, IAMAuthorizationAdminService_GetAuthorizationSchema_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMAuthorizationAdminServiceClient) ValidateAuthorizationSchema(ctx context.Context, in *ValidateAuthorizationSchemaRequest, opts ...grpc.CallOption) (*ValidateAuthorizationSchemaReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ValidateAuthorizationSchemaReply)
+	err := c.cc.Invoke(ctx, IAMAuthorizationAdminService_ValidateAuthorizationSchema_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMAuthorizationAdminServiceClient) PublishAuthorizationSchema(ctx context.Context, in *PublishAuthorizationSchemaRequest, opts ...grpc.CallOption) (*PublishAuthorizationSchemaReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublishAuthorizationSchemaReply)
+	err := c.cc.Invoke(ctx, IAMAuthorizationAdminService_PublishAuthorizationSchema_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMAuthorizationAdminServiceClient) ListRelationships(ctx context.Context, in *ListRelationshipsRequest, opts ...grpc.CallOption) (*ListRelationshipsReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRelationshipsReply)
+	err := c.cc.Invoke(ctx, IAMAuthorizationAdminService_ListRelationships_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMAuthorizationAdminServiceClient) WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...grpc.CallOption) (*WriteRelationshipsReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WriteRelationshipsReply)
+	err := c.cc.Invoke(ctx, IAMAuthorizationAdminService_WriteRelationships_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMAuthorizationAdminServiceClient) DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...grpc.CallOption) (*DeleteRelationshipsReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteRelationshipsReply)
+	err := c.cc.Invoke(ctx, IAMAuthorizationAdminService_DeleteRelationships_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMAuthorizationAdminServiceClient) CheckAuthorization(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*CheckPermissionReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckPermissionReply)
+	err := c.cc.Invoke(ctx, IAMAuthorizationAdminService_CheckAuthorization_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMAuthorizationAdminServiceClient) ExplainAuthorization(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*ExplainAuthorizationReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExplainAuthorizationReply)
+	err := c.cc.Invoke(ctx, IAMAuthorizationAdminService_ExplainAuthorization_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMAuthorizationAdminServiceClient) GetEffectivePermissions(ctx context.Context, in *GetEffectivePermissionsRequest, opts ...grpc.CallOption) (*GetEffectivePermissionsReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEffectivePermissionsReply)
+	err := c.cc.Invoke(ctx, IAMAuthorizationAdminService_GetEffectivePermissions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// IAMAuthorizationAdminServiceServer is the server API for IAMAuthorizationAdminService service.
+// All implementations must embed UnimplementedIAMAuthorizationAdminServiceServer
+// for forward compatibility.
+type IAMAuthorizationAdminServiceServer interface {
+	GetAuthorizationSchema(context.Context, *GetAuthorizationSchemaRequest) (*AuthorizationSchema, error)
+	ValidateAuthorizationSchema(context.Context, *ValidateAuthorizationSchemaRequest) (*ValidateAuthorizationSchemaReply, error)
+	PublishAuthorizationSchema(context.Context, *PublishAuthorizationSchemaRequest) (*PublishAuthorizationSchemaReply, error)
+	ListRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error)
+	WriteRelationships(context.Context, *WriteRelationshipsRequest) (*WriteRelationshipsReply, error)
+	DeleteRelationships(context.Context, *DeleteRelationshipsRequest) (*DeleteRelationshipsReply, error)
+	CheckAuthorization(context.Context, *CheckPermissionRequest) (*CheckPermissionReply, error)
+	ExplainAuthorization(context.Context, *CheckPermissionRequest) (*ExplainAuthorizationReply, error)
+	GetEffectivePermissions(context.Context, *GetEffectivePermissionsRequest) (*GetEffectivePermissionsReply, error)
+	mustEmbedUnimplementedIAMAuthorizationAdminServiceServer()
+}
+
+// UnimplementedIAMAuthorizationAdminServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedIAMAuthorizationAdminServiceServer struct{}
+
+func (UnimplementedIAMAuthorizationAdminServiceServer) GetAuthorizationSchema(context.Context, *GetAuthorizationSchemaRequest) (*AuthorizationSchema, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAuthorizationSchema not implemented")
+}
+func (UnimplementedIAMAuthorizationAdminServiceServer) ValidateAuthorizationSchema(context.Context, *ValidateAuthorizationSchemaRequest) (*ValidateAuthorizationSchemaReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method ValidateAuthorizationSchema not implemented")
+}
+func (UnimplementedIAMAuthorizationAdminServiceServer) PublishAuthorizationSchema(context.Context, *PublishAuthorizationSchemaRequest) (*PublishAuthorizationSchemaReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method PublishAuthorizationSchema not implemented")
+}
+func (UnimplementedIAMAuthorizationAdminServiceServer) ListRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRelationships not implemented")
+}
+func (UnimplementedIAMAuthorizationAdminServiceServer) WriteRelationships(context.Context, *WriteRelationshipsRequest) (*WriteRelationshipsReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method WriteRelationships not implemented")
+}
+func (UnimplementedIAMAuthorizationAdminServiceServer) DeleteRelationships(context.Context, *DeleteRelationshipsRequest) (*DeleteRelationshipsReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteRelationships not implemented")
+}
+func (UnimplementedIAMAuthorizationAdminServiceServer) CheckAuthorization(context.Context, *CheckPermissionRequest) (*CheckPermissionReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method CheckAuthorization not implemented")
+}
+func (UnimplementedIAMAuthorizationAdminServiceServer) ExplainAuthorization(context.Context, *CheckPermissionRequest) (*ExplainAuthorizationReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExplainAuthorization not implemented")
+}
+func (UnimplementedIAMAuthorizationAdminServiceServer) GetEffectivePermissions(context.Context, *GetEffectivePermissionsRequest) (*GetEffectivePermissionsReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEffectivePermissions not implemented")
+}
+func (UnimplementedIAMAuthorizationAdminServiceServer) mustEmbedUnimplementedIAMAuthorizationAdminServiceServer() {
+}
+func (UnimplementedIAMAuthorizationAdminServiceServer) testEmbeddedByValue() {}
+
+// UnsafeIAMAuthorizationAdminServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to IAMAuthorizationAdminServiceServer will
+// result in compilation errors.
+type UnsafeIAMAuthorizationAdminServiceServer interface {
+	mustEmbedUnimplementedIAMAuthorizationAdminServiceServer()
+}
+
+func RegisterIAMAuthorizationAdminServiceServer(s grpc.ServiceRegistrar, srv IAMAuthorizationAdminServiceServer) {
+	// If the following call panics, it indicates UnimplementedIAMAuthorizationAdminServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&IAMAuthorizationAdminService_ServiceDesc, srv)
+}
+
+func _IAMAuthorizationAdminService_GetAuthorizationSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAuthorizationSchemaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthorizationAdminServiceServer).GetAuthorizationSchema(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthorizationAdminService_GetAuthorizationSchema_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthorizationAdminServiceServer).GetAuthorizationSchema(ctx, req.(*GetAuthorizationSchemaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMAuthorizationAdminService_ValidateAuthorizationSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateAuthorizationSchemaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthorizationAdminServiceServer).ValidateAuthorizationSchema(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthorizationAdminService_ValidateAuthorizationSchema_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthorizationAdminServiceServer).ValidateAuthorizationSchema(ctx, req.(*ValidateAuthorizationSchemaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMAuthorizationAdminService_PublishAuthorizationSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishAuthorizationSchemaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthorizationAdminServiceServer).PublishAuthorizationSchema(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthorizationAdminService_PublishAuthorizationSchema_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthorizationAdminServiceServer).PublishAuthorizationSchema(ctx, req.(*PublishAuthorizationSchemaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMAuthorizationAdminService_ListRelationships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRelationshipsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthorizationAdminServiceServer).ListRelationships(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthorizationAdminService_ListRelationships_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthorizationAdminServiceServer).ListRelationships(ctx, req.(*ListRelationshipsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMAuthorizationAdminService_WriteRelationships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WriteRelationshipsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthorizationAdminServiceServer).WriteRelationships(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthorizationAdminService_WriteRelationships_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthorizationAdminServiceServer).WriteRelationships(ctx, req.(*WriteRelationshipsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMAuthorizationAdminService_DeleteRelationships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRelationshipsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthorizationAdminServiceServer).DeleteRelationships(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthorizationAdminService_DeleteRelationships_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthorizationAdminServiceServer).DeleteRelationships(ctx, req.(*DeleteRelationshipsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMAuthorizationAdminService_CheckAuthorization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckPermissionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthorizationAdminServiceServer).CheckAuthorization(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthorizationAdminService_CheckAuthorization_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthorizationAdminServiceServer).CheckAuthorization(ctx, req.(*CheckPermissionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMAuthorizationAdminService_ExplainAuthorization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckPermissionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthorizationAdminServiceServer).ExplainAuthorization(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthorizationAdminService_ExplainAuthorization_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthorizationAdminServiceServer).ExplainAuthorization(ctx, req.(*CheckPermissionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMAuthorizationAdminService_GetEffectivePermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEffectivePermissionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMAuthorizationAdminServiceServer).GetEffectivePermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMAuthorizationAdminService_GetEffectivePermissions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMAuthorizationAdminServiceServer).GetEffectivePermissions(ctx, req.(*GetEffectivePermissionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// IAMAuthorizationAdminService_ServiceDesc is the grpc.ServiceDesc for IAMAuthorizationAdminService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var IAMAuthorizationAdminService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "iam.v1.IAMAuthorizationAdminService",
+	HandlerType: (*IAMAuthorizationAdminServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetAuthorizationSchema",
+			Handler:    _IAMAuthorizationAdminService_GetAuthorizationSchema_Handler,
+		},
+		{
+			MethodName: "ValidateAuthorizationSchema",
+			Handler:    _IAMAuthorizationAdminService_ValidateAuthorizationSchema_Handler,
+		},
+		{
+			MethodName: "PublishAuthorizationSchema",
+			Handler:    _IAMAuthorizationAdminService_PublishAuthorizationSchema_Handler,
+		},
+		{
+			MethodName: "ListRelationships",
+			Handler:    _IAMAuthorizationAdminService_ListRelationships_Handler,
+		},
+		{
+			MethodName: "WriteRelationships",
+			Handler:    _IAMAuthorizationAdminService_WriteRelationships_Handler,
+		},
+		{
+			MethodName: "DeleteRelationships",
+			Handler:    _IAMAuthorizationAdminService_DeleteRelationships_Handler,
+		},
+		{
+			MethodName: "CheckAuthorization",
+			Handler:    _IAMAuthorizationAdminService_CheckAuthorization_Handler,
+		},
+		{
+			MethodName: "ExplainAuthorization",
+			Handler:    _IAMAuthorizationAdminService_ExplainAuthorization_Handler,
+		},
+		{
+			MethodName: "GetEffectivePermissions",
+			Handler:    _IAMAuthorizationAdminService_GetEffectivePermissions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
