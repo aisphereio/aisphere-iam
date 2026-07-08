@@ -43,7 +43,6 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	if err := serverx.RegisterHTTPServices(srv, IAMBindings(resources, authSvc, dirSvc, permSvc, projectSvc, resourceSvc, grantSvc)...); err != nil {
 		panic(err)
 	}
-	v1.RegisterIAMAuthServiceExternalAuthorizeHTTPServer(srv, authSvc)
 	v1.RegisterIAMAuthorizationAdminServiceHTTPServer(srv, authzAdminSvc)
 	registerIdentityGroupRoutes(srv, resources)
 	registerProjectionBranches(srv, projections)
