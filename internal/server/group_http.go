@@ -7,6 +7,7 @@ import (
 
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/kernel/authn"
+	"github.com/aisphereio/kernel/authz"
 	khttp "github.com/aisphereio/kernel/transportx/http"
 )
 
@@ -37,12 +38,12 @@ func registerIdentityGroupRoutes(srv *khttp.Server, resources *data.Resources) {
 		return
 	}
 	r := srv.Route("")
-	r.POST("/v1/iam/orgs/{org_id}/groups", createIdentityGroupHandler(resources.Identity))
-	r.PATCH("/v1/iam/orgs/{org_id}/groups/{group_id}", updateIdentityGroupHandler(resources.Identity))
-	r.DELETE("/v1/iam/orgs/{org_id}/groups/{group_id}", deleteIdentityGroupHandler(resources.Identity))
+	r.POST("/v1/iam/orgs/{org_id}/groups", createIdentityGroupHandler(resources))
+	r.PATCH("/v1/iam/orgs/{org_id}/groups/{group_id}", updateIdentityGroupHandler(resources))
+	r.DELETE("/v1/iam/orgs/{org_id}/groups/{group_id}", deleteIdentityGroupHandler(resources))
 }
 
-func createIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc {
+func createIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
 	return func(c khttp.Context) error {
 		orgID := strings.TrimSpace(c.Vars().Get("org_id"))
 		var payload groupWritePayload
@@ -54,8 +55,17 @@ func createIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc 
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "org_id and name are required"})
 		}
 
-		result, err := runWithGatewayPrincipal(c, func(ctx context.Context) (any, error) {
-			group, err := identity.CreateGroup(ctx, authn.CreateGroupRequest{Group: authn.Group{
+		result, err := runWithGatewayPrincipal(c, func(ctx context.Context, principal authn.Principal) (any, error) {
+			if payload.ParentID == "" {
+				if err := requireAuthz(ctx, resources.Authz, principal, authz.ObjectRef{Type: "zone", ID: orgID}, "create_groups"); err != nil {
+					return nil, err
+				}
+			} else {
+				if err := requireAuthz(ctx, resources.Authz, principal, groupObject(orgID, payload.ParentID), "create_child_groups"); err != nil {
+					return nil, err
+				}
+			}
+			group, err := resources.Identity.CreateGroup(ctx, authn.CreateGroupRequest{Group: authn.Group{
 				OrgID:       orgID,
 				ParentID:    payload.ParentID,
 				Name:        payload.Name,
@@ -64,6 +74,9 @@ func createIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc 
 				Users:       cleanStrings(payload.Users),
 			}})
 			if err != nil {
+				return nil, err
+			}
+			if err := writeGroupStructure(ctx, resources.AuthzAdmin, orgID, group); err != nil {
 				return nil, err
 			}
 			return groupToReply(group), nil
@@ -75,7 +88,7 @@ func createIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc 
 	}
 }
 
-func updateIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc {
+func updateIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
 	return func(c khttp.Context) error {
 		orgID := strings.TrimSpace(c.Vars().Get("org_id"))
 		groupID := strings.TrimSpace(c.Vars().Get("group_id"))
@@ -88,12 +101,15 @@ func updateIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc 
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "org_id and group_id are required"})
 		}
 
-		result, err := runWithGatewayPrincipal(c, func(ctx context.Context) (any, error) {
+		result, err := runWithGatewayPrincipal(c, func(ctx context.Context, principal authn.Principal) (any, error) {
+			if err := requireAuthz(ctx, resources.Authz, principal, groupObject(orgID, groupID), "manage"); err != nil {
+				return nil, err
+			}
 			name := payload.Name
 			if name == "" {
 				name = groupID
 			}
-			group, err := identity.UpdateGroup(ctx, authn.UpdateGroupRequest{Group: authn.Group{
+			group, err := resources.Identity.UpdateGroup(ctx, authn.UpdateGroupRequest{Group: authn.Group{
 				ID:          groupID,
 				OrgID:       orgID,
 				ParentID:    payload.ParentID,
@@ -105,6 +121,9 @@ func updateIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc 
 			if err != nil {
 				return nil, err
 			}
+			if err := writeGroupStructure(ctx, resources.AuthzAdmin, orgID, group); err != nil {
+				return nil, err
+			}
 			return groupToReply(group), nil
 		})
 		if err != nil {
@@ -114,7 +133,7 @@ func updateIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc 
 	}
 }
 
-func deleteIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc {
+func deleteIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
 	return func(c khttp.Context) error {
 		orgID := strings.TrimSpace(c.Vars().Get("org_id"))
 		groupID := strings.TrimSpace(c.Vars().Get("group_id"))
@@ -122,12 +141,23 @@ func deleteIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc 
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "org_id and group_id are required"})
 		}
 		recursive := strings.EqualFold(c.Query().Get("recursive"), "true")
-		_, err := runWithGatewayPrincipal(c, func(ctx context.Context) (any, error) {
-			return map[string]bool{"success": true}, identity.DeleteGroup(ctx, authn.DeleteGroupRequest{
+		_, err := runWithGatewayPrincipal(c, func(ctx context.Context, principal authn.Principal) (any, error) {
+			if err := requireAuthz(ctx, resources.Authz, principal, groupObject(orgID, groupID), "manage"); err != nil {
+				return nil, err
+			}
+			if err := resources.Identity.DeleteGroup(ctx, authn.DeleteGroupRequest{
 				OrgID:     orgID,
 				GroupID:   groupID,
 				Recursive: recursive,
-			})
+			}); err != nil {
+				return nil, err
+			}
+			if resources.AuthzAdmin != nil {
+				if _, err := resources.AuthzAdmin.DeleteRelationships(ctx, authz.RelationshipFilter{ResourceType: "group", ResourceID: groupResourceID(orgID, groupID)}); err != nil {
+					return nil, err
+				}
+			}
+			return map[string]bool{"success": true}, nil
 		})
 		if err != nil {
 			return err
@@ -136,14 +166,87 @@ func deleteIdentityGroupHandler(identity authn.IdentityAdmin) khttp.HandlerFunc 
 	}
 }
 
-func runWithGatewayPrincipal(c khttp.Context, fn func(context.Context) (any, error)) (any, error) {
+func runWithGatewayPrincipal(c khttp.Context, fn func(context.Context, authn.Principal) (any, error)) (any, error) {
 	return c.Middleware(func(ctx context.Context, _ any) (any, error) {
 		principal, ok := authn.PrincipalFromContext(ctx)
 		if !ok || !principal.IsAuthenticated() {
 			return nil, authn.ErrMissingCredential("gateway principal is required")
 		}
-		return fn(ctx)
+		return fn(ctx, principal.Normalize())
 	})(c, nil)
+}
+
+func requireAuthz(ctx context.Context, authorizer authz.Authorizer, principal authn.Principal, resource authz.ObjectRef, permission string) error {
+	if authorizer == nil {
+		return authz.ErrBackendFailed("authorization provider is not configured", nil)
+	}
+	decision, err := authorizer.Check(ctx, authz.CheckRequest{
+		Subject:    principalSubject(principal),
+		Resource:   resource,
+		Permission: permission,
+		OrgID:      principal.OrgID,
+		TenantID:   principal.TenantID,
+		ProjectID:  principal.ProjectID,
+	})
+	if err != nil {
+		return err
+	}
+	if !decision.IsAllowed() {
+		return authz.ErrPermissionDenied("permission denied: " + resource.String() + "#" + permission)
+	}
+	return nil
+}
+
+func principalSubject(principal authn.Principal) authz.SubjectRef {
+	subjectType := strings.TrimSpace(principal.SubjectType)
+	switch subjectType {
+	case authz.SubjectTypeService, "service_account":
+		return authz.SubjectRef{Type: subjectType, ID: principal.SubjectID}
+	default:
+		return authz.SubjectRef{Type: authz.SubjectTypeUser, ID: principal.SubjectID}
+	}
+}
+
+func writeGroupStructure(ctx context.Context, writer authz.RelationshipWriter, zoneID string, group authn.Group) error {
+	if writer == nil {
+		return nil
+	}
+	groupID := firstNonEmptyString(group.ID, group.Name)
+	if strings.TrimSpace(zoneID) == "" || strings.TrimSpace(groupID) == "" {
+		return nil
+	}
+	rels := []authz.Relationship{
+		{
+			Resource: authz.ObjectRef{Type: "group", ID: groupResourceID(zoneID, groupID)},
+			Relation: "zone",
+			Subject:  authz.SubjectRef{Type: "zone", ID: zoneID},
+		},
+	}
+	if parentID := strings.TrimSpace(group.ParentID); parentID != "" {
+		rels = append(rels, authz.Relationship{
+			Resource: authz.ObjectRef{Type: "group", ID: groupResourceID(zoneID, groupID)},
+			Relation: "parent",
+			Subject:  authz.SubjectRef{Type: "group", ID: groupResourceID(zoneID, parentID)},
+		})
+	}
+	_, err := writer.WriteRelationships(ctx, rels...)
+	return err
+}
+
+func groupObject(zoneID, groupID string) authz.ObjectRef {
+	return authz.ObjectRef{Type: "group", ID: groupResourceID(zoneID, groupID)}
+}
+
+func groupResourceID(zoneID, groupID string) string {
+	zoneID = strings.Trim(strings.TrimSpace(zoneID), "/")
+	groupID = strings.Trim(strings.TrimSpace(groupID), "/")
+	if zoneID == "" {
+		return groupID
+	}
+	if groupID == "" {
+		return zoneID
+	}
+	return zoneID + "/" + groupID
 }
 
 func normalizeGroupPayload(in groupWritePayload) groupWritePayload {
