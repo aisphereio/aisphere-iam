@@ -1,12 +1,57 @@
 definition user {}
 
-definition group {
-  relation member: user | group#member
-}
-
 definition service {}
 
 definition service_account {}
+
+definition group {
+  // Casdoor Group mapped into an Aisphere availability zone.
+  // A group is both a manageable resource and an authorization subject via #member.
+  relation zone: zone
+  relation parent: group
+
+  relation member: user | service | service_account | group#member
+  relation owner: user | service | service_account | group#member
+  relation manager: user | service | service_account | group#member
+  relation viewer: user | service | service_account | group#member
+  relation permission_admin: user | service | service_account | group#member
+
+  permission view = member + viewer + manager + owner + zone->view_groups + parent->view
+  permission manage = owner + manager + zone->manage_groups + parent->manage
+  permission create_child_groups = owner + manager + zone->create_groups + parent->create_child_groups
+  permission manage_members = owner + manager + zone->manage_users + parent->manage_members
+  permission view_permissions = owner + permission_admin + zone->view_permissions + parent->view_permissions
+  permission manage_permissions = owner + permission_admin + zone->manage_permissions + parent->manage_permissions
+}
+
+definition zone {
+  // Casdoor Organization mapped as the top-level availability-zone resource.
+  // The frontend treats zones as read-only roots; IAM grants decide who can manage below them.
+  relation member: user | service | service_account | group#member
+
+  relation owner: user | service | service_account | group#member
+  relation admin: user | service | service_account | group#member
+
+  relation user_viewer: user | service | service_account | group#member
+  relation user_manager: user | service | service_account | group#member
+
+  relation group_viewer: user | service | service_account | group#member
+  relation group_manager: user | service | service_account | group#member
+
+  relation permission_admin: user | service | service_account | group#member
+
+  permission view_zone = member + owner + admin
+
+  permission view_users = owner + admin + user_viewer + user_manager
+  permission manage_users = owner + admin + user_manager
+
+  permission view_groups = owner + admin + group_viewer + group_manager
+  permission create_groups = owner + admin + group_manager
+  permission manage_groups = owner + admin + group_manager
+
+  permission view_permissions = owner + admin + permission_admin
+  permission manage_permissions = owner + admin + permission_admin
+}
 
 definition iam {
   relation admin: user | group#member | service | service_account
