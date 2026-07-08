@@ -234,7 +234,7 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 	if len(resources) == 0 {
 		resources = defaultControlPlaneAdminResources()
 	}
-	rels := make([]authz.Relationship, 0, len(resources)*len(cfg.Subjects)+len(cfg.Subjects))
+	rels := make([]authz.Relationship, 0, len(resources)*len(cfg.Subjects)+len(cfg.Subjects)*6)
 	for _, subject := range cfg.Subjects {
 		legacySubject, hasLegacy := legacyBootstrapSubject(subject)
 		if hasLegacy {
@@ -260,13 +260,15 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 		if zoneID == "" || !hasZoneSubject {
 			continue
 		}
-		relation := bootstrapRoleToRelation(subject.Role)
-		rels = append(rels, authz.Relationship{
-			Resource: authz.ObjectRef{Type: "zone", ID: zoneID},
-			Relation: relation,
-			Subject:  zoneSubject,
-		})
-		if !hasLegacy && (relation == "owner" || relation == "admin") {
+		zoneSubject = stripSubjectRelation(zoneSubject)
+		for _, relation := range bootstrapZoneRelations(subject.Role) {
+			rels = append(rels, authz.Relationship{
+				Resource: authz.ObjectRef{Type: "zone", ID: zoneID},
+				Relation: relation,
+				Subject:  zoneSubject,
+			})
+		}
+		if !hasLegacy && bootstrapRoleGrantsControlPlaneAdmin(subject.Role) {
 			for _, resource := range resources {
 				resource.Type = strings.TrimSpace(resource.Type)
 				resource.ID = strings.TrimSpace(resource.ID)
@@ -355,6 +357,31 @@ func bootstrapRoleToRelation(role string) string {
 	default:
 		return strings.TrimSpace(role)
 	}
+}
+
+func bootstrapZoneRelations(role string) []string {
+	relation := bootstrapRoleToRelation(role)
+	switch relation {
+	case "owner":
+		return []string{"owner", "admin", "user_manager", "group_manager", "permission_admin"}
+	case "admin":
+		return []string{"admin", "user_manager", "group_manager", "permission_admin"}
+	default:
+		if relation == "" {
+			return nil
+		}
+		return []string{relation}
+	}
+}
+
+func bootstrapRoleGrantsControlPlaneAdmin(role string) bool {
+	relation := bootstrapRoleToRelation(role)
+	return relation == "owner" || relation == "admin"
+}
+
+func stripSubjectRelation(subject authz.SubjectRef) authz.SubjectRef {
+	subject.Relation = ""
+	return subject
 }
 
 func defaultControlPlaneAdminResources() []conf.ControlPlaneAdminResource {
