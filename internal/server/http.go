@@ -12,7 +12,6 @@ import (
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/aisphere-iam/internal/service"
-	"github.com/aisphereio/kernel/authz"
 	"github.com/aisphereio/kernel/logx"
 	"github.com/aisphereio/kernel/metricsx"
 	"github.com/aisphereio/kernel/serverx"
@@ -50,7 +49,7 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	registerIdentityMembershipRoutes(srv, resources)
 	registerProjectionBranches(srv, projections)
 	registerIdentityAuthZBranches(srv, resources)
-	registerDirectoryProjectionOps(srv, resources)
+	registerDirectoryProjectionCompatibilityRoutes(srv, service.NewDirectoryProjectionOpsFromDeps(resources.Identity, resources.AuthzAdmin, resources.IdentityProjection))
 
 	srv.HandleFunc("/v1/iam/ui/login", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, safeUILoginReturnURL(r.URL.Query().Get("return_to")), http.StatusFound)
@@ -147,10 +146,15 @@ func registerIdentityAuthZBranches(srv *khttp.Server, resources *data.Resources)
 
 type directoryProjectionRequest struct {
 	OrgID string `json:"org_id"`
+	Limit int    `json:"limit"`
 }
 
-func registerDirectoryProjectionOps(srv *khttp.Server, resources *data.Resources) {
-	if resources == nil || resources.IdentityProjection == nil || resources.Identity == nil || resources.AuthzAdmin == nil {
+// registerDirectoryProjectionCompatibilityRoutes keeps the existing HTTP paths
+// alive until api/iam/v1/iam.proto is regenerated and the generated
+// IAMDirectoryProjectionService HTTP server is registered. Business logic lives
+// in internal/service; this function is only a temporary HTTP shim.
+func registerDirectoryProjectionCompatibilityRoutes(srv *khttp.Server, ops *service.DirectoryProjectionOps) {
+	if ops == nil {
 		return
 	}
 	srv.HandleFunc("/v1/iam/directory/projections:retry", func(w http.ResponseWriter, r *http.Request) {
@@ -158,12 +162,14 @@ func registerDirectoryProjectionOps(srv *khttp.Server, resources *data.Resources
 			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
 			return
 		}
-		processed, err := resources.IdentityProjection.RetryOnce(r.Context(), 100)
+		var req directoryProjectionRequest
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		result, err := ops.Retry(r.Context(), req.Limit)
 		if err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]any{"processed": processed})
+		writeJSON(w, http.StatusOK, result)
 	})
 	srv.HandleFunc("/v1/iam/directory/projections:reconcile", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -174,16 +180,12 @@ func registerDirectoryProjectionOps(srv *khttp.Server, resources *data.Resources
 		if !ok {
 			return
 		}
-		rels, err := data.BuildDirectoryProjectionRelationships(r.Context(), resources.Identity, orgID)
+		result, err := ops.Reconcile(r.Context(), orgID, "reconcile")
 		if err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
-		if err := resources.IdentityProjection.Dispatch(r.Context(), "reconcile", "zone", orgID, data.IdentityAuthZProjectionPayload{Operation: "write", Relationships: rels}); err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
-			return
-		}
-		writeJSON(w, http.StatusOK, map[string]any{"status": "submitted", "relationships": len(rels)})
+		writeJSON(w, http.StatusOK, result)
 	})
 	srv.HandleFunc("/v1/iam/directory/projections:drift", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -194,17 +196,12 @@ func registerDirectoryProjectionOps(srv *khttp.Server, resources *data.Resources
 		if !ok {
 			return
 		}
-		desired, err := data.BuildDirectoryProjectionRelationships(r.Context(), resources.Identity, orgID)
+		result, err := ops.Drift(r.Context(), orgID)
 		if err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
-		missing, err := data.DetectDirectoryProjectionDrift(r.Context(), resources.AuthzAdmin, desired)
-		if err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
-			return
-		}
-		writeJSON(w, http.StatusOK, map[string]any{"desired": len(desired), "missing": len(missing), "missing_relationships": relationshipStrings(missing)})
+		writeJSON(w, http.StatusOK, result)
 	})
 	srv.HandleFunc("/v1/iam/casdoor/webhooks", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -223,16 +220,12 @@ func registerDirectoryProjectionOps(srv *khttp.Server, resources *data.Resources
 			writeJSON(w, http.StatusAccepted, map[string]any{"status": "accepted", "reconcile": "skipped", "reason": "org_id missing"})
 			return
 		}
-		rels, err := data.BuildDirectoryProjectionRelationships(r.Context(), resources.Identity, orgID)
+		result, err := ops.Reconcile(r.Context(), orgID, "casdoor_webhook")
 		if err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
-		if err := resources.IdentityProjection.Dispatch(r.Context(), "casdoor_webhook", "zone", orgID, data.IdentityAuthZProjectionPayload{Operation: "write", Relationships: rels}); err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
-			return
-		}
-		writeJSON(w, http.StatusAccepted, map[string]any{"status": "accepted", "relationships": len(rels)})
+		writeJSON(w, http.StatusAccepted, result)
 	})
 }
 
@@ -248,18 +241,6 @@ func readProjectionOrgID(w http.ResponseWriter, r *http.Request) (string, bool) 
 		return "", false
 	}
 	return orgID, true
-}
-
-func relationshipStrings(rels []authz.Relationship) []string {
-	out := make([]string, 0, len(rels))
-	for _, rel := range rels {
-		s := rel.Resource.Type + ":" + rel.Resource.ID + "#" + rel.Relation + "@" + rel.Subject.Type + ":" + rel.Subject.ID
-		if rel.Subject.Relation != "" {
-			s += "#" + rel.Subject.Relation
-		}
-		out = append(out, s)
-	}
-	return out
 }
 
 func writeJSON(w http.ResponseWriter, status int, body any) {
