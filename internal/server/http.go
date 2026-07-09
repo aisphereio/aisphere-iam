@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
@@ -11,6 +12,7 @@ import (
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/aisphere-iam/internal/service"
+	"github.com/aisphereio/kernel/authz"
 	"github.com/aisphereio/kernel/logx"
 	"github.com/aisphereio/kernel/metricsx"
 	"github.com/aisphereio/kernel/serverx"
@@ -47,6 +49,8 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	registerIdentityGroupRoutes(srv, resources)
 	registerIdentityMembershipRoutes(srv, resources)
 	registerProjectionBranches(srv, projections)
+	registerIdentityAuthZBranches(srv, resources)
+	registerDirectoryProjectionOps(srv, resources)
 
 	srv.HandleFunc("/v1/iam/ui/login", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, safeUILoginReturnURL(r.URL.Query().Get("return_to")), http.StatusFound)
@@ -109,6 +113,153 @@ func registerProjectionBranches(srv *khttp.Server, projections *projection.Manag
 		}
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
+}
+
+func registerIdentityAuthZBranches(srv *khttp.Server, resources *data.Resources) {
+	if resources == nil || resources.IdentityProjection == nil {
+		return
+	}
+	srv.HandleFunc("/internal/dtm/iam/identity-authz/apply", func(w http.ResponseWriter, r *http.Request) {
+		var payload data.IdentityAuthZBranchPayload
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		if _, err := resources.IdentityProjection.ApplyBranch(r.Context(), payload); err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	})
+	srv.HandleFunc("/internal/dtm/iam/identity-authz/compensate", func(w http.ResponseWriter, r *http.Request) {
+		var payload data.IdentityAuthZBranchPayload
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		if _, err := resources.IdentityProjection.CompensateBranch(r.Context(), payload); err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	})
+}
+
+type directoryProjectionRequest struct {
+	OrgID string `json:"org_id"`
+}
+
+func registerDirectoryProjectionOps(srv *khttp.Server, resources *data.Resources) {
+	if resources == nil || resources.IdentityProjection == nil || resources.Identity == nil || resources.AuthzAdmin == nil {
+		return
+	}
+	srv.HandleFunc("/v1/iam/directory/projections:retry", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+			return
+		}
+		processed, err := resources.IdentityProjection.RetryOnce(r.Context(), 100)
+		if err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"processed": processed})
+	})
+	srv.HandleFunc("/v1/iam/directory/projections:reconcile", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+			return
+		}
+		orgID, ok := readProjectionOrgID(w, r)
+		if !ok {
+			return
+		}
+		rels, err := data.BuildDirectoryProjectionRelationships(r.Context(), resources.Identity, orgID)
+		if err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		if err := resources.IdentityProjection.Dispatch(r.Context(), "reconcile", "zone", orgID, data.IdentityAuthZProjectionPayload{Operation: "write", Relationships: rels}); err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"status": "submitted", "relationships": len(rels)})
+	})
+	srv.HandleFunc("/v1/iam/directory/projections:drift", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+			return
+		}
+		orgID, ok := readProjectionOrgID(w, r)
+		if !ok {
+			return
+		}
+		desired, err := data.BuildDirectoryProjectionRelationships(r.Context(), resources.Identity, orgID)
+		if err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		missing, err := data.DetectDirectoryProjectionDrift(r.Context(), resources.AuthzAdmin, desired)
+		if err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"desired": len(desired), "missing": len(missing), "missing_relationships": relationshipStrings(missing)})
+	})
+	srv.HandleFunc("/v1/iam/casdoor/webhooks", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+			return
+		}
+		var payload map[string]any
+		_ = json.NewDecoder(r.Body).Decode(&payload)
+		orgID := strings.TrimSpace(r.URL.Query().Get("org_id"))
+		if orgID == "" {
+			if raw, ok := payload["org_id"].(string); ok {
+				orgID = strings.TrimSpace(raw)
+			}
+		}
+		if orgID == "" {
+			writeJSON(w, http.StatusAccepted, map[string]any{"status": "accepted", "reconcile": "skipped", "reason": "org_id missing"})
+			return
+		}
+		rels, err := data.BuildDirectoryProjectionRelationships(r.Context(), resources.Identity, orgID)
+		if err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		if err := resources.IdentityProjection.Dispatch(r.Context(), "casdoor_webhook", "zone", orgID, data.IdentityAuthZProjectionPayload{Operation: "write", Relationships: rels}); err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusAccepted, map[string]any{"status": "accepted", "relationships": len(rels)})
+	})
+}
+
+func readProjectionOrgID(w http.ResponseWriter, r *http.Request) (string, bool) {
+	var req directoryProjectionRequest
+	_ = json.NewDecoder(r.Body).Decode(&req)
+	orgID := strings.TrimSpace(req.OrgID)
+	if orgID == "" {
+		orgID = strings.TrimSpace(r.URL.Query().Get("org_id"))
+	}
+	if orgID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "org_id is required"})
+		return "", false
+	}
+	return orgID, true
+}
+
+func relationshipStrings(rels []authz.Relationship) []string {
+	out := make([]string, 0, len(rels))
+	for _, rel := range rels {
+		s := rel.Resource.Type + ":" + rel.Resource.ID + "#" + rel.Relation + "@" + rel.Subject.Type + ":" + rel.Subject.ID
+		if rel.Subject.Relation != "" {
+			s += "#" + rel.Subject.Relation
+		}
+		out = append(out, s)
+	}
+	return out
 }
 
 func writeJSON(w http.ResponseWriter, status int, body any) {
