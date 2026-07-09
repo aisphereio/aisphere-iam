@@ -7,11 +7,16 @@ import (
 
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authz"
+	"github.com/aisphereio/kernel/dtmx"
 )
 
 const (
 	IdentityModeCasdoorLocal = "casdoor_local"
 	IdentityModeExternalOIDC = "external_oidc"
+
+	identityAuthZProjectionTopic       = "iam.identity.authz.projection"
+	identityAuthZProjectionOperationUp = "write"
+	identityAuthZProjectionOperationRm = "delete"
 )
 
 func identityMode(mode string) (string, error) {
@@ -40,15 +45,27 @@ func identityForMode(mode string, next authn.IdentityAdmin) (authn.IdentityAdmin
 	return next, nil
 }
 
-// BindIdentityAuthZ projects local application group changes into the AuthZ
+// IdentityAuthZProjectionPayload is the DTM branch payload used to project
+// Casdoor directory mutations into the SpiceDB/AuthZ relationship graph.
+//
+// DTM only transports the branch request. Casdoor remains the identity truth
+// source; SpiceDB remains a derived authorization projection. If DTM is disabled,
+// the same payload is applied inline so local development keeps working.
+type IdentityAuthZProjectionPayload struct {
+	Operation     string                     `json:"operation"`
+	Relationships []authz.Relationship       `json:"relationships,omitempty"`
+	Filters       []authz.RelationshipFilter `json:"filters,omitempty"`
+}
+
+// BindIdentityAuthZ projects identity-provider group changes into the AuthZ
 // relationship graph. It is intentionally independent from identity_mode:
-// casdoor_local and external_oidc both use local application groups for
-// Aisphere resource authorization.
-func BindIdentityAuthZ(next authn.IdentityAdmin, relationships authz.RelationshipWriter) authn.IdentityAdmin {
+// casdoor_local and external_oidc both use Casdoor groups as the directory-side
+// hierarchy for Aisphere authorization.
+func BindIdentityAuthZ(next authn.IdentityAdmin, relationships authz.RelationshipWriter, managers ...dtmx.Manager) authn.IdentityAdmin {
 	if next == nil || relationships == nil {
 		return next
 	}
-	return authzProjectingIdentityAdmin{IdentityAdmin: next, relationships: relationships}
+	return authzProjectingIdentityAdmin{IdentityAdmin: next, relationships: relationships, dtm: firstDTMManager(managers)}
 }
 
 // externalOIDCIdentityAdmin protects the upstream user/org directory while still
@@ -174,6 +191,7 @@ func externalDirectoryReadOnlyError(operation string) error {
 type authzProjectingIdentityAdmin struct {
 	authn.IdentityAdmin
 	relationships authz.RelationshipWriter
+	dtm           dtmx.Manager
 }
 
 func (a authzProjectingIdentityAdmin) CreateGroup(ctx context.Context, req authn.CreateGroupRequest) (authn.Group, error) {
@@ -181,18 +199,27 @@ func (a authzProjectingIdentityAdmin) CreateGroup(ctx context.Context, req authn
 	if err != nil {
 		return authn.Group{}, err
 	}
-	if err := a.writeGroupParent(ctx, firstNonEmpty(group.ParentID, req.Group.ParentID), firstNonEmpty(group.ID, req.Group.ID)); err != nil {
+	if err := a.projectWrite(ctx, "identity.group.create", firstNonEmpty(group.ID, req.Group.ID), groupTopologyRelationships(group, req.Group)...); err != nil {
 		return authn.Group{}, err
 	}
 	return group, nil
 }
 
 func (a authzProjectingIdentityAdmin) UpdateGroup(ctx context.Context, req authn.UpdateGroupRequest) (authn.Group, error) {
+	var oldGroup authn.Group
+	if req.Group.OrgID != "" && req.Group.ID != "" {
+		oldGroup, _ = a.IdentityAdmin.GetGroup(ctx, req.Group.OrgID, req.Group.ID)
+	}
 	group, err := a.IdentityAdmin.UpdateGroup(ctx, req)
 	if err != nil {
 		return authn.Group{}, err
 	}
-	if err := a.writeGroupParent(ctx, firstNonEmpty(group.ParentID, req.Group.ParentID), firstNonEmpty(group.ID, req.Group.ID)); err != nil {
+	filters := groupTopologyDeleteFilters(oldGroup, req.Group)
+	rels := groupTopologyRelationships(group, req.Group)
+	if err := a.projectDelete(ctx, "identity.group.update.cleanup", firstNonEmpty(group.ID, req.Group.ID), filters, nil); err != nil {
+		return authn.Group{}, err
+	}
+	if err := a.projectWrite(ctx, "identity.group.update", firstNonEmpty(group.ID, req.Group.ID), rels...); err != nil {
 		return authn.Group{}, err
 	}
 	return group, nil
@@ -202,78 +229,185 @@ func (a authzProjectingIdentityAdmin) DeleteGroup(ctx context.Context, req authn
 	if err := a.IdentityAdmin.DeleteGroup(ctx, req); err != nil {
 		return err
 	}
-	return a.deleteGroupEdges(ctx, req.GroupID)
+	return a.projectDelete(ctx, "identity.group.delete", req.GroupID, groupDeleteFilters(req.GroupID), nil)
 }
 
 func (a authzProjectingIdentityAdmin) AssignUserToGroup(ctx context.Context, req authn.AssignUserToGroupRequest) error {
 	if err := a.IdentityAdmin.AssignUserToGroup(ctx, req); err != nil {
 		return err
 	}
-	return a.writeGroupMember(ctx, req.GroupID, req.UserID)
+	rels := []authz.Relationship{groupMemberRelationship(req.GroupID, req.UserID)}
+	if req.OrgID != "" {
+		rels = append(rels, authz.Relationship{Resource: authz.ObjectRef{Type: "zone", ID: req.OrgID}, Relation: "member", Subject: authz.SubjectRef{Type: "user", ID: req.UserID}})
+	}
+	return a.projectWrite(ctx, "identity.group.member.assign", req.GroupID, rels...)
 }
 
 func (a authzProjectingIdentityAdmin) RemoveUserFromGroup(ctx context.Context, req authn.AssignUserToGroupRequest) error {
 	if err := a.IdentityAdmin.RemoveUserFromGroup(ctx, req); err != nil {
 		return err
 	}
-	return a.deleteGroupMember(ctx, req.GroupID, req.UserID)
+	return a.projectDelete(ctx, "identity.group.member.remove", req.GroupID, []authz.RelationshipFilter{{ResourceType: "group", ResourceID: req.GroupID, Relation: "member", SubjectType: "user", SubjectID: req.UserID}}, []authz.Relationship{groupMemberRelationship(req.GroupID, req.UserID)})
 }
 
-func (a authzProjectingIdentityAdmin) writeGroupParent(ctx context.Context, parentID, groupID string) error {
-	parentID = strings.TrimSpace(parentID)
-	groupID = strings.TrimSpace(groupID)
-	if parentID == "" || groupID == "" || parentID == groupID {
+func (a authzProjectingIdentityAdmin) projectWrite(ctx context.Context, name, aggregateID string, rels ...authz.Relationship) error {
+	clean := make([]authz.Relationship, 0, len(rels))
+	for _, rel := range rels {
+		if rel.Resource.IsZero() || rel.Relation == "" || rel.Subject.IsZero() {
+			continue
+		}
+		clean = append(clean, rel)
+	}
+	if len(clean) == 0 {
 		return nil
 	}
-	_, err := a.relationships.WriteRelationships(ctx, authz.Relationship{
-		Resource: authz.ObjectRef{Type: "group", ID: parentID},
-		Relation: "member",
-		Subject:  authz.SubjectRef{Type: "group", ID: groupID, Relation: "member"},
-	})
+	return a.dispatchIdentityAuthZ(ctx, name, aggregateID, IdentityAuthZProjectionPayload{Operation: identityAuthZProjectionOperationUp, Relationships: clean})
+}
+
+func (a authzProjectingIdentityAdmin) projectDelete(ctx context.Context, name, aggregateID string, filters []authz.RelationshipFilter, rels []authz.Relationship) error {
+	clean := make([]authz.RelationshipFilter, 0, len(filters))
+	for _, filter := range filters {
+		if filter.ResourceType == "" && filter.ResourceID == "" && filter.Relation == "" && filter.SubjectType == "" && filter.SubjectID == "" && filter.SubjectRel == "" {
+			continue
+		}
+		clean = append(clean, filter)
+	}
+	if len(clean) == 0 {
+		return nil
+	}
+	return a.dispatchIdentityAuthZ(ctx, name, aggregateID, IdentityAuthZProjectionPayload{Operation: identityAuthZProjectionOperationRm, Filters: clean, Relationships: rels})
+}
+
+func (a authzProjectingIdentityAdmin) dispatchIdentityAuthZ(ctx context.Context, name, aggregateID string, payload IdentityAuthZProjectionPayload) error {
+	if a.dtm != nil && a.dtm.Enabled() {
+		gid, err := a.dtm.NewGID(ctx)
+		if err != nil {
+			return err
+		}
+		saga := dtmx.NewSaga(gid, firstNonEmpty(name, identityAuthZProjectionTopic)).
+			AddHTTP("identity-authz", a.dtm.BranchURL("iam/identity-authz/apply"), a.dtm.BranchURL("iam/identity-authz/compensate"), payload)
+		_, err = a.dtm.SubmitSaga(ctx, saga)
+		return err
+	}
+	_, err := ApplyIdentityAuthZProjection(ctx, a.relationships, payload)
 	return err
 }
 
-func (a authzProjectingIdentityAdmin) writeGroupMember(ctx context.Context, groupID, userID string) error {
-	groupID = strings.TrimSpace(groupID)
-	userID = strings.TrimSpace(userID)
-	if groupID == "" || userID == "" {
-		return nil
+func ApplyIdentityAuthZProjection(ctx context.Context, writer authz.RelationshipWriter, payload IdentityAuthZProjectionPayload) (authz.WriteResult, error) {
+	if writer == nil {
+		return authz.WriteResult{}, authz.ErrBackendFailed("authz relationship writer is not configured", nil)
 	}
-	_, err := a.relationships.WriteRelationships(ctx, authz.Relationship{
-		Resource: authz.ObjectRef{Type: "group", ID: groupID},
-		Relation: "member",
-		Subject:  authz.SubjectRef{Type: "user", ID: userID},
-	})
-	return err
+	switch payload.Operation {
+	case identityAuthZProjectionOperationUp:
+		return writer.WriteRelationships(ctx, payload.Relationships...)
+	case identityAuthZProjectionOperationRm:
+		var out authz.WriteResult
+		for _, filter := range payload.Filters {
+			part, err := writer.DeleteRelationships(ctx, filter)
+			out.Deleted += part.Deleted
+			if part.ConsistencyToken != "" {
+				out.ConsistencyToken = part.ConsistencyToken
+			}
+			if err != nil {
+				return out, err
+			}
+		}
+		return out, nil
+	default:
+		return authz.WriteResult{}, fmt.Errorf("unsupported identity authz projection operation: %s", payload.Operation)
+	}
 }
 
-func (a authzProjectingIdentityAdmin) deleteGroupMember(ctx context.Context, groupID, userID string) error {
-	groupID = strings.TrimSpace(groupID)
-	userID = strings.TrimSpace(userID)
-	if groupID == "" || userID == "" {
-		return nil
+func CompensateIdentityAuthZProjection(ctx context.Context, writer authz.RelationshipWriter, payload IdentityAuthZProjectionPayload) (authz.WriteResult, error) {
+	if writer == nil {
+		return authz.WriteResult{}, authz.ErrBackendFailed("authz relationship writer is not configured", nil)
 	}
-	_, err := a.relationships.DeleteRelationships(ctx, authz.RelationshipFilter{
-		ResourceType: "group",
-		ResourceID:   groupID,
-		Relation:     "member",
-		SubjectType:  "user",
-		SubjectID:    userID,
-	})
-	return err
+	switch payload.Operation {
+	case identityAuthZProjectionOperationUp:
+		var out authz.WriteResult
+		for _, rel := range payload.Relationships {
+			part, err := writer.DeleteRelationships(ctx, authz.RelationshipFilter{ResourceType: rel.Resource.Type, ResourceID: rel.Resource.ID, Relation: rel.Relation, SubjectType: rel.Subject.Type, SubjectID: rel.Subject.ID, SubjectRel: rel.Subject.Relation})
+			out.Deleted += part.Deleted
+			if part.ConsistencyToken != "" {
+				out.ConsistencyToken = part.ConsistencyToken
+			}
+			if err != nil {
+				return out, err
+			}
+		}
+		return out, nil
+	case identityAuthZProjectionOperationRm:
+		return writer.WriteRelationships(ctx, payload.Relationships...)
+	default:
+		return authz.WriteResult{}, fmt.Errorf("unsupported identity authz projection operation: %s", payload.Operation)
+	}
 }
 
-func (a authzProjectingIdentityAdmin) deleteGroupEdges(ctx context.Context, groupID string) error {
+func groupTopologyRelationships(primary authn.Group, fallback authn.Group) []authz.Relationship {
+	groupID := firstNonEmpty(primary.ID, fallback.ID)
+	orgID := firstNonEmpty(primary.OrgID, fallback.OrgID)
+	parentID := firstNonEmpty(primary.ParentID, fallback.ParentID)
+	if groupID == "" {
+		return nil
+	}
+	rels := make([]authz.Relationship, 0, 3)
+	if orgID != "" {
+		rels = append(rels, authz.Relationship{Resource: authz.ObjectRef{Type: "group", ID: groupID}, Relation: "zone", Subject: authz.SubjectRef{Type: "zone", ID: orgID}})
+	}
+	if parentID != "" && parentID != groupID && parentID != orgID {
+		rels = append(rels,
+			authz.Relationship{Resource: authz.ObjectRef{Type: "group", ID: groupID}, Relation: "parent", Subject: authz.SubjectRef{Type: "group", ID: parentID}},
+			authz.Relationship{Resource: authz.ObjectRef{Type: "group", ID: parentID}, Relation: "member", Subject: authz.SubjectRef{Type: "group", ID: groupID, Relation: "member"}},
+		)
+	}
+	return rels
+}
+
+func groupTopologyDeleteFilters(oldGroup authn.Group, fallback authn.Group) []authz.RelationshipFilter {
+	groupID := firstNonEmpty(oldGroup.ID, fallback.ID)
+	if groupID == "" {
+		return nil
+	}
+	return []authz.RelationshipFilter{
+		{ResourceType: "group", ResourceID: groupID, Relation: "zone"},
+		{ResourceType: "group", ResourceID: groupID, Relation: "parent"},
+		{ResourceType: "group", Relation: "member", SubjectType: "group", SubjectID: groupID, SubjectRel: "member"},
+	}
+}
+
+func groupDeleteFilters(groupID string) []authz.RelationshipFilter {
 	groupID = strings.TrimSpace(groupID)
 	if groupID == "" {
 		return nil
 	}
-if _, err := a.relationships.DeleteRelationships(ctx, authz.RelationshipFilter{ResourceType: "group", ResourceID: groupID}); err != nil {
-			return err
-		}
-		_, err := a.relationships.DeleteRelationships(ctx, authz.RelationshipFilter{SubjectType: "group", SubjectID: groupID, SubjectRel: "member"})
-		return err
+	return []authz.RelationshipFilter{
+		{ResourceType: "group", ResourceID: groupID},
+		{SubjectType: "group", SubjectID: groupID},
+		{SubjectType: "group", SubjectID: groupID, SubjectRel: "member"},
 	}
-	
-	var _ authn.IdentityAdmin = externalOIDCIdentityAdmin{}
-	var _ authn.IdentityAdmin = authzProjectingIdentityAdmin{}
+}
+
+func groupMemberRelationship(groupID, userID string) authz.Relationship {
+	return authz.Relationship{Resource: authz.ObjectRef{Type: "group", ID: strings.TrimSpace(groupID)}, Relation: "member", Subject: authz.SubjectRef{Type: "user", ID: strings.TrimSpace(userID)}}
+}
+
+func firstDTMManager(managers []dtmx.Manager) dtmx.Manager {
+	for _, manager := range managers {
+		if manager != nil {
+			return manager
+		}
+	}
+	return nil
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return strings.TrimSpace(value)
+		}
+	}
+	return ""
+}
+
+var _ authn.IdentityAdmin = externalOIDCIdentityAdmin{}
+var _ authn.IdentityAdmin = authzProjectingIdentityAdmin{}
