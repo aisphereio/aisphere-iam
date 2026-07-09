@@ -55,6 +55,10 @@ spec:
               mountPath: /app/configs/config.yaml
               subPath: config.yaml
               readOnly: true
+            - name: config
+              mountPath: /app/configs/spicedb/aisphere.schema.zed
+              subPath: aisphere.schema.zed
+              readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
