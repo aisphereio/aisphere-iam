@@ -47,6 +47,7 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	registerIdentityGroupRoutes(srv, resources)
 	registerIdentityMembershipRoutes(srv, resources)
 	registerProjectionBranches(srv, projections)
+	registerIdentityAuthZBranches(srv, resources)
 
 	srv.HandleFunc("/v1/iam/ui/login", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, safeUILoginReturnURL(r.URL.Query().Get("return_to")), http.StatusFound)
@@ -104,6 +105,36 @@ func registerProjectionBranches(srv *khttp.Server, projections *projection.Manag
 			return
 		}
 		if _, err := projections.CompensateEvent(r.Context(), payload.EventID); err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	})
+}
+
+func registerIdentityAuthZBranches(srv *khttp.Server, resources *data.Resources) {
+	if resources == nil || resources.AuthzAdmin == nil {
+		return
+	}
+	srv.HandleFunc("/internal/dtm/iam/identity-authz/apply", func(w http.ResponseWriter, r *http.Request) {
+		var payload data.IdentityAuthZProjectionPayload
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		if _, err := data.ApplyIdentityAuthZProjection(r.Context(), resources.AuthzAdmin, payload); err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	})
+	srv.HandleFunc("/internal/dtm/iam/identity-authz/compensate", func(w http.ResponseWriter, r *http.Request) {
+		var payload data.IdentityAuthZProjectionPayload
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		if _, err := data.CompensateIdentityAuthZProjection(r.Context(), resources.AuthzAdmin, payload); err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
