@@ -73,10 +73,6 @@ func main() {
 	}
 	defer cleanup()
 
-	if err := data.BootstrapAuthzSchema(context.Background(), resources, logger); err != nil {
-		logger.Warn("authz schema bootstrap failed; authz checks will fail until fixed", logx.Err(err))
-	}
-
 	projectionManager := projection.NewManager(resources.ControlPlane, resources.AuthzAdmin, resources.DTM)
 	projectUsecase := projectbiz.NewService(resources.ControlPlane, resources.AuthzAdmin, projectionManager)
 	resourceUsecase := resourcebiz.NewService(resources.ControlPlane, resources.AuthzAdmin, projectionManager)
@@ -136,6 +132,9 @@ func applyBuildInfo(bc *conf.Bootstrap) {
 	}
 	if bc.DTM.ServiceBaseURL == "" && bc.Server.HTTP.Addr != "" {
 		bc.DTM.ServiceBaseURL = "http://127.0.0.1" + normalizeAddrPort(bc.Server.HTTP.Addr)
+	}
+	if bc.DTM.BranchPrefix == "" {
+		bc.DTM.BranchPrefix = "/internal/dtm"
 	}
 }
 
