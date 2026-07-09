@@ -5,12 +5,24 @@ definition service {}
 definition service_account {}
 
 definition group {
-  // Casdoor Group mapped into an Aisphere availability zone.
-  // A group is both a manageable resource and an authorization subject via #member.
+  // Casdoor Group mapped into an Aisphere identity zone.
+  // A group is both:
+  // - a manageable resource: group:{id}#view/manage/manage_members
+  // - an authorization subject set: group:{id}#member
+  //
+  // The IAM identity projector writes the following core tuples:
+  // - group:{group}#zone@zone:{casdoor_org}
+  // - group:{child}#parent@group:{parent}
+  // - group:{parent}#member@group:{child}#member
+  // - group:{group}#member@user:{casdoor_user_uuid}
   relation zone: zone
   relation parent: group
 
+  // member is the effective Casdoor group member set. Direct user membership and
+  // nested subgroup membership are both represented here so existing resource
+  // grants can continue to use subject sets like group:dev#member.
   relation member: user | service | service_account | group#member
+
   relation owner: user | service | service_account | group#member
   relation manager: user | service | service_account | group#member
   relation viewer: user | service | service_account | group#member
@@ -25,8 +37,9 @@ definition group {
 }
 
 definition zone {
-  // Casdoor Organization mapped as the top-level availability-zone resource.
-  // The frontend treats zones as read-only roots; IAM grants decide who can manage below them.
+  // Casdoor Organization mapped as the top-level identity-zone resource.
+  // The frontend treats zones as read-only roots; IAM grants decide who can
+  // manage users, groups, and permission relationships below each zone.
   relation member: user | service | service_account | group#member
 
   relation owner: user | service | service_account | group#member
