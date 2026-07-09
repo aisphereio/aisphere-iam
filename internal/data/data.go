@@ -254,7 +254,7 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 			}
 		}
 
-		zoneID := firstNonEmpty(subject.ZoneID, subject.CasdoorOrg)
+		zoneID := dataFirstNonEmpty(subject.ZoneID, subject.CasdoorOrg)
 		zoneSubject, hasZoneSubject, err := resolveBootstrapZoneSubject(ctx, subject, directory)
 		if err != nil {
 			return err
@@ -312,7 +312,7 @@ func resolveBootstrapZoneSubject(ctx context.Context, subject conf.ControlPlaneA
 		subjectType = authz.SubjectTypeUser
 	}
 	relation := strings.TrimSpace(subject.Relation)
-	if subjectID := firstNonEmpty(subject.ID, subject.ExternalSubject); subjectID != "" {
+	if subjectID := dataFirstNonEmpty(subject.ID, subject.ExternalSubject); subjectID != "" {
 		return authz.SubjectRef{Type: subjectType, ID: subjectID, Relation: relation}, true, nil
 	}
 
@@ -323,7 +323,7 @@ func resolveBootstrapZoneSubject(ctx context.Context, subject conf.ControlPlaneA
 	if directory == nil {
 		return authz.SubjectRef{}, false, authn.ErrIdentityBackendFailed("bootstrap admin username requires identity provider", nil)
 	}
-	orgID := firstNonEmpty(subject.CasdoorOrg, subject.ZoneID)
+	orgID := dataFirstNonEmpty(subject.CasdoorOrg, subject.ZoneID)
 	users, err := directory.FindUsers(ctx, authn.UserFilter{OrgID: orgID, Username: username, Limit: 20})
 	if err != nil {
 		return authz.SubjectRef{}, false, authn.ErrIdentityBackendFailed("resolve bootstrap admin user failed", err)
@@ -400,7 +400,7 @@ func defaultControlPlaneAdminResources() []conf.ControlPlaneAdminResource {
 	}
 }
 
-func firstNonEmpty(values ...string) string {
+func dataFirstNonEmpty(values ...string) string {
 	for _, value := range values {
 		value = strings.TrimSpace(value)
 		if value != "" {
@@ -408,6 +408,14 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func nonEmpty(value, fallback string) string {
+	value = strings.TrimSpace(value)
+	if value != "" {
+		return value
+	}
+	return strings.TrimSpace(fallback)
 }
 
 func pingEnabled(ctx context.Context, r *Resources) error {
