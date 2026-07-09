@@ -16,6 +16,9 @@ BIN_DIR := $(CURDIR)/bin
 COVERPROFILE ?= coverage.out
 DEPLOY_DIR ?= deploy
 GENERATED_DEPLOY_DIR ?= $(DEPLOY_DIR)/generated
+KUBE_NAMESPACE ?= aisphere
+SPICEDB_SCHEMA ?= ./configs/spicedb/aisphere.schema.zed
+SPICEDB_SCHEMA_CONFIGMAP ?= aisphere-iam-spicedb-schema
 
 ifeq ($(OS),Windows_NT)
 LOCAL_BIN := $(CURDIR)\.bin
@@ -27,19 +30,20 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 export PATH := $(LOCAL_BIN):$(PATH)
 endif
 
-.PHONY: help init tools tools-local check-tools api deploy deploy-apply proto-check config wire generate build docker run test tidy verify clean
+.PHONY: help init tools tools-local check-tools api deploy spicedb-schema-configmap deploy-apply proto-check config wire generate build docker run test tidy verify clean
 
 help:
 	@echo "Aisphere IAM targets:"
-	@echo "  make tools        install released Kernel v$(KERNEL_VERSION) codegen tools into .bin"
-	@echo "  make tools-local  install codegen tools from local KERNEL_LOCAL=../kernel"
-	@echo "  make api          generate API proto code by buf.gen.yaml"
-	@echo "  make deploy       generate Gateway API manifests under deploy/generated"
-	@echo "  make deploy-apply generate and apply app manifests plus generated Gateway API manifests"
-	@echo "  make proto-check  run buf lint and aisphere proto contract checks"
-	@echo "  make verify       run api, deploy, checks, config, wire, generate, tidy, test, build"
+	@echo "  make tools                   install released Kernel v$(KERNEL_VERSION) codegen tools into .bin"
+	@echo "  make tools-local             install codegen tools from local KERNEL_LOCAL=../kernel"
+	@echo "  make api                     generate API proto code by buf.gen.yaml"
+	@echo "  make deploy                  generate Gateway API manifests under deploy/generated"
+	@echo "  make spicedb-schema-configmap generate/apply SpiceDB schema ConfigMap from $(SPICEDB_SCHEMA)"
+	@echo "  make deploy-apply            generate and apply app manifests plus generated Gateway API manifests"
+	@echo "  make proto-check             run buf lint and aisphere proto contract checks"
+	@echo "  make verify                  run api, deploy, checks, config, wire, generate, tidy, test, build"
 	@echo ""
-	@echo "Variables: KERNEL_VERSION=$(KERNEL_VERSION) APP_NAME=$(APP_NAME) CONF=$(CONF)"
+	@echo "Variables: KERNEL_VERSION=$(KERNEL_VERSION) APP_NAME=$(APP_NAME) CONF=$(CONF) KUBE_NAMESPACE=$(KUBE_NAMESPACE)"
 
 init: tools
 
@@ -131,15 +135,24 @@ else
 endif
 	@echo "✓ generated Gateway API manifests under $(GENERATED_DEPLOY_DIR)"
 
+spicedb-schema-configmap:
+ifeq ($(OS),Windows_NT)
+	@cmd /c "$(KUBECTL) create configmap $(SPICEDB_SCHEMA_CONFIGMAP) -n $(KUBE_NAMESPACE) --from-file=aisphere.schema.zed=$(SPICEDB_SCHEMA) --dry-run=client -o yaml | $(KUBECTL) apply -f -"
+else
+	$(KUBECTL) create configmap $(SPICEDB_SCHEMA_CONFIGMAP) -n $(KUBE_NAMESPACE) --from-file=aisphere.schema.zed=$(SPICEDB_SCHEMA) --dry-run=client -o yaml | $(KUBECTL) apply -f -
+endif
+
 deploy-apply: deploy
 ifeq ($(OS),Windows_NT)
 	@cmd /c "$(KUBECTL) apply -f $(DEPLOY_DIR)\namespace.yaml"
+	@cmd /c "$(KUBECTL) create configmap $(SPICEDB_SCHEMA_CONFIGMAP) -n $(KUBE_NAMESPACE) --from-file=aisphere.schema.zed=$(SPICEDB_SCHEMA) --dry-run=client -o yaml | $(KUBECTL) apply -f -"
 	@cmd /c "$(KUBECTL) apply -f $(DEPLOY_DIR)\configmap.yaml"
 	@cmd /c "$(KUBECTL) apply -f $(DEPLOY_DIR)\service.yaml"
 	@cmd /c "$(KUBECTL) apply -f $(DEPLOY_DIR)\deployment.yaml"
 	@cmd /c "if exist $(GENERATED_DEPLOY_DIR) ($(KUBECTL) apply -R -f $(GENERATED_DEPLOY_DIR)) else (echo generated deploy dir missing && exit /b 1)"
 else
 	$(KUBECTL) apply -f $(DEPLOY_DIR)/namespace.yaml
+	$(KUBECTL) create configmap $(SPICEDB_SCHEMA_CONFIGMAP) -n $(KUBE_NAMESPACE) --from-file=aisphere.schema.zed=$(SPICEDB_SCHEMA) --dry-run=client -o yaml | $(KUBECTL) apply -f -
 	$(KUBECTL) apply -f $(DEPLOY_DIR)/configmap.yaml
 	$(KUBECTL) apply -f $(DEPLOY_DIR)/service.yaml
 	$(KUBECTL) apply -f $(DEPLOY_DIR)/deployment.yaml
