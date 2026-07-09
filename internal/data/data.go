@@ -158,6 +158,9 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 		}
 		r.Authz = provider
 		r.AuthzAdmin = provider
+		if r.Identity != nil {
+			r.Identity = BindIdentityAuthZ(r.Identity, provider, r.DTM)
+		}
 		if closeFn != nil {
 			r.closers = append(r.closers, closeFn)
 		}
