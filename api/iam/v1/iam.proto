@@ -123,6 +123,89 @@ service IAMDirectoryService {
       audit: { enabled: true event: "iam.group.list" risk: "medium" }
     };
   }
+
+  rpc GetGroup(GetGroupRequest) returns (Group) {
+    option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/groups/{group_id}" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view" resource: "group:{group_id}" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.group.get" risk: "low" }
+    };
+  }
+
+  rpc CreateGroup(CreateGroupRequest) returns (Group) {
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/groups" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "create_groups" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.group.create" risk: "high" }
+    };
+  }
+
+  rpc UpdateGroup(UpdateGroupRequest) returns (Group) {
+    option (google.api.http) = { put: "/v1/iam/orgs/{org_id}/groups/{group_id}" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage" resource: "group:{group_id}" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.group.update" risk: "high" }
+    };
+  }
+
+  rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/iam/orgs/{org_id}/groups/{group_id}" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage" resource: "group:{group_id}" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.group.delete" risk: "critical" }
+    };
+  }
+
+  rpc AssignUserToGroup(AssignUserToGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { post: "/v1/iam/directory/group-memberships:assign" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage_members" resource: "group:{group_id}" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.group.member.assign" risk: "high" }
+    };
+  }
+
+  rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { post: "/v1/iam/directory/group-memberships:remove" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage_members" resource: "group:{group_id}" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.group.member.remove" risk: "high" }
+    };
+  }
+}
+
+service IAMDirectoryProjectionService {
+  rpc RetryDirectoryProjection(RetryDirectoryProjectionRequest) returns (RetryDirectoryProjectionReply) {
+    option (google.api.http) = { post: "/v1/iam/directory/projections:retry" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "repair_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.directory_projection.retry" risk: "high" }
+    };
+  }
+
+  rpc ReconcileDirectoryProjection(ReconcileDirectoryProjectionRequest) returns (ReconcileDirectoryProjectionReply) {
+    option (google.api.http) = { post: "/v1/iam/directory/projections:reconcile" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "repair_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.directory_projection.reconcile" risk: "critical" }
+    };
+  }
+
+  rpc CheckDirectoryProjectionDrift(CheckDirectoryProjectionDriftRequest) returns (CheckDirectoryProjectionDriftReply) {
+    option (google.api.http) = { post: "/v1/iam/directory/projections:drift" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "view_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.directory_projection.drift" risk: "medium" }
+    };
+  }
 }
 
 service IAMPermissionService {
@@ -283,6 +366,19 @@ message ListUsersReply { repeated User users = 1; string next_page_token = 2; }
 message GetOrganizationRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
 message ListGroupsRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string parent_id = 2; string type = 3; string user_id = 4; bool include_inherited = 5; }
 message ListGroupsReply { repeated Group groups = 1; }
+message GetGroupRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string group_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
+message CreateGroupRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; Group group = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; }
+message UpdateGroupRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string group_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; Group group = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; }
+message DeleteGroupRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string group_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
+message AssignUserToGroupRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string user_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string group_id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
+message RemoveUserFromGroupRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string user_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string group_id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
+
+message RetryDirectoryProjectionRequest { int32 limit = 1; }
+message RetryDirectoryProjectionReply { int32 processed = 1; }
+message ReconcileDirectoryProjectionRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
+message ReconcileDirectoryProjectionReply { string status = 1; int32 relationships = 2; }
+message CheckDirectoryProjectionDriftRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
+message CheckDirectoryProjectionDriftReply { int32 desired = 1; int32 missing = 2; repeated string missing_relationships = 3; repeated Relationship missing_relationship_objects = 4; }
 
 message CheckPermissionRequest { SubjectRef subject = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; ObjectRef resource = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; string permission = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string org_id = 4; string project_id = 5; }
 message CheckPermissionReply { bool allowed = 1; string effect = 2; string reason = 3; string consistency_token = 4; }
