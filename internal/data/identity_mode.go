@@ -400,14 +400,5 @@ func firstDTMManager(managers []dtmx.Manager) dtmx.Manager {
 	return nil
 }
 
-func firstNonEmpty(values ...string) string {
-	for _, value := range values {
-		if strings.TrimSpace(value) != "" {
-			return strings.TrimSpace(value)
-		}
-	}
-	return ""
-}
-
 var _ authn.IdentityAdmin = externalOIDCIdentityAdmin{}
 var _ authn.IdentityAdmin = authzProjectingIdentityAdmin{}
