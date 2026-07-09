@@ -31,6 +31,9 @@ spec:
         - name: config
           configMap:
             name: aisphere-iam-config
+        - name: spicedb-schema
+          configMap:
+            name: aisphere-iam-spicedb-schema
       containers:
         - name: iam
           image: registry.cn-beijing.aliyuncs.com/ainfracn/aisphere-iam:latest
@@ -55,7 +58,7 @@ spec:
               mountPath: /app/configs/config.yaml
               subPath: config.yaml
               readOnly: true
-            - name: config
+            - name: spicedb-schema
               mountPath: /app/configs/spicedb/aisphere.schema.zed
               subPath: aisphere.schema.zed
               readOnly: true
