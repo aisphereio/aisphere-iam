@@ -117,7 +117,7 @@ data:
         provider: spicedb
         dev_allow_all: false
         install_default_schema: true
-        schema_path: configs/spicedb/aisphere.schema.zed
+        schema_path: /app/configs/spicedb/aisphere.schema.zed
         spicedb:
           endpoint: spicedb.aisphere:50051
           token: "CHANGE_ME_SPICEDB_TOKEN"
@@ -154,3 +154,281 @@ data:
       wait_result: true
       timeout_ns: 10000000000
       metrics_enabled: true
+
+  aisphere.schema.zed: |
+    definition user {}
+
+    definition service {}
+
+    definition service_account {}
+
+    definition group {
+      // Casdoor Group mapped into an Aisphere availability zone.
+      // A group is both a manageable resource and an authorization subject via #member.
+      relation zone: zone
+      relation parent: group
+
+      relation member: user | service | service_account | group#member
+      relation owner: user | service | service_account | group#member
+      relation manager: user | service | service_account | group#member
+      relation viewer: user | service | service_account | group#member
+      relation permission_admin: user | service | service_account | group#member
+
+      permission view = member + viewer + manager + owner + zone->view_groups + parent->view
+      permission manage = owner + manager + zone->manage_groups + parent->manage
+      permission create_child_groups = owner + manager + zone->create_groups + parent->create_child_groups
+      permission manage_members = owner + manager + zone->manage_users + parent->manage_members
+      permission view_permissions = owner + permission_admin + zone->view_permissions + parent->view_permissions
+      permission manage_permissions = owner + permission_admin + zone->manage_permissions + parent->manage_permissions
+    }
+
+    definition zone {
+      // Casdoor Organization mapped as the top-level availability-zone resource.
+      // The frontend treats zones as read-only roots; IAM grants decide who can manage below them.
+      relation member: user | service | service_account | group#member
+
+      relation owner: user | service | service_account | group#member
+      relation admin: user | service | service_account | group#member
+
+      relation user_viewer: user | service | service_account | group#member
+      relation user_manager: user | service | service_account | group#member
+
+      relation group_viewer: user | service | service_account | group#member
+      relation group_manager: user | service | service_account | group#member
+
+      relation permission_admin: user | service | service_account | group#member
+
+      permission view_zone = member + owner + admin
+
+      permission view_users = owner + admin + user_viewer + user_manager
+      permission manage_users = owner + admin + user_manager
+
+      permission view_groups = owner + admin + group_viewer + group_manager
+      permission create_groups = owner + admin + group_manager
+      permission manage_groups = owner + admin + group_manager
+
+      permission view_permissions = owner + admin + permission_admin
+      permission manage_permissions = owner + admin + permission_admin
+    }
+
+    definition iam_authz {
+      // Global IAM authorization-control resource for SpiceDB schema, relationships,
+      // permission explain, drift repair, and Permission Console operations.
+      relation owner: user | service | service_account | group#member
+      relation admin: user | service | service_account | group#member
+      relation schema_admin: user | service | service_account | group#member
+      relation auditor: user | service | service_account | group#member
+
+      permission view_schema = owner + admin + schema_admin + auditor
+      permission publish_schema = owner + admin + schema_admin
+      permission view_relationships = owner + admin + schema_admin + auditor
+      permission repair_relationships = owner + admin + schema_admin
+      permission manage = owner + admin + schema_admin
+    }
+
+    definition iam {
+      relation admin: user | group#member | service | service_account
+
+      permission create = admin
+      permission read = admin
+      permission list = admin
+      permission manage = admin
+      permission create_project = admin
+      permission upsert = admin
+      permission bind = admin
+      permission unbind = admin
+      permission move = admin
+      permission archive = admin
+      permission delete = admin
+      permission grant = admin
+      permission revoke = admin
+      permission explain = admin
+    }
+
+    definition organization {
+      relation owner: user | group#member
+      relation admin: user | group#member
+      relation member: user | group#member
+      relation auditor: user | group#member
+
+      permission manage = owner + admin
+      permission view = manage + member + auditor
+      permission read = view
+      permission list = view
+      permission create_project = manage
+      permission audit = manage + auditor
+    }
+
+    definition project {
+      relation parent: organization
+
+      relation owner: user | group#member
+      relation admin: user | group#member
+      relation developer: user | group#member
+      relation operator: user | group#member
+      relation viewer: user | group#member
+
+      permission manage = owner + admin + parent->manage
+      permission write = manage + developer
+      permission operate = manage + operator
+      permission read = write + operate + viewer + parent->view
+      permission list = read
+    }
+
+    definition skill_space {
+      relation parent: project
+
+      relation owner: user | group#member
+      relation editor: user | group#member
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission edit = manage + editor + parent->write
+      permission view = edit + viewer + parent->read
+    }
+
+    definition skill {
+      relation parent: skill_space
+
+      relation owner: user | group#member
+      relation editor: user | group#member
+      relation reviewer: user | group#member
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission edit = manage + editor + parent->edit
+      permission review = manage + reviewer
+      permission publish = manage + reviewer
+      permission view = edit + viewer + parent->view
+    }
+
+    definition git_namespace {
+      relation parent: project
+
+      relation owner: user | group#member
+      relation developer: user | group#member
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission write = manage + developer + parent->write
+      permission read = write + viewer + parent->read
+    }
+
+    definition git_repository {
+      relation parent: git_namespace
+      relation backing_skill: skill
+
+      relation owner: user | group#member
+      relation maintainer: user | group#member
+      relation writer: user | group#member
+      relation reader: user | group#member
+
+      permission admin = owner + maintainer + parent->manage
+      permission write = admin + writer + parent->write + backing_skill->edit
+      permission read = write + reader + parent->read + backing_skill->view
+    }
+
+    definition agent_space {
+      relation parent: project
+
+      relation owner: user | group#member
+      relation editor: user | group#member
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission edit = manage + editor + parent->write
+      permission view = edit + viewer + parent->read
+    }
+
+    definition agent {
+      relation parent: agent_space
+
+      relation owner: user | group#member
+      relation editor: user | group#member
+      relation operator: user | group#member
+      relation executor: user | group#member | service_account
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission edit = manage + editor + parent->edit
+      permission operate = manage + operator
+      permission execute = manage + executor
+      permission view = edit + operate + viewer + parent->view
+    }
+
+    definition tool_space {
+      relation parent: project
+
+      relation owner: user | group#member
+      relation editor: user | group#member
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission edit = manage + editor + parent->write
+      permission view = edit + viewer + parent->read
+    }
+
+    definition tool {
+      relation parent: tool_space
+
+      relation owner: user | group#member
+      relation editor: user | group#member
+      relation executor: user | group#member | service_account | agent
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission edit = manage + editor + parent->edit
+      permission execute = manage + executor
+      permission view = edit + viewer + parent->view
+    }
+
+    definition sandbox_space {
+      relation parent: project
+
+      relation owner: user | group#member
+      relation operator: user | group#member
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission operate = manage + operator + parent->write
+      permission view = operate + viewer + parent->read
+    }
+
+    definition sandbox {
+      relation parent: sandbox_space
+
+      relation owner: user | group#member
+      relation operator: user | group#member
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission operate = manage + operator + parent->write
+      permission view = operate + viewer + parent->view
+    }
+
+    definition runtime_environment {
+      relation parent: project
+
+      relation owner: user | group#member
+      relation deployer: user | group#member | service_account
+      relation operator: user | group#member
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission deploy = manage + deployer + parent->write
+      permission operate = manage + operator
+      permission view = deploy + operate + viewer + parent->read
+    }
+
+    definition deployment {
+      relation parent: runtime_environment
+      relation runs_agent: agent
+
+      relation owner: user | group#member
+      relation operator: user | group#member
+      relation viewer: user | group#member
+
+      permission manage = owner + parent->manage
+      permission operate = manage + operator + parent->operate
+      permission view = operate + viewer + parent->view + runs_agent->view
+    }
