@@ -23,6 +23,9 @@ env:
   REGISTRY: registry.cn-beijing.aliyuncs.com
   NAMESPACE: ainfracn
   IMAGE_NAME: aisphere-iam
+  # Use Aliyun mirror for Docker Hub to avoid rate limits / timeouts
+  DOCKER_BUILDKIT: 1
+  BUILDKIT_PROGRESS: plain
 
 jobs:
   docker:
@@ -56,6 +59,20 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=short,prefix=sha-
             type=raw,value=${{ inputs.image_tag }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.image_tag != '' }}
+
+      - name: Set up Docker daemon mirror
+        run: |
+          # Use Aliyun Docker Hub mirror for faster base image pulls
+          sudo mkdir -p /etc/docker
+          sudo tee /etc/docker/daemon.json > /dev/null <<'EOF'
+          {
+            "registry-mirrors": [
+              "https://registry.cn-hangzhou.aliyuncs.com",
+              "https://mirror.ccs.tencentyun.com"
+            ]
+          }
+          EOF
+          sudo systemctl restart docker || true
 
       - name: Build and push
         uses: docker/build-push-action@v6
