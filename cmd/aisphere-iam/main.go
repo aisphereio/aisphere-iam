@@ -137,9 +137,6 @@ func applyBuildInfo(bc *conf.Bootstrap) {
 	if bc.DTM.ServiceBaseURL == "" && bc.Server.HTTP.Addr != "" {
 		bc.DTM.ServiceBaseURL = "http://127.0.0.1" + normalizeAddrPort(bc.Server.HTTP.Addr)
 	}
-	if bc.DTM.BranchPrefix == "" {
-		bc.DTM.BranchPrefix = "/internal/dtm"
-	}
 }
 
 func newDTMManager(bc conf.Bootstrap, logger logx.Logger, metrics metricsx.Manager) (dtmx.Manager, error) {

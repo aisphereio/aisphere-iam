@@ -199,11 +199,11 @@ metrics:
   runtime: true
 
 dtm:
-  enabled: false
+  enabled: true
   driver: dtm
   protocol: http
-  server: http://127.0.0.1:36789/api/dtmsvr
-  service_base_url: http://127.0.0.1:18080
+  server: http://dtm.aisphere:36789/api/dtmsvr
+  service_base_url: http://aisphere-iam.aisphere:18080
   branch_prefix: /internal/dtm
   branch_secret: "aisphere-dtm-branch-secret-2026"
   wait_result: true

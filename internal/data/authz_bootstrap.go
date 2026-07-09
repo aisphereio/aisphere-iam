@@ -5,16 +5,16 @@
 // is empty), it writes a default schema that covers all resource types
 // the IAM control plane uses.
 //
-// This is idempotent for normal restarts: if the installed schema already
-// contains IAM definitions, startup skips the write. Operators should still
-// review schema changes before deploying a new IAM version because SpiceDB
-// WriteSchema replaces the schema text and can invalidate relationships that
-// reference removed object types, relations, or permissions.
+// This is idempotent: WriteSchema on SpiceDB replaces the schema in
+// place, so re-running on an already-initialized SpiceDB is safe (but
+// will invalidate any tuples that reference relations not present in
+// the new schema — operators should review the schema text before
+// deploying a new IAM version).
 //
-// The runtime identity-to-authz projection wrapper is installed by NewResources
-// after the AuthZ provider and DTM manager are available. Schema bootstrap must
-// not wrap identity again; otherwise a Casdoor group mutation could be projected
-// twice and bypass the DTM-aware wrapper.
+// The default schema is sourced from kernel/authz/spicedb.DefaultSchema
+// extended with IAM-specific resource types. Keeping the kernel default
+// ensures platform / organization / group / application / project /
+// resource types stay in sync with the kernel IAM projection layer.
 
 package data
 
@@ -115,21 +115,29 @@ definition resource {
   permission delete = owner + project->delete
 }`
 
-// BootstrapAuthzSchema writes the default IAM authz schema to SpiceDB when the
-// schema is empty or does not contain IAM definitions.
+// BootstrapAuthzSchema writes the default IAM authz schema to SpiceDB
+// when the schema is empty or missing. Called from main.go after
+// Resources are constructed.
 //
 // Behavior:
+//   - Binds identity group operations to AuthZ relationship projection when
+//     AuthzAdmin is configured.
 //   - If AuthzAdmin is nil (authz disabled), returns nil immediately.
-//   - If ReadSchema returns a non-empty schema text that already contains IAM
-//     definitions (definition iam), returns nil.
-//   - If ReadSchema returns a non-empty schema text without IAM definitions,
-//     writes IAMAuthzSchema.
+//   - If ReadSchema returns an error other than "schema not found",
+//     returns the error so main.go can surface it.
+//   - If ReadSchema returns a non-empty schema text that already contains
+//     IAM definitions (definition iam), returns nil.
+//   - If ReadSchema returns a non-empty schema text that only contains the
+//     Kernel base definitions, writes IAMAuthzSchema to add the iam type.
 //   - If ReadSchema returns empty schema text, writes IAMAuthzSchema.
 //
-// The function is safe to call on normal restarts because it skips when IAM
-// definitions are present. It is not a schema migration framework; incompatible
-// schema evolution must still be handled through explicit review and migration.
+// The function is safe to call on every startup — it only writes when
+// the schema is empty, so re-running on an initialized SpiceDB is a
+// no-op.
 func BootstrapAuthzSchema(ctx context.Context, resources *Resources, log logx.Logger) error {
+	if resources != nil {
+		resources.Identity = BindIdentityAuthZ(resources.Identity, resources.AuthzAdmin)
+	}
 	if resources == nil || resources.AuthzAdmin == nil {
 		if log != nil {
 			log.WithContext(ctx).Info("authz schema bootstrap skipped: authz not configured")

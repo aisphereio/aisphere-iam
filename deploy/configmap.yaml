@@ -144,4 +144,13 @@ data:
       runtime: true
 
     dtm:
-      enabled: false
+      enabled: true
+      driver: dtm
+      protocol: http
+      server: http://dtm.aisphere:36789/api/dtmsvr
+      service_base_url: http://aisphere-iam.aisphere:18080
+      branch_prefix: /internal/dtm
+      branch_secret: "aisphere-dtm-branch-secret-2026"
+      wait_result: true
+      timeout_ns: 10000000000
+      metrics_enabled: true
