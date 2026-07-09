@@ -3,8 +3,8 @@ package data
 import (
 	"context"
 	"errors"
-	"os"
 	"strings"
+	"time"
 
 	"github.com/aisphereio/kernel/accessx"
 	"github.com/aisphereio/kernel/auditx"
@@ -33,21 +33,22 @@ type ResourceOptions struct {
 }
 
 type Resources struct {
-	DB           dbx.DB
-	ControlPlane ControlPlaneRepository
-	Cache        cachex.Cache
-	ObjectStore  objectstorex.Client
-	Audit        auditx.Recorder
-	Authn        authn.Authenticator
-	Login        authn.LoginService
-	Logout       authn.LogoutService
-	Tokens       authn.TokenService
-	Profile      authn.ProfileService
-	Identity     authn.IdentityAdmin
-	Authz        authz.Authorizer
-	AuthzAdmin   authz.AdminProvider
-	Access       accessx.Guard
-	DTM          dtmx.Manager
+	DB                 dbx.DB
+	ControlPlane       ControlPlaneRepository
+	Cache              cachex.Cache
+	ObjectStore        objectstorex.Client
+	Audit              auditx.Recorder
+	Authn              authn.Authenticator
+	Login              authn.LoginService
+	Logout             authn.LogoutService
+	Tokens             authn.TokenService
+	Profile            authn.ProfileService
+	Identity           authn.IdentityAdmin
+	Authz              authz.Authorizer
+	AuthzAdmin         authz.AdminProvider
+	Access             accessx.Guard
+	DTM                dtmx.Manager
+	IdentityProjection *IdentityProjectionDispatcher
 
 	closers []func() error
 }
@@ -146,8 +147,10 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 			r.Close()
 			return nil, nil, err
 		}
+		r.Authz = provider
+		r.AuthzAdmin = provider
 		if cfg.Security.Authz.InstallDefaultSchema {
-			if err := installSchema(ctx, provider, cfg.Security.Authz.SchemaPath); err != nil {
+			if err := BootstrapAuthzSchema(ctx, cfg.Security.Authz, r, logger); err != nil {
 				r.Close()
 				return nil, nil, err
 			}
@@ -156,8 +159,19 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 			r.Close()
 			return nil, nil, err
 		}
-		r.Authz = provider
-		r.AuthzAdmin = provider
+		if r.Identity != nil {
+			r.IdentityProjection = NewIdentityProjectionDispatcher(provider, r.DTM, r.DB)
+			if err := r.IdentityProjection.EnsureStore(ctx); err != nil {
+				r.Close()
+				return nil, nil, err
+			}
+			if r.DB != nil {
+				retryCtx, cancel := context.WithCancel(context.Background())
+				r.closers = append(r.closers, func() error { cancel(); return nil })
+				go r.IdentityProjection.StartRetryWorker(retryCtx, time.Minute)
+			}
+			r.Identity = BindIdentityAuthZ(r.Identity, provider, WithIdentityProjectionDispatcher(r.IdentityProjection))
+		}
 		if closeFn != nil {
 			r.closers = append(r.closers, closeFn)
 		}
@@ -212,18 +226,6 @@ func newAuthorizer(cfg conf.AuthzConfig, logger logx.Logger, metrics metricsx.Ma
 	default:
 		return nil, nil, errors.New("unsupported authz provider: " + cfg.Provider)
 	}
-}
-
-func installSchema(ctx context.Context, provider *spicedb.Client, schemaPath string) error {
-	schemaPath = strings.TrimSpace(schemaPath)
-	if schemaPath == "" {
-		return provider.InstallDefaultSchema(ctx)
-	}
-	body, err := os.ReadFile(schemaPath)
-	if err != nil {
-		return err
-	}
-	return provider.WriteSchema(ctx, authz.Schema{Text: string(body)})
 }
 
 func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBootstrapAdminsConfig, writer authz.RelationshipWriter, directory authn.UserDirectory, logger logx.Logger) error {
