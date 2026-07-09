@@ -53,7 +53,6 @@ service IAMAuthService {
     option (google.api.http) = { post: "/internal/iam/ext-authz" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: PUBLIC
-      gateway: { publish: DISABLED }
       audit: { enabled: true event: "iam.external_authorize" risk: "medium" }
       reason: "Gateway API / Envoy ExternalAuth endpoint. IAM validates the external bearer token and returns Gateway-controlled trusted identity headers."
     };
