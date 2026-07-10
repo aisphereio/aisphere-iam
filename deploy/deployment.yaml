@@ -38,6 +38,8 @@ spec:
         - name: iam
           image: registry.cn-beijing.aliyuncs.com/ainfracn/aisphere-iam:latest
           imagePullPolicy: Always
+          command:
+            - /app/server
           args:
             - -conf
             - /app/configs/config.yaml
