@@ -30,18 +30,28 @@ Client
 
 本阶段不启用 Gateway 前置授权，不由 Gateway 注入 `x-aisphere-principal` 或 `x-aisphere-internal-jwt`。
 
-Gateway 必须先清理外部伪造头：
+Gateway 必须先清理外部伪造头（完整列表由 Kernel 统一维护）：
 
 ```text
 x-aisphere-external-sub
 x-aisphere-external-email
 x-aisphere-external-name
 x-aisphere-external-username
+x-aisphere-external-issuer
+x-aisphere-external-display-name
+x-aisphere-external-phone
+x-aisphere-external-owner
+x-aisphere-external-scope
+x-aisphere-external-id
 x-aisphere-principal
 x-aisphere-user-id
 x-aisphere-org-id
 x-aisphere-project-id
 x-aisphere-roles
+x-aisphere-auth-verified
+x-aisphere-subject
+x-aisphere-provider
+x-aisphere-app-id
 x-aisphere-authz-decision-id
 x-aisphere-internal-jwt
 x-internal-jwt

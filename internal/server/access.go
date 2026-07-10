@@ -29,17 +29,9 @@ func iamServerMiddlewares(resources *data.Resources, cfg conf.SecurityConfig) []
 }
 
 func mustSecurityRuntime(cfg conf.SecurityConfig) *securityx.Runtime {
-	// IAM now runs behind Envoy Gateway OIDC. Gateway verifies the identity and
-	// injects x-aisphere-* claim headers; kernel v0.4.0 restores Principal from
-	// those headers. Do not require the old Gateway-to-backend shared header for
-	// this OIDC-only path.
-	internalCall := cfg.InternalCall
-	if strings.EqualFold(cfg.Authn.Mode, securityx.AuthnModeGatewayTrusted) {
-		internalCall.Enabled = false
-		internalCall.Token = ""
-	}
+		internalCall := cfg.InternalCall
 
-	runtime, err := securityx.NewRuntime(context.Background(), securityx.Config{
+		runtime, err := securityx.NewRuntime(context.Background(), securityx.Config{
 		Authn: securityx.AuthnBoundaryConfig{
 			Enabled:        cfg.Authn.Enabled,
 			Mode:           cfg.Authn.Mode,

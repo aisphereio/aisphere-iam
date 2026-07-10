@@ -4,29 +4,12 @@ import (
 	"context"
 	"strings"
 	"testing"
-	"time"
 
 	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authz"
 )
-
-func TestIAMAuthServiceBuildLoginURLReturnsErrorInGatewayMode(t *testing.T) {
-	svc := NewIAMAuthService(IAMDeps{})
-
-	_, err := svc.BuildLoginURL(context.Background(), &v1.BuildLoginURLRequest{
-		RedirectUri: "http://localhost:18000/callback",
-		State:       "state-1",
-	})
-
-	if err == nil {
-		t.Fatal("BuildLoginURL should return error in gateway-only mode")
-	}
-	if !strings.Contains(err.Error(), "legacy IAM-managed OAuth browser flow is removed") {
-		t.Fatalf("unexpected error: %v", err)
-	}
-}
 
 func TestIAMAuthServiceGetMeReturnsPrincipalFromContext(t *testing.T) {
 	svc := NewIAMAuthService(IAMDeps{})
@@ -91,55 +74,6 @@ func TestIAMPermissionServiceWritesAndChecksRelationship(t *testing.T) {
 	if !reply.Allowed {
 		t.Fatalf("permission denied: %+v", reply)
 	}
-}
-
-type fakeLoginProvider struct{}
-
-func (fakeLoginProvider) BuildLoginURL(ctx context.Context, req authn.LoginURLRequest) (authn.LoginURL, error) {
-	_ = ctx
-	return authn.LoginURL{
-		URL:         "http://casdoor.example/login?state=" + req.State,
-		RedirectURI: req.RedirectURI,
-		State:       req.State,
-		Scope:       req.Scope,
-		Provider:    "casdoor",
-		OrgID:       req.OrgID,
-		AppID:       req.AppID,
-	}, nil
-}
-func (fakeLoginProvider) HandleCallback(context.Context, authn.CallbackRequest) (authn.CallbackResult, error) {
-	return authn.CallbackResult{}, nil
-}
-
-type fakeTokenProvider struct{}
-
-func (fakeTokenProvider) ExchangeCode(context.Context, authn.AuthCodeExchangeRequest) (authn.TokenSet, authn.Principal, error) {
-	return authn.TokenSet{}, authn.Principal{}, nil
-}
-func (fakeTokenProvider) RefreshToken(context.Context, authn.RefreshTokenRequest) (authn.TokenSet, error) {
-	return authn.TokenSet{}, nil
-}
-func (fakeTokenProvider) VerifyToken(context.Context, authn.VerifyTokenRequest) (authn.Principal, error) {
-	return authn.Principal{
-		SubjectID:   "user-1",
-		SubjectType: authn.SubjectTypeUser,
-		Provider:    "casdoor",
-		OrgID:       "aisphere",
-		Username:    "alice",
-		IssuedAt:    time.Unix(100, 0),
-		ExpiresAt:   time.Unix(3600, 0),
-	}, nil
-}
-func (fakeTokenProvider) RevokeToken(context.Context, authn.RevokeTokenRequest) error { return nil }
-
-type fakeProfileProvider struct{}
-
-func (fakeProfileProvider) GetIdentityProfile(context.Context, authn.IdentityProfileRequest) (authn.IdentityProfile, error) {
-	return authn.IdentityProfile{
-		Principal: authn.Principal{SubjectID: "user-1", SubjectType: authn.SubjectTypeUser, Username: "alice", OrgID: "aisphere"},
-		User:      authn.User{ID: "user-1", Username: "alice", OrgID: "aisphere", Enabled: true},
-		Groups:    []authn.Group{{ID: "group1", Name: "group1", OrgID: "aisphere", ParentID: "root"}},
-	}, nil
 }
 
 type memoryAuthzAdmin struct {

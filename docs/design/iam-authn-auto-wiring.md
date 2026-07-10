@@ -1,7 +1,6 @@
 # IAM AuthN Auto Wiring
 
-IAM should not manually parse JWTs or trusted headers. It uses Kernel's
-automatic boundary runtime.
+IAM should not manually parse JWTs or trusted headers. It uses Kernel's automatic boundary runtime.
 
 ## Default mode
 
@@ -10,16 +9,14 @@ security:
   authn:
     enabled: true
     mode: gateway_trusted
-  internal_call:
-    enabled: true
-    header: X-Aisphere-Internal-Token
-    token: "${GATEWAY_TO_IAM_INTERNAL_TOKEN}"
 ```
 
-`internal/server/access.go` calls `securityx.NewAuthnBoundaryRuntime` and mounts
-its generated middleware before accessx. In `gateway_trusted` mode this
-middleware validates the Gateway internal token and restores `authn.Principal`
-from `X-Aisphere-*` headers.
+`internal/server/access.go` calls `securityx.NewRuntime` and mounts its generated middleware before accessx. In `gateway_trusted` mode this middleware restores `authn.Principal` from `x-aisphere-*` headers.
 
-Authz can stay `dev_allow_all` while testing the AuthN chain, then be switched
-back to IAM AuthzService/SpiceDB.
+## Security note
+
+In `gateway_trusted` mode, IAM disables the Gateway-to-backend internal token check (see `internal/server/access.go:37-40`). This is intentional because Envoy Gateway's `ClientTrafficPolicy` already strips spoofed headers. However, this means:
+
+1. IAM Service must be ClusterIP only.
+2. NetworkPolicy must allow only Envoy Gateway Pods to reach IAM.
+3. Internal service calls must use a separate service token mechanism.

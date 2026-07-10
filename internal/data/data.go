@@ -39,10 +39,7 @@ type Resources struct {
 	ObjectStore        objectstorex.Client
 	Audit              auditx.Recorder
 	Authn              authn.Authenticator
-	Login              authn.LoginService
-	Logout             authn.LogoutService
 	Tokens             authn.TokenService
-	Profile            authn.ProfileService
 	Identity           authn.IdentityAdmin
 	Authz              authz.Authorizer
 	AuthzAdmin         authz.AdminProvider
@@ -134,11 +131,8 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 			r.Close()
 			return nil, nil, err
 		}
-		r.Authn = provider
-		r.Login = provider
-		r.Logout = provider
-		r.Tokens = provider
-		r.Profile = provider
+r.Authn = provider
+			r.Tokens = provider
 		r.Identity = identity
 	}
 	if cfg.Security.Authz.Enabled && !cfg.Security.Authz.DevAllowAll {

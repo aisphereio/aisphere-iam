@@ -12,14 +12,11 @@ func newIdentityAdminService(resources *data.Resources) *service.IAMIdentityAdmi
 	if resources == nil || resources.Identity == nil {
 		return nil
 	}
-	return service.NewIAMIdentityAdminService(service.IAMDeps{
-		Login:    resources.Login,
-		Logout:   resources.Logout,
-		Tokens:   resources.Tokens,
-		Profile:  resources.Profile,
-		Identity: resources.Identity,
-		Authz:    resources.AuthzAdmin,
-	})
+return service.NewIAMIdentityAdminService(service.IAMDeps{
+			Tokens:   resources.Tokens,
+			Identity: resources.Identity,
+			Authz:    resources.AuthzAdmin,
+		})
 }
 
 func registerIdentityAdminHTTP(srv *khttp.Server, resources *data.Resources) {

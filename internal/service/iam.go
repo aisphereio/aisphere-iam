@@ -7,17 +7,10 @@ import (
 
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authz"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type IAMDeps struct {
-	// Login, Logout and Profile are kept as wiring fields while services migrate
-	// to the Gateway OIDC contract. IAM no longer uses them for browser auth flow.
-	Login   authn.LoginService
-	Logout  authn.LogoutService
-	Profile authn.ProfileService
-
 	Tokens   authn.TokenService
 	Identity authn.IdentityAdmin
 	Authz    authz.AdminProvider
@@ -30,26 +23,6 @@ type IAMAuthService struct {
 
 func NewIAMAuthService(deps IAMDeps) *IAMAuthService {
 	return &IAMAuthService{deps: deps}
-}
-
-func legacyGatewayOIDCOnlyError() error {
-	return authn.ErrInvalidTokenRequest("legacy IAM-managed OAuth browser flow is removed; authenticate through Envoy Gateway OIDC")
-}
-
-func (s *IAMAuthService) BuildLoginURL(ctx context.Context, req *v1.BuildLoginURLRequest) (*v1.BuildLoginURLReply, error) {
-	return nil, legacyGatewayOIDCOnlyError()
-}
-
-func (s *IAMAuthService) BuildLogoutURL(ctx context.Context, req *v1.BuildLogoutURLRequest) (*v1.BuildLogoutURLReply, error) {
-	return nil, legacyGatewayOIDCOnlyError()
-}
-
-func (s *IAMAuthService) ExchangeCode(ctx context.Context, req *v1.ExchangeCodeRequest) (*v1.ExchangeCodeReply, error) {
-	return nil, legacyGatewayOIDCOnlyError()
-}
-
-func (s *IAMAuthService) RefreshToken(ctx context.Context, req *v1.RefreshTokenRequest) (*v1.TokenSet, error) {
-	return nil, legacyGatewayOIDCOnlyError()
 }
 
 func (s *IAMAuthService) VerifyToken(ctx context.Context, req *v1.VerifyTokenRequest) (*v1.Principal, error) {
@@ -66,10 +39,6 @@ func (s *IAMAuthService) VerifyToken(ctx context.Context, req *v1.VerifyTokenReq
 		return nil, err
 	}
 	return principalToProto(principal), nil
-}
-
-func (s *IAMAuthService) RevokeToken(ctx context.Context, req *v1.RevokeTokenRequest) (*emptypb.Empty, error) {
-	return nil, legacyGatewayOIDCOnlyError()
 }
 
 func (s *IAMAuthService) GetMe(ctx context.Context, req *v1.GetMeRequest) (*v1.GetMeReply, error) {

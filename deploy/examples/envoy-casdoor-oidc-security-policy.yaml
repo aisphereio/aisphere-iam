@@ -1,6 +1,9 @@
 # Example only. Generated manifests should come from Kernel protoc/deploy generators.
 # This file documents the OIDC-only phase for Envoy Gateway + Casdoor.
 # It intentionally does not configure Gateway ExternalAuth.
+#
+# Each frontend application uses its own Casdoor Application, clientID, HTTPRoute,
+# and SecurityPolicy. This example shows the IAM console configuration.
 
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: ClientTrafficPolicy
@@ -19,81 +22,64 @@ spec:
         - x-aisphere-external-email
         - x-aisphere-external-name
         - x-aisphere-external-username
+        - x-aisphere-external-issuer
+        - x-aisphere-external-display-name
+        - x-aisphere-external-phone
+        - x-aisphere-external-owner
+        - x-aisphere-external-scope
+        - x-aisphere-external-id
         - x-aisphere-principal
         - x-aisphere-user-id
         - x-aisphere-org-id
         - x-aisphere-project-id
         - x-aisphere-roles
+        - x-aisphere-auth-verified
+        - x-aisphere-subject
+        - x-aisphere-provider
+        - x-aisphere-app-id
         - x-aisphere-authz-decision-id
         - x-aisphere-internal-jwt
         - x-internal-jwt
 ---
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: SecurityPolicy
+# IAM Console frontend — uses its own Casdoor Application and SecurityPolicy
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
-  name: hub-authn-policy
-  namespace: aisphere-system
+  name: iam-console
+  namespace: aisphere
 spec:
-  targetRefs:
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      name: hub-authn-route
-  oidc:
-    provider:
-      issuer: "https://casdoor.aisphere.local"
-    clientID: "aisphere-gateway"
-    clientSecret:
-      name: casdoor-gateway-client-secret
-    redirectURL: "https://hub.aisphere.local/oauth2/callback"
-    logoutPath: "/logout"
-    scopes:
-      - openid
-      - profile
-      - email
-    refreshToken: true
-    forwardAccessToken: true
-    passThroughAuthHeader: true
-    disableTokenEncryption: false
-  jwt:
-    providers:
-      - name: casdoor
-        issuer: "https://casdoor.aisphere.local"
-        audiences:
-          - "aisphere-gateway"
-        remoteJWKS:
-          uri: "https://casdoor.aisphere.local/.well-known/jwks"
-        extractFrom:
-          headers:
-            - name: Authorization
-              valuePrefix: "Bearer "
-        claimToHeaders:
-          - claim: sub
-            header: x-aisphere-external-sub
-          - claim: email
-            header: x-aisphere-external-email
-          - claim: name
-            header: x-aisphere-external-name
-          - claim: preferred_username
-            header: x-aisphere-external-username
+  parentRefs:
+    - name: aisphere-gateway
+      sectionName: https
+  hostnames:
+    - iam.weagent.cc
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: aisphere-iam-frontend
+          port: 3000
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
-  name: hub-protected-policy
-  namespace: aisphere-system
+  name: iam-console-oidc
+  namespace: aisphere
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: hub-protected-route
+      name: iam-console
   oidc:
     provider:
-      issuer: "https://casdoor.aisphere.local"
-    clientID: "aisphere-gateway"
+      issuer: https://casdoor.weagent.cc
+    clientID: aisphere-iam-web
     clientSecret:
-      name: casdoor-gateway-client-secret
-    redirectURL: "https://hub.aisphere.local/oauth2/callback"
-    logoutPath: "/logout"
+      name: casdoor-iam-web-oidc
+    redirectURL: https://iam.weagent.cc/oauth2/callback
+    logoutPath: /logout
     scopes:
       - openid
       - profile
@@ -101,19 +87,17 @@ spec:
     refreshToken: true
     forwardAccessToken: true
     passThroughAuthHeader: true
-    disableTokenEncryption: false
+    cookieNames:
+      accessToken: Aisphere-IAM-AccessToken
+      idToken: Aisphere-IAM-IDToken
   jwt:
     providers:
       - name: casdoor
-        issuer: "https://casdoor.aisphere.local"
+        issuer: "https://casdoor.weagent.cc"
         audiences:
-          - "aisphere-gateway"
+          - "aisphere-iam-web"
         remoteJWKS:
-          uri: "https://casdoor.aisphere.local/.well-known/jwks"
-        extractFrom:
-          headers:
-            - name: Authorization
-              valuePrefix: "Bearer "
+          uri: "https://casdoor.weagent.cc/.well-known/jwks"
         claimToHeaders:
           - claim: sub
             header: x-aisphere-external-sub
@@ -123,3 +107,13 @@ spec:
             header: x-aisphere-external-name
           - claim: preferred_username
             header: x-aisphere-external-username
+          - claim: iss
+            header: x-aisphere-external-issuer
+          - claim: owner
+            header: x-aisphere-external-owner
+          - claim: id
+            header: x-aisphere-external-id
+          - claim: displayName
+            header: x-aisphere-external-display-name
+          - claim: scope
+            header: x-aisphere-external-scope

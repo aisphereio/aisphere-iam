@@ -1,18 +1,10 @@
 # IAM Backend AuthN Mode
 
-IAM still uses Casdoor as the only token/session issuer. IAM does not mint platform JWTs.
+IAM uses Casdoor as the only token/session issuer. IAM does not mint platform JWTs.
 
-For the full-flow authn test, IAM can run in backend JWT verification mode:
+## Default mode: gateway_trusted
 
-```yaml
-security:
-  authn:
-    mode: casdoor_jwt
-```
-
-In this mode IAM verifies the same Casdoor access token forwarded by Gateway. It uses Kernel `authn/oidcx`, validates issuer/audience/expiry/owner, and then executes the IAM handler.
-
-For normal internal deployment, IAM can switch back to:
+IAM runs in `gateway_trusted` mode by default, trusting Envoy Gateway-injected `x-aisphere-*` principal headers:
 
 ```yaml
 security:
@@ -20,12 +12,12 @@ security:
     mode: gateway_trusted
 ```
 
-In that mode IAM trusts Gateway-injected `X-Aisphere-*` principal headers. Use this only when network policy / mTLS prevents clients from bypassing Gateway.
+Use this only when NetworkPolicy prevents clients from bypassing Envoy Gateway.
 
-AuthZ can be short-circuited for authn testing with:
+## Security boundary
 
-```yaml
-security:
-  authz:
-    dev_allow_all: true
-```
+`gateway_trusted` requires:
+
+1. IAM Service is ClusterIP only (no NodePort/LoadBalancer).
+2. NetworkPolicy allows only Envoy Gateway Pods to reach IAM HTTP port.
+3. Internal service calls use service token, not external Gateway headers.

@@ -6,7 +6,7 @@
 E:\coding\aisphereio\
   kernel\
   aisphere-iam\
-  aisphere-gateway\
+  aisphere-hub\
 ```
 
 如果 Kernel generator 有本地改动，先安装本地工具链：

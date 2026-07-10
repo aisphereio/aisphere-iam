@@ -53,6 +53,47 @@ spec:
               value: "production"
             - name: TZ
               value: "Asia/Shanghai"
+            # Secrets injected from aisphere-iam-secrets
+            - name: POSTGRES_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: aisphere-iam-secrets
+                  key: postgres-dsn
+            - name: CASDOOR_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aisphere-iam-secrets
+                  key: casdoor-client-id
+            - name: CASDOOR_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: aisphere-iam-secrets
+                  key: casdoor-client-secret
+            - name: CASDOOR_M2M_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aisphere-iam-secrets
+                  key: casdoor-m2m-client-id
+            - name: CASDOOR_M2M_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: aisphere-iam-secrets
+                  key: casdoor-m2m-client-secret
+            - name: INTERNAL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: aisphere-iam-secrets
+                  key: internal-token
+            - name: SPICEDB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: aisphere-iam-secrets
+                  key: spicedb-token
+            - name: DTM_BRANCH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: aisphere-iam-secrets
+                  key: dtm-branch-secret
           volumeMounts:
             - name: config
               mountPath: /app/configs/config.yaml

@@ -188,19 +188,23 @@ external_issuer + external_subject
 
 ## 8. Casdoor OIDC 配置要求
 
-Casdoor application 需要配置：
+每个前端应用使用独立的 Casdoor Application：
 
 ```text
-client_id: aisphere-gateway
-redirect_uri:
-  https://api.weagent.cc:30723/v1/iam/oauth2/callback
-scopes:
-  openid
-  profile
-  email
+IAM 管理控制台:
+  client_id: aisphere-iam-web
+  redirect_uri: https://iam.weagent.cc/oauth2/callback
+  scopes: openid profile email
+
+Hub 前端:
+  client_id: aisphere-hub-web
+  redirect_uri: https://hub.weagent.cc/oauth2/callback
+  scopes: openid profile email
 ```
 
-Gateway 的 issuer 必须与 Casdoor token 的 `iss` 完全一致。
+> **注意**：`/oauth2/callback` 由 Envoy Gateway 的 OIDC filter 消费，不会到达 IAM 后端。不要把它放在 `/v1/iam/` 路径下，避免误导开发者认为这是 IAM 的 API。
+
+Envoy Gateway 的 issuer 必须与 Casdoor token 的 `iss` 完全一致。
 
 ## 9. Envoy Gateway 示例
 
