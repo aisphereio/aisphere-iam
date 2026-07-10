@@ -112,22 +112,20 @@ RevokeAccess.Actor = ctx Principal
 
 当前架构下，浏览器登录、callback、code exchange、session cookie、access token forwarding 都归 Envoy Gateway 负责。
 
-IAM 不再提供旧的前端 OAuth flow：
+IAM 不再提供旧的前端 OAuth flow，相关接口已从 proto 中删除：
 
 ```text
-/v1/iam/login-url
-/v1/iam/auth/exchange
-/v1/iam/auth/refresh
-/v1/iam/auth/revoke
-/v1/iam/logout-url
+/v1/iam/login-url       （已删除）
+/v1/iam/auth/exchange   （已删除）
+/v1/iam/auth/refresh    （已删除）
+/v1/iam/auth/revoke     （已删除）
+/v1/iam/logout-url      （已删除）
 ```
-
-这些接口即使仍存在于旧生成代码里，也会直接返回不支持。前端不得再调用它们。
 
 正确入口是访问受 Gateway 保护的接口，例如：
 
 ```text
-https://api.weagent.cc:30723/v1/iam/me
+https://iam.weagent.cc/v1/iam/me
 ```
 
 未登录时由 Envoy Gateway 自动跳转到 Casdoor。登录完成后，Gateway 注入 claim header，IAM 后端只读取 Kernel context 中的 Principal。
@@ -229,17 +227,17 @@ claimToHeaders
 
 ```bash
 # public route 不应触发登录
-curl -i https://api.weagent.cc:30723/healthz
+curl -i https://iam.weagent.cc/healthz
 
 # 未登录访问受保护接口，应触发 OIDC 302
-curl -vk https://api.weagent.cc:30723/v1/iam/me
+curl -vk https://iam.weagent.cc/v1/iam/me
 
 # 登录后访问 GetMe，应返回 Gateway header 恢复出来的 Principal
 # 浏览器访问：
-# https://api.weagent.cc:30723/v1/iam/me
+# https://iam.weagent.cc/v1/iam/me
 
 # 伪造 principal 必须被 Gateway 清理
-curl -i https://api.weagent.cc:30723/v1/iam/me \
+curl -i https://iam.weagent.cc/v1/iam/me \
   -H "x-aisphere-principal: user:admin"
 ```
 

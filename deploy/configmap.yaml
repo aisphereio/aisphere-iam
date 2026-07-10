@@ -85,9 +85,9 @@ data:
         cache_ttl_ns: 300000000000
         oidc:
           provider: casdoor
-          issuer: http://casdoor.aisphere:8000
-          discovery_url: http://casdoor.aisphere:8000/.well-known/openid-configuration
-          jwks_url: http://casdoor.aisphere:8000/.well-known/jwks
+          issuer: https://casdoor.weagent.cc
+          discovery_url: https://casdoor.weagent.cc/.well-known/openid-configuration
+          jwks_url: https://casdoor.weagent.cc/.well-known/jwks
           audience: ["${CASDOOR_CLIENT_ID}"]
           allowed_owners: [aisphere]
           allowed_algs: [RS256, RS512, ES256, ES512]
@@ -110,9 +110,9 @@ data:
             client_secret: "${CASDOOR_M2M_CLIENT_SECRET}"
             jwt_certificate_file: /app/configs/casdoor.pub
       internal_call:
-        enabled: true
+        enabled: false
         header: X-Aisphere-Internal-Token
-        token: "${INTERNAL_TOKEN}"
+        token: ""
       authz:
         enabled: true
         provider: spicedb
@@ -128,30 +128,30 @@ data:
           fully_consistent: true
           metrics_enabled: true
 
-      control_plane:
-        defaults:
-          enabled: true
-          path: configs/resource/defaults.yaml
-
-      audit:
+    control_plane:
+      defaults:
         enabled: true
-        store: memory
+        path: configs/resource/defaults.yaml
 
-      metrics:
-        enabled: true
-        addr: 0.0.0.0:19180
-        path: /metrics
-        pprof: false
-        runtime: true
+    audit:
+      enabled: true
+      store: memory
 
-      dtm:
-        enabled: true
-        driver: dtm
-        protocol: http
-        server: http://dtm.aisphere:36789/api/dtmsvr
-        service_base_url: http://aisphere-iam.aisphere:18080
-        branch_prefix: /internal/dtm
-        branch_secret: "${DTM_BRANCH_SECRET}"
-        wait_result: true
-        timeout_ns: 10000000000
-        metrics_enabled: true
+    metrics:
+      enabled: true
+      addr: 0.0.0.0:19180
+      path: /metrics
+      pprof: false
+      runtime: true
+
+    dtm:
+      enabled: true
+      driver: dtm
+      protocol: http
+      server: http://dtm.aisphere:36789/api/dtmsvr
+      service_base_url: http://aisphere-iam.aisphere:18080
+      branch_prefix: /internal/dtm
+      branch_secret: "${DTM_BRANCH_SECRET}"
+      wait_result: true
+      timeout_ns: 10000000000
+      metrics_enabled: true

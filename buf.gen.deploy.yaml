@@ -10,8 +10,8 @@ plugins:
     opt:
       - service=aisphere-iam
       - namespace=aisphere
-      - backend_port=19080
+      - backend_port=18080
       - parent_namespace=aisphere-system
-      - public_gateway=public-gateway
-      - authenticated_gateway=authenticated-gateway
-      - internal_gateway=internal-gateway
+      - public_gateway=aisphere-gateway
+      - authenticated_gateway=aisphere-gateway
+      - internal_gateway=aisphere-gateway

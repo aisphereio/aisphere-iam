@@ -12,7 +12,7 @@ metadata:
     aisphere.io/exposure-bucket: "internal"
 spec:
   parentRefs:
-    - name: "internal-gateway"
+    - name: "aisphere-gateway"
       namespace: "aisphere-system"
   rules:
     - matches:
@@ -37,7 +37,7 @@ spec:
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
-          port: 19080
+          port: 18080
     - matches:
         - method: "POST"
           path:
@@ -60,7 +60,7 @@ spec:
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
-          port: 19080
+          port: 18080
     - matches:
         - method: "POST"
           path:
@@ -83,4 +83,4 @@ spec:
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
-          port: 19080
+          port: 18080

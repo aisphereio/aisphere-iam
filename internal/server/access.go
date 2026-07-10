@@ -29,7 +29,13 @@ func iamServerMiddlewares(resources *data.Resources, cfg conf.SecurityConfig) []
 }
 
 func mustSecurityRuntime(cfg conf.SecurityConfig) *securityx.Runtime {
+		// IAM runs behind Envoy Gateway with NetworkPolicy/mTLS boundary.
+		// Internal token is disabled; trust is provided by network isolation.
 		internalCall := cfg.InternalCall
+		if strings.EqualFold(cfg.Authn.Mode, securityx.AuthnModeGatewayTrusted) {
+			internalCall.Enabled = false
+			internalCall.Token = ""
+		}
 
 		runtime, err := securityx.NewRuntime(context.Background(), securityx.Config{
 		Authn: securityx.AuthnBoundaryConfig{
