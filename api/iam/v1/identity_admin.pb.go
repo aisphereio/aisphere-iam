@@ -257,306 +257,6 @@ func (x *DeleteUserRequest) GetHard() bool {
 	return false
 }
 
-type CreateGroupRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	OrgId          string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	Group          *Group                 `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
-	IdempotencyKey string                 `protobuf:"bytes,3,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *CreateGroupRequest) Reset() {
-	*x = CreateGroupRequest{}
-	mi := &file_iam_v1_identity_admin_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateGroupRequest) ProtoMessage() {}
-
-func (x *CreateGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_identity_admin_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateGroupRequest.ProtoReflect.Descriptor instead.
-func (*CreateGroupRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_identity_admin_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *CreateGroupRequest) GetOrgId() string {
-	if x != nil {
-		return x.OrgId
-	}
-	return ""
-}
-
-func (x *CreateGroupRequest) GetGroup() *Group {
-	if x != nil {
-		return x.Group
-	}
-	return nil
-}
-
-func (x *CreateGroupRequest) GetIdempotencyKey() string {
-	if x != nil {
-		return x.IdempotencyKey
-	}
-	return ""
-}
-
-type UpdateGroupRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	Group         *Group                 `protobuf:"bytes,3,opt,name=group,proto3" json:"group,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateGroupRequest) Reset() {
-	*x = UpdateGroupRequest{}
-	mi := &file_iam_v1_identity_admin_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateGroupRequest) ProtoMessage() {}
-
-func (x *UpdateGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_identity_admin_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateGroupRequest.ProtoReflect.Descriptor instead.
-func (*UpdateGroupRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_identity_admin_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *UpdateGroupRequest) GetOrgId() string {
-	if x != nil {
-		return x.OrgId
-	}
-	return ""
-}
-
-func (x *UpdateGroupRequest) GetGroupId() string {
-	if x != nil {
-		return x.GroupId
-	}
-	return ""
-}
-
-func (x *UpdateGroupRequest) GetGroup() *Group {
-	if x != nil {
-		return x.Group
-	}
-	return nil
-}
-
-type DeleteGroupRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	Recursive     bool                   `protobuf:"varint,3,opt,name=recursive,proto3" json:"recursive,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteGroupRequest) Reset() {
-	*x = DeleteGroupRequest{}
-	mi := &file_iam_v1_identity_admin_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteGroupRequest) ProtoMessage() {}
-
-func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_identity_admin_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteGroupRequest.ProtoReflect.Descriptor instead.
-func (*DeleteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_identity_admin_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *DeleteGroupRequest) GetOrgId() string {
-	if x != nil {
-		return x.OrgId
-	}
-	return ""
-}
-
-func (x *DeleteGroupRequest) GetGroupId() string {
-	if x != nil {
-		return x.GroupId
-	}
-	return ""
-}
-
-func (x *DeleteGroupRequest) GetRecursive() bool {
-	if x != nil {
-		return x.Recursive
-	}
-	return false
-}
-
-type AssignUserToGroupRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AssignUserToGroupRequest) Reset() {
-	*x = AssignUserToGroupRequest{}
-	mi := &file_iam_v1_identity_admin_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AssignUserToGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AssignUserToGroupRequest) ProtoMessage() {}
-
-func (x *AssignUserToGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_identity_admin_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AssignUserToGroupRequest.ProtoReflect.Descriptor instead.
-func (*AssignUserToGroupRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_identity_admin_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *AssignUserToGroupRequest) GetOrgId() string {
-	if x != nil {
-		return x.OrgId
-	}
-	return ""
-}
-
-func (x *AssignUserToGroupRequest) GetGroupId() string {
-	if x != nil {
-		return x.GroupId
-	}
-	return ""
-}
-
-func (x *AssignUserToGroupRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-type RemoveUserFromGroupRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RemoveUserFromGroupRequest) Reset() {
-	*x = RemoveUserFromGroupRequest{}
-	mi := &file_iam_v1_identity_admin_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RemoveUserFromGroupRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RemoveUserFromGroupRequest) ProtoMessage() {}
-
-func (x *RemoveUserFromGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_identity_admin_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RemoveUserFromGroupRequest.ProtoReflect.Descriptor instead.
-func (*RemoveUserFromGroupRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_identity_admin_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *RemoveUserFromGroupRequest) GetOrgId() string {
-	if x != nil {
-		return x.OrgId
-	}
-	return ""
-}
-
-func (x *RemoveUserFromGroupRequest) GetGroupId() string {
-	if x != nil {
-		return x.GroupId
-	}
-	return ""
-}
-
-func (x *RemoveUserFromGroupRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
 var File_iam_v1_identity_admin_proto protoreflect.FileDescriptor
 
 const file_iam_v1_identity_admin_proto_rawDesc = "" +
@@ -583,38 +283,7 @@ const file_iam_v1_identity_admin_proto_rawDesc = "" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12#\n" +
 	"\auser_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06userId\x12\x12\n" +
-	"\x04hard\x18\x03 \x01(\bR\x04hard\"\x90\x01\n" +
-	"\x12CreateGroupRequest\x12!\n" +
-	"\x06org_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12.\n" +
-	"\x05group\x18\x02 \x01(\v2\r.iam.v1.GroupB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x05group\x12'\n" +
-	"\x0fidempotency_key\x18\x03 \x01(\tR\x0eidempotencyKey\"\x8e\x01\n" +
-	"\x12UpdateGroupRequest\x12!\n" +
-	"\x06org_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12%\n" +
-	"\bgroup_id\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agroupId\x12.\n" +
-	"\x05group\x18\x03 \x01(\v2\r.iam.v1.GroupB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x05group\"|\n" +
-	"\x12DeleteGroupRequest\x12!\n" +
-	"\x06org_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12%\n" +
-	"\bgroup_id\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agroupId\x12\x1c\n" +
-	"\trecursive\x18\x03 \x01(\bR\trecursive\"\x89\x01\n" +
-	"\x18AssignUserToGroupRequest\x12!\n" +
-	"\x06org_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12%\n" +
-	"\bgroup_id\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agroupId\x12#\n" +
-	"\auser_id\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06userId\"\x8b\x01\n" +
-	"\x1aRemoveUserFromGroupRequest\x12!\n" +
-	"\x06org_id\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12%\n" +
-	"\bgroup_id\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agroupId\x12#\n" +
-	"\auser_id\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06userId2\x8f\x0f\n" +
+	"\x04hard\x18\x03 \x01(\bR\x04hard2\x8f\x0f\n" +
 	"\x17IAMIdentityAdminService\x12\xb0\x01\n" +
 	"\n" +
 	"CreateUser\x12\x19.iam.v1.CreateUserRequest\x1a\f.iam.v1.User\"y\x92\xf4\x18O\b\x03\x120\n" +
@@ -650,49 +319,47 @@ func file_iam_v1_identity_admin_proto_rawDescGZIP() []byte {
 	return file_iam_v1_identity_admin_proto_rawDescData
 }
 
-var file_iam_v1_identity_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_iam_v1_identity_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_iam_v1_identity_admin_proto_goTypes = []any{
 	(*CreateUserRequest)(nil),          // 0: iam.v1.CreateUserRequest
 	(*UpdateUserRequest)(nil),          // 1: iam.v1.UpdateUserRequest
 	(*DisableUserRequest)(nil),         // 2: iam.v1.DisableUserRequest
 	(*DeleteUserRequest)(nil),          // 3: iam.v1.DeleteUserRequest
-	(*CreateGroupRequest)(nil),         // 4: iam.v1.CreateGroupRequest
-	(*UpdateGroupRequest)(nil),         // 5: iam.v1.UpdateGroupRequest
-	(*DeleteGroupRequest)(nil),         // 6: iam.v1.DeleteGroupRequest
-	(*AssignUserToGroupRequest)(nil),   // 7: iam.v1.AssignUserToGroupRequest
-	(*RemoveUserFromGroupRequest)(nil), // 8: iam.v1.RemoveUserFromGroupRequest
-	(*User)(nil),                       // 9: iam.v1.User
-	(*Group)(nil),                      // 10: iam.v1.Group
-	(*emptypb.Empty)(nil),              // 11: google.protobuf.Empty
+	(*User)(nil),                       // 4: iam.v1.User
+	(*CreateGroupRequest)(nil),         // 5: iam.v1.CreateGroupRequest
+	(*UpdateGroupRequest)(nil),         // 6: iam.v1.UpdateGroupRequest
+	(*DeleteGroupRequest)(nil),         // 7: iam.v1.DeleteGroupRequest
+	(*AssignUserToGroupRequest)(nil),   // 8: iam.v1.AssignUserToGroupRequest
+	(*RemoveUserFromGroupRequest)(nil), // 9: iam.v1.RemoveUserFromGroupRequest
+	(*emptypb.Empty)(nil),              // 10: google.protobuf.Empty
+	(*Group)(nil),                      // 11: iam.v1.Group
 }
 var file_iam_v1_identity_admin_proto_depIdxs = []int32{
-	9,  // 0: iam.v1.CreateUserRequest.user:type_name -> iam.v1.User
-	9,  // 1: iam.v1.UpdateUserRequest.user:type_name -> iam.v1.User
-	10, // 2: iam.v1.CreateGroupRequest.group:type_name -> iam.v1.Group
-	10, // 3: iam.v1.UpdateGroupRequest.group:type_name -> iam.v1.Group
-	0,  // 4: iam.v1.IAMIdentityAdminService.CreateUser:input_type -> iam.v1.CreateUserRequest
-	1,  // 5: iam.v1.IAMIdentityAdminService.UpdateUser:input_type -> iam.v1.UpdateUserRequest
-	2,  // 6: iam.v1.IAMIdentityAdminService.DisableUser:input_type -> iam.v1.DisableUserRequest
-	3,  // 7: iam.v1.IAMIdentityAdminService.DeleteUser:input_type -> iam.v1.DeleteUserRequest
-	4,  // 8: iam.v1.IAMIdentityAdminService.CreateGroup:input_type -> iam.v1.CreateGroupRequest
-	5,  // 9: iam.v1.IAMIdentityAdminService.UpdateGroup:input_type -> iam.v1.UpdateGroupRequest
-	6,  // 10: iam.v1.IAMIdentityAdminService.DeleteGroup:input_type -> iam.v1.DeleteGroupRequest
-	7,  // 11: iam.v1.IAMIdentityAdminService.AssignUserToGroup:input_type -> iam.v1.AssignUserToGroupRequest
-	8,  // 12: iam.v1.IAMIdentityAdminService.RemoveUserFromGroup:input_type -> iam.v1.RemoveUserFromGroupRequest
-	9,  // 13: iam.v1.IAMIdentityAdminService.CreateUser:output_type -> iam.v1.User
-	9,  // 14: iam.v1.IAMIdentityAdminService.UpdateUser:output_type -> iam.v1.User
-	11, // 15: iam.v1.IAMIdentityAdminService.DisableUser:output_type -> google.protobuf.Empty
-	11, // 16: iam.v1.IAMIdentityAdminService.DeleteUser:output_type -> google.protobuf.Empty
-	10, // 17: iam.v1.IAMIdentityAdminService.CreateGroup:output_type -> iam.v1.Group
-	10, // 18: iam.v1.IAMIdentityAdminService.UpdateGroup:output_type -> iam.v1.Group
-	11, // 19: iam.v1.IAMIdentityAdminService.DeleteGroup:output_type -> google.protobuf.Empty
-	11, // 20: iam.v1.IAMIdentityAdminService.AssignUserToGroup:output_type -> google.protobuf.Empty
-	11, // 21: iam.v1.IAMIdentityAdminService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
-	13, // [13:22] is the sub-list for method output_type
-	4,  // [4:13] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	4,  // 0: iam.v1.CreateUserRequest.user:type_name -> iam.v1.User
+	4,  // 1: iam.v1.UpdateUserRequest.user:type_name -> iam.v1.User
+	0,  // 2: iam.v1.IAMIdentityAdminService.CreateUser:input_type -> iam.v1.CreateUserRequest
+	1,  // 3: iam.v1.IAMIdentityAdminService.UpdateUser:input_type -> iam.v1.UpdateUserRequest
+	2,  // 4: iam.v1.IAMIdentityAdminService.DisableUser:input_type -> iam.v1.DisableUserRequest
+	3,  // 5: iam.v1.IAMIdentityAdminService.DeleteUser:input_type -> iam.v1.DeleteUserRequest
+	5,  // 6: iam.v1.IAMIdentityAdminService.CreateGroup:input_type -> iam.v1.CreateGroupRequest
+	6,  // 7: iam.v1.IAMIdentityAdminService.UpdateGroup:input_type -> iam.v1.UpdateGroupRequest
+	7,  // 8: iam.v1.IAMIdentityAdminService.DeleteGroup:input_type -> iam.v1.DeleteGroupRequest
+	8,  // 9: iam.v1.IAMIdentityAdminService.AssignUserToGroup:input_type -> iam.v1.AssignUserToGroupRequest
+	9,  // 10: iam.v1.IAMIdentityAdminService.RemoveUserFromGroup:input_type -> iam.v1.RemoveUserFromGroupRequest
+	4,  // 11: iam.v1.IAMIdentityAdminService.CreateUser:output_type -> iam.v1.User
+	4,  // 12: iam.v1.IAMIdentityAdminService.UpdateUser:output_type -> iam.v1.User
+	10, // 13: iam.v1.IAMIdentityAdminService.DisableUser:output_type -> google.protobuf.Empty
+	10, // 14: iam.v1.IAMIdentityAdminService.DeleteUser:output_type -> google.protobuf.Empty
+	11, // 15: iam.v1.IAMIdentityAdminService.CreateGroup:output_type -> iam.v1.Group
+	11, // 16: iam.v1.IAMIdentityAdminService.UpdateGroup:output_type -> iam.v1.Group
+	10, // 17: iam.v1.IAMIdentityAdminService.DeleteGroup:output_type -> google.protobuf.Empty
+	10, // 18: iam.v1.IAMIdentityAdminService.AssignUserToGroup:output_type -> google.protobuf.Empty
+	10, // 19: iam.v1.IAMIdentityAdminService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
+	11, // [11:20] is the sub-list for method output_type
+	2,  // [2:11] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_iam_v1_identity_admin_proto_init() }
@@ -707,7 +374,7 @@ func file_iam_v1_identity_admin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_iam_v1_identity_admin_proto_rawDesc), len(file_iam_v1_identity_admin_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

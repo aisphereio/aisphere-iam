@@ -4,77 +4,33 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: i-a-m-auth-service-public
-  namespace: aisphere
+  namespace: "aisphere"
   labels:
-    app.kubernetes.io/name: aisphere-iam
-    app.kubernetes.io/component: gateway-route
-    aisphere.io/generated-by: protoc-gen-go-deploy
-    aisphere.io/exposure-bucket: public
+    app.kubernetes.io/name: "aisphere-iam"
+    app.kubernetes.io/component: "gateway-route"
+    aisphere.io/generated-by: "protoc-gen-go-deploy"
+    aisphere.io/exposure-bucket: "public"
 spec:
   parentRefs:
-    - name: public-gateway
-      namespace: aisphere-system
+    - name: "public-gateway"
+      namespace: "aisphere-system"
   rules:
     - matches:
-        - method: GET
+        - method: "POST"
           path:
-            type: Exact
-            value: /v1/iam/login-url
+            type: PathPrefix
+            value: "/internal/iam/ext-authz"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
             set:
               - name: X-Aisphere-Upstream-Operation
-                value: /iam.v1.IAMAuthService/BuildLoginURL
+                value: "/iam.v1.IAMAuthService/ExternalAuthorize"
               - name: X-Aisphere-Route-Exposure
-                value: PUBLIC
+                value: "PUBLIC"
               - name: X-Aisphere-Route-Authn-Mode
-                value: none
-              - name: X-Aisphere-Route-Forward-Authorization
-                value: "false"
+                value: "none"
       backendRefs:
-        - name: aisphere-iam
-          namespace: aisphere
-          port: 19080
-    - matches:
-        - method: POST
-          path:
-            type: Exact
-            value: /v1/iam/auth/exchange
-      filters:
-        - type: RequestHeaderModifier
-          requestHeaderModifier:
-            set:
-              - name: X-Aisphere-Upstream-Operation
-                value: /iam.v1.IAMAuthService/ExchangeCode
-              - name: X-Aisphere-Route-Exposure
-                value: PUBLIC
-              - name: X-Aisphere-Route-Authn-Mode
-                value: none
-              - name: X-Aisphere-Route-Forward-Authorization
-                value: "false"
-      backendRefs:
-        - name: aisphere-iam
-          namespace: aisphere
-          port: 19080
-    - matches:
-        - method: GET
-          path:
-            type: Exact
-            value: /v1/iam/logout-url
-      filters:
-        - type: RequestHeaderModifier
-          requestHeaderModifier:
-            set:
-              - name: X-Aisphere-Upstream-Operation
-                value: /iam.v1.IAMAuthService/BuildLogoutURL
-              - name: X-Aisphere-Route-Exposure
-                value: PUBLIC
-              - name: X-Aisphere-Route-Authn-Mode
-                value: none
-              - name: X-Aisphere-Route-Forward-Authorization
-                value: "false"
-      backendRefs:
-        - name: aisphere-iam
-          namespace: aisphere
+        - name: "aisphere-iam"
+          namespace: "aisphere"
           port: 19080

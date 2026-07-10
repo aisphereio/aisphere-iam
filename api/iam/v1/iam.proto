@@ -297,6 +297,8 @@ service IAMAuthorizationAdminService {
 }
 
 message VerifyTokenRequest { string token = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string token_type = 2; string org_id = 3; string app_id = 4; }
+message GetMeRequest { bool include_profile = 1; }
+message GetMeReply { Principal principal = 1; User user = 2; repeated Group groups = 3; Application application = 4; repeated string warnings = 5; }
 
 message GetUserRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string user_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; }
 message ListUsersRequest { string org_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string query = 2; string group_id = 3; string role = 4; int32 page_size = 5; string page_token = 6; }

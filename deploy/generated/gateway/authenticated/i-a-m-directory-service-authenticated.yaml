@@ -107,3 +107,141 @@ spec:
         - name: "aisphere-iam"
           namespace: "aisphere"
           port: 19080
+    - matches:
+        - method: "GET"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/orgs/{org_id}/groups/{group_id}"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.v1.IAMDirectoryService/GetGroup"
+              - name: X-Aisphere-Route-Exposure
+                value: "AUTHORIZED"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "verify_jwt"
+              - name: X-Aisphere-Authz-Action
+                value: "view"
+              - name: X-Aisphere-Authz-Resource
+                value: "group:{group_id}"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 19080
+    - matches:
+        - method: "POST"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/orgs/{org_id}/groups"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.v1.IAMDirectoryService/CreateGroup"
+              - name: X-Aisphere-Route-Exposure
+                value: "AUTHORIZED"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "verify_jwt"
+              - name: X-Aisphere-Authz-Action
+                value: "create_groups"
+              - name: X-Aisphere-Authz-Resource
+                value: "zone:{org_id}"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 19080
+    - matches:
+        - method: "PUT"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/orgs/{org_id}/groups/{group_id}"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.v1.IAMDirectoryService/UpdateGroup"
+              - name: X-Aisphere-Route-Exposure
+                value: "AUTHORIZED"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "verify_jwt"
+              - name: X-Aisphere-Authz-Action
+                value: "manage"
+              - name: X-Aisphere-Authz-Resource
+                value: "group:{group_id}"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 19080
+    - matches:
+        - method: "DELETE"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/orgs/{org_id}/groups/{group_id}"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.v1.IAMDirectoryService/DeleteGroup"
+              - name: X-Aisphere-Route-Exposure
+                value: "AUTHORIZED"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "verify_jwt"
+              - name: X-Aisphere-Authz-Action
+                value: "manage"
+              - name: X-Aisphere-Authz-Resource
+                value: "group:{group_id}"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 19080
+    - matches:
+        - method: "POST"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/directory/group-memberships:assign"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.v1.IAMDirectoryService/AssignUserToGroup"
+              - name: X-Aisphere-Route-Exposure
+                value: "AUTHORIZED"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "verify_jwt"
+              - name: X-Aisphere-Authz-Action
+                value: "manage_members"
+              - name: X-Aisphere-Authz-Resource
+                value: "group:{group_id}"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 19080
+    - matches:
+        - method: "POST"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/directory/group-memberships:remove"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.v1.IAMDirectoryService/RemoveUserFromGroup"
+              - name: X-Aisphere-Route-Exposure
+                value: "AUTHORIZED"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "verify_jwt"
+              - name: X-Aisphere-Authz-Action
+                value: "manage_members"
+              - name: X-Aisphere-Authz-Resource
+                value: "group:{group_id}"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 19080

@@ -26,354 +26,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type BuildLoginURLRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RedirectUri   string                 `protobuf:"bytes,1,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`
-	State         string                 `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
-	Scope         string                 `protobuf:"bytes,3,opt,name=scope,proto3" json:"scope,omitempty"`
-	OrgId         string                 `protobuf:"bytes,4,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	AppId         string                 `protobuf:"bytes,5,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BuildLoginURLRequest) Reset() {
-	*x = BuildLoginURLRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BuildLoginURLRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BuildLoginURLRequest) ProtoMessage() {}
-
-func (x *BuildLoginURLRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BuildLoginURLRequest.ProtoReflect.Descriptor instead.
-func (*BuildLoginURLRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *BuildLoginURLRequest) GetRedirectUri() string {
-	if x != nil {
-		return x.RedirectUri
-	}
-	return ""
-}
-
-func (x *BuildLoginURLRequest) GetState() string {
-	if x != nil {
-		return x.State
-	}
-	return ""
-}
-
-func (x *BuildLoginURLRequest) GetScope() string {
-	if x != nil {
-		return x.Scope
-	}
-	return ""
-}
-
-func (x *BuildLoginURLRequest) GetOrgId() string {
-	if x != nil {
-		return x.OrgId
-	}
-	return ""
-}
-
-func (x *BuildLoginURLRequest) GetAppId() string {
-	if x != nil {
-		return x.AppId
-	}
-	return ""
-}
-
-type BuildLoginURLReply struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	LoginUrl      string                 `protobuf:"bytes,1,opt,name=login_url,json=loginUrl,proto3" json:"login_url,omitempty"`
-	Provider      string                 `protobuf:"bytes,2,opt,name=provider,proto3" json:"provider,omitempty"`
-	RedirectUri   string                 `protobuf:"bytes,3,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`
-	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
-	Scope         string                 `protobuf:"bytes,5,opt,name=scope,proto3" json:"scope,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BuildLoginURLReply) Reset() {
-	*x = BuildLoginURLReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BuildLoginURLReply) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BuildLoginURLReply) ProtoMessage() {}
-
-func (x *BuildLoginURLReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BuildLoginURLReply.ProtoReflect.Descriptor instead.
-func (*BuildLoginURLReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *BuildLoginURLReply) GetLoginUrl() string {
-	if x != nil {
-		return x.LoginUrl
-	}
-	return ""
-}
-
-func (x *BuildLoginURLReply) GetProvider() string {
-	if x != nil {
-		return x.Provider
-	}
-	return ""
-}
-
-func (x *BuildLoginURLReply) GetRedirectUri() string {
-	if x != nil {
-		return x.RedirectUri
-	}
-	return ""
-}
-
-func (x *BuildLoginURLReply) GetState() string {
-	if x != nil {
-		return x.State
-	}
-	return ""
-}
-
-func (x *BuildLoginURLReply) GetScope() string {
-	if x != nil {
-		return x.Scope
-	}
-	return ""
-}
-
-type ExchangeCodeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
-	State         string                 `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
-	RedirectUri   string                 `protobuf:"bytes,3,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`
-	OrgId         string                 `protobuf:"bytes,4,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	AppId         string                 `protobuf:"bytes,5,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ExchangeCodeRequest) Reset() {
-	*x = ExchangeCodeRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ExchangeCodeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ExchangeCodeRequest) ProtoMessage() {}
-
-func (x *ExchangeCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ExchangeCodeRequest.ProtoReflect.Descriptor instead.
-func (*ExchangeCodeRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *ExchangeCodeRequest) GetCode() string {
-	if x != nil {
-		return x.Code
-	}
-	return ""
-}
-
-func (x *ExchangeCodeRequest) GetState() string {
-	if x != nil {
-		return x.State
-	}
-	return ""
-}
-
-func (x *ExchangeCodeRequest) GetRedirectUri() string {
-	if x != nil {
-		return x.RedirectUri
-	}
-	return ""
-}
-
-func (x *ExchangeCodeRequest) GetOrgId() string {
-	if x != nil {
-		return x.OrgId
-	}
-	return ""
-}
-
-func (x *ExchangeCodeRequest) GetAppId() string {
-	if x != nil {
-		return x.AppId
-	}
-	return ""
-}
-
-type ExchangeCodeReply struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Tokens        *TokenSet              `protobuf:"bytes,1,opt,name=tokens,proto3" json:"tokens,omitempty"`
-	Principal     *Principal             `protobuf:"bytes,2,opt,name=principal,proto3" json:"principal,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ExchangeCodeReply) Reset() {
-	*x = ExchangeCodeReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ExchangeCodeReply) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ExchangeCodeReply) ProtoMessage() {}
-
-func (x *ExchangeCodeReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ExchangeCodeReply.ProtoReflect.Descriptor instead.
-func (*ExchangeCodeReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ExchangeCodeReply) GetTokens() *TokenSet {
-	if x != nil {
-		return x.Tokens
-	}
-	return nil
-}
-
-func (x *ExchangeCodeReply) GetPrincipal() *Principal {
-	if x != nil {
-		return x.Principal
-	}
-	return nil
-}
-
-type RefreshTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	Scope         string                 `protobuf:"bytes,2,opt,name=scope,proto3" json:"scope,omitempty"`
-	OrgId         string                 `protobuf:"bytes,3,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	AppId         string                 `protobuf:"bytes,4,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RefreshTokenRequest) Reset() {
-	*x = RefreshTokenRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RefreshTokenRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RefreshTokenRequest) ProtoMessage() {}
-
-func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RefreshTokenRequest.ProtoReflect.Descriptor instead.
-func (*RefreshTokenRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *RefreshTokenRequest) GetRefreshToken() string {
-	if x != nil {
-		return x.RefreshToken
-	}
-	return ""
-}
-
-func (x *RefreshTokenRequest) GetScope() string {
-	if x != nil {
-		return x.Scope
-	}
-	return ""
-}
-
-func (x *RefreshTokenRequest) GetOrgId() string {
-	if x != nil {
-		return x.OrgId
-	}
-	return ""
-}
-
-func (x *RefreshTokenRequest) GetAppId() string {
-	if x != nil {
-		return x.AppId
-	}
-	return ""
-}
-
 type VerifyTokenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
@@ -386,7 +38,7 @@ type VerifyTokenRequest struct {
 
 func (x *VerifyTokenRequest) Reset() {
 	*x = VerifyTokenRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[5]
+	mi := &file_iam_v1_iam_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -398,7 +50,7 @@ func (x *VerifyTokenRequest) String() string {
 func (*VerifyTokenRequest) ProtoMessage() {}
 
 func (x *VerifyTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[5]
+	mi := &file_iam_v1_iam_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -411,7 +63,7 @@ func (x *VerifyTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyTokenRequest.ProtoReflect.Descriptor instead.
 func (*VerifyTokenRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{5}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *VerifyTokenRequest) GetToken() string {
@@ -442,74 +94,6 @@ func (x *VerifyTokenRequest) GetAppId() string {
 	return ""
 }
 
-type RevokeTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	TokenType     string                 `protobuf:"bytes,2,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
-	OrgId         string                 `protobuf:"bytes,3,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	AppId         string                 `protobuf:"bytes,4,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RevokeTokenRequest) Reset() {
-	*x = RevokeTokenRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RevokeTokenRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RevokeTokenRequest) ProtoMessage() {}
-
-func (x *RevokeTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RevokeTokenRequest.ProtoReflect.Descriptor instead.
-func (*RevokeTokenRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *RevokeTokenRequest) GetToken() string {
-	if x != nil {
-		return x.Token
-	}
-	return ""
-}
-
-func (x *RevokeTokenRequest) GetTokenType() string {
-	if x != nil {
-		return x.TokenType
-	}
-	return ""
-}
-
-func (x *RevokeTokenRequest) GetOrgId() string {
-	if x != nil {
-		return x.OrgId
-	}
-	return ""
-}
-
-func (x *RevokeTokenRequest) GetAppId() string {
-	if x != nil {
-		return x.AppId
-	}
-	return ""
-}
-
 type GetMeRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	IncludeProfile bool                   `protobuf:"varint,1,opt,name=include_profile,json=includeProfile,proto3" json:"include_profile,omitempty"`
@@ -519,7 +103,7 @@ type GetMeRequest struct {
 
 func (x *GetMeRequest) Reset() {
 	*x = GetMeRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[7]
+	mi := &file_iam_v1_iam_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -531,7 +115,7 @@ func (x *GetMeRequest) String() string {
 func (*GetMeRequest) ProtoMessage() {}
 
 func (x *GetMeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[7]
+	mi := &file_iam_v1_iam_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -544,7 +128,7 @@ func (x *GetMeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMeRequest.ProtoReflect.Descriptor instead.
 func (*GetMeRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{7}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetMeRequest) GetIncludeProfile() bool {
@@ -567,7 +151,7 @@ type GetMeReply struct {
 
 func (x *GetMeReply) Reset() {
 	*x = GetMeReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[8]
+	mi := &file_iam_v1_iam_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -579,7 +163,7 @@ func (x *GetMeReply) String() string {
 func (*GetMeReply) ProtoMessage() {}
 
 func (x *GetMeReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[8]
+	mi := &file_iam_v1_iam_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -592,7 +176,7 @@ func (x *GetMeReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMeReply.ProtoReflect.Descriptor instead.
 func (*GetMeReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{8}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetMeReply) GetPrincipal() *Principal {
@@ -630,150 +214,6 @@ func (x *GetMeReply) GetWarnings() []string {
 	return nil
 }
 
-type BuildLogoutURLRequest struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	PostLogoutRedirectUri string                 `protobuf:"bytes,1,opt,name=post_logout_redirect_uri,json=postLogoutRedirectUri,proto3" json:"post_logout_redirect_uri,omitempty"`
-	IdTokenHint           string                 `protobuf:"bytes,2,opt,name=id_token_hint,json=idTokenHint,proto3" json:"id_token_hint,omitempty"`
-	State                 string                 `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
-	OrgId                 string                 `protobuf:"bytes,4,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	AppId                 string                 `protobuf:"bytes,5,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
-}
-
-func (x *BuildLogoutURLRequest) Reset() {
-	*x = BuildLogoutURLRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BuildLogoutURLRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BuildLogoutURLRequest) ProtoMessage() {}
-
-func (x *BuildLogoutURLRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BuildLogoutURLRequest.ProtoReflect.Descriptor instead.
-func (*BuildLogoutURLRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *BuildLogoutURLRequest) GetPostLogoutRedirectUri() string {
-	if x != nil {
-		return x.PostLogoutRedirectUri
-	}
-	return ""
-}
-
-func (x *BuildLogoutURLRequest) GetIdTokenHint() string {
-	if x != nil {
-		return x.IdTokenHint
-	}
-	return ""
-}
-
-func (x *BuildLogoutURLRequest) GetState() string {
-	if x != nil {
-		return x.State
-	}
-	return ""
-}
-
-func (x *BuildLogoutURLRequest) GetOrgId() string {
-	if x != nil {
-		return x.OrgId
-	}
-	return ""
-}
-
-func (x *BuildLogoutURLRequest) GetAppId() string {
-	if x != nil {
-		return x.AppId
-	}
-	return ""
-}
-
-type BuildLogoutURLReply struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	LogoutUrl             string                 `protobuf:"bytes,1,opt,name=logout_url,json=logoutUrl,proto3" json:"logout_url,omitempty"`
-	Provider              string                 `protobuf:"bytes,2,opt,name=provider,proto3" json:"provider,omitempty"`
-	PostLogoutRedirectUri string                 `protobuf:"bytes,3,opt,name=post_logout_redirect_uri,json=postLogoutRedirectUri,proto3" json:"post_logout_redirect_uri,omitempty"`
-	State                 string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
-}
-
-func (x *BuildLogoutURLReply) Reset() {
-	*x = BuildLogoutURLReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BuildLogoutURLReply) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BuildLogoutURLReply) ProtoMessage() {}
-
-func (x *BuildLogoutURLReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BuildLogoutURLReply.ProtoReflect.Descriptor instead.
-func (*BuildLogoutURLReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *BuildLogoutURLReply) GetLogoutUrl() string {
-	if x != nil {
-		return x.LogoutUrl
-	}
-	return ""
-}
-
-func (x *BuildLogoutURLReply) GetProvider() string {
-	if x != nil {
-		return x.Provider
-	}
-	return ""
-}
-
-func (x *BuildLogoutURLReply) GetPostLogoutRedirectUri() string {
-	if x != nil {
-		return x.PostLogoutRedirectUri
-	}
-	return ""
-}
-
-func (x *BuildLogoutURLReply) GetState() string {
-	if x != nil {
-		return x.State
-	}
-	return ""
-}
-
 type GetUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
@@ -784,7 +224,7 @@ type GetUserRequest struct {
 
 func (x *GetUserRequest) Reset() {
 	*x = GetUserRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[11]
+	mi := &file_iam_v1_iam_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -796,7 +236,7 @@ func (x *GetUserRequest) String() string {
 func (*GetUserRequest) ProtoMessage() {}
 
 func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[11]
+	mi := &file_iam_v1_iam_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -809,7 +249,7 @@ func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
 func (*GetUserRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{11}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetUserRequest) GetOrgId() string {
@@ -840,7 +280,7 @@ type ListUsersRequest struct {
 
 func (x *ListUsersRequest) Reset() {
 	*x = ListUsersRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[12]
+	mi := &file_iam_v1_iam_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -852,7 +292,7 @@ func (x *ListUsersRequest) String() string {
 func (*ListUsersRequest) ProtoMessage() {}
 
 func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[12]
+	mi := &file_iam_v1_iam_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -865,7 +305,7 @@ func (x *ListUsersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersRequest.ProtoReflect.Descriptor instead.
 func (*ListUsersRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{12}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListUsersRequest) GetOrgId() string {
@@ -920,7 +360,7 @@ type ListUsersReply struct {
 
 func (x *ListUsersReply) Reset() {
 	*x = ListUsersReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[13]
+	mi := &file_iam_v1_iam_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -932,7 +372,7 @@ func (x *ListUsersReply) String() string {
 func (*ListUsersReply) ProtoMessage() {}
 
 func (x *ListUsersReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[13]
+	mi := &file_iam_v1_iam_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -945,7 +385,7 @@ func (x *ListUsersReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsersReply.ProtoReflect.Descriptor instead.
 func (*ListUsersReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{13}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListUsersReply) GetUsers() []*User {
@@ -971,7 +411,7 @@ type GetOrganizationRequest struct {
 
 func (x *GetOrganizationRequest) Reset() {
 	*x = GetOrganizationRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[14]
+	mi := &file_iam_v1_iam_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -983,7 +423,7 @@ func (x *GetOrganizationRequest) String() string {
 func (*GetOrganizationRequest) ProtoMessage() {}
 
 func (x *GetOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[14]
+	mi := &file_iam_v1_iam_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -996,7 +436,7 @@ func (x *GetOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*GetOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{14}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetOrganizationRequest) GetOrgId() string {
@@ -1019,7 +459,7 @@ type ListGroupsRequest struct {
 
 func (x *ListGroupsRequest) Reset() {
 	*x = ListGroupsRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[15]
+	mi := &file_iam_v1_iam_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1031,7 +471,7 @@ func (x *ListGroupsRequest) String() string {
 func (*ListGroupsRequest) ProtoMessage() {}
 
 func (x *ListGroupsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[15]
+	mi := &file_iam_v1_iam_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1044,7 +484,7 @@ func (x *ListGroupsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGroupsRequest.ProtoReflect.Descriptor instead.
 func (*ListGroupsRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{15}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListGroupsRequest) GetOrgId() string {
@@ -1091,7 +531,7 @@ type ListGroupsReply struct {
 
 func (x *ListGroupsReply) Reset() {
 	*x = ListGroupsReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[16]
+	mi := &file_iam_v1_iam_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1103,7 +543,7 @@ func (x *ListGroupsReply) String() string {
 func (*ListGroupsReply) ProtoMessage() {}
 
 func (x *ListGroupsReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[16]
+	mi := &file_iam_v1_iam_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1116,12 +556,660 @@ func (x *ListGroupsReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGroupsReply.ProtoReflect.Descriptor instead.
 func (*ListGroupsReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{16}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListGroupsReply) GetGroups() []*Group {
 	if x != nil {
 		return x.Groups
+	}
+	return nil
+}
+
+type GetGroupRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGroupRequest) Reset() {
+	*x = GetGroupRequest{}
+	mi := &file_iam_v1_iam_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGroupRequest) ProtoMessage() {}
+
+func (x *GetGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGroupRequest.ProtoReflect.Descriptor instead.
+func (*GetGroupRequest) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetGroupRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *GetGroupRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+type CreateGroupRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	OrgId          string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	Group          *Group                 `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
+	IdempotencyKey string                 `protobuf:"bytes,3,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CreateGroupRequest) Reset() {
+	*x = CreateGroupRequest{}
+	mi := &file_iam_v1_iam_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateGroupRequest) ProtoMessage() {}
+
+func (x *CreateGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateGroupRequest.ProtoReflect.Descriptor instead.
+func (*CreateGroupRequest) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *CreateGroupRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *CreateGroupRequest) GetGroup() *Group {
+	if x != nil {
+		return x.Group
+	}
+	return nil
+}
+
+func (x *CreateGroupRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+type UpdateGroupRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	Group         *Group                 `protobuf:"bytes,3,opt,name=group,proto3" json:"group,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateGroupRequest) Reset() {
+	*x = UpdateGroupRequest{}
+	mi := &file_iam_v1_iam_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateGroupRequest) ProtoMessage() {}
+
+func (x *UpdateGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateGroupRequest.ProtoReflect.Descriptor instead.
+func (*UpdateGroupRequest) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *UpdateGroupRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *UpdateGroupRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *UpdateGroupRequest) GetGroup() *Group {
+	if x != nil {
+		return x.Group
+	}
+	return nil
+}
+
+type DeleteGroupRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	Recursive     bool                   `protobuf:"varint,3,opt,name=recursive,proto3" json:"recursive,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteGroupRequest) Reset() {
+	*x = DeleteGroupRequest{}
+	mi := &file_iam_v1_iam_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteGroupRequest) ProtoMessage() {}
+
+func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteGroupRequest.ProtoReflect.Descriptor instead.
+func (*DeleteGroupRequest) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *DeleteGroupRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *DeleteGroupRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *DeleteGroupRequest) GetRecursive() bool {
+	if x != nil {
+		return x.Recursive
+	}
+	return false
+}
+
+type AssignUserToGroupRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,3,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AssignUserToGroupRequest) Reset() {
+	*x = AssignUserToGroupRequest{}
+	mi := &file_iam_v1_iam_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AssignUserToGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AssignUserToGroupRequest) ProtoMessage() {}
+
+func (x *AssignUserToGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AssignUserToGroupRequest.ProtoReflect.Descriptor instead.
+func (*AssignUserToGroupRequest) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *AssignUserToGroupRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *AssignUserToGroupRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *AssignUserToGroupRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+type RemoveUserFromGroupRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,3,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveUserFromGroupRequest) Reset() {
+	*x = RemoveUserFromGroupRequest{}
+	mi := &file_iam_v1_iam_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveUserFromGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveUserFromGroupRequest) ProtoMessage() {}
+
+func (x *RemoveUserFromGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveUserFromGroupRequest.ProtoReflect.Descriptor instead.
+func (*RemoveUserFromGroupRequest) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *RemoveUserFromGroupRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *RemoveUserFromGroupRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *RemoveUserFromGroupRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+type RetryDirectoryProjectionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Limit         int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RetryDirectoryProjectionRequest) Reset() {
+	*x = RetryDirectoryProjectionRequest{}
+	mi := &file_iam_v1_iam_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetryDirectoryProjectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetryDirectoryProjectionRequest) ProtoMessage() {}
+
+func (x *RetryDirectoryProjectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetryDirectoryProjectionRequest.ProtoReflect.Descriptor instead.
+func (*RetryDirectoryProjectionRequest) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *RetryDirectoryProjectionRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type RetryDirectoryProjectionReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Processed     int32                  `protobuf:"varint,1,opt,name=processed,proto3" json:"processed,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RetryDirectoryProjectionReply) Reset() {
+	*x = RetryDirectoryProjectionReply{}
+	mi := &file_iam_v1_iam_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RetryDirectoryProjectionReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RetryDirectoryProjectionReply) ProtoMessage() {}
+
+func (x *RetryDirectoryProjectionReply) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RetryDirectoryProjectionReply.ProtoReflect.Descriptor instead.
+func (*RetryDirectoryProjectionReply) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *RetryDirectoryProjectionReply) GetProcessed() int32 {
+	if x != nil {
+		return x.Processed
+	}
+	return 0
+}
+
+type ReconcileDirectoryProjectionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReconcileDirectoryProjectionRequest) Reset() {
+	*x = ReconcileDirectoryProjectionRequest{}
+	mi := &file_iam_v1_iam_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReconcileDirectoryProjectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReconcileDirectoryProjectionRequest) ProtoMessage() {}
+
+func (x *ReconcileDirectoryProjectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReconcileDirectoryProjectionRequest.ProtoReflect.Descriptor instead.
+func (*ReconcileDirectoryProjectionRequest) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ReconcileDirectoryProjectionRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+type ReconcileDirectoryProjectionReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	Relationships int32                  `protobuf:"varint,2,opt,name=relationships,proto3" json:"relationships,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReconcileDirectoryProjectionReply) Reset() {
+	*x = ReconcileDirectoryProjectionReply{}
+	mi := &file_iam_v1_iam_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReconcileDirectoryProjectionReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReconcileDirectoryProjectionReply) ProtoMessage() {}
+
+func (x *ReconcileDirectoryProjectionReply) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReconcileDirectoryProjectionReply.ProtoReflect.Descriptor instead.
+func (*ReconcileDirectoryProjectionReply) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ReconcileDirectoryProjectionReply) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ReconcileDirectoryProjectionReply) GetRelationships() int32 {
+	if x != nil {
+		return x.Relationships
+	}
+	return 0
+}
+
+type CheckDirectoryProjectionDriftRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckDirectoryProjectionDriftRequest) Reset() {
+	*x = CheckDirectoryProjectionDriftRequest{}
+	mi := &file_iam_v1_iam_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckDirectoryProjectionDriftRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckDirectoryProjectionDriftRequest) ProtoMessage() {}
+
+func (x *CheckDirectoryProjectionDriftRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckDirectoryProjectionDriftRequest.ProtoReflect.Descriptor instead.
+func (*CheckDirectoryProjectionDriftRequest) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *CheckDirectoryProjectionDriftRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+type CheckDirectoryProjectionDriftReply struct {
+	state                      protoimpl.MessageState `protogen:"open.v1"`
+	Desired                    int32                  `protobuf:"varint,1,opt,name=desired,proto3" json:"desired,omitempty"`
+	Missing                    int32                  `protobuf:"varint,2,opt,name=missing,proto3" json:"missing,omitempty"`
+	MissingRelationships       []string               `protobuf:"bytes,3,rep,name=missing_relationships,json=missingRelationships,proto3" json:"missing_relationships,omitempty"`
+	MissingRelationshipObjects []*Relationship        `protobuf:"bytes,4,rep,name=missing_relationship_objects,json=missingRelationshipObjects,proto3" json:"missing_relationship_objects,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
+}
+
+func (x *CheckDirectoryProjectionDriftReply) Reset() {
+	*x = CheckDirectoryProjectionDriftReply{}
+	mi := &file_iam_v1_iam_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckDirectoryProjectionDriftReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckDirectoryProjectionDriftReply) ProtoMessage() {}
+
+func (x *CheckDirectoryProjectionDriftReply) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_iam_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckDirectoryProjectionDriftReply.ProtoReflect.Descriptor instead.
+func (*CheckDirectoryProjectionDriftReply) Descriptor() ([]byte, []int) {
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *CheckDirectoryProjectionDriftReply) GetDesired() int32 {
+	if x != nil {
+		return x.Desired
+	}
+	return 0
+}
+
+func (x *CheckDirectoryProjectionDriftReply) GetMissing() int32 {
+	if x != nil {
+		return x.Missing
+	}
+	return 0
+}
+
+func (x *CheckDirectoryProjectionDriftReply) GetMissingRelationships() []string {
+	if x != nil {
+		return x.MissingRelationships
+	}
+	return nil
+}
+
+func (x *CheckDirectoryProjectionDriftReply) GetMissingRelationshipObjects() []*Relationship {
+	if x != nil {
+		return x.MissingRelationshipObjects
 	}
 	return nil
 }
@@ -1139,7 +1227,7 @@ type CheckPermissionRequest struct {
 
 func (x *CheckPermissionRequest) Reset() {
 	*x = CheckPermissionRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[17]
+	mi := &file_iam_v1_iam_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1151,7 +1239,7 @@ func (x *CheckPermissionRequest) String() string {
 func (*CheckPermissionRequest) ProtoMessage() {}
 
 func (x *CheckPermissionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[17]
+	mi := &file_iam_v1_iam_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1164,7 +1252,7 @@ func (x *CheckPermissionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckPermissionRequest.ProtoReflect.Descriptor instead.
 func (*CheckPermissionRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{17}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CheckPermissionRequest) GetSubject() *SubjectRef {
@@ -1214,7 +1302,7 @@ type CheckPermissionReply struct {
 
 func (x *CheckPermissionReply) Reset() {
 	*x = CheckPermissionReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[18]
+	mi := &file_iam_v1_iam_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1226,7 +1314,7 @@ func (x *CheckPermissionReply) String() string {
 func (*CheckPermissionReply) ProtoMessage() {}
 
 func (x *CheckPermissionReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[18]
+	mi := &file_iam_v1_iam_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1239,7 +1327,7 @@ func (x *CheckPermissionReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckPermissionReply.ProtoReflect.Descriptor instead.
 func (*CheckPermissionReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{18}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *CheckPermissionReply) GetAllowed() bool {
@@ -1279,7 +1367,7 @@ type WriteRelationshipRequest struct {
 
 func (x *WriteRelationshipRequest) Reset() {
 	*x = WriteRelationshipRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[19]
+	mi := &file_iam_v1_iam_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1291,7 +1379,7 @@ func (x *WriteRelationshipRequest) String() string {
 func (*WriteRelationshipRequest) ProtoMessage() {}
 
 func (x *WriteRelationshipRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[19]
+	mi := &file_iam_v1_iam_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1304,7 +1392,7 @@ func (x *WriteRelationshipRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WriteRelationshipRequest.ProtoReflect.Descriptor instead.
 func (*WriteRelationshipRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{19}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *WriteRelationshipRequest) GetRelationship() *Relationship {
@@ -1324,7 +1412,7 @@ type WriteRelationshipReply struct {
 
 func (x *WriteRelationshipReply) Reset() {
 	*x = WriteRelationshipReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[20]
+	mi := &file_iam_v1_iam_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1336,7 +1424,7 @@ func (x *WriteRelationshipReply) String() string {
 func (*WriteRelationshipReply) ProtoMessage() {}
 
 func (x *WriteRelationshipReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[20]
+	mi := &file_iam_v1_iam_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1349,7 +1437,7 @@ func (x *WriteRelationshipReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WriteRelationshipReply.ProtoReflect.Descriptor instead.
 func (*WriteRelationshipReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{20}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *WriteRelationshipReply) GetWritten() int32 {
@@ -1375,7 +1463,7 @@ type DeleteRelationshipRequest struct {
 
 func (x *DeleteRelationshipRequest) Reset() {
 	*x = DeleteRelationshipRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[21]
+	mi := &file_iam_v1_iam_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1387,7 +1475,7 @@ func (x *DeleteRelationshipRequest) String() string {
 func (*DeleteRelationshipRequest) ProtoMessage() {}
 
 func (x *DeleteRelationshipRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[21]
+	mi := &file_iam_v1_iam_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1400,7 +1488,7 @@ func (x *DeleteRelationshipRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRelationshipRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRelationshipRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{21}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *DeleteRelationshipRequest) GetFilter() *RelationshipFilter {
@@ -1420,7 +1508,7 @@ type DeleteRelationshipReply struct {
 
 func (x *DeleteRelationshipReply) Reset() {
 	*x = DeleteRelationshipReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[22]
+	mi := &file_iam_v1_iam_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1432,7 +1520,7 @@ func (x *DeleteRelationshipReply) String() string {
 func (*DeleteRelationshipReply) ProtoMessage() {}
 
 func (x *DeleteRelationshipReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[22]
+	mi := &file_iam_v1_iam_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1445,7 +1533,7 @@ func (x *DeleteRelationshipReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRelationshipReply.ProtoReflect.Descriptor instead.
 func (*DeleteRelationshipReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{22}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *DeleteRelationshipReply) GetDeleted() int32 {
@@ -1475,7 +1563,7 @@ type LookupResourcesRequest struct {
 
 func (x *LookupResourcesRequest) Reset() {
 	*x = LookupResourcesRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[23]
+	mi := &file_iam_v1_iam_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1487,7 +1575,7 @@ func (x *LookupResourcesRequest) String() string {
 func (*LookupResourcesRequest) ProtoMessage() {}
 
 func (x *LookupResourcesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[23]
+	mi := &file_iam_v1_iam_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1500,7 +1588,7 @@ func (x *LookupResourcesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LookupResourcesRequest.ProtoReflect.Descriptor instead.
 func (*LookupResourcesRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{23}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *LookupResourcesRequest) GetSubject() *SubjectRef {
@@ -1549,7 +1637,7 @@ type LookupResourcesReply struct {
 
 func (x *LookupResourcesReply) Reset() {
 	*x = LookupResourcesReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[24]
+	mi := &file_iam_v1_iam_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1561,7 +1649,7 @@ func (x *LookupResourcesReply) String() string {
 func (*LookupResourcesReply) ProtoMessage() {}
 
 func (x *LookupResourcesReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[24]
+	mi := &file_iam_v1_iam_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1574,7 +1662,7 @@ func (x *LookupResourcesReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LookupResourcesReply.ProtoReflect.Descriptor instead.
 func (*LookupResourcesReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{24}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *LookupResourcesReply) GetResources() []*ObjectRef {
@@ -1611,7 +1699,7 @@ type LookupSubjectsRequest struct {
 
 func (x *LookupSubjectsRequest) Reset() {
 	*x = LookupSubjectsRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[25]
+	mi := &file_iam_v1_iam_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1623,7 +1711,7 @@ func (x *LookupSubjectsRequest) String() string {
 func (*LookupSubjectsRequest) ProtoMessage() {}
 
 func (x *LookupSubjectsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[25]
+	mi := &file_iam_v1_iam_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1636,7 +1724,7 @@ func (x *LookupSubjectsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LookupSubjectsRequest.ProtoReflect.Descriptor instead.
 func (*LookupSubjectsRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{25}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *LookupSubjectsRequest) GetResource() *ObjectRef {
@@ -1685,7 +1773,7 @@ type LookupSubjectsReply struct {
 
 func (x *LookupSubjectsReply) Reset() {
 	*x = LookupSubjectsReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[26]
+	mi := &file_iam_v1_iam_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1697,7 +1785,7 @@ func (x *LookupSubjectsReply) String() string {
 func (*LookupSubjectsReply) ProtoMessage() {}
 
 func (x *LookupSubjectsReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[26]
+	mi := &file_iam_v1_iam_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1710,7 +1798,7 @@ func (x *LookupSubjectsReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LookupSubjectsReply.ProtoReflect.Descriptor instead.
 func (*LookupSubjectsReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{26}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *LookupSubjectsReply) GetSubjects() []*SubjectRef {
@@ -1742,7 +1830,7 @@ type GetAuthorizationSchemaRequest struct {
 
 func (x *GetAuthorizationSchemaRequest) Reset() {
 	*x = GetAuthorizationSchemaRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[27]
+	mi := &file_iam_v1_iam_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1754,7 +1842,7 @@ func (x *GetAuthorizationSchemaRequest) String() string {
 func (*GetAuthorizationSchemaRequest) ProtoMessage() {}
 
 func (x *GetAuthorizationSchemaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[27]
+	mi := &file_iam_v1_iam_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1767,7 +1855,7 @@ func (x *GetAuthorizationSchemaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAuthorizationSchemaRequest.ProtoReflect.Descriptor instead.
 func (*GetAuthorizationSchemaRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{27}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{31}
 }
 
 type AuthorizationSchema struct {
@@ -1780,7 +1868,7 @@ type AuthorizationSchema struct {
 
 func (x *AuthorizationSchema) Reset() {
 	*x = AuthorizationSchema{}
-	mi := &file_iam_v1_iam_proto_msgTypes[28]
+	mi := &file_iam_v1_iam_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1792,7 +1880,7 @@ func (x *AuthorizationSchema) String() string {
 func (*AuthorizationSchema) ProtoMessage() {}
 
 func (x *AuthorizationSchema) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[28]
+	mi := &file_iam_v1_iam_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1805,7 +1893,7 @@ func (x *AuthorizationSchema) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthorizationSchema.ProtoReflect.Descriptor instead.
 func (*AuthorizationSchema) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{28}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *AuthorizationSchema) GetText() string {
@@ -1831,7 +1919,7 @@ type ValidateAuthorizationSchemaRequest struct {
 
 func (x *ValidateAuthorizationSchemaRequest) Reset() {
 	*x = ValidateAuthorizationSchemaRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[29]
+	mi := &file_iam_v1_iam_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1843,7 +1931,7 @@ func (x *ValidateAuthorizationSchemaRequest) String() string {
 func (*ValidateAuthorizationSchemaRequest) ProtoMessage() {}
 
 func (x *ValidateAuthorizationSchemaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[29]
+	mi := &file_iam_v1_iam_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1856,7 +1944,7 @@ func (x *ValidateAuthorizationSchemaRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ValidateAuthorizationSchemaRequest.ProtoReflect.Descriptor instead.
 func (*ValidateAuthorizationSchemaRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{29}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ValidateAuthorizationSchemaRequest) GetText() string {
@@ -1876,7 +1964,7 @@ type ValidateAuthorizationSchemaReply struct {
 
 func (x *ValidateAuthorizationSchemaReply) Reset() {
 	*x = ValidateAuthorizationSchemaReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[30]
+	mi := &file_iam_v1_iam_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1888,7 +1976,7 @@ func (x *ValidateAuthorizationSchemaReply) String() string {
 func (*ValidateAuthorizationSchemaReply) ProtoMessage() {}
 
 func (x *ValidateAuthorizationSchemaReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[30]
+	mi := &file_iam_v1_iam_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1901,7 +1989,7 @@ func (x *ValidateAuthorizationSchemaReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateAuthorizationSchemaReply.ProtoReflect.Descriptor instead.
 func (*ValidateAuthorizationSchemaReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{30}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ValidateAuthorizationSchemaReply) GetValid() bool {
@@ -1927,7 +2015,7 @@ type PublishAuthorizationSchemaRequest struct {
 
 func (x *PublishAuthorizationSchemaRequest) Reset() {
 	*x = PublishAuthorizationSchemaRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[31]
+	mi := &file_iam_v1_iam_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1939,7 +2027,7 @@ func (x *PublishAuthorizationSchemaRequest) String() string {
 func (*PublishAuthorizationSchemaRequest) ProtoMessage() {}
 
 func (x *PublishAuthorizationSchemaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[31]
+	mi := &file_iam_v1_iam_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1952,7 +2040,7 @@ func (x *PublishAuthorizationSchemaRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use PublishAuthorizationSchemaRequest.ProtoReflect.Descriptor instead.
 func (*PublishAuthorizationSchemaRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{31}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *PublishAuthorizationSchemaRequest) GetText() string {
@@ -1971,7 +2059,7 @@ type PublishAuthorizationSchemaReply struct {
 
 func (x *PublishAuthorizationSchemaReply) Reset() {
 	*x = PublishAuthorizationSchemaReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[32]
+	mi := &file_iam_v1_iam_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1983,7 +2071,7 @@ func (x *PublishAuthorizationSchemaReply) String() string {
 func (*PublishAuthorizationSchemaReply) ProtoMessage() {}
 
 func (x *PublishAuthorizationSchemaReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[32]
+	mi := &file_iam_v1_iam_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1996,7 +2084,7 @@ func (x *PublishAuthorizationSchemaReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishAuthorizationSchemaReply.ProtoReflect.Descriptor instead.
 func (*PublishAuthorizationSchemaReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{32}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *PublishAuthorizationSchemaReply) GetPublished() bool {
@@ -2020,7 +2108,7 @@ type ListRelationshipsRequest struct {
 
 func (x *ListRelationshipsRequest) Reset() {
 	*x = ListRelationshipsRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[33]
+	mi := &file_iam_v1_iam_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2032,7 +2120,7 @@ func (x *ListRelationshipsRequest) String() string {
 func (*ListRelationshipsRequest) ProtoMessage() {}
 
 func (x *ListRelationshipsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[33]
+	mi := &file_iam_v1_iam_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2045,7 +2133,7 @@ func (x *ListRelationshipsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRelationshipsRequest.ProtoReflect.Descriptor instead.
 func (*ListRelationshipsRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{33}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ListRelationshipsRequest) GetResourceType() string {
@@ -2099,7 +2187,7 @@ type ListRelationshipsReply struct {
 
 func (x *ListRelationshipsReply) Reset() {
 	*x = ListRelationshipsReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[34]
+	mi := &file_iam_v1_iam_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2111,7 +2199,7 @@ func (x *ListRelationshipsReply) String() string {
 func (*ListRelationshipsReply) ProtoMessage() {}
 
 func (x *ListRelationshipsReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[34]
+	mi := &file_iam_v1_iam_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2124,7 +2212,7 @@ func (x *ListRelationshipsReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRelationshipsReply.ProtoReflect.Descriptor instead.
 func (*ListRelationshipsReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{34}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ListRelationshipsReply) GetRelationships() []*Relationship {
@@ -2143,7 +2231,7 @@ type WriteRelationshipsRequest struct {
 
 func (x *WriteRelationshipsRequest) Reset() {
 	*x = WriteRelationshipsRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[35]
+	mi := &file_iam_v1_iam_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2155,7 +2243,7 @@ func (x *WriteRelationshipsRequest) String() string {
 func (*WriteRelationshipsRequest) ProtoMessage() {}
 
 func (x *WriteRelationshipsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[35]
+	mi := &file_iam_v1_iam_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2168,7 +2256,7 @@ func (x *WriteRelationshipsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WriteRelationshipsRequest.ProtoReflect.Descriptor instead.
 func (*WriteRelationshipsRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{35}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *WriteRelationshipsRequest) GetRelationships() []*Relationship {
@@ -2188,7 +2276,7 @@ type WriteRelationshipsReply struct {
 
 func (x *WriteRelationshipsReply) Reset() {
 	*x = WriteRelationshipsReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[36]
+	mi := &file_iam_v1_iam_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2200,7 +2288,7 @@ func (x *WriteRelationshipsReply) String() string {
 func (*WriteRelationshipsReply) ProtoMessage() {}
 
 func (x *WriteRelationshipsReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[36]
+	mi := &file_iam_v1_iam_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2213,7 +2301,7 @@ func (x *WriteRelationshipsReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WriteRelationshipsReply.ProtoReflect.Descriptor instead.
 func (*WriteRelationshipsReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{36}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *WriteRelationshipsReply) GetWritten() int32 {
@@ -2239,7 +2327,7 @@ type DeleteRelationshipsRequest struct {
 
 func (x *DeleteRelationshipsRequest) Reset() {
 	*x = DeleteRelationshipsRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[37]
+	mi := &file_iam_v1_iam_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2251,7 +2339,7 @@ func (x *DeleteRelationshipsRequest) String() string {
 func (*DeleteRelationshipsRequest) ProtoMessage() {}
 
 func (x *DeleteRelationshipsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[37]
+	mi := &file_iam_v1_iam_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2264,7 +2352,7 @@ func (x *DeleteRelationshipsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRelationshipsRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRelationshipsRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{37}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *DeleteRelationshipsRequest) GetFilter() *RelationshipFilter {
@@ -2284,7 +2372,7 @@ type DeleteRelationshipsReply struct {
 
 func (x *DeleteRelationshipsReply) Reset() {
 	*x = DeleteRelationshipsReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[38]
+	mi := &file_iam_v1_iam_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2296,7 +2384,7 @@ func (x *DeleteRelationshipsReply) String() string {
 func (*DeleteRelationshipsReply) ProtoMessage() {}
 
 func (x *DeleteRelationshipsReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[38]
+	mi := &file_iam_v1_iam_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2309,7 +2397,7 @@ func (x *DeleteRelationshipsReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRelationshipsReply.ProtoReflect.Descriptor instead.
 func (*DeleteRelationshipsReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{38}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *DeleteRelationshipsReply) GetDeleted() int32 {
@@ -2339,7 +2427,7 @@ type ExplainAuthorizationReply struct {
 
 func (x *ExplainAuthorizationReply) Reset() {
 	*x = ExplainAuthorizationReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[39]
+	mi := &file_iam_v1_iam_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2351,7 +2439,7 @@ func (x *ExplainAuthorizationReply) String() string {
 func (*ExplainAuthorizationReply) ProtoMessage() {}
 
 func (x *ExplainAuthorizationReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[39]
+	mi := &file_iam_v1_iam_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2364,7 +2452,7 @@ func (x *ExplainAuthorizationReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExplainAuthorizationReply.ProtoReflect.Descriptor instead.
 func (*ExplainAuthorizationReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{39}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *ExplainAuthorizationReply) GetAllowed() bool {
@@ -2416,7 +2504,7 @@ type GetEffectivePermissionsRequest struct {
 
 func (x *GetEffectivePermissionsRequest) Reset() {
 	*x = GetEffectivePermissionsRequest{}
-	mi := &file_iam_v1_iam_proto_msgTypes[40]
+	mi := &file_iam_v1_iam_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2428,7 +2516,7 @@ func (x *GetEffectivePermissionsRequest) String() string {
 func (*GetEffectivePermissionsRequest) ProtoMessage() {}
 
 func (x *GetEffectivePermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[40]
+	mi := &file_iam_v1_iam_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2441,7 +2529,7 @@ func (x *GetEffectivePermissionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetEffectivePermissionsRequest.ProtoReflect.Descriptor instead.
 func (*GetEffectivePermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{40}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *GetEffectivePermissionsRequest) GetSubjectType() string {
@@ -2497,7 +2585,7 @@ type GetEffectivePermissionsReply struct {
 
 func (x *GetEffectivePermissionsReply) Reset() {
 	*x = GetEffectivePermissionsReply{}
-	mi := &file_iam_v1_iam_proto_msgTypes[41]
+	mi := &file_iam_v1_iam_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2509,7 +2597,7 @@ func (x *GetEffectivePermissionsReply) String() string {
 func (*GetEffectivePermissionsReply) ProtoMessage() {}
 
 func (x *GetEffectivePermissionsReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[41]
+	mi := &file_iam_v1_iam_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2522,7 +2610,7 @@ func (x *GetEffectivePermissionsReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetEffectivePermissionsReply.ProtoReflect.Descriptor instead.
 func (*GetEffectivePermissionsReply) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{41}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *GetEffectivePermissionsReply) GetSubject() *SubjectRef {
@@ -2557,7 +2645,7 @@ type PermissionDecision struct {
 
 func (x *PermissionDecision) Reset() {
 	*x = PermissionDecision{}
-	mi := &file_iam_v1_iam_proto_msgTypes[42]
+	mi := &file_iam_v1_iam_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2569,7 +2657,7 @@ func (x *PermissionDecision) String() string {
 func (*PermissionDecision) ProtoMessage() {}
 
 func (x *PermissionDecision) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[42]
+	mi := &file_iam_v1_iam_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2582,7 +2670,7 @@ func (x *PermissionDecision) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissionDecision.ProtoReflect.Descriptor instead.
 func (*PermissionDecision) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{42}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *PermissionDecision) GetAllowed() bool {
@@ -2620,7 +2708,7 @@ type TokenSet struct {
 
 func (x *TokenSet) Reset() {
 	*x = TokenSet{}
-	mi := &file_iam_v1_iam_proto_msgTypes[43]
+	mi := &file_iam_v1_iam_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2632,7 +2720,7 @@ func (x *TokenSet) String() string {
 func (*TokenSet) ProtoMessage() {}
 
 func (x *TokenSet) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[43]
+	mi := &file_iam_v1_iam_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2645,7 +2733,7 @@ func (x *TokenSet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokenSet.ProtoReflect.Descriptor instead.
 func (*TokenSet) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{43}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *TokenSet) GetAccessToken() string {
@@ -2718,7 +2806,7 @@ type Principal struct {
 
 func (x *Principal) Reset() {
 	*x = Principal{}
-	mi := &file_iam_v1_iam_proto_msgTypes[44]
+	mi := &file_iam_v1_iam_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2730,7 +2818,7 @@ func (x *Principal) String() string {
 func (*Principal) ProtoMessage() {}
 
 func (x *Principal) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[44]
+	mi := &file_iam_v1_iam_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2743,7 +2831,7 @@ func (x *Principal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Principal.ProtoReflect.Descriptor instead.
 func (*Principal) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{44}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *Principal) GetSubjectId() string {
@@ -2905,7 +2993,7 @@ type User struct {
 
 func (x *User) Reset() {
 	*x = User{}
-	mi := &file_iam_v1_iam_proto_msgTypes[45]
+	mi := &file_iam_v1_iam_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2917,7 +3005,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[45]
+	mi := &file_iam_v1_iam_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2930,7 +3018,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{45}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *User) GetId() string {
@@ -3026,7 +3114,7 @@ type Organization struct {
 
 func (x *Organization) Reset() {
 	*x = Organization{}
-	mi := &file_iam_v1_iam_proto_msgTypes[46]
+	mi := &file_iam_v1_iam_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3038,7 +3126,7 @@ func (x *Organization) String() string {
 func (*Organization) ProtoMessage() {}
 
 func (x *Organization) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[46]
+	mi := &file_iam_v1_iam_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3051,7 +3139,7 @@ func (x *Organization) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Organization.ProtoReflect.Descriptor instead.
 func (*Organization) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{46}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *Organization) GetId() string {
@@ -3127,7 +3215,7 @@ type Group struct {
 
 func (x *Group) Reset() {
 	*x = Group{}
-	mi := &file_iam_v1_iam_proto_msgTypes[47]
+	mi := &file_iam_v1_iam_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3139,7 +3227,7 @@ func (x *Group) String() string {
 func (*Group) ProtoMessage() {}
 
 func (x *Group) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[47]
+	mi := &file_iam_v1_iam_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3152,7 +3240,7 @@ func (x *Group) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Group.ProtoReflect.Descriptor instead.
 func (*Group) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{47}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *Group) GetId() string {
@@ -3238,7 +3326,7 @@ type Application struct {
 
 func (x *Application) Reset() {
 	*x = Application{}
-	mi := &file_iam_v1_iam_proto_msgTypes[48]
+	mi := &file_iam_v1_iam_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3250,7 +3338,7 @@ func (x *Application) String() string {
 func (*Application) ProtoMessage() {}
 
 func (x *Application) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[48]
+	mi := &file_iam_v1_iam_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3263,7 +3351,7 @@ func (x *Application) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Application.ProtoReflect.Descriptor instead.
 func (*Application) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{48}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *Application) GetId() string {
@@ -3360,7 +3448,7 @@ type ObjectRef struct {
 
 func (x *ObjectRef) Reset() {
 	*x = ObjectRef{}
-	mi := &file_iam_v1_iam_proto_msgTypes[49]
+	mi := &file_iam_v1_iam_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3372,7 +3460,7 @@ func (x *ObjectRef) String() string {
 func (*ObjectRef) ProtoMessage() {}
 
 func (x *ObjectRef) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[49]
+	mi := &file_iam_v1_iam_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3385,7 +3473,7 @@ func (x *ObjectRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObjectRef.ProtoReflect.Descriptor instead.
 func (*ObjectRef) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{49}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *ObjectRef) GetType() string {
@@ -3413,7 +3501,7 @@ type SubjectRef struct {
 
 func (x *SubjectRef) Reset() {
 	*x = SubjectRef{}
-	mi := &file_iam_v1_iam_proto_msgTypes[50]
+	mi := &file_iam_v1_iam_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3425,7 +3513,7 @@ func (x *SubjectRef) String() string {
 func (*SubjectRef) ProtoMessage() {}
 
 func (x *SubjectRef) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[50]
+	mi := &file_iam_v1_iam_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3438,7 +3526,7 @@ func (x *SubjectRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubjectRef.ProtoReflect.Descriptor instead.
 func (*SubjectRef) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{50}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *SubjectRef) GetType() string {
@@ -3473,7 +3561,7 @@ type Relationship struct {
 
 func (x *Relationship) Reset() {
 	*x = Relationship{}
-	mi := &file_iam_v1_iam_proto_msgTypes[51]
+	mi := &file_iam_v1_iam_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3485,7 +3573,7 @@ func (x *Relationship) String() string {
 func (*Relationship) ProtoMessage() {}
 
 func (x *Relationship) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[51]
+	mi := &file_iam_v1_iam_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3498,7 +3586,7 @@ func (x *Relationship) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Relationship.ProtoReflect.Descriptor instead.
 func (*Relationship) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{51}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *Relationship) GetResource() *ObjectRef {
@@ -3536,7 +3624,7 @@ type RelationshipFilter struct {
 
 func (x *RelationshipFilter) Reset() {
 	*x = RelationshipFilter{}
-	mi := &file_iam_v1_iam_proto_msgTypes[52]
+	mi := &file_iam_v1_iam_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3548,7 +3636,7 @@ func (x *RelationshipFilter) String() string {
 func (*RelationshipFilter) ProtoMessage() {}
 
 func (x *RelationshipFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_v1_iam_proto_msgTypes[52]
+	mi := &file_iam_v1_iam_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3561,7 +3649,7 @@ func (x *RelationshipFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RelationshipFilter.ProtoReflect.Descriptor instead.
 func (*RelationshipFilter) Descriptor() ([]byte, []int) {
-	return file_iam_v1_iam_proto_rawDescGZIP(), []int{52}
+	return file_iam_v1_iam_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *RelationshipFilter) GetResourceType() string {
@@ -3610,44 +3698,8 @@ var File_iam_v1_iam_proto protoreflect.FileDescriptor
 
 const file_iam_v1_iam_proto_rawDesc = "" +
 	"\n" +
-	"\x10iam/v1/iam.proto\x12\x06iam.v1\x1a\x1faisphere/access/v1/access.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9f\x01\n" +
-	"\x14BuildLoginURLRequest\x12-\n" +
-	"\fredirect_uri\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\vredirectUri\x12\x14\n" +
-	"\x05state\x18\x02 \x01(\tR\x05state\x12\x14\n" +
-	"\x05scope\x18\x03 \x01(\tR\x05scope\x12\x15\n" +
-	"\x06org_id\x18\x04 \x01(\tR\x05orgId\x12\x15\n" +
-	"\x06app_id\x18\x05 \x01(\tR\x05appId\"\x9c\x01\n" +
-	"\x12BuildLoginURLReply\x12\x1b\n" +
-	"\tlogin_url\x18\x01 \x01(\tR\bloginUrl\x12\x1a\n" +
-	"\bprovider\x18\x02 \x01(\tR\bprovider\x12!\n" +
-	"\fredirect_uri\x18\x03 \x01(\tR\vredirectUri\x12\x14\n" +
-	"\x05state\x18\x04 \x01(\tR\x05state\x12\x14\n" +
-	"\x05scope\x18\x05 \x01(\tR\x05scope\"\x9c\x01\n" +
-	"\x13ExchangeCodeRequest\x12\x1e\n" +
-	"\x04code\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04code\x12\x14\n" +
-	"\x05state\x18\x02 \x01(\tR\x05state\x12!\n" +
-	"\fredirect_uri\x18\x03 \x01(\tR\vredirectUri\x12\x15\n" +
-	"\x06org_id\x18\x04 \x01(\tR\x05orgId\x12\x15\n" +
-	"\x06app_id\x18\x05 \x01(\tR\x05appId\"n\n" +
-	"\x11ExchangeCodeReply\x12(\n" +
-	"\x06tokens\x18\x01 \x01(\v2\x10.iam.v1.TokenSetR\x06tokens\x12/\n" +
-	"\tprincipal\x18\x02 \x01(\v2\x11.iam.v1.PrincipalR\tprincipal\"\x8a\x01\n" +
-	"\x13RefreshTokenRequest\x12/\n" +
-	"\rrefresh_token\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\frefreshToken\x12\x14\n" +
-	"\x05scope\x18\x02 \x01(\tR\x05scope\x12\x15\n" +
-	"\x06org_id\x18\x03 \x01(\tR\x05orgId\x12\x15\n" +
-	"\x06app_id\x18\x04 \x01(\tR\x05appId\"\x83\x01\n" +
+	"\x10iam/v1/iam.proto\x12\x06iam.v1\x1a\x1faisphere/access/v1/access.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x83\x01\n" +
 	"\x12VerifyTokenRequest\x12 \n" +
-	"\x05token\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05token\x12\x1d\n" +
-	"\n" +
-	"token_type\x18\x02 \x01(\tR\ttokenType\x12\x15\n" +
-	"\x06org_id\x18\x03 \x01(\tR\x05orgId\x12\x15\n" +
-	"\x06app_id\x18\x04 \x01(\tR\x05appId\"\x83\x01\n" +
-	"\x12RevokeTokenRequest\x12 \n" +
 	"\x05token\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05token\x12\x1d\n" +
 	"\n" +
@@ -3662,19 +3714,7 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x04user\x18\x02 \x01(\v2\f.iam.v1.UserR\x04user\x12%\n" +
 	"\x06groups\x18\x03 \x03(\v2\r.iam.v1.GroupR\x06groups\x125\n" +
 	"\vapplication\x18\x04 \x01(\v2\x13.iam.v1.ApplicationR\vapplication\x12\x1a\n" +
-	"\bwarnings\x18\x05 \x03(\tR\bwarnings\"\xb8\x01\n" +
-	"\x15BuildLogoutURLRequest\x127\n" +
-	"\x18post_logout_redirect_uri\x18\x01 \x01(\tR\x15postLogoutRedirectUri\x12\"\n" +
-	"\rid_token_hint\x18\x02 \x01(\tR\vidTokenHint\x12\x14\n" +
-	"\x05state\x18\x03 \x01(\tR\x05state\x12\x15\n" +
-	"\x06org_id\x18\x04 \x01(\tR\x05orgId\x12\x15\n" +
-	"\x06app_id\x18\x05 \x01(\tR\x05appId\"\x9f\x01\n" +
-	"\x13BuildLogoutURLReply\x12\x1d\n" +
-	"\n" +
-	"logout_url\x18\x01 \x01(\tR\tlogoutUrl\x12\x1a\n" +
-	"\bprovider\x18\x02 \x01(\tR\bprovider\x127\n" +
-	"\x18post_logout_redirect_uri\x18\x03 \x01(\tR\x15postLogoutRedirectUri\x12\x14\n" +
-	"\x05state\x18\x04 \x01(\tR\x05state\"X\n" +
+	"\bwarnings\x18\x05 \x03(\tR\bwarnings\"X\n" +
 	"\x0eGetUserRequest\x12!\n" +
 	"\x06org_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12#\n" +
@@ -3703,7 +3743,61 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\auser_id\x18\x04 \x01(\tR\x06userId\x12+\n" +
 	"\x11include_inherited\x18\x05 \x01(\bR\x10includeInherited\"8\n" +
 	"\x0fListGroupsReply\x12%\n" +
-	"\x06groups\x18\x01 \x03(\v2\r.iam.v1.GroupR\x06groups\"\xed\x01\n" +
+	"\x06groups\x18\x01 \x03(\v2\r.iam.v1.GroupR\x06groups\"[\n" +
+	"\x0fGetGroupRequest\x12!\n" +
+	"\x06org_id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12%\n" +
+	"\bgroup_id\x18\x02 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agroupId\"\x90\x01\n" +
+	"\x12CreateGroupRequest\x12!\n" +
+	"\x06org_id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12.\n" +
+	"\x05group\x18\x02 \x01(\v2\r.iam.v1.GroupB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x05group\x12'\n" +
+	"\x0fidempotency_key\x18\x03 \x01(\tR\x0eidempotencyKey\"\x8e\x01\n" +
+	"\x12UpdateGroupRequest\x12!\n" +
+	"\x06org_id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12%\n" +
+	"\bgroup_id\x18\x02 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agroupId\x12.\n" +
+	"\x05group\x18\x03 \x01(\v2\r.iam.v1.GroupB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x05group\"|\n" +
+	"\x12DeleteGroupRequest\x12!\n" +
+	"\x06org_id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12%\n" +
+	"\bgroup_id\x18\x02 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agroupId\x12\x1c\n" +
+	"\trecursive\x18\x03 \x01(\bR\trecursive\"\x89\x01\n" +
+	"\x18AssignUserToGroupRequest\x12!\n" +
+	"\x06org_id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12#\n" +
+	"\auser_id\x18\x02 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06userId\x12%\n" +
+	"\bgroup_id\x18\x03 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agroupId\"\x8b\x01\n" +
+	"\x1aRemoveUserFromGroupRequest\x12!\n" +
+	"\x06org_id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12#\n" +
+	"\auser_id\x18\x02 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06userId\x12%\n" +
+	"\bgroup_id\x18\x03 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agroupId\"7\n" +
+	"\x1fRetryDirectoryProjectionRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\"=\n" +
+	"\x1dRetryDirectoryProjectionReply\x12\x1c\n" +
+	"\tprocessed\x18\x01 \x01(\x05R\tprocessed\"H\n" +
+	"#ReconcileDirectoryProjectionRequest\x12!\n" +
+	"\x06org_id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\"a\n" +
+	"!ReconcileDirectoryProjectionReply\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x12$\n" +
+	"\rrelationships\x18\x02 \x01(\x05R\rrelationships\"I\n" +
+	"$CheckDirectoryProjectionDriftRequest\x12!\n" +
+	"\x06org_id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\"\xe5\x01\n" +
+	"\"CheckDirectoryProjectionDriftReply\x12\x18\n" +
+	"\adesired\x18\x01 \x01(\x05R\adesired\x12\x18\n" +
+	"\amissing\x18\x02 \x01(\x05R\amissing\x123\n" +
+	"\x15missing_relationships\x18\x03 \x03(\tR\x14missingRelationships\x12V\n" +
+	"\x1cmissing_relationship_objects\x18\x04 \x03(\v2\x14.iam.v1.RelationshipR\x1amissingRelationshipObjects\"\xed\x01\n" +
 	"\x16CheckPermissionRequest\x127\n" +
 	"\asubject\x18\x01 \x01(\v2\x12.iam.v1.SubjectRefB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\asubject\x128\n" +
 	"\bresource\x18\x02 \x01(\v2\x11.iam.v1.ObjectRefB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bresource\x12*\n" +
@@ -3928,24 +4022,15 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\fsubject_type\x18\x04 \x01(\tR\vsubjectType\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\x05 \x01(\tR\tsubjectId\x12)\n" +
-	"\x10subject_relation\x18\x06 \x01(\tR\x0fsubjectRelation2\xdc\v\n" +
-	"\x0eIAMAuthService\x12\x97\x01\n" +
-	"\rBuildLoginURL\x12\x1c.iam.v1.BuildLoginURLRequest\x1a\x1a.iam.v1.BuildLoginURLReply\"L\x92\xf4\x18/\b\x01\x1a\x16\b\x01\x12\riam.login_url\x1a\x03low\"\x13\b\x01\x12\x02ip\x19\x00\x00\x00\x00\x00\x00\x14@ \n" +
-	"(\x01\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/iam/login-url\x12\xa2\x01\n" +
-	"\fExchangeCode\x12\x1b.iam.v1.ExchangeCodeRequest\x1a\x19.iam.v1.ExchangeCodeReply\"Z\x92\xf4\x186\b\x01\x1a\x1d\b\x01\x12\x11iam.exchange_code\x1a\x06medium\"\x13\b\x01\x12\x02ip\x19\x00\x00\x00\x00\x00\x00\b@ \x05(\x01\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/iam/auth/exchange\x12\xaa\x01\n" +
-	"\fRefreshToken\x12\x1b.iam.v1.RefreshTokenRequest\x1a\x10.iam.v1.TokenSet\"k\x92\xf4\x18H\b\x02\x12%\n" +
-	"\arefresh\x12\viam:session\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x11iam.refresh_token\x1a\x06medium\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/v1/iam/auth/refresh\x12\xe9\x01\n" +
+	"\x10subject_relation\x18\x06 \x01(\tR\x0fsubjectRelation2\xa3\x05\n" +
+	"\x0eIAMAuthService\x12\xe9\x01\n" +
 	"\vVerifyToken\x12\x1a.iam.v1.VerifyTokenRequest\x1a\x11.iam.v1.Principal\"\xaa\x01\x92\xf4\x18\x87\x01\b\x04\x12\"\n" +
 	"\x06verify\x12\tiam:token\x1a\viam-service \x01\x1a\x1c\b\x01\x12\x10iam.verify_token\x1a\x06medium2AToken verification is only callable by trusted platform services.\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/iam/auth/verify\x12\xa0\x02\n" +
-	"\x11ExternalAuthorize\x12\x16.google.protobuf.Empty\x1a\x11.iam.v1.Principal\"\xdf\x01\x92\xf4\x18\xb8\x01\b\x01\x1a\"\b\x01\x12\x16iam.external_authorize\x1a\x06medium2\x8b\x01Gateway API / Envoy ExternalAuth endpoint. IAM validates the external bearer token and returns Gateway-controlled trusted identity headers.:\x02\b\x02\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/internal/iam/ext-authz\x12\xab\x01\n" +
-	"\vRevokeToken\x12\x1a.iam.v1.RevokeTokenRequest\x1a\x16.google.protobuf.Empty\"h\x92\xf4\x18F\b\x02\x12$\n" +
-	"\x06revoke\x12\viam:session\x1a\viam-service \x01\x1a\x1c\b\x01\x12\x10iam.revoke_token\x1a\x06medium\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/iam/auth/revoke\x12\x81\x01\n" +
+	"\x11ExternalAuthorize\x12\x16.google.protobuf.Empty\x1a\x11.iam.v1.Principal\"\xdf\x01\x92\xf4\x18\xb8\x01\b\x01\x1a\"\b\x01\x12\x16iam.external_authorize\x1a\x06medium2\x8b\x01Gateway API / Envoy ExternalAuth endpoint. IAM validates the external bearer token and returns Gateway-controlled trusted identity headers.:\x02\b\x02\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/internal/iam/ext-authz\x12\x81\x01\n" +
 	"\x05GetMe\x12\x14.iam.v1.GetMeRequest\x1a\x12.iam.v1.GetMeReply\"N\x92\xf4\x188\b\x02\x12\x1f\n" +
 	"\x04read\x12\biam:self\x1a\viam-service \x03\x1a\x13\b\x01\x12\n" +
 	"iam.get_me\x1a\x03low\x82\xd3\xe4\x93\x02\f\x12\n" +
-	"/v1/iam/me\x12\x9c\x01\n" +
-	"\x0eBuildLogoutURL\x12\x1d.iam.v1.BuildLogoutURLRequest\x1a\x1b.iam.v1.BuildLogoutURLReply\"N\x92\xf4\x180\b\x01\x1a\x17\b\x01\x12\x0eiam.logout_url\x1a\x03low\"\x13\b\x01\x12\x02ip\x19\x00\x00\x00\x00\x00\x00\x14@ \n" +
-	"(\x01\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/iam/logout-url2\x82\x06\n" +
+	"/v1/iam/me2\xb3\x0f\n" +
 	"\x13IAMDirectoryService\x12\xb4\x01\n" +
 	"\aGetUser\x12\x16.iam.v1.GetUserRequest\x1a\f.iam.v1.User\"\x82\x01\x92\xf4\x18Q\b\x03\x126\n" +
 	"\x04read\x12\x1fiam:org:{org_id}:user:{user_id}\x1a\viam-service \x01\x1a\x15\b\x01\x12\fiam.user.get\x1a\x03low\x82\xd3\xe4\x93\x02'\x12%/v1/iam/orgs/{org_id}/users/{user_id}\x12\xb3\x01\n" +
@@ -3955,7 +4040,26 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x04read\x12&iam:org:{org_id}:organization:{org_id}\x1a\viam-service \x01\x1a\x14\b\x01\x12\viam.org.get\x1a\x03low\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/iam/orgs/{org_id}\x12\xb9\x01\n" +
 	"\n" +
 	"ListGroups\x12\x19.iam.v1.ListGroupsRequest\x1a\x17.iam.v1.ListGroupsReply\"w\x92\xf4\x18O\b\x03\x12/\n" +
-	"\x04list\x12\x18iam:org:{org_id}:group:*\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x0eiam.group.list\x1a\x06medium\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/iam/orgs/{org_id}/groups2\x85\n" +
+	"\x04list\x12\x18iam:org:{org_id}:group:*\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x0eiam.group.list\x1a\x06medium\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/iam/orgs/{org_id}/groups\x12\xaa\x01\n" +
+	"\bGetGroup\x12\x17.iam.v1.GetGroupRequest\x1a\r.iam.v1.Group\"v\x92\xf4\x18C\b\x03\x12'\n" +
+	"\x04view\x12\x10group:{group_id}\x1a\viam-service \x03\x1a\x16\b\x01\x12\riam.group.get\x1a\x03low\x82\xd3\xe4\x93\x02)\x12'/v1/iam/orgs/{org_id}/groups/{group_id}\x12\xb2\x01\n" +
+	"\vCreateGroup\x12\x1a.iam.v1.CreateGroupRequest\x1a\r.iam.v1.Group\"x\x92\xf4\x18M\b\x03\x12-\n" +
+	"\rcreate_groups\x12\rzone:{org_id}\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x10iam.group.create\x1a\x04high\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/orgs/{org_id}/groups\x12\xb9\x01\n" +
+	"\vUpdateGroup\x12\x1a.iam.v1.UpdateGroupRequest\x1a\r.iam.v1.Group\"\x7f\x92\xf4\x18I\b\x03\x12)\n" +
+	"\x06manage\x12\x10group:{group_id}\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x10iam.group.update\x1a\x04high\x82\xd3\xe4\x93\x02,:\x01*\x1a'/v1/iam/orgs/{org_id}/groups/{group_id}\x12\xc4\x01\n" +
+	"\vDeleteGroup\x12\x1a.iam.v1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\x80\x01\x92\xf4\x18M\b\x03\x12)\n" +
+	"\x06manage\x12\x10group:{group_id}\x1a\viam-service \x03\x1a\x1e\b\x01\x12\x10iam.group.delete\x1a\bcritical\x82\xd3\xe4\x93\x02)*'/v1/iam/orgs/{org_id}/groups/{group_id}\x12\xe1\x01\n" +
+	"\x11AssignUserToGroup\x12 .iam.v1.AssignUserToGroupRequest\x1a\x16.google.protobuf.Empty\"\x91\x01\x92\xf4\x18X\b\x03\x121\n" +
+	"\x0emanage_members\x12\x10group:{group_id}\x1a\viam-service \x03\x1a!\b\x01\x12\x17iam.group.member.assign\x1a\x04high\x82\xd3\xe4\x93\x02/:\x01*\"*/v1/iam/directory/group-memberships:assign\x12\xe5\x01\n" +
+	"\x13RemoveUserFromGroup\x12\".iam.v1.RemoveUserFromGroupRequest\x1a\x16.google.protobuf.Empty\"\x91\x01\x92\xf4\x18X\b\x03\x121\n" +
+	"\x0emanage_members\x12\x10group:{group_id}\x1a\viam-service \x03\x1a!\b\x01\x12\x17iam.group.member.remove\x1a\x04high\x82\xd3\xe4\x93\x02/:\x01*\"*/v1/iam/directory/group-memberships:remove2\xdb\x06\n" +
+	"\x1dIAMDirectoryProjectionService\x12\x84\x02\n" +
+	"\x18RetryDirectoryProjection\x12'.iam.v1.RetryDirectoryProjectionRequest\x1a%.iam.v1.RetryDirectoryProjectionReply\"\x97\x01\x92\xf4\x18e\b\x03\x127\n" +
+	"\x14repair_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a(\b\x01\x12\x1eiam.directory_projection.retry\x1a\x04high\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/iam/directory/projections:retry\x12\x9c\x02\n" +
+	"\x1cReconcileDirectoryProjection\x12+.iam.v1.ReconcileDirectoryProjectionRequest\x1a).iam.v1.ReconcileDirectoryProjectionReply\"\xa3\x01\x92\xf4\x18m\b\x03\x127\n" +
+	"\x14repair_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a0\b\x01\x12\"iam.directory_projection.reconcile\x1a\bcritical\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/iam/directory/projections:reconcile\x12\x93\x02\n" +
+	"\x1dCheckDirectoryProjectionDrift\x12,.iam.v1.CheckDirectoryProjectionDriftRequest\x1a*.iam.v1.CheckDirectoryProjectionDriftReply\"\x97\x01\x92\xf4\x18e\b\x03\x125\n" +
+	"\x12view_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a*\b\x01\x12\x1eiam.directory_projection.drift\x1a\x06medium\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/iam/directory/projections:drift2\x85\n" +
 	"\n" +
 	"\x14IAMPermissionService\x12\xa1\x02\n" +
 	"\x0fCheckPermission\x12\x1e.iam.v1.CheckPermissionRequest\x1a\x1c.iam.v1.CheckPermissionReply\"\xcf\x01\x92\xf4\x18\xa6\x01\b\x04\x12&\n" +
@@ -4000,151 +4104,164 @@ func file_iam_v1_iam_proto_rawDescGZIP() []byte {
 	return file_iam_v1_iam_proto_rawDescData
 }
 
-var file_iam_v1_iam_proto_msgTypes = make([]protoimpl.MessageInfo, 54)
+var file_iam_v1_iam_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
 var file_iam_v1_iam_proto_goTypes = []any{
-	(*BuildLoginURLRequest)(nil),               // 0: iam.v1.BuildLoginURLRequest
-	(*BuildLoginURLReply)(nil),                 // 1: iam.v1.BuildLoginURLReply
-	(*ExchangeCodeRequest)(nil),                // 2: iam.v1.ExchangeCodeRequest
-	(*ExchangeCodeReply)(nil),                  // 3: iam.v1.ExchangeCodeReply
-	(*RefreshTokenRequest)(nil),                // 4: iam.v1.RefreshTokenRequest
-	(*VerifyTokenRequest)(nil),                 // 5: iam.v1.VerifyTokenRequest
-	(*RevokeTokenRequest)(nil),                 // 6: iam.v1.RevokeTokenRequest
-	(*GetMeRequest)(nil),                       // 7: iam.v1.GetMeRequest
-	(*GetMeReply)(nil),                         // 8: iam.v1.GetMeReply
-	(*BuildLogoutURLRequest)(nil),              // 9: iam.v1.BuildLogoutURLRequest
-	(*BuildLogoutURLReply)(nil),                // 10: iam.v1.BuildLogoutURLReply
-	(*GetUserRequest)(nil),                     // 11: iam.v1.GetUserRequest
-	(*ListUsersRequest)(nil),                   // 12: iam.v1.ListUsersRequest
-	(*ListUsersReply)(nil),                     // 13: iam.v1.ListUsersReply
-	(*GetOrganizationRequest)(nil),             // 14: iam.v1.GetOrganizationRequest
-	(*ListGroupsRequest)(nil),                  // 15: iam.v1.ListGroupsRequest
-	(*ListGroupsReply)(nil),                    // 16: iam.v1.ListGroupsReply
-	(*CheckPermissionRequest)(nil),             // 17: iam.v1.CheckPermissionRequest
-	(*CheckPermissionReply)(nil),               // 18: iam.v1.CheckPermissionReply
-	(*WriteRelationshipRequest)(nil),           // 19: iam.v1.WriteRelationshipRequest
-	(*WriteRelationshipReply)(nil),             // 20: iam.v1.WriteRelationshipReply
-	(*DeleteRelationshipRequest)(nil),          // 21: iam.v1.DeleteRelationshipRequest
-	(*DeleteRelationshipReply)(nil),            // 22: iam.v1.DeleteRelationshipReply
-	(*LookupResourcesRequest)(nil),             // 23: iam.v1.LookupResourcesRequest
-	(*LookupResourcesReply)(nil),               // 24: iam.v1.LookupResourcesReply
-	(*LookupSubjectsRequest)(nil),              // 25: iam.v1.LookupSubjectsRequest
-	(*LookupSubjectsReply)(nil),                // 26: iam.v1.LookupSubjectsReply
-	(*GetAuthorizationSchemaRequest)(nil),      // 27: iam.v1.GetAuthorizationSchemaRequest
-	(*AuthorizationSchema)(nil),                // 28: iam.v1.AuthorizationSchema
-	(*ValidateAuthorizationSchemaRequest)(nil), // 29: iam.v1.ValidateAuthorizationSchemaRequest
-	(*ValidateAuthorizationSchemaReply)(nil),   // 30: iam.v1.ValidateAuthorizationSchemaReply
-	(*PublishAuthorizationSchemaRequest)(nil),  // 31: iam.v1.PublishAuthorizationSchemaRequest
-	(*PublishAuthorizationSchemaReply)(nil),    // 32: iam.v1.PublishAuthorizationSchemaReply
-	(*ListRelationshipsRequest)(nil),           // 33: iam.v1.ListRelationshipsRequest
-	(*ListRelationshipsReply)(nil),             // 34: iam.v1.ListRelationshipsReply
-	(*WriteRelationshipsRequest)(nil),          // 35: iam.v1.WriteRelationshipsRequest
-	(*WriteRelationshipsReply)(nil),            // 36: iam.v1.WriteRelationshipsReply
-	(*DeleteRelationshipsRequest)(nil),         // 37: iam.v1.DeleteRelationshipsRequest
-	(*DeleteRelationshipsReply)(nil),           // 38: iam.v1.DeleteRelationshipsReply
-	(*ExplainAuthorizationReply)(nil),          // 39: iam.v1.ExplainAuthorizationReply
-	(*GetEffectivePermissionsRequest)(nil),     // 40: iam.v1.GetEffectivePermissionsRequest
-	(*GetEffectivePermissionsReply)(nil),       // 41: iam.v1.GetEffectivePermissionsReply
-	(*PermissionDecision)(nil),                 // 42: iam.v1.PermissionDecision
-	(*TokenSet)(nil),                           // 43: iam.v1.TokenSet
-	(*Principal)(nil),                          // 44: iam.v1.Principal
-	(*User)(nil),                               // 45: iam.v1.User
-	(*Organization)(nil),                       // 46: iam.v1.Organization
-	(*Group)(nil),                              // 47: iam.v1.Group
-	(*Application)(nil),                        // 48: iam.v1.Application
-	(*ObjectRef)(nil),                          // 49: iam.v1.ObjectRef
-	(*SubjectRef)(nil),                         // 50: iam.v1.SubjectRef
-	(*Relationship)(nil),                       // 51: iam.v1.Relationship
-	(*RelationshipFilter)(nil),                 // 52: iam.v1.RelationshipFilter
-	nil,                                        // 53: iam.v1.GetEffectivePermissionsReply.PermissionsEntry
-	(*timestamppb.Timestamp)(nil),              // 54: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                      // 55: google.protobuf.Empty
+	(*VerifyTokenRequest)(nil),                   // 0: iam.v1.VerifyTokenRequest
+	(*GetMeRequest)(nil),                         // 1: iam.v1.GetMeRequest
+	(*GetMeReply)(nil),                           // 2: iam.v1.GetMeReply
+	(*GetUserRequest)(nil),                       // 3: iam.v1.GetUserRequest
+	(*ListUsersRequest)(nil),                     // 4: iam.v1.ListUsersRequest
+	(*ListUsersReply)(nil),                       // 5: iam.v1.ListUsersReply
+	(*GetOrganizationRequest)(nil),               // 6: iam.v1.GetOrganizationRequest
+	(*ListGroupsRequest)(nil),                    // 7: iam.v1.ListGroupsRequest
+	(*ListGroupsReply)(nil),                      // 8: iam.v1.ListGroupsReply
+	(*GetGroupRequest)(nil),                      // 9: iam.v1.GetGroupRequest
+	(*CreateGroupRequest)(nil),                   // 10: iam.v1.CreateGroupRequest
+	(*UpdateGroupRequest)(nil),                   // 11: iam.v1.UpdateGroupRequest
+	(*DeleteGroupRequest)(nil),                   // 12: iam.v1.DeleteGroupRequest
+	(*AssignUserToGroupRequest)(nil),             // 13: iam.v1.AssignUserToGroupRequest
+	(*RemoveUserFromGroupRequest)(nil),           // 14: iam.v1.RemoveUserFromGroupRequest
+	(*RetryDirectoryProjectionRequest)(nil),      // 15: iam.v1.RetryDirectoryProjectionRequest
+	(*RetryDirectoryProjectionReply)(nil),        // 16: iam.v1.RetryDirectoryProjectionReply
+	(*ReconcileDirectoryProjectionRequest)(nil),  // 17: iam.v1.ReconcileDirectoryProjectionRequest
+	(*ReconcileDirectoryProjectionReply)(nil),    // 18: iam.v1.ReconcileDirectoryProjectionReply
+	(*CheckDirectoryProjectionDriftRequest)(nil), // 19: iam.v1.CheckDirectoryProjectionDriftRequest
+	(*CheckDirectoryProjectionDriftReply)(nil),   // 20: iam.v1.CheckDirectoryProjectionDriftReply
+	(*CheckPermissionRequest)(nil),               // 21: iam.v1.CheckPermissionRequest
+	(*CheckPermissionReply)(nil),                 // 22: iam.v1.CheckPermissionReply
+	(*WriteRelationshipRequest)(nil),             // 23: iam.v1.WriteRelationshipRequest
+	(*WriteRelationshipReply)(nil),               // 24: iam.v1.WriteRelationshipReply
+	(*DeleteRelationshipRequest)(nil),            // 25: iam.v1.DeleteRelationshipRequest
+	(*DeleteRelationshipReply)(nil),              // 26: iam.v1.DeleteRelationshipReply
+	(*LookupResourcesRequest)(nil),               // 27: iam.v1.LookupResourcesRequest
+	(*LookupResourcesReply)(nil),                 // 28: iam.v1.LookupResourcesReply
+	(*LookupSubjectsRequest)(nil),                // 29: iam.v1.LookupSubjectsRequest
+	(*LookupSubjectsReply)(nil),                  // 30: iam.v1.LookupSubjectsReply
+	(*GetAuthorizationSchemaRequest)(nil),        // 31: iam.v1.GetAuthorizationSchemaRequest
+	(*AuthorizationSchema)(nil),                  // 32: iam.v1.AuthorizationSchema
+	(*ValidateAuthorizationSchemaRequest)(nil),   // 33: iam.v1.ValidateAuthorizationSchemaRequest
+	(*ValidateAuthorizationSchemaReply)(nil),     // 34: iam.v1.ValidateAuthorizationSchemaReply
+	(*PublishAuthorizationSchemaRequest)(nil),    // 35: iam.v1.PublishAuthorizationSchemaRequest
+	(*PublishAuthorizationSchemaReply)(nil),      // 36: iam.v1.PublishAuthorizationSchemaReply
+	(*ListRelationshipsRequest)(nil),             // 37: iam.v1.ListRelationshipsRequest
+	(*ListRelationshipsReply)(nil),               // 38: iam.v1.ListRelationshipsReply
+	(*WriteRelationshipsRequest)(nil),            // 39: iam.v1.WriteRelationshipsRequest
+	(*WriteRelationshipsReply)(nil),              // 40: iam.v1.WriteRelationshipsReply
+	(*DeleteRelationshipsRequest)(nil),           // 41: iam.v1.DeleteRelationshipsRequest
+	(*DeleteRelationshipsReply)(nil),             // 42: iam.v1.DeleteRelationshipsReply
+	(*ExplainAuthorizationReply)(nil),            // 43: iam.v1.ExplainAuthorizationReply
+	(*GetEffectivePermissionsRequest)(nil),       // 44: iam.v1.GetEffectivePermissionsRequest
+	(*GetEffectivePermissionsReply)(nil),         // 45: iam.v1.GetEffectivePermissionsReply
+	(*PermissionDecision)(nil),                   // 46: iam.v1.PermissionDecision
+	(*TokenSet)(nil),                             // 47: iam.v1.TokenSet
+	(*Principal)(nil),                            // 48: iam.v1.Principal
+	(*User)(nil),                                 // 49: iam.v1.User
+	(*Organization)(nil),                         // 50: iam.v1.Organization
+	(*Group)(nil),                                // 51: iam.v1.Group
+	(*Application)(nil),                          // 52: iam.v1.Application
+	(*ObjectRef)(nil),                            // 53: iam.v1.ObjectRef
+	(*SubjectRef)(nil),                           // 54: iam.v1.SubjectRef
+	(*Relationship)(nil),                         // 55: iam.v1.Relationship
+	(*RelationshipFilter)(nil),                   // 56: iam.v1.RelationshipFilter
+	nil,                                          // 57: iam.v1.GetEffectivePermissionsReply.PermissionsEntry
+	(*timestamppb.Timestamp)(nil),                // 58: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                        // 59: google.protobuf.Empty
 }
 var file_iam_v1_iam_proto_depIdxs = []int32{
-	43, // 0: iam.v1.ExchangeCodeReply.tokens:type_name -> iam.v1.TokenSet
-	44, // 1: iam.v1.ExchangeCodeReply.principal:type_name -> iam.v1.Principal
-	44, // 2: iam.v1.GetMeReply.principal:type_name -> iam.v1.Principal
-	45, // 3: iam.v1.GetMeReply.user:type_name -> iam.v1.User
-	47, // 4: iam.v1.GetMeReply.groups:type_name -> iam.v1.Group
-	48, // 5: iam.v1.GetMeReply.application:type_name -> iam.v1.Application
-	45, // 6: iam.v1.ListUsersReply.users:type_name -> iam.v1.User
-	47, // 7: iam.v1.ListGroupsReply.groups:type_name -> iam.v1.Group
-	50, // 8: iam.v1.CheckPermissionRequest.subject:type_name -> iam.v1.SubjectRef
-	49, // 9: iam.v1.CheckPermissionRequest.resource:type_name -> iam.v1.ObjectRef
-	51, // 10: iam.v1.WriteRelationshipRequest.relationship:type_name -> iam.v1.Relationship
-	52, // 11: iam.v1.DeleteRelationshipRequest.filter:type_name -> iam.v1.RelationshipFilter
-	50, // 12: iam.v1.LookupResourcesRequest.subject:type_name -> iam.v1.SubjectRef
-	49, // 13: iam.v1.LookupResourcesReply.resources:type_name -> iam.v1.ObjectRef
-	49, // 14: iam.v1.LookupSubjectsRequest.resource:type_name -> iam.v1.ObjectRef
-	50, // 15: iam.v1.LookupSubjectsReply.subjects:type_name -> iam.v1.SubjectRef
-	51, // 16: iam.v1.ListRelationshipsReply.relationships:type_name -> iam.v1.Relationship
-	51, // 17: iam.v1.WriteRelationshipsRequest.relationships:type_name -> iam.v1.Relationship
-	52, // 18: iam.v1.DeleteRelationshipsRequest.filter:type_name -> iam.v1.RelationshipFilter
-	50, // 19: iam.v1.GetEffectivePermissionsReply.subject:type_name -> iam.v1.SubjectRef
-	49, // 20: iam.v1.GetEffectivePermissionsReply.resource:type_name -> iam.v1.ObjectRef
-	53, // 21: iam.v1.GetEffectivePermissionsReply.permissions:type_name -> iam.v1.GetEffectivePermissionsReply.PermissionsEntry
-	54, // 22: iam.v1.TokenSet.expires_at:type_name -> google.protobuf.Timestamp
-	54, // 23: iam.v1.Principal.issued_at:type_name -> google.protobuf.Timestamp
-	54, // 24: iam.v1.Principal.expires_at:type_name -> google.protobuf.Timestamp
-	49, // 25: iam.v1.Relationship.resource:type_name -> iam.v1.ObjectRef
-	50, // 26: iam.v1.Relationship.subject:type_name -> iam.v1.SubjectRef
-	42, // 27: iam.v1.GetEffectivePermissionsReply.PermissionsEntry.value:type_name -> iam.v1.PermissionDecision
-	0,  // 28: iam.v1.IAMAuthService.BuildLoginURL:input_type -> iam.v1.BuildLoginURLRequest
-	2,  // 29: iam.v1.IAMAuthService.ExchangeCode:input_type -> iam.v1.ExchangeCodeRequest
-	4,  // 30: iam.v1.IAMAuthService.RefreshToken:input_type -> iam.v1.RefreshTokenRequest
-	5,  // 31: iam.v1.IAMAuthService.VerifyToken:input_type -> iam.v1.VerifyTokenRequest
-	55, // 32: iam.v1.IAMAuthService.ExternalAuthorize:input_type -> google.protobuf.Empty
-	6,  // 33: iam.v1.IAMAuthService.RevokeToken:input_type -> iam.v1.RevokeTokenRequest
-	7,  // 34: iam.v1.IAMAuthService.GetMe:input_type -> iam.v1.GetMeRequest
-	9,  // 35: iam.v1.IAMAuthService.BuildLogoutURL:input_type -> iam.v1.BuildLogoutURLRequest
-	11, // 36: iam.v1.IAMDirectoryService.GetUser:input_type -> iam.v1.GetUserRequest
-	12, // 37: iam.v1.IAMDirectoryService.ListUsers:input_type -> iam.v1.ListUsersRequest
-	14, // 38: iam.v1.IAMDirectoryService.GetOrganization:input_type -> iam.v1.GetOrganizationRequest
-	15, // 39: iam.v1.IAMDirectoryService.ListGroups:input_type -> iam.v1.ListGroupsRequest
-	17, // 40: iam.v1.IAMPermissionService.CheckPermission:input_type -> iam.v1.CheckPermissionRequest
-	19, // 41: iam.v1.IAMPermissionService.WriteRelationship:input_type -> iam.v1.WriteRelationshipRequest
-	21, // 42: iam.v1.IAMPermissionService.DeleteRelationship:input_type -> iam.v1.DeleteRelationshipRequest
-	23, // 43: iam.v1.IAMPermissionService.LookupResources:input_type -> iam.v1.LookupResourcesRequest
-	25, // 44: iam.v1.IAMPermissionService.LookupSubjects:input_type -> iam.v1.LookupSubjectsRequest
-	27, // 45: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:input_type -> iam.v1.GetAuthorizationSchemaRequest
-	29, // 46: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:input_type -> iam.v1.ValidateAuthorizationSchemaRequest
-	31, // 47: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:input_type -> iam.v1.PublishAuthorizationSchemaRequest
-	33, // 48: iam.v1.IAMAuthorizationAdminService.ListRelationships:input_type -> iam.v1.ListRelationshipsRequest
-	35, // 49: iam.v1.IAMAuthorizationAdminService.WriteRelationships:input_type -> iam.v1.WriteRelationshipsRequest
-	37, // 50: iam.v1.IAMAuthorizationAdminService.DeleteRelationships:input_type -> iam.v1.DeleteRelationshipsRequest
-	17, // 51: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:input_type -> iam.v1.CheckPermissionRequest
-	17, // 52: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:input_type -> iam.v1.CheckPermissionRequest
-	40, // 53: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:input_type -> iam.v1.GetEffectivePermissionsRequest
-	1,  // 54: iam.v1.IAMAuthService.BuildLoginURL:output_type -> iam.v1.BuildLoginURLReply
-	3,  // 55: iam.v1.IAMAuthService.ExchangeCode:output_type -> iam.v1.ExchangeCodeReply
-	43, // 56: iam.v1.IAMAuthService.RefreshToken:output_type -> iam.v1.TokenSet
-	44, // 57: iam.v1.IAMAuthService.VerifyToken:output_type -> iam.v1.Principal
-	44, // 58: iam.v1.IAMAuthService.ExternalAuthorize:output_type -> iam.v1.Principal
-	55, // 59: iam.v1.IAMAuthService.RevokeToken:output_type -> google.protobuf.Empty
-	8,  // 60: iam.v1.IAMAuthService.GetMe:output_type -> iam.v1.GetMeReply
-	10, // 61: iam.v1.IAMAuthService.BuildLogoutURL:output_type -> iam.v1.BuildLogoutURLReply
-	45, // 62: iam.v1.IAMDirectoryService.GetUser:output_type -> iam.v1.User
-	13, // 63: iam.v1.IAMDirectoryService.ListUsers:output_type -> iam.v1.ListUsersReply
-	46, // 64: iam.v1.IAMDirectoryService.GetOrganization:output_type -> iam.v1.Organization
-	16, // 65: iam.v1.IAMDirectoryService.ListGroups:output_type -> iam.v1.ListGroupsReply
-	18, // 66: iam.v1.IAMPermissionService.CheckPermission:output_type -> iam.v1.CheckPermissionReply
-	20, // 67: iam.v1.IAMPermissionService.WriteRelationship:output_type -> iam.v1.WriteRelationshipReply
-	22, // 68: iam.v1.IAMPermissionService.DeleteRelationship:output_type -> iam.v1.DeleteRelationshipReply
-	24, // 69: iam.v1.IAMPermissionService.LookupResources:output_type -> iam.v1.LookupResourcesReply
-	26, // 70: iam.v1.IAMPermissionService.LookupSubjects:output_type -> iam.v1.LookupSubjectsReply
-	28, // 71: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:output_type -> iam.v1.AuthorizationSchema
-	30, // 72: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:output_type -> iam.v1.ValidateAuthorizationSchemaReply
-	32, // 73: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:output_type -> iam.v1.PublishAuthorizationSchemaReply
-	34, // 74: iam.v1.IAMAuthorizationAdminService.ListRelationships:output_type -> iam.v1.ListRelationshipsReply
-	36, // 75: iam.v1.IAMAuthorizationAdminService.WriteRelationships:output_type -> iam.v1.WriteRelationshipsReply
-	38, // 76: iam.v1.IAMAuthorizationAdminService.DeleteRelationships:output_type -> iam.v1.DeleteRelationshipsReply
-	18, // 77: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:output_type -> iam.v1.CheckPermissionReply
-	39, // 78: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:output_type -> iam.v1.ExplainAuthorizationReply
-	41, // 79: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:output_type -> iam.v1.GetEffectivePermissionsReply
-	54, // [54:80] is the sub-list for method output_type
-	28, // [28:54] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	48, // 0: iam.v1.GetMeReply.principal:type_name -> iam.v1.Principal
+	49, // 1: iam.v1.GetMeReply.user:type_name -> iam.v1.User
+	51, // 2: iam.v1.GetMeReply.groups:type_name -> iam.v1.Group
+	52, // 3: iam.v1.GetMeReply.application:type_name -> iam.v1.Application
+	49, // 4: iam.v1.ListUsersReply.users:type_name -> iam.v1.User
+	51, // 5: iam.v1.ListGroupsReply.groups:type_name -> iam.v1.Group
+	51, // 6: iam.v1.CreateGroupRequest.group:type_name -> iam.v1.Group
+	51, // 7: iam.v1.UpdateGroupRequest.group:type_name -> iam.v1.Group
+	55, // 8: iam.v1.CheckDirectoryProjectionDriftReply.missing_relationship_objects:type_name -> iam.v1.Relationship
+	54, // 9: iam.v1.CheckPermissionRequest.subject:type_name -> iam.v1.SubjectRef
+	53, // 10: iam.v1.CheckPermissionRequest.resource:type_name -> iam.v1.ObjectRef
+	55, // 11: iam.v1.WriteRelationshipRequest.relationship:type_name -> iam.v1.Relationship
+	56, // 12: iam.v1.DeleteRelationshipRequest.filter:type_name -> iam.v1.RelationshipFilter
+	54, // 13: iam.v1.LookupResourcesRequest.subject:type_name -> iam.v1.SubjectRef
+	53, // 14: iam.v1.LookupResourcesReply.resources:type_name -> iam.v1.ObjectRef
+	53, // 15: iam.v1.LookupSubjectsRequest.resource:type_name -> iam.v1.ObjectRef
+	54, // 16: iam.v1.LookupSubjectsReply.subjects:type_name -> iam.v1.SubjectRef
+	55, // 17: iam.v1.ListRelationshipsReply.relationships:type_name -> iam.v1.Relationship
+	55, // 18: iam.v1.WriteRelationshipsRequest.relationships:type_name -> iam.v1.Relationship
+	56, // 19: iam.v1.DeleteRelationshipsRequest.filter:type_name -> iam.v1.RelationshipFilter
+	54, // 20: iam.v1.GetEffectivePermissionsReply.subject:type_name -> iam.v1.SubjectRef
+	53, // 21: iam.v1.GetEffectivePermissionsReply.resource:type_name -> iam.v1.ObjectRef
+	57, // 22: iam.v1.GetEffectivePermissionsReply.permissions:type_name -> iam.v1.GetEffectivePermissionsReply.PermissionsEntry
+	58, // 23: iam.v1.TokenSet.expires_at:type_name -> google.protobuf.Timestamp
+	58, // 24: iam.v1.Principal.issued_at:type_name -> google.protobuf.Timestamp
+	58, // 25: iam.v1.Principal.expires_at:type_name -> google.protobuf.Timestamp
+	53, // 26: iam.v1.Relationship.resource:type_name -> iam.v1.ObjectRef
+	54, // 27: iam.v1.Relationship.subject:type_name -> iam.v1.SubjectRef
+	46, // 28: iam.v1.GetEffectivePermissionsReply.PermissionsEntry.value:type_name -> iam.v1.PermissionDecision
+	0,  // 29: iam.v1.IAMAuthService.VerifyToken:input_type -> iam.v1.VerifyTokenRequest
+	59, // 30: iam.v1.IAMAuthService.ExternalAuthorize:input_type -> google.protobuf.Empty
+	1,  // 31: iam.v1.IAMAuthService.GetMe:input_type -> iam.v1.GetMeRequest
+	3,  // 32: iam.v1.IAMDirectoryService.GetUser:input_type -> iam.v1.GetUserRequest
+	4,  // 33: iam.v1.IAMDirectoryService.ListUsers:input_type -> iam.v1.ListUsersRequest
+	6,  // 34: iam.v1.IAMDirectoryService.GetOrganization:input_type -> iam.v1.GetOrganizationRequest
+	7,  // 35: iam.v1.IAMDirectoryService.ListGroups:input_type -> iam.v1.ListGroupsRequest
+	9,  // 36: iam.v1.IAMDirectoryService.GetGroup:input_type -> iam.v1.GetGroupRequest
+	10, // 37: iam.v1.IAMDirectoryService.CreateGroup:input_type -> iam.v1.CreateGroupRequest
+	11, // 38: iam.v1.IAMDirectoryService.UpdateGroup:input_type -> iam.v1.UpdateGroupRequest
+	12, // 39: iam.v1.IAMDirectoryService.DeleteGroup:input_type -> iam.v1.DeleteGroupRequest
+	13, // 40: iam.v1.IAMDirectoryService.AssignUserToGroup:input_type -> iam.v1.AssignUserToGroupRequest
+	14, // 41: iam.v1.IAMDirectoryService.RemoveUserFromGroup:input_type -> iam.v1.RemoveUserFromGroupRequest
+	15, // 42: iam.v1.IAMDirectoryProjectionService.RetryDirectoryProjection:input_type -> iam.v1.RetryDirectoryProjectionRequest
+	17, // 43: iam.v1.IAMDirectoryProjectionService.ReconcileDirectoryProjection:input_type -> iam.v1.ReconcileDirectoryProjectionRequest
+	19, // 44: iam.v1.IAMDirectoryProjectionService.CheckDirectoryProjectionDrift:input_type -> iam.v1.CheckDirectoryProjectionDriftRequest
+	21, // 45: iam.v1.IAMPermissionService.CheckPermission:input_type -> iam.v1.CheckPermissionRequest
+	23, // 46: iam.v1.IAMPermissionService.WriteRelationship:input_type -> iam.v1.WriteRelationshipRequest
+	25, // 47: iam.v1.IAMPermissionService.DeleteRelationship:input_type -> iam.v1.DeleteRelationshipRequest
+	27, // 48: iam.v1.IAMPermissionService.LookupResources:input_type -> iam.v1.LookupResourcesRequest
+	29, // 49: iam.v1.IAMPermissionService.LookupSubjects:input_type -> iam.v1.LookupSubjectsRequest
+	31, // 50: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:input_type -> iam.v1.GetAuthorizationSchemaRequest
+	33, // 51: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:input_type -> iam.v1.ValidateAuthorizationSchemaRequest
+	35, // 52: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:input_type -> iam.v1.PublishAuthorizationSchemaRequest
+	37, // 53: iam.v1.IAMAuthorizationAdminService.ListRelationships:input_type -> iam.v1.ListRelationshipsRequest
+	39, // 54: iam.v1.IAMAuthorizationAdminService.WriteRelationships:input_type -> iam.v1.WriteRelationshipsRequest
+	41, // 55: iam.v1.IAMAuthorizationAdminService.DeleteRelationships:input_type -> iam.v1.DeleteRelationshipsRequest
+	21, // 56: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:input_type -> iam.v1.CheckPermissionRequest
+	21, // 57: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:input_type -> iam.v1.CheckPermissionRequest
+	44, // 58: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:input_type -> iam.v1.GetEffectivePermissionsRequest
+	48, // 59: iam.v1.IAMAuthService.VerifyToken:output_type -> iam.v1.Principal
+	48, // 60: iam.v1.IAMAuthService.ExternalAuthorize:output_type -> iam.v1.Principal
+	2,  // 61: iam.v1.IAMAuthService.GetMe:output_type -> iam.v1.GetMeReply
+	49, // 62: iam.v1.IAMDirectoryService.GetUser:output_type -> iam.v1.User
+	5,  // 63: iam.v1.IAMDirectoryService.ListUsers:output_type -> iam.v1.ListUsersReply
+	50, // 64: iam.v1.IAMDirectoryService.GetOrganization:output_type -> iam.v1.Organization
+	8,  // 65: iam.v1.IAMDirectoryService.ListGroups:output_type -> iam.v1.ListGroupsReply
+	51, // 66: iam.v1.IAMDirectoryService.GetGroup:output_type -> iam.v1.Group
+	51, // 67: iam.v1.IAMDirectoryService.CreateGroup:output_type -> iam.v1.Group
+	51, // 68: iam.v1.IAMDirectoryService.UpdateGroup:output_type -> iam.v1.Group
+	59, // 69: iam.v1.IAMDirectoryService.DeleteGroup:output_type -> google.protobuf.Empty
+	59, // 70: iam.v1.IAMDirectoryService.AssignUserToGroup:output_type -> google.protobuf.Empty
+	59, // 71: iam.v1.IAMDirectoryService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
+	16, // 72: iam.v1.IAMDirectoryProjectionService.RetryDirectoryProjection:output_type -> iam.v1.RetryDirectoryProjectionReply
+	18, // 73: iam.v1.IAMDirectoryProjectionService.ReconcileDirectoryProjection:output_type -> iam.v1.ReconcileDirectoryProjectionReply
+	20, // 74: iam.v1.IAMDirectoryProjectionService.CheckDirectoryProjectionDrift:output_type -> iam.v1.CheckDirectoryProjectionDriftReply
+	22, // 75: iam.v1.IAMPermissionService.CheckPermission:output_type -> iam.v1.CheckPermissionReply
+	24, // 76: iam.v1.IAMPermissionService.WriteRelationship:output_type -> iam.v1.WriteRelationshipReply
+	26, // 77: iam.v1.IAMPermissionService.DeleteRelationship:output_type -> iam.v1.DeleteRelationshipReply
+	28, // 78: iam.v1.IAMPermissionService.LookupResources:output_type -> iam.v1.LookupResourcesReply
+	30, // 79: iam.v1.IAMPermissionService.LookupSubjects:output_type -> iam.v1.LookupSubjectsReply
+	32, // 80: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:output_type -> iam.v1.AuthorizationSchema
+	34, // 81: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:output_type -> iam.v1.ValidateAuthorizationSchemaReply
+	36, // 82: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:output_type -> iam.v1.PublishAuthorizationSchemaReply
+	38, // 83: iam.v1.IAMAuthorizationAdminService.ListRelationships:output_type -> iam.v1.ListRelationshipsReply
+	40, // 84: iam.v1.IAMAuthorizationAdminService.WriteRelationships:output_type -> iam.v1.WriteRelationshipsReply
+	42, // 85: iam.v1.IAMAuthorizationAdminService.DeleteRelationships:output_type -> iam.v1.DeleteRelationshipsReply
+	22, // 86: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:output_type -> iam.v1.CheckPermissionReply
+	43, // 87: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:output_type -> iam.v1.ExplainAuthorizationReply
+	45, // 88: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:output_type -> iam.v1.GetEffectivePermissionsReply
+	59, // [59:89] is the sub-list for method output_type
+	29, // [29:59] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_iam_v1_iam_proto_init() }
@@ -4158,9 +4275,9 @@ func file_iam_v1_iam_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_iam_v1_iam_proto_rawDesc), len(file_iam_v1_iam_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   54,
+			NumMessages:   58,
 			NumExtensions: 0,
-			NumServices:   4,
+			NumServices:   5,
 		},
 		GoTypes:           file_iam_v1_iam_proto_goTypes,
 		DependencyIndexes: file_iam_v1_iam_proto_depIdxs,
