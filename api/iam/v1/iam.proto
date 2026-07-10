@@ -22,16 +22,6 @@ service IAMAuthService {
     };
   }
 
-  rpc ExternalAuthorize(google.protobuf.Empty) returns (Principal) {
-    option (google.api.http) = { post: "/internal/iam/ext-authz" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: PUBLIC
-      gateway: { publish: DISABLED }
-      audit: { enabled: true event: "iam.external_authorize" risk: "medium" }
-      reason: "Gateway API / Envoy ExternalAuth endpoint. IAM validates the external bearer token and returns Gateway-controlled trusted identity headers."
-    };
-  }
-
   rpc GetMe(GetMeRequest) returns (GetMeReply) {
     option (google.api.http) = { get: "/v1/iam/me" };
     option (aisphere.access.v1.policy) = {

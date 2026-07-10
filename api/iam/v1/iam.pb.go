@@ -4022,11 +4022,10 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\fsubject_type\x18\x04 \x01(\tR\vsubjectType\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\x05 \x01(\tR\tsubjectId\x12)\n" +
-	"\x10subject_relation\x18\x06 \x01(\tR\x0fsubjectRelation2\xa3\x05\n" +
+	"\x10subject_relation\x18\x06 \x01(\tR\x0fsubjectRelation2\x80\x03\n" +
 	"\x0eIAMAuthService\x12\xe9\x01\n" +
 	"\vVerifyToken\x12\x1a.iam.v1.VerifyTokenRequest\x1a\x11.iam.v1.Principal\"\xaa\x01\x92\xf4\x18\x87\x01\b\x04\x12\"\n" +
-	"\x06verify\x12\tiam:token\x1a\viam-service \x01\x1a\x1c\b\x01\x12\x10iam.verify_token\x1a\x06medium2AToken verification is only callable by trusted platform services.\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/iam/auth/verify\x12\xa0\x02\n" +
-	"\x11ExternalAuthorize\x12\x16.google.protobuf.Empty\x1a\x11.iam.v1.Principal\"\xdf\x01\x92\xf4\x18\xb8\x01\b\x01\x1a\"\b\x01\x12\x16iam.external_authorize\x1a\x06medium2\x8b\x01Gateway API / Envoy ExternalAuth endpoint. IAM validates the external bearer token and returns Gateway-controlled trusted identity headers.:\x02\b\x02\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/internal/iam/ext-authz\x12\x81\x01\n" +
+	"\x06verify\x12\tiam:token\x1a\viam-service \x01\x1a\x1c\b\x01\x12\x10iam.verify_token\x1a\x06medium2AToken verification is only callable by trusted platform services.\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/iam/auth/verify\x12\x81\x01\n" +
 	"\x05GetMe\x12\x14.iam.v1.GetMeRequest\x1a\x12.iam.v1.GetMeReply\"N\x92\xf4\x188\b\x02\x12\x1f\n" +
 	"\x04read\x12\biam:self\x1a\viam-service \x03\x1a\x13\b\x01\x12\n" +
 	"iam.get_me\x1a\x03low\x82\xd3\xe4\x93\x02\f\x12\n" +
@@ -4198,67 +4197,65 @@ var file_iam_v1_iam_proto_depIdxs = []int32{
 	54, // 27: iam.v1.Relationship.subject:type_name -> iam.v1.SubjectRef
 	46, // 28: iam.v1.GetEffectivePermissionsReply.PermissionsEntry.value:type_name -> iam.v1.PermissionDecision
 	0,  // 29: iam.v1.IAMAuthService.VerifyToken:input_type -> iam.v1.VerifyTokenRequest
-	59, // 30: iam.v1.IAMAuthService.ExternalAuthorize:input_type -> google.protobuf.Empty
-	1,  // 31: iam.v1.IAMAuthService.GetMe:input_type -> iam.v1.GetMeRequest
-	3,  // 32: iam.v1.IAMDirectoryService.GetUser:input_type -> iam.v1.GetUserRequest
-	4,  // 33: iam.v1.IAMDirectoryService.ListUsers:input_type -> iam.v1.ListUsersRequest
-	6,  // 34: iam.v1.IAMDirectoryService.GetOrganization:input_type -> iam.v1.GetOrganizationRequest
-	7,  // 35: iam.v1.IAMDirectoryService.ListGroups:input_type -> iam.v1.ListGroupsRequest
-	9,  // 36: iam.v1.IAMDirectoryService.GetGroup:input_type -> iam.v1.GetGroupRequest
-	10, // 37: iam.v1.IAMDirectoryService.CreateGroup:input_type -> iam.v1.CreateGroupRequest
-	11, // 38: iam.v1.IAMDirectoryService.UpdateGroup:input_type -> iam.v1.UpdateGroupRequest
-	12, // 39: iam.v1.IAMDirectoryService.DeleteGroup:input_type -> iam.v1.DeleteGroupRequest
-	13, // 40: iam.v1.IAMDirectoryService.AssignUserToGroup:input_type -> iam.v1.AssignUserToGroupRequest
-	14, // 41: iam.v1.IAMDirectoryService.RemoveUserFromGroup:input_type -> iam.v1.RemoveUserFromGroupRequest
-	15, // 42: iam.v1.IAMDirectoryProjectionService.RetryDirectoryProjection:input_type -> iam.v1.RetryDirectoryProjectionRequest
-	17, // 43: iam.v1.IAMDirectoryProjectionService.ReconcileDirectoryProjection:input_type -> iam.v1.ReconcileDirectoryProjectionRequest
-	19, // 44: iam.v1.IAMDirectoryProjectionService.CheckDirectoryProjectionDrift:input_type -> iam.v1.CheckDirectoryProjectionDriftRequest
-	21, // 45: iam.v1.IAMPermissionService.CheckPermission:input_type -> iam.v1.CheckPermissionRequest
-	23, // 46: iam.v1.IAMPermissionService.WriteRelationship:input_type -> iam.v1.WriteRelationshipRequest
-	25, // 47: iam.v1.IAMPermissionService.DeleteRelationship:input_type -> iam.v1.DeleteRelationshipRequest
-	27, // 48: iam.v1.IAMPermissionService.LookupResources:input_type -> iam.v1.LookupResourcesRequest
-	29, // 49: iam.v1.IAMPermissionService.LookupSubjects:input_type -> iam.v1.LookupSubjectsRequest
-	31, // 50: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:input_type -> iam.v1.GetAuthorizationSchemaRequest
-	33, // 51: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:input_type -> iam.v1.ValidateAuthorizationSchemaRequest
-	35, // 52: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:input_type -> iam.v1.PublishAuthorizationSchemaRequest
-	37, // 53: iam.v1.IAMAuthorizationAdminService.ListRelationships:input_type -> iam.v1.ListRelationshipsRequest
-	39, // 54: iam.v1.IAMAuthorizationAdminService.WriteRelationships:input_type -> iam.v1.WriteRelationshipsRequest
-	41, // 55: iam.v1.IAMAuthorizationAdminService.DeleteRelationships:input_type -> iam.v1.DeleteRelationshipsRequest
-	21, // 56: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:input_type -> iam.v1.CheckPermissionRequest
-	21, // 57: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:input_type -> iam.v1.CheckPermissionRequest
-	44, // 58: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:input_type -> iam.v1.GetEffectivePermissionsRequest
-	48, // 59: iam.v1.IAMAuthService.VerifyToken:output_type -> iam.v1.Principal
-	48, // 60: iam.v1.IAMAuthService.ExternalAuthorize:output_type -> iam.v1.Principal
-	2,  // 61: iam.v1.IAMAuthService.GetMe:output_type -> iam.v1.GetMeReply
-	49, // 62: iam.v1.IAMDirectoryService.GetUser:output_type -> iam.v1.User
-	5,  // 63: iam.v1.IAMDirectoryService.ListUsers:output_type -> iam.v1.ListUsersReply
-	50, // 64: iam.v1.IAMDirectoryService.GetOrganization:output_type -> iam.v1.Organization
-	8,  // 65: iam.v1.IAMDirectoryService.ListGroups:output_type -> iam.v1.ListGroupsReply
-	51, // 66: iam.v1.IAMDirectoryService.GetGroup:output_type -> iam.v1.Group
-	51, // 67: iam.v1.IAMDirectoryService.CreateGroup:output_type -> iam.v1.Group
-	51, // 68: iam.v1.IAMDirectoryService.UpdateGroup:output_type -> iam.v1.Group
-	59, // 69: iam.v1.IAMDirectoryService.DeleteGroup:output_type -> google.protobuf.Empty
-	59, // 70: iam.v1.IAMDirectoryService.AssignUserToGroup:output_type -> google.protobuf.Empty
-	59, // 71: iam.v1.IAMDirectoryService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
-	16, // 72: iam.v1.IAMDirectoryProjectionService.RetryDirectoryProjection:output_type -> iam.v1.RetryDirectoryProjectionReply
-	18, // 73: iam.v1.IAMDirectoryProjectionService.ReconcileDirectoryProjection:output_type -> iam.v1.ReconcileDirectoryProjectionReply
-	20, // 74: iam.v1.IAMDirectoryProjectionService.CheckDirectoryProjectionDrift:output_type -> iam.v1.CheckDirectoryProjectionDriftReply
-	22, // 75: iam.v1.IAMPermissionService.CheckPermission:output_type -> iam.v1.CheckPermissionReply
-	24, // 76: iam.v1.IAMPermissionService.WriteRelationship:output_type -> iam.v1.WriteRelationshipReply
-	26, // 77: iam.v1.IAMPermissionService.DeleteRelationship:output_type -> iam.v1.DeleteRelationshipReply
-	28, // 78: iam.v1.IAMPermissionService.LookupResources:output_type -> iam.v1.LookupResourcesReply
-	30, // 79: iam.v1.IAMPermissionService.LookupSubjects:output_type -> iam.v1.LookupSubjectsReply
-	32, // 80: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:output_type -> iam.v1.AuthorizationSchema
-	34, // 81: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:output_type -> iam.v1.ValidateAuthorizationSchemaReply
-	36, // 82: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:output_type -> iam.v1.PublishAuthorizationSchemaReply
-	38, // 83: iam.v1.IAMAuthorizationAdminService.ListRelationships:output_type -> iam.v1.ListRelationshipsReply
-	40, // 84: iam.v1.IAMAuthorizationAdminService.WriteRelationships:output_type -> iam.v1.WriteRelationshipsReply
-	42, // 85: iam.v1.IAMAuthorizationAdminService.DeleteRelationships:output_type -> iam.v1.DeleteRelationshipsReply
-	22, // 86: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:output_type -> iam.v1.CheckPermissionReply
-	43, // 87: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:output_type -> iam.v1.ExplainAuthorizationReply
-	45, // 88: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:output_type -> iam.v1.GetEffectivePermissionsReply
-	59, // [59:89] is the sub-list for method output_type
-	29, // [29:59] is the sub-list for method input_type
+	1,  // 30: iam.v1.IAMAuthService.GetMe:input_type -> iam.v1.GetMeRequest
+	3,  // 31: iam.v1.IAMDirectoryService.GetUser:input_type -> iam.v1.GetUserRequest
+	4,  // 32: iam.v1.IAMDirectoryService.ListUsers:input_type -> iam.v1.ListUsersRequest
+	6,  // 33: iam.v1.IAMDirectoryService.GetOrganization:input_type -> iam.v1.GetOrganizationRequest
+	7,  // 34: iam.v1.IAMDirectoryService.ListGroups:input_type -> iam.v1.ListGroupsRequest
+	9,  // 35: iam.v1.IAMDirectoryService.GetGroup:input_type -> iam.v1.GetGroupRequest
+	10, // 36: iam.v1.IAMDirectoryService.CreateGroup:input_type -> iam.v1.CreateGroupRequest
+	11, // 37: iam.v1.IAMDirectoryService.UpdateGroup:input_type -> iam.v1.UpdateGroupRequest
+	12, // 38: iam.v1.IAMDirectoryService.DeleteGroup:input_type -> iam.v1.DeleteGroupRequest
+	13, // 39: iam.v1.IAMDirectoryService.AssignUserToGroup:input_type -> iam.v1.AssignUserToGroupRequest
+	14, // 40: iam.v1.IAMDirectoryService.RemoveUserFromGroup:input_type -> iam.v1.RemoveUserFromGroupRequest
+	15, // 41: iam.v1.IAMDirectoryProjectionService.RetryDirectoryProjection:input_type -> iam.v1.RetryDirectoryProjectionRequest
+	17, // 42: iam.v1.IAMDirectoryProjectionService.ReconcileDirectoryProjection:input_type -> iam.v1.ReconcileDirectoryProjectionRequest
+	19, // 43: iam.v1.IAMDirectoryProjectionService.CheckDirectoryProjectionDrift:input_type -> iam.v1.CheckDirectoryProjectionDriftRequest
+	21, // 44: iam.v1.IAMPermissionService.CheckPermission:input_type -> iam.v1.CheckPermissionRequest
+	23, // 45: iam.v1.IAMPermissionService.WriteRelationship:input_type -> iam.v1.WriteRelationshipRequest
+	25, // 46: iam.v1.IAMPermissionService.DeleteRelationship:input_type -> iam.v1.DeleteRelationshipRequest
+	27, // 47: iam.v1.IAMPermissionService.LookupResources:input_type -> iam.v1.LookupResourcesRequest
+	29, // 48: iam.v1.IAMPermissionService.LookupSubjects:input_type -> iam.v1.LookupSubjectsRequest
+	31, // 49: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:input_type -> iam.v1.GetAuthorizationSchemaRequest
+	33, // 50: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:input_type -> iam.v1.ValidateAuthorizationSchemaRequest
+	35, // 51: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:input_type -> iam.v1.PublishAuthorizationSchemaRequest
+	37, // 52: iam.v1.IAMAuthorizationAdminService.ListRelationships:input_type -> iam.v1.ListRelationshipsRequest
+	39, // 53: iam.v1.IAMAuthorizationAdminService.WriteRelationships:input_type -> iam.v1.WriteRelationshipsRequest
+	41, // 54: iam.v1.IAMAuthorizationAdminService.DeleteRelationships:input_type -> iam.v1.DeleteRelationshipsRequest
+	21, // 55: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:input_type -> iam.v1.CheckPermissionRequest
+	21, // 56: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:input_type -> iam.v1.CheckPermissionRequest
+	44, // 57: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:input_type -> iam.v1.GetEffectivePermissionsRequest
+	48, // 58: iam.v1.IAMAuthService.VerifyToken:output_type -> iam.v1.Principal
+	2,  // 59: iam.v1.IAMAuthService.GetMe:output_type -> iam.v1.GetMeReply
+	49, // 60: iam.v1.IAMDirectoryService.GetUser:output_type -> iam.v1.User
+	5,  // 61: iam.v1.IAMDirectoryService.ListUsers:output_type -> iam.v1.ListUsersReply
+	50, // 62: iam.v1.IAMDirectoryService.GetOrganization:output_type -> iam.v1.Organization
+	8,  // 63: iam.v1.IAMDirectoryService.ListGroups:output_type -> iam.v1.ListGroupsReply
+	51, // 64: iam.v1.IAMDirectoryService.GetGroup:output_type -> iam.v1.Group
+	51, // 65: iam.v1.IAMDirectoryService.CreateGroup:output_type -> iam.v1.Group
+	51, // 66: iam.v1.IAMDirectoryService.UpdateGroup:output_type -> iam.v1.Group
+	59, // 67: iam.v1.IAMDirectoryService.DeleteGroup:output_type -> google.protobuf.Empty
+	59, // 68: iam.v1.IAMDirectoryService.AssignUserToGroup:output_type -> google.protobuf.Empty
+	59, // 69: iam.v1.IAMDirectoryService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
+	16, // 70: iam.v1.IAMDirectoryProjectionService.RetryDirectoryProjection:output_type -> iam.v1.RetryDirectoryProjectionReply
+	18, // 71: iam.v1.IAMDirectoryProjectionService.ReconcileDirectoryProjection:output_type -> iam.v1.ReconcileDirectoryProjectionReply
+	20, // 72: iam.v1.IAMDirectoryProjectionService.CheckDirectoryProjectionDrift:output_type -> iam.v1.CheckDirectoryProjectionDriftReply
+	22, // 73: iam.v1.IAMPermissionService.CheckPermission:output_type -> iam.v1.CheckPermissionReply
+	24, // 74: iam.v1.IAMPermissionService.WriteRelationship:output_type -> iam.v1.WriteRelationshipReply
+	26, // 75: iam.v1.IAMPermissionService.DeleteRelationship:output_type -> iam.v1.DeleteRelationshipReply
+	28, // 76: iam.v1.IAMPermissionService.LookupResources:output_type -> iam.v1.LookupResourcesReply
+	30, // 77: iam.v1.IAMPermissionService.LookupSubjects:output_type -> iam.v1.LookupSubjectsReply
+	32, // 78: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:output_type -> iam.v1.AuthorizationSchema
+	34, // 79: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:output_type -> iam.v1.ValidateAuthorizationSchemaReply
+	36, // 80: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:output_type -> iam.v1.PublishAuthorizationSchemaReply
+	38, // 81: iam.v1.IAMAuthorizationAdminService.ListRelationships:output_type -> iam.v1.ListRelationshipsReply
+	40, // 82: iam.v1.IAMAuthorizationAdminService.WriteRelationships:output_type -> iam.v1.WriteRelationshipsReply
+	42, // 83: iam.v1.IAMAuthorizationAdminService.DeleteRelationships:output_type -> iam.v1.DeleteRelationshipsReply
+	22, // 84: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:output_type -> iam.v1.CheckPermissionReply
+	43, // 85: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:output_type -> iam.v1.ExplainAuthorizationReply
+	45, // 86: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:output_type -> iam.v1.GetEffectivePermissionsReply
+	58, // [58:87] is the sub-list for method output_type
+	29, // [29:58] is the sub-list for method input_type
 	29, // [29:29] is the sub-list for extension type_name
 	29, // [29:29] is the sub-list for extension extendee
 	0,  // [0:29] is the sub-list for field type_name

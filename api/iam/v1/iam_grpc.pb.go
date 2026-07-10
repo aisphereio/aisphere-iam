@@ -20,9 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IAMAuthService_VerifyToken_FullMethodName       = "/iam.v1.IAMAuthService/VerifyToken"
-	IAMAuthService_ExternalAuthorize_FullMethodName = "/iam.v1.IAMAuthService/ExternalAuthorize"
-	IAMAuthService_GetMe_FullMethodName             = "/iam.v1.IAMAuthService/GetMe"
+	IAMAuthService_VerifyToken_FullMethodName = "/iam.v1.IAMAuthService/VerifyToken"
+	IAMAuthService_GetMe_FullMethodName       = "/iam.v1.IAMAuthService/GetMe"
 )
 
 // IAMAuthServiceClient is the client API for IAMAuthService service.
@@ -30,7 +29,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type IAMAuthServiceClient interface {
 	VerifyToken(ctx context.Context, in *VerifyTokenRequest, opts ...grpc.CallOption) (*Principal, error)
-	ExternalAuthorize(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Principal, error)
 	GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeReply, error)
 }
 
@@ -52,16 +50,6 @@ func (c *iAMAuthServiceClient) VerifyToken(ctx context.Context, in *VerifyTokenR
 	return out, nil
 }
 
-func (c *iAMAuthServiceClient) ExternalAuthorize(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Principal, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Principal)
-	err := c.cc.Invoke(ctx, IAMAuthService_ExternalAuthorize_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *iAMAuthServiceClient) GetMe(ctx context.Context, in *GetMeRequest, opts ...grpc.CallOption) (*GetMeReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetMeReply)
@@ -77,7 +65,6 @@ func (c *iAMAuthServiceClient) GetMe(ctx context.Context, in *GetMeRequest, opts
 // for forward compatibility.
 type IAMAuthServiceServer interface {
 	VerifyToken(context.Context, *VerifyTokenRequest) (*Principal, error)
-	ExternalAuthorize(context.Context, *emptypb.Empty) (*Principal, error)
 	GetMe(context.Context, *GetMeRequest) (*GetMeReply, error)
 	mustEmbedUnimplementedIAMAuthServiceServer()
 }
@@ -91,9 +78,6 @@ type UnimplementedIAMAuthServiceServer struct{}
 
 func (UnimplementedIAMAuthServiceServer) VerifyToken(context.Context, *VerifyTokenRequest) (*Principal, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyToken not implemented")
-}
-func (UnimplementedIAMAuthServiceServer) ExternalAuthorize(context.Context, *emptypb.Empty) (*Principal, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExternalAuthorize not implemented")
 }
 func (UnimplementedIAMAuthServiceServer) GetMe(context.Context, *GetMeRequest) (*GetMeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMe not implemented")
@@ -137,24 +121,6 @@ func _IAMAuthService_VerifyToken_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IAMAuthService_ExternalAuthorize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMAuthServiceServer).ExternalAuthorize(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMAuthService_ExternalAuthorize_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMAuthServiceServer).ExternalAuthorize(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _IAMAuthService_GetMe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetMeRequest)
 	if err := dec(in); err != nil {
@@ -183,10 +149,6 @@ var IAMAuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "VerifyToken",
 			Handler:    _IAMAuthService_VerifyToken_Handler,
-		},
-		{
-			MethodName: "ExternalAuthorize",
-			Handler:    _IAMAuthService_ExternalAuthorize_Handler,
 		},
 		{
 			MethodName: "GetMe",

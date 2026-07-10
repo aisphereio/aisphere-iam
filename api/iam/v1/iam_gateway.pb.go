@@ -8,7 +8,6 @@ package v1
 import (
 	v1 "github.com/aisphereio/kernel/api/aisphere/access/v1"
 	gatewayx "github.com/aisphereio/kernel/gatewayx"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 func IAMAuthServiceGatewayManifest() gatewayx.Manifest {
@@ -22,13 +21,6 @@ func IAMAuthServiceGatewayManifest() gatewayx.Manifest {
 				Path:     "/v1/iam/auth/verify",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthService/VerifyToken"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
-				ID:       "i.a.m.auth.external.authorize",
-				Method:   "POST",
-				Path:     "/internal/iam/ext-authz",
-				Upstream: gatewayx.UpstreamRef{Service: "i.a.m.auth-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthService/ExternalAuthorize"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_PUBLIC, AuthnMode: gatewayx.AuthnModeNone, ForwardAuthorization: false},
 			},
 			{
 				ID:       "i.a.m.auth.get.me",
@@ -52,17 +44,6 @@ func IAMAuthServiceGatewayBindVerifyToken(req gatewayx.DispatchRequest, match ga
 	return out, nil
 }
 
-func IAMAuthServiceGatewayBindExternalAuthorize(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*emptypb.Empty, error) {
-	out := &emptypb.Empty{}
-	if v, ok := req.Body.(*emptypb.Empty); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(emptypb.Empty); ok {
-		out = &v
-	}
-	return out, nil
-}
-
 func IAMAuthServiceGatewayBindGetMe(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*GetMeRequest, error) {
 	out := &GetMeRequest{}
 	if v, ok := req.Body.(*GetMeRequest); ok && v != nil {
@@ -76,9 +57,6 @@ func IAMAuthServiceGatewayBindGetMe(req gatewayx.DispatchRequest, match gatewayx
 
 func RegisterIAMAuthServiceGatewayInvokers(registry *gatewayx.InvokerRegistry, client IAMAuthServiceClient) error {
 	if err := registry.Register("/iam.v1.IAMAuthService/VerifyToken", gatewayx.GRPCUnaryInvoker(IAMAuthServiceGatewayBindVerifyToken, client.VerifyToken)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.v1.IAMAuthService/ExternalAuthorize", gatewayx.GRPCUnaryInvoker(IAMAuthServiceGatewayBindExternalAuthorize, client.ExternalAuthorize)); err != nil {
 		return err
 	}
 	if err := registry.Register("/iam.v1.IAMAuthService/GetMe", gatewayx.GRPCUnaryInvoker(IAMAuthServiceGatewayBindGetMe, client.GetMe)); err != nil {

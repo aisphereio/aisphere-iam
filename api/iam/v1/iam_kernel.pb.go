@@ -96,18 +96,6 @@ func IAMAuthServiceKernelRequestInfoResolver(ctx context.Context, operation stri
 		info.Labels["audit_event"] = "iam.verify_token"
 		info.Labels["audit_risk"] = "medium"
 		return info.Normalize(), true, nil
-	case "/iam.v1.IAMAuthService/ExternalAuthorize":
-		info := requestx.Info{
-			Service:   "iam.v1.IAMAuthService",
-			Method:    "ExternalAuthorize",
-			Operation: "/iam.v1.IAMAuthService/ExternalAuthorize",
-			Exposure:  v1.Exposure_PUBLIC,
-			Labels:    map[string]string{},
-		}
-		info.Labels["authz_mode"] = "UNSPECIFIED"
-		info.Labels["audit_event"] = "iam.external_authorize"
-		info.Labels["audit_risk"] = "medium"
-		return info.Normalize(), true, nil
 	case "/iam.v1.IAMAuthService/GetMe":
 		info := requestx.Info{
 			Service:       "iam.v1.IAMAuthService",
@@ -155,8 +143,6 @@ func _IAMAuthServiceKernelNormalizeOperation(operation string) string {
 	switch operation {
 	case "VerifyToken", "iam.v1.IAMAuthService/VerifyToken":
 		return "/iam.v1.IAMAuthService/VerifyToken"
-	case "ExternalAuthorize", "iam.v1.IAMAuthService/ExternalAuthorize":
-		return "/iam.v1.IAMAuthService/ExternalAuthorize"
 	case "GetMe", "iam.v1.IAMAuthService/GetMe":
 		return "/iam.v1.IAMAuthService/GetMe"
 	default:

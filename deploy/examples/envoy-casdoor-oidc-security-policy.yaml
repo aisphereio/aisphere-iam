@@ -1,48 +1,17 @@
-# Example only. Generated manifests should come from Kernel protoc/deploy generators.
-# This file documents the OIDC-only phase for Envoy Gateway + Casdoor.
-# It intentionally does not configure Gateway ExternalAuth.
+# IAM Console — 聚合 HTTPRoute 和 OIDC SecurityPolicy
 #
-# Each frontend application uses its own Casdoor Application, clientID, HTTPRoute,
-# and SecurityPolicy. This example shows the IAM console configuration.
+# 这个文件定义 IAM 管理控制台的完整入口：
+# - 一个聚合 HTTPRoute 覆盖前端页面和后端 API
+# - 一个 OIDC SecurityPolicy 保护所有 IAM 路由
+#
+# 这样前端页面（/）和后端 API（/v1/iam/*）都使用同一个 Casdoor Application
+# 和同一套 OIDC 配置，避免 API Route 没有 OIDC 保护的问题。
+#
+# 注意：生成的单个 API Route（如 i-a-m-auth-service-authenticated）仍然存在，
+# 但 Gateway API 的路由匹配规则中，更具体的路径前缀会优先匹配。
+# 如果生成的 Route 没有绑定 SecurityPolicy，请求会落到没有 OIDC 保护的路由上。
+# 因此这个聚合 Route 覆盖所有路径，确保整个 iam.weagent.cc 域名都受 OIDC 保护。
 
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: ClientTrafficPolicy
-metadata:
-  name: aisphere-sanitize-headers
-  namespace: aisphere-system
-spec:
-  targetRef:
-    group: gateway.networking.k8s.io
-    kind: Gateway
-    name: aisphere-gateway
-    namespace: aisphere-system
-  headers:
-    earlyRequestHeaders:
-      remove:
-        - x-aisphere-external-sub
-        - x-aisphere-external-email
-        - x-aisphere-external-name
-        - x-aisphere-external-username
-        - x-aisphere-external-issuer
-        - x-aisphere-external-display-name
-        - x-aisphere-external-phone
-        - x-aisphere-external-owner
-        - x-aisphere-external-scope
-        - x-aisphere-external-id
-        - x-aisphere-principal
-        - x-aisphere-user-id
-        - x-aisphere-org-id
-        - x-aisphere-project-id
-        - x-aisphere-roles
-        - x-aisphere-auth-verified
-        - x-aisphere-subject
-        - x-aisphere-provider
-        - x-aisphere-app-id
-        - x-aisphere-authz-decision-id
-        - x-aisphere-internal-jwt
-        - x-internal-jwt
----
-# IAM Console frontend — uses its own Casdoor Application and SecurityPolicy
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -58,6 +27,7 @@ spec:
   hostnames:
     - iam.weagent.cc
   rules:
+    # 前端页面
     - matches:
         - path:
             type: PathPrefix
@@ -65,12 +35,29 @@ spec:
       backendRefs:
         - name: aisphere-iam-frontend
           port: 3000
+    # IAM 后端 API
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /v1/iam
+      backendRefs:
+        - name: aisphere-iam
+          port: 18080
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: casdoor-iam-web-oidc
+  namespace: iam
+type: Opaque
+stringData:
+  client-secret: "CHANGE_ME_IAM_OIDC_CLIENT_SECRET"
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: iam-console-oidc
-  namespace: aisphere
+  namespace: iam
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
@@ -92,8 +79,8 @@ spec:
     forwardAccessToken: true
     passThroughAuthHeader: true
     cookieNames:
-      accessToken: Aisphere-IAM-AccessToken
-      idToken: Aisphere-IAM-IDToken
+      accessToken: IAM-AccessToken
+      idToken: IAM-IDToken
   jwt:
     providers:
       - name: casdoor

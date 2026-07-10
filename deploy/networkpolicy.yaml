@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aisphere-iam-network-policy
+  namespace: aisphere
+spec:
+  podSelector:
+    matchLabels:
+      app: aisphere-iam
+  policyTypes:
+    - Ingress
+  ingress:
+    # 允许 Envoy Gateway 访问 HTTP 和 gRPC 端口
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: aisphere-system
+          podSelector:
+            matchLabels:
+              gateway.envoyproxy.io/owning-gateway-name: aisphere-gateway
+      ports:
+        - protocol: TCP
+          port: 18080
+        - protocol: TCP
+          port: 19080
+    # 允许同命名空间下的服务间调用（如 DTM callback）
+    - from:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 18080
+    # 允许 metrics 采集
+    - from:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 19180

@@ -144,17 +144,21 @@ endif
 
 deploy-apply: deploy
 ifeq ($(OS),Windows_NT)
+	@cmd /c "$(KUBECTL) get secret aisphere-iam-secrets -n $(KUBE_NAMESPACE) >nul 2>nul || (echo ERROR: aisphere-iam-secrets not found. Create it first: kubectl create secret generic aisphere-iam-secrets -n $(KUBE_NAMESPACE) --from-literal=postgres-dsn=... && exit /b 1)"
 	@cmd /c "$(KUBECTL) apply -f $(DEPLOY_DIR)\namespace.yaml"
 	@cmd /c "$(KUBECTL) create configmap $(SPICEDB_SCHEMA_CONFIGMAP) -n $(KUBE_NAMESPACE) --from-file=aisphere.schema.zed=$(SPICEDB_SCHEMA) --dry-run=client -o yaml | $(KUBECTL) apply -f -"
 	@cmd /c "$(KUBECTL) apply -f $(DEPLOY_DIR)\configmap.yaml"
 	@cmd /c "$(KUBECTL) apply -f $(DEPLOY_DIR)\service.yaml"
+	@cmd /c "$(KUBECTL) apply -f $(DEPLOY_DIR)\networkpolicy.yaml"
 	@cmd /c "$(KUBECTL) apply -f $(DEPLOY_DIR)\deployment.yaml"
 	@cmd /c "if exist $(GENERATED_DEPLOY_DIR) ($(KUBECTL) apply -R -f $(GENERATED_DEPLOY_DIR)) else (echo generated deploy dir missing && exit /b 1)"
 else
+	@kubectl get secret aisphere-iam-secrets -n $(KUBE_NAMESPACE) >/dev/null 2>&1 || (echo "ERROR: aisphere-iam-secrets not found in namespace $(KUBE_NAMESPACE). Create it first:"; echo "  kubectl create secret generic aisphere-iam-secrets -n $(KUBE_NAMESPACE) --from-literal=postgres-dsn=..."; exit 1)
 	$(KUBECTL) apply -f $(DEPLOY_DIR)/namespace.yaml
 	$(KUBECTL) create configmap $(SPICEDB_SCHEMA_CONFIGMAP) -n $(KUBE_NAMESPACE) --from-file=aisphere.schema.zed=$(SPICEDB_SCHEMA) --dry-run=client -o yaml | $(KUBECTL) apply -f -
 	$(KUBECTL) apply -f $(DEPLOY_DIR)/configmap.yaml
 	$(KUBECTL) apply -f $(DEPLOY_DIR)/service.yaml
+	$(KUBECTL) apply -f $(DEPLOY_DIR)/networkpolicy.yaml
 	$(KUBECTL) apply -f $(DEPLOY_DIR)/deployment.yaml
 	@test -d $(GENERATED_DEPLOY_DIR) || (echo "$(GENERATED_DEPLOY_DIR) missing; run make deploy"; exit 1)
 	$(KUBECTL) apply -R -f $(GENERATED_DEPLOY_DIR)

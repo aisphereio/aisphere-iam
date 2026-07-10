@@ -18,12 +18,10 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationIAMAuthServiceExternalAuthorize = "/iam.v1.IAMAuthService/ExternalAuthorize"
 const OperationIAMAuthServiceGetMe = "/iam.v1.IAMAuthService/GetMe"
 const OperationIAMAuthServiceVerifyToken = "/iam.v1.IAMAuthService/VerifyToken"
 
 type IAMAuthServiceHTTPServer interface {
-	ExternalAuthorize(context.Context, *emptypb.Empty) (*Principal, error)
 	GetMe(context.Context, *GetMeRequest) (*GetMeReply, error)
 	VerifyToken(context.Context, *VerifyTokenRequest) (*Principal, error)
 }
@@ -32,7 +30,6 @@ func RegisterIAMAuthServiceHTTPServer(s *http.Server, srv IAMAuthServiceHTTPServ
 	r := s.Route("/")
 	r.Handle("GET", "/v1/iam/me", _IAMAuthService_GetMe0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/auth/verify", _IAMAuthService_VerifyToken0_HTTP_Handler(srv))
-	r.Handle("POST", "/internal/iam/ext-authz", _IAMAuthService_ExternalAuthorize0_HTTP_Handler(srv))
 }
 
 func _IAMAuthService_GetMe0_HTTP_Handler(srv IAMAuthServiceHTTPServer) func(ctx http.Context) error {
@@ -79,30 +76,7 @@ func _IAMAuthService_VerifyToken0_HTTP_Handler(srv IAMAuthServiceHTTPServer) fun
 	}
 }
 
-func _IAMAuthService_ExternalAuthorize0_HTTP_Handler(srv IAMAuthServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in emptypb.Empty
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationIAMAuthServiceExternalAuthorize)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ExternalAuthorize(ctx, req.(*emptypb.Empty))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*Principal)
-		return ctx.Result(200, reply)
-	}
-}
-
 type IAMAuthServiceHTTPClient interface {
-	ExternalAuthorize(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *Principal, err error)
 	GetMe(ctx context.Context, req *GetMeRequest, opts ...http.CallOption) (rsp *GetMeReply, err error)
 	VerifyToken(ctx context.Context, req *VerifyTokenRequest, opts ...http.CallOption) (rsp *Principal, err error)
 }
@@ -113,23 +87,6 @@ type IAMAuthServiceHTTPClientImpl struct {
 
 func NewIAMAuthServiceHTTPClient(client *http.Client) IAMAuthServiceHTTPClient {
 	return &IAMAuthServiceHTTPClientImpl{client}
-}
-
-func (c *IAMAuthServiceHTTPClientImpl) ExternalAuthorize(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*Principal, error) {
-	var out Principal
-	pattern := "/internal/iam/ext-authz"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationIAMAuthServiceExternalAuthorize),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
 }
 
 func (c *IAMAuthServiceHTTPClientImpl) GetMe(ctx context.Context, in *GetMeRequest, opts ...http.CallOption) (*GetMeReply, error) {
