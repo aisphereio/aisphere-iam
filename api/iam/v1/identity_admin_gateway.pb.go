@@ -52,7 +52,7 @@ func IAMIdentityAdminServiceGatewayManifest() gatewayx.Manifest {
 			},
 			{
 				ID:       "i.a.m.identity.admin.update.group",
-				Method:   "PUT",
+				Method:   "PATCH",
 				Path:     "/v1/iam/orgs/{org_id}/groups/{group_id}",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMIdentityAdminService/UpdateGroup"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},

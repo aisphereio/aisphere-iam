@@ -413,6 +413,13 @@ func IAMPermissionServiceGatewayManifest() gatewayx.Manifest {
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
+				ID:       "i.a.m.permission.batch.check.permissions",
+				Method:   "POST",
+				Path:     "/internal/v1/iam/permissions:batchCheck",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMPermissionService/BatchCheckPermissions"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
+			},
+			{
 				ID:       "i.a.m.permission.write.relationship",
 				Method:   "POST",
 				Path:     "/v1/iam/relationships",
@@ -440,6 +447,27 @@ func IAMPermissionServiceGatewayManifest() gatewayx.Manifest {
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMPermissionService/LookupSubjects"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
+			{
+				ID:       "i.a.m.permission.write.relationships",
+				Method:   "POST",
+				Path:     "/internal/v1/iam/relationships:write",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMPermissionService/WriteRelationships"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
+			},
+			{
+				ID:       "i.a.m.permission.delete.relationships",
+				Method:   "POST",
+				Path:     "/internal/v1/iam/relationships:delete",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMPermissionService/DeleteRelationships"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
+			},
+			{
+				ID:       "i.a.m.permission.read.relationships",
+				Method:   "POST",
+				Path:     "/internal/v1/iam/relationships:read",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMPermissionService/ReadRelationships"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
+			},
 		},
 	}
 }
@@ -450,6 +478,17 @@ func IAMPermissionServiceGatewayBindCheckPermission(req gatewayx.DispatchRequest
 		out = v
 	}
 	if v, ok := req.Body.(CheckPermissionRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+func IAMPermissionServiceGatewayBindBatchCheckPermissions(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*BatchCheckPermissionsRequest, error) {
+	out := &BatchCheckPermissionsRequest{}
+	if v, ok := req.Body.(*BatchCheckPermissionsRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(BatchCheckPermissionsRequest); ok {
 		out = &v
 	}
 	return out, nil
@@ -499,8 +538,44 @@ func IAMPermissionServiceGatewayBindLookupSubjects(req gatewayx.DispatchRequest,
 	return out, nil
 }
 
+func IAMPermissionServiceGatewayBindWriteRelationships(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*WriteRelationshipsRequest, error) {
+	out := &WriteRelationshipsRequest{}
+	if v, ok := req.Body.(*WriteRelationshipsRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(WriteRelationshipsRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+func IAMPermissionServiceGatewayBindDeleteRelationships(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*DeleteRelationshipsRequest, error) {
+	out := &DeleteRelationshipsRequest{}
+	if v, ok := req.Body.(*DeleteRelationshipsRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(DeleteRelationshipsRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
+func IAMPermissionServiceGatewayBindReadRelationships(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*ListRelationshipsRequest, error) {
+	out := &ListRelationshipsRequest{}
+	if v, ok := req.Body.(*ListRelationshipsRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(ListRelationshipsRequest); ok {
+		out = &v
+	}
+	return out, nil
+}
+
 func RegisterIAMPermissionServiceGatewayInvokers(registry *gatewayx.InvokerRegistry, client IAMPermissionServiceClient) error {
 	if err := registry.Register("/iam.v1.IAMPermissionService/CheckPermission", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindCheckPermission, client.CheckPermission)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMPermissionService/BatchCheckPermissions", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindBatchCheckPermissions, client.BatchCheckPermissions)); err != nil {
 		return err
 	}
 	if err := registry.Register("/iam.v1.IAMPermissionService/WriteRelationship", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindWriteRelationship, client.WriteRelationship)); err != nil {
@@ -513,6 +588,15 @@ func RegisterIAMPermissionServiceGatewayInvokers(registry *gatewayx.InvokerRegis
 		return err
 	}
 	if err := registry.Register("/iam.v1.IAMPermissionService/LookupSubjects", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindLookupSubjects, client.LookupSubjects)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMPermissionService/WriteRelationships", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindWriteRelationships, client.WriteRelationships)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMPermissionService/DeleteRelationships", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindDeleteRelationships, client.DeleteRelationships)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.v1.IAMPermissionService/ReadRelationships", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindReadRelationships, client.ReadRelationships)); err != nil {
 		return err
 	}
 	return nil

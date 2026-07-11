@@ -737,27 +737,127 @@ func (c *IAMDirectoryProjectionServiceHTTPClientImpl) RetryDirectoryProjection(c
 	return &out, nil
 }
 
+const OperationIAMPermissionServiceBatchCheckPermissions = "/iam.v1.IAMPermissionService/BatchCheckPermissions"
 const OperationIAMPermissionServiceCheckPermission = "/iam.v1.IAMPermissionService/CheckPermission"
 const OperationIAMPermissionServiceDeleteRelationship = "/iam.v1.IAMPermissionService/DeleteRelationship"
+const OperationIAMPermissionServiceDeleteRelationships = "/iam.v1.IAMPermissionService/DeleteRelationships"
 const OperationIAMPermissionServiceLookupResources = "/iam.v1.IAMPermissionService/LookupResources"
 const OperationIAMPermissionServiceLookupSubjects = "/iam.v1.IAMPermissionService/LookupSubjects"
+const OperationIAMPermissionServiceReadRelationships = "/iam.v1.IAMPermissionService/ReadRelationships"
 const OperationIAMPermissionServiceWriteRelationship = "/iam.v1.IAMPermissionService/WriteRelationship"
+const OperationIAMPermissionServiceWriteRelationships = "/iam.v1.IAMPermissionService/WriteRelationships"
 
 type IAMPermissionServiceHTTPServer interface {
+	BatchCheckPermissions(context.Context, *BatchCheckPermissionsRequest) (*BatchCheckPermissionsReply, error)
 	CheckPermission(context.Context, *CheckPermissionRequest) (*CheckPermissionReply, error)
 	DeleteRelationship(context.Context, *DeleteRelationshipRequest) (*DeleteRelationshipReply, error)
+	DeleteRelationships(context.Context, *DeleteRelationshipsRequest) (*DeleteRelationshipsReply, error)
 	LookupResources(context.Context, *LookupResourcesRequest) (*LookupResourcesReply, error)
 	LookupSubjects(context.Context, *LookupSubjectsRequest) (*LookupSubjectsReply, error)
+	ReadRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error)
 	WriteRelationship(context.Context, *WriteRelationshipRequest) (*WriteRelationshipReply, error)
+	WriteRelationships(context.Context, *WriteRelationshipsRequest) (*WriteRelationshipsReply, error)
 }
 
 func RegisterIAMPermissionServiceHTTPServer(s *http.Server, srv IAMPermissionServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("POST", "/internal/v1/iam/permissions:batchCheck", _IAMPermissionService_BatchCheckPermissions0_HTTP_Handler(srv))
+	r.Handle("POST", "/internal/v1/iam/relationships:delete", _IAMPermissionService_DeleteRelationships0_HTTP_Handler(srv))
+	r.Handle("POST", "/internal/v1/iam/relationships:read", _IAMPermissionService_ReadRelationships0_HTTP_Handler(srv))
+	r.Handle("POST", "/internal/v1/iam/relationships:write", _IAMPermissionService_WriteRelationships0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/permissions/check", _IAMPermissionService_CheckPermission0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/relationships/delete", _IAMPermissionService_DeleteRelationship0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/resources/lookup", _IAMPermissionService_LookupResources0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/subjects/lookup", _IAMPermissionService_LookupSubjects0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/relationships", _IAMPermissionService_WriteRelationship0_HTTP_Handler(srv))
+}
+
+func _IAMPermissionService_BatchCheckPermissions0_HTTP_Handler(srv IAMPermissionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in BatchCheckPermissionsRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationIAMPermissionServiceBatchCheckPermissions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.BatchCheckPermissions(ctx, req.(*BatchCheckPermissionsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BatchCheckPermissionsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _IAMPermissionService_DeleteRelationships0_HTTP_Handler(srv IAMPermissionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteRelationshipsRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationIAMPermissionServiceDeleteRelationships)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteRelationships(ctx, req.(*DeleteRelationshipsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeleteRelationshipsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _IAMPermissionService_ReadRelationships0_HTTP_Handler(srv IAMPermissionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListRelationshipsRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationIAMPermissionServiceReadRelationships)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ReadRelationships(ctx, req.(*ListRelationshipsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListRelationshipsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _IAMPermissionService_WriteRelationships0_HTTP_Handler(srv IAMPermissionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in WriteRelationshipsRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationIAMPermissionServiceWriteRelationships)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.WriteRelationships(ctx, req.(*WriteRelationshipsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*WriteRelationshipsReply)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _IAMPermissionService_CheckPermission0_HTTP_Handler(srv IAMPermissionServiceHTTPServer) func(ctx http.Context) error {
@@ -871,11 +971,15 @@ func _IAMPermissionService_WriteRelationship0_HTTP_Handler(srv IAMPermissionServ
 }
 
 type IAMPermissionServiceHTTPClient interface {
+	BatchCheckPermissions(ctx context.Context, req *BatchCheckPermissionsRequest, opts ...http.CallOption) (rsp *BatchCheckPermissionsReply, err error)
 	CheckPermission(ctx context.Context, req *CheckPermissionRequest, opts ...http.CallOption) (rsp *CheckPermissionReply, err error)
 	DeleteRelationship(ctx context.Context, req *DeleteRelationshipRequest, opts ...http.CallOption) (rsp *DeleteRelationshipReply, err error)
+	DeleteRelationships(ctx context.Context, req *DeleteRelationshipsRequest, opts ...http.CallOption) (rsp *DeleteRelationshipsReply, err error)
 	LookupResources(ctx context.Context, req *LookupResourcesRequest, opts ...http.CallOption) (rsp *LookupResourcesReply, err error)
 	LookupSubjects(ctx context.Context, req *LookupSubjectsRequest, opts ...http.CallOption) (rsp *LookupSubjectsReply, err error)
+	ReadRelationships(ctx context.Context, req *ListRelationshipsRequest, opts ...http.CallOption) (rsp *ListRelationshipsReply, err error)
 	WriteRelationship(ctx context.Context, req *WriteRelationshipRequest, opts ...http.CallOption) (rsp *WriteRelationshipReply, err error)
+	WriteRelationships(ctx context.Context, req *WriteRelationshipsRequest, opts ...http.CallOption) (rsp *WriteRelationshipsReply, err error)
 }
 
 type IAMPermissionServiceHTTPClientImpl struct {
@@ -884,6 +988,23 @@ type IAMPermissionServiceHTTPClientImpl struct {
 
 func NewIAMPermissionServiceHTTPClient(client *http.Client) IAMPermissionServiceHTTPClient {
 	return &IAMPermissionServiceHTTPClientImpl{client}
+}
+
+func (c *IAMPermissionServiceHTTPClientImpl) BatchCheckPermissions(ctx context.Context, in *BatchCheckPermissionsRequest, opts ...http.CallOption) (*BatchCheckPermissionsReply, error) {
+	var out BatchCheckPermissionsReply
+	pattern := "/internal/v1/iam/permissions:batchCheck"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationIAMPermissionServiceBatchCheckPermissions),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *IAMPermissionServiceHTTPClientImpl) CheckPermission(ctx context.Context, in *CheckPermissionRequest, opts ...http.CallOption) (*CheckPermissionReply, error) {
@@ -911,6 +1032,23 @@ func (c *IAMPermissionServiceHTTPClientImpl) DeleteRelationship(ctx context.Cont
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationIAMPermissionServiceDeleteRelationship),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *IAMPermissionServiceHTTPClientImpl) DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...http.CallOption) (*DeleteRelationshipsReply, error) {
+	var out DeleteRelationshipsReply
+	pattern := "/internal/v1/iam/relationships:delete"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationIAMPermissionServiceDeleteRelationships),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
@@ -954,6 +1092,23 @@ func (c *IAMPermissionServiceHTTPClientImpl) LookupSubjects(ctx context.Context,
 	return &out, nil
 }
 
+func (c *IAMPermissionServiceHTTPClientImpl) ReadRelationships(ctx context.Context, in *ListRelationshipsRequest, opts ...http.CallOption) (*ListRelationshipsReply, error) {
+	var out ListRelationshipsReply
+	pattern := "/internal/v1/iam/relationships:read"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationIAMPermissionServiceReadRelationships),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *IAMPermissionServiceHTTPClientImpl) WriteRelationship(ctx context.Context, in *WriteRelationshipRequest, opts ...http.CallOption) (*WriteRelationshipReply, error) {
 	var out WriteRelationshipReply
 	pattern := "/v1/iam/relationships"
@@ -962,6 +1117,23 @@ func (c *IAMPermissionServiceHTTPClientImpl) WriteRelationship(ctx context.Conte
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationIAMPermissionServiceWriteRelationship),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *IAMPermissionServiceHTTPClientImpl) WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...http.CallOption) (*WriteRelationshipsReply, error) {
+	var out WriteRelationshipsReply
+	pattern := "/internal/v1/iam/relationships:write"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationIAMPermissionServiceWriteRelationships),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
@@ -1000,8 +1172,8 @@ func RegisterIAMAuthorizationAdminServiceHTTPServer(s *http.Server, srv IAMAutho
 	r.Handle("GET", "/v1/iam/authz/schema", _IAMAuthorizationAdminService_GetAuthorizationSchema0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/authz/permissions:check", _IAMAuthorizationAdminService_CheckAuthorization0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/authz/permissions:explain", _IAMAuthorizationAdminService_ExplainAuthorization0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/authz/relationships", _IAMAuthorizationAdminService_WriteRelationships0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/authz/relationships:delete", _IAMAuthorizationAdminService_DeleteRelationships0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/authz/relationships", _IAMAuthorizationAdminService_WriteRelationships1_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/authz/relationships:delete", _IAMAuthorizationAdminService_DeleteRelationships1_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/authz/schema:publish", _IAMAuthorizationAdminService_PublishAuthorizationSchema0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/authz/schema:validate", _IAMAuthorizationAdminService_ValidateAuthorizationSchema0_HTTP_Handler(srv))
 }
@@ -1116,7 +1288,7 @@ func _IAMAuthorizationAdminService_ExplainAuthorization0_HTTP_Handler(srv IAMAut
 	}
 }
 
-func _IAMAuthorizationAdminService_WriteRelationships0_HTTP_Handler(srv IAMAuthorizationAdminServiceHTTPServer) func(ctx http.Context) error {
+func _IAMAuthorizationAdminService_WriteRelationships1_HTTP_Handler(srv IAMAuthorizationAdminServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in WriteRelationshipsRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -1138,7 +1310,7 @@ func _IAMAuthorizationAdminService_WriteRelationships0_HTTP_Handler(srv IAMAutho
 	}
 }
 
-func _IAMAuthorizationAdminService_DeleteRelationships0_HTTP_Handler(srv IAMAuthorizationAdminServiceHTTPServer) func(ctx http.Context) error {
+func _IAMAuthorizationAdminService_DeleteRelationships1_HTTP_Handler(srv IAMAuthorizationAdminServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in DeleteRelationshipsRequest
 		if err := ctx.Bind(&in); err != nil {

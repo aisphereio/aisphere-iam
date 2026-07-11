@@ -1181,6 +1181,10 @@ func (c *IAMPermissionServiceSecureClient) CheckPermission(ctx context.Context, 
 	return c.raw.CheckPermission(ctx, in, opts...)
 }
 
+func (c *IAMPermissionServiceSecureClient) BatchCheckPermissions(ctx context.Context, in *BatchCheckPermissionsRequest, opts ...grpc.CallOption) (*BatchCheckPermissionsReply, error) {
+	return c.raw.BatchCheckPermissions(ctx, in, opts...)
+}
+
 func (c *IAMPermissionServiceSecureClient) WriteRelationship(ctx context.Context, in *WriteRelationshipRequest, opts ...grpc.CallOption) (*WriteRelationshipReply, error) {
 	if c != nil && c.guard != nil {
 		rule := IAMPermissionServiceAuthzRules["/iam.v1.IAMPermissionService/WriteRelationship"]
@@ -1265,6 +1269,18 @@ func (c *IAMPermissionServiceSecureClient) LookupResources(ctx context.Context, 
 
 func (c *IAMPermissionServiceSecureClient) LookupSubjects(ctx context.Context, in *LookupSubjectsRequest, opts ...grpc.CallOption) (*LookupSubjectsReply, error) {
 	return c.raw.LookupSubjects(ctx, in, opts...)
+}
+
+func (c *IAMPermissionServiceSecureClient) WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...grpc.CallOption) (*WriteRelationshipsReply, error) {
+	return c.raw.WriteRelationships(ctx, in, opts...)
+}
+
+func (c *IAMPermissionServiceSecureClient) DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...grpc.CallOption) (*DeleteRelationshipsReply, error) {
+	return c.raw.DeleteRelationships(ctx, in, opts...)
+}
+
+func (c *IAMPermissionServiceSecureClient) ReadRelationships(ctx context.Context, in *ListRelationshipsRequest, opts ...grpc.CallOption) (*ListRelationshipsReply, error) {
+	return c.raw.ReadRelationships(ctx, in, opts...)
 }
 
 func _IAMPermissionServiceAuthzSubjectFromContext(ctx context.Context) authz.SubjectRef {

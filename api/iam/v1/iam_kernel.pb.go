@@ -711,6 +711,17 @@ var IAMPermissionServiceKernelAuthzRules = authz.Rules{
 		AuditEvent: "iam.permission.check",
 		AuditRisk:  "medium",
 	},
+	"/iam.v1.IAMPermissionService/BatchCheckPermissions": {
+		Service:    "iam.v1.IAMPermissionService",
+		Method:     "BatchCheckPermissions",
+		FullMethod: "/iam.v1.IAMPermissionService/BatchCheckPermissions",
+		Action:     "check",
+		Resource:   "iam:permission",
+		Audience:   "iam-service",
+		Mode:       authz.RuleMode("CHECK_ONLY"),
+		AuditEvent: "iam.permission.batch_check",
+		AuditRisk:  "medium",
+	},
 	"/iam.v1.IAMPermissionService/WriteRelationship": {
 		Service:    "iam.v1.IAMPermissionService",
 		Method:     "WriteRelationship",
@@ -755,6 +766,39 @@ var IAMPermissionServiceKernelAuthzRules = authz.Rules{
 		AuditEvent: "iam.subject.lookup",
 		AuditRisk:  "medium",
 	},
+	"/iam.v1.IAMPermissionService/WriteRelationships": {
+		Service:    "iam.v1.IAMPermissionService",
+		Method:     "WriteRelationships",
+		FullMethod: "/iam.v1.IAMPermissionService/WriteRelationships",
+		Action:     "write",
+		Resource:   "iam:relationship",
+		Audience:   "iam-service",
+		Mode:       authz.RuleMode("CHECK_ONLY"),
+		AuditEvent: "iam.relationship.batch_write",
+		AuditRisk:  "high",
+	},
+	"/iam.v1.IAMPermissionService/DeleteRelationships": {
+		Service:    "iam.v1.IAMPermissionService",
+		Method:     "DeleteRelationships",
+		FullMethod: "/iam.v1.IAMPermissionService/DeleteRelationships",
+		Action:     "delete",
+		Resource:   "iam:relationship",
+		Audience:   "iam-service",
+		Mode:       authz.RuleMode("CHECK_ONLY"),
+		AuditEvent: "iam.relationship.batch_delete",
+		AuditRisk:  "high",
+	},
+	"/iam.v1.IAMPermissionService/ReadRelationships": {
+		Service:    "iam.v1.IAMPermissionService",
+		Method:     "ReadRelationships",
+		FullMethod: "/iam.v1.IAMPermissionService/ReadRelationships",
+		Action:     "read",
+		Resource:   "iam:relationship",
+		Audience:   "iam-service",
+		Mode:       authz.RuleMode("CHECK_ONLY"),
+		AuditEvent: "iam.relationship.read",
+		AuditRisk:  "medium",
+	},
 }
 
 // IAMPermissionServiceKernelRequestInfoResolver maps proto access policy into requestx.Info for serverx modules.
@@ -775,6 +819,21 @@ func IAMPermissionServiceKernelRequestInfoResolver(ctx context.Context, operatio
 		}
 		info.Labels["authz_mode"] = "CHECK_ONLY"
 		info.Labels["audit_event"] = "iam.permission.check"
+		info.Labels["audit_risk"] = "medium"
+		return info.Normalize(), true, nil
+	case "/iam.v1.IAMPermissionService/BatchCheckPermissions":
+		info := requestx.Info{
+			Service:       "iam.v1.IAMPermissionService",
+			Method:        "BatchCheckPermissions",
+			Operation:     "/iam.v1.IAMPermissionService/BatchCheckPermissions",
+			Exposure:      v1.Exposure_INTERNAL,
+			Action:        "check",
+			Resource:      "iam:permission",
+			TargetService: "iam-service",
+			Labels:        map[string]string{},
+		}
+		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["audit_event"] = "iam.permission.batch_check"
 		info.Labels["audit_risk"] = "medium"
 		return info.Normalize(), true, nil
 	case "/iam.v1.IAMPermissionService/WriteRelationship":
@@ -837,6 +896,51 @@ func IAMPermissionServiceKernelRequestInfoResolver(ctx context.Context, operatio
 		info.Labels["audit_event"] = "iam.subject.lookup"
 		info.Labels["audit_risk"] = "medium"
 		return info.Normalize(), true, nil
+	case "/iam.v1.IAMPermissionService/WriteRelationships":
+		info := requestx.Info{
+			Service:       "iam.v1.IAMPermissionService",
+			Method:        "WriteRelationships",
+			Operation:     "/iam.v1.IAMPermissionService/WriteRelationships",
+			Exposure:      v1.Exposure_INTERNAL,
+			Action:        "write",
+			Resource:      "iam:relationship",
+			TargetService: "iam-service",
+			Labels:        map[string]string{},
+		}
+		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["audit_event"] = "iam.relationship.batch_write"
+		info.Labels["audit_risk"] = "high"
+		return info.Normalize(), true, nil
+	case "/iam.v1.IAMPermissionService/DeleteRelationships":
+		info := requestx.Info{
+			Service:       "iam.v1.IAMPermissionService",
+			Method:        "DeleteRelationships",
+			Operation:     "/iam.v1.IAMPermissionService/DeleteRelationships",
+			Exposure:      v1.Exposure_INTERNAL,
+			Action:        "delete",
+			Resource:      "iam:relationship",
+			TargetService: "iam-service",
+			Labels:        map[string]string{},
+		}
+		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["audit_event"] = "iam.relationship.batch_delete"
+		info.Labels["audit_risk"] = "high"
+		return info.Normalize(), true, nil
+	case "/iam.v1.IAMPermissionService/ReadRelationships":
+		info := requestx.Info{
+			Service:       "iam.v1.IAMPermissionService",
+			Method:        "ReadRelationships",
+			Operation:     "/iam.v1.IAMPermissionService/ReadRelationships",
+			Exposure:      v1.Exposure_INTERNAL,
+			Action:        "read",
+			Resource:      "iam:relationship",
+			TargetService: "iam-service",
+			Labels:        map[string]string{},
+		}
+		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["audit_event"] = "iam.relationship.read"
+		info.Labels["audit_risk"] = "medium"
+		return info.Normalize(), true, nil
 	default:
 		return requestx.Info{}, false, nil
 	}
@@ -869,6 +973,8 @@ func _IAMPermissionServiceKernelNormalizeOperation(operation string) string {
 	switch operation {
 	case "CheckPermission", "iam.v1.IAMPermissionService/CheckPermission":
 		return "/iam.v1.IAMPermissionService/CheckPermission"
+	case "BatchCheckPermissions", "iam.v1.IAMPermissionService/BatchCheckPermissions":
+		return "/iam.v1.IAMPermissionService/BatchCheckPermissions"
 	case "WriteRelationship", "iam.v1.IAMPermissionService/WriteRelationship":
 		return "/iam.v1.IAMPermissionService/WriteRelationship"
 	case "DeleteRelationship", "iam.v1.IAMPermissionService/DeleteRelationship":
@@ -877,6 +983,12 @@ func _IAMPermissionServiceKernelNormalizeOperation(operation string) string {
 		return "/iam.v1.IAMPermissionService/LookupResources"
 	case "LookupSubjects", "iam.v1.IAMPermissionService/LookupSubjects":
 		return "/iam.v1.IAMPermissionService/LookupSubjects"
+	case "WriteRelationships", "iam.v1.IAMPermissionService/WriteRelationships":
+		return "/iam.v1.IAMPermissionService/WriteRelationships"
+	case "DeleteRelationships", "iam.v1.IAMPermissionService/DeleteRelationships":
+		return "/iam.v1.IAMPermissionService/DeleteRelationships"
+	case "ReadRelationships", "iam.v1.IAMPermissionService/ReadRelationships":
+		return "/iam.v1.IAMPermissionService/ReadRelationships"
 	default:
 		return operation
 	}
