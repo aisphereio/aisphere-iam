@@ -1403,11 +1403,10 @@ func (x *BatchCheckPermissionsRequest) GetChecks() []*CheckPermissionRequest {
 }
 
 type BatchCheckPermissionsReply struct {
-	state            protoimpl.MessageState  `protogen:"open.v1"`
-	Decisions        []*CheckPermissionReply `protobuf:"bytes,1,rep,name=decisions,proto3" json:"decisions,omitempty"`
-	ConsistencyToken string                  `protobuf:"bytes,2,opt,name=consistency_token,json=consistencyToken,proto3" json:"consistency_token,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Decisions     []*CheckPermissionReply `protobuf:"bytes,1,rep,name=decisions,proto3" json:"decisions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *BatchCheckPermissionsReply) Reset() {
@@ -1445,13 +1444,6 @@ func (x *BatchCheckPermissionsReply) GetDecisions() []*CheckPermissionReply {
 		return x.Decisions
 	}
 	return nil
-}
-
-func (x *BatchCheckPermissionsReply) GetConsistencyToken() string {
-	if x != nil {
-		return x.ConsistencyToken
-	}
-	return ""
 }
 
 type WriteRelationshipRequest struct {
@@ -3910,10 +3902,9 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x06reason\x18\x03 \x01(\tR\x06reason\x12+\n" +
 	"\x11consistency_token\x18\x04 \x01(\tR\x10consistencyToken\"c\n" +
 	"\x1cBatchCheckPermissionsRequest\x12C\n" +
-	"\x06checks\x18\x01 \x03(\v2\x1e.iam.v1.CheckPermissionRequestB\v\xe0A\x02\xbaH\x05\x92\x01\x02\b\x01R\x06checks\"\x85\x01\n" +
+	"\x06checks\x18\x01 \x03(\v2\x1e.iam.v1.CheckPermissionRequestB\v\xe0A\x02\xbaH\x05\x92\x01\x02\b\x01R\x06checks\"X\n" +
 	"\x1aBatchCheckPermissionsReply\x12:\n" +
-	"\tdecisions\x18\x01 \x03(\v2\x1c.iam.v1.CheckPermissionReplyR\tdecisions\x12+\n" +
-	"\x11consistency_token\x18\x02 \x01(\tR\x10consistencyToken\"_\n" +
+	"\tdecisions\x18\x01 \x03(\v2\x1c.iam.v1.CheckPermissionReplyR\tdecisions\"_\n" +
 	"\x18WriteRelationshipRequest\x12C\n" +
 	"\frelationship\x18\x01 \x01(\v2\x14.iam.v1.RelationshipB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\frelationship\"_\n" +
 	"\x16WriteRelationshipReply\x12\x18\n" +
@@ -4159,12 +4150,18 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x1cReconcileDirectoryProjection\x12+.iam.v1.ReconcileDirectoryProjectionRequest\x1a).iam.v1.ReconcileDirectoryProjectionReply\"\xa3\x01\x92\xf4\x18m\b\x03\x127\n" +
 	"\x14repair_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a0\b\x01\x12\"iam.directory_projection.reconcile\x1a\bcritical\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/iam/directory/projections:reconcile\x12\x93\x02\n" +
 	"\x1dCheckDirectoryProjectionDrift\x12,.iam.v1.CheckDirectoryProjectionDriftRequest\x1a*.iam.v1.CheckDirectoryProjectionDriftReply\"\x97\x01\x92\xf4\x18e\b\x03\x125\n" +
-	"\x12view_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a*\b\x01\x12\x1eiam.directory_projection.drift\x1a\x06medium\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/iam/directory/projections:drift2\xcd\x13\n" +
+	"\x12view_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a*\b\x01\x12\x1eiam.directory_projection.drift\x1a\x06medium\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/iam/directory/projections:drift2\xa2\x13\n" +
 	"\x14IAMPermissionService\x12\xa1\x02\n" +
 	"\x0fCheckPermission\x12\x1e.iam.v1.CheckPermissionRequest\x1a\x1c.iam.v1.CheckPermissionReply\"\xcf\x01\x92\xf4\x18\xa6\x01\b\x04\x12&\n" +
-	"\x05check\x12\x0eiam:permission\x1a\viam-service \x01\x1a \b\x01\x12\x14iam.permission.check\x1a\x06medium2XPermission decisions are exposed to platform services, not directly to external clients.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/iam/permissions/check\x12\xb6\x02\n" +
-	"\x15BatchCheckPermissions\x12$.iam.v1.BatchCheckPermissionsRequest\x1a\".iam.v1.BatchCheckPermissionsReply\"\xd2\x01\x92\xf4\x18\x9b\x01\b\x04\x12&\n" +
-	"\x05check\x12\x0eiam:permission\x1a\viam-service \x01\x1a&\b\x01\x12\x1aiam.permission.batch_check\x1a\x06medium2GBatch permission decisions are restricted to trusted platform services.\x82\xd3\xe4\x93\x02,:\x01*\"'/internal/v1/iam/permissions:batchCheck\x12\xc9\x01\n" +
+	"\x05check\x12\x0eiam:permission\x1a\viam-service \x01\x1a \b\x01\x12\x14iam.permission.check\x1a\x06medium2XPermission decisions are exposed to platform services, not directly to external clients.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/iam/permissions/check\x12\xae\x02\n" +
+	"\x15BatchCheckPermissions\x12$.iam.v1.BatchCheckPermissionsRequest\x1a\".iam.v1.BatchCheckPermissionsReply\"\xca\x01\x92\xf4\x18\x9b\x01\b\x04\x12&\n" +
+	"\x05check\x12\x0eiam:permission\x1a\viam-service \x01\x1a&\b\x01\x12\x1aiam.permission.batch_check\x1a\x06medium2GBatch permission decisions are restricted to trusted platform services.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/iam/permissions:batch-check\x12\x9f\x02\n" +
+	"\x12WriteRelationships\x12!.iam.v1.WriteRelationshipsRequest\x1a\x1f.iam.v1.WriteRelationshipsReply\"\xc4\x01\x92\xf4\x18\x99\x01\b\x04\x12(\n" +
+	"\x05write\x12\x10iam:relationship\x1a\viam-service \x01\x1a&\b\x01\x12\x1ciam.relationship.batch_write\x1a\x04high2CRelationship projection is restricted to trusted platform services.\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/iam/relationships:write\x12\xad\x02\n" +
+	"\x13DeleteRelationships\x12\".iam.v1.DeleteRelationshipsRequest\x1a .iam.v1.DeleteRelationshipsReply\"\xcf\x01\x92\xf4\x18\xa3\x01\b\x04\x12)\n" +
+	"\x06delete\x12\x10iam:relationship\x1a\viam-service \x01\x1a'\b\x01\x12\x1diam.relationship.batch_delete\x1a\x04high2KRelationship projection cleanup is restricted to trusted platform services.\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/relationships:delete\x12\x97\x02\n" +
+	"\x11ReadRelationships\x12 .iam.v1.ListRelationshipsRequest\x1a\x1e.iam.v1.ListRelationshipsReply\"\xbf\x01\x92\xf4\x18\x95\x01\b\x04\x12'\n" +
+	"\x04read\x12\x10iam:relationship\x1a\viam-service \x01\x1a!\b\x01\x12\x15iam.relationship.read\x1a\x06medium2ERelationship graph reads are restricted to trusted platform services.\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/iam/relationships:read\x12\xc9\x01\n" +
 	"\x11WriteRelationship\x12 .iam.v1.WriteRelationshipRequest\x1a\x1e.iam.v1.WriteRelationshipReply\"r\x92\xf4\x18N\b\x03\x12(\n" +
 	"\x05write\x12\x10iam:relationship\x1a\viam-service \x01\x1a \b\x01\x12\x16iam.relationship.write\x1a\x04high\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/iam/relationships\x12\xd5\x01\n" +
 	"\x12DeleteRelationship\x12!.iam.v1.DeleteRelationshipRequest\x1a\x1f.iam.v1.DeleteRelationshipReply\"{\x92\xf4\x18P\b\x03\x12)\n" +
@@ -4172,13 +4169,7 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x0fLookupResources\x12\x1e.iam.v1.LookupResourcesRequest\x1a\x1c.iam.v1.LookupResourcesReply\"\xc2\x01\x92\xf4\x18\x9a\x01\b\x04\x12%\n" +
 	"\x06lookup\x12\fiam:resource\x1a\viam-service \x01\x1a\x1f\b\x01\x12\x13iam.resource.lookup\x1a\x06medium2NAuthorization graph resource lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/iam/resources/lookup\x12\x8d\x02\n" +
 	"\x0eLookupSubjects\x12\x1d.iam.v1.LookupSubjectsRequest\x1a\x1b.iam.v1.LookupSubjectsReply\"\xbe\x01\x92\xf4\x18\x97\x01\b\x04\x12$\n" +
-	"\x06lookup\x12\viam:subject\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x12iam.subject.lookup\x1a\x06medium2MAuthorization graph subject lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/iam/subjects/lookup\x12\xaf\x02\n" +
-	"\x12WriteRelationships\x12!.iam.v1.WriteRelationshipsRequest\x1a\x1f.iam.v1.WriteRelationshipsReply\"\xd4\x01\x92\xf4\x18\xa0\x01\b\x04\x12(\n" +
-	"\x05write\x12\x10iam:relationship\x1a\viam-service \x01\x1a&\b\x01\x12\x1ciam.relationship.batch_write\x1a\x04high2JRelationship projection is restricted to trusted resource-owning services.\x82\xd3\xe4\x93\x02):\x01*\"$/internal/v1/iam/relationships:write\x12\xbd\x02\n" +
-	"\x13DeleteRelationships\x12\".iam.v1.DeleteRelationshipsRequest\x1a .iam.v1.DeleteRelationshipsReply\"\xdf\x01\x92\xf4\x18\xaa\x01\b\x04\x12)\n" +
-	"\x06delete\x12\x10iam:relationship\x1a\viam-service \x01\x1a'\b\x01\x12\x1diam.relationship.batch_delete\x1a\x04high2RRelationship projection cleanup is restricted to trusted resource-owning services.\x82\xd3\xe4\x93\x02*:\x01*\"%/internal/v1/iam/relationships:delete\x12\x9a\x02\n" +
-	"\x11ReadRelationships\x12 .iam.v1.ListRelationshipsRequest\x1a\x1e.iam.v1.ListRelationshipsReply\"\xc2\x01\x92\xf4\x18\x8f\x01\b\x04\x12'\n" +
-	"\x04read\x12\x10iam:relationship\x1a\viam-service \x01\x1a!\b\x01\x12\x15iam.relationship.read\x1a\x06medium2?Relationship reads are restricted to trusted platform services.\x82\xd3\xe4\x93\x02(:\x01*\"#/internal/v1/iam/relationships:read2\x98\x11\n" +
+	"\x06lookup\x12\viam:subject\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x12iam.subject.lookup\x1a\x06medium2MAuthorization graph subject lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/iam/subjects/lookup2\x98\x11\n" +
 	"\x1cIAMAuthorizationAdminService\x12\xd2\x01\n" +
 	"\x16GetAuthorizationSchema\x12%.iam.v1.GetAuthorizationSchemaRequest\x1a\x1b.iam.v1.AuthorizationSchema\"t\x92\xf4\x18T\b\x03\x12.\n" +
 	"\vview_schema\x12\x10iam_authz:global\x1a\viam-service \x03\x1a \b\x01\x12\x14iam.authz.schema.get\x1a\x06medium\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/iam/authz/schema\x12\xfc\x01\n" +
@@ -4325,13 +4316,13 @@ var file_iam_v1_iam_proto_depIdxs = []int32{
 	19, // 45: iam.v1.IAMDirectoryProjectionService.CheckDirectoryProjectionDrift:input_type -> iam.v1.CheckDirectoryProjectionDriftRequest
 	21, // 46: iam.v1.IAMPermissionService.CheckPermission:input_type -> iam.v1.CheckPermissionRequest
 	23, // 47: iam.v1.IAMPermissionService.BatchCheckPermissions:input_type -> iam.v1.BatchCheckPermissionsRequest
-	25, // 48: iam.v1.IAMPermissionService.WriteRelationship:input_type -> iam.v1.WriteRelationshipRequest
-	27, // 49: iam.v1.IAMPermissionService.DeleteRelationship:input_type -> iam.v1.DeleteRelationshipRequest
-	29, // 50: iam.v1.IAMPermissionService.LookupResources:input_type -> iam.v1.LookupResourcesRequest
-	31, // 51: iam.v1.IAMPermissionService.LookupSubjects:input_type -> iam.v1.LookupSubjectsRequest
-	41, // 52: iam.v1.IAMPermissionService.WriteRelationships:input_type -> iam.v1.WriteRelationshipsRequest
-	43, // 53: iam.v1.IAMPermissionService.DeleteRelationships:input_type -> iam.v1.DeleteRelationshipsRequest
-	39, // 54: iam.v1.IAMPermissionService.ReadRelationships:input_type -> iam.v1.ListRelationshipsRequest
+	41, // 48: iam.v1.IAMPermissionService.WriteRelationships:input_type -> iam.v1.WriteRelationshipsRequest
+	43, // 49: iam.v1.IAMPermissionService.DeleteRelationships:input_type -> iam.v1.DeleteRelationshipsRequest
+	39, // 50: iam.v1.IAMPermissionService.ReadRelationships:input_type -> iam.v1.ListRelationshipsRequest
+	25, // 51: iam.v1.IAMPermissionService.WriteRelationship:input_type -> iam.v1.WriteRelationshipRequest
+	27, // 52: iam.v1.IAMPermissionService.DeleteRelationship:input_type -> iam.v1.DeleteRelationshipRequest
+	29, // 53: iam.v1.IAMPermissionService.LookupResources:input_type -> iam.v1.LookupResourcesRequest
+	31, // 54: iam.v1.IAMPermissionService.LookupSubjects:input_type -> iam.v1.LookupSubjectsRequest
 	33, // 55: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:input_type -> iam.v1.GetAuthorizationSchemaRequest
 	35, // 56: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:input_type -> iam.v1.ValidateAuthorizationSchemaRequest
 	37, // 57: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:input_type -> iam.v1.PublishAuthorizationSchemaRequest
@@ -4358,13 +4349,13 @@ var file_iam_v1_iam_proto_depIdxs = []int32{
 	20, // 78: iam.v1.IAMDirectoryProjectionService.CheckDirectoryProjectionDrift:output_type -> iam.v1.CheckDirectoryProjectionDriftReply
 	22, // 79: iam.v1.IAMPermissionService.CheckPermission:output_type -> iam.v1.CheckPermissionReply
 	24, // 80: iam.v1.IAMPermissionService.BatchCheckPermissions:output_type -> iam.v1.BatchCheckPermissionsReply
-	26, // 81: iam.v1.IAMPermissionService.WriteRelationship:output_type -> iam.v1.WriteRelationshipReply
-	28, // 82: iam.v1.IAMPermissionService.DeleteRelationship:output_type -> iam.v1.DeleteRelationshipReply
-	30, // 83: iam.v1.IAMPermissionService.LookupResources:output_type -> iam.v1.LookupResourcesReply
-	32, // 84: iam.v1.IAMPermissionService.LookupSubjects:output_type -> iam.v1.LookupSubjectsReply
-	42, // 85: iam.v1.IAMPermissionService.WriteRelationships:output_type -> iam.v1.WriteRelationshipsReply
-	44, // 86: iam.v1.IAMPermissionService.DeleteRelationships:output_type -> iam.v1.DeleteRelationshipsReply
-	40, // 87: iam.v1.IAMPermissionService.ReadRelationships:output_type -> iam.v1.ListRelationshipsReply
+	42, // 81: iam.v1.IAMPermissionService.WriteRelationships:output_type -> iam.v1.WriteRelationshipsReply
+	44, // 82: iam.v1.IAMPermissionService.DeleteRelationships:output_type -> iam.v1.DeleteRelationshipsReply
+	40, // 83: iam.v1.IAMPermissionService.ReadRelationships:output_type -> iam.v1.ListRelationshipsReply
+	26, // 84: iam.v1.IAMPermissionService.WriteRelationship:output_type -> iam.v1.WriteRelationshipReply
+	28, // 85: iam.v1.IAMPermissionService.DeleteRelationship:output_type -> iam.v1.DeleteRelationshipReply
+	30, // 86: iam.v1.IAMPermissionService.LookupResources:output_type -> iam.v1.LookupResourcesReply
+	32, // 87: iam.v1.IAMPermissionService.LookupSubjects:output_type -> iam.v1.LookupSubjectsReply
 	34, // 88: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:output_type -> iam.v1.AuthorizationSchema
 	36, // 89: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:output_type -> iam.v1.ValidateAuthorizationSchemaReply
 	38, // 90: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:output_type -> iam.v1.PublishAuthorizationSchemaReply

@@ -46,6 +46,13 @@ func TestClientImplementsRuntimeAuthzOverIAM(t *testing.T) {
 		t.Fatalf("Check = (%+v, %v)", decision, err)
 	}
 
+	batch, err := client.BatchCheck(ctx, authz.BatchCheckRequest{Checks: []authz.CheckRequest{{
+		Subject: authz.SubjectRef{Type: "user", ID: "alice"}, Resource: authz.ObjectRef{Type: "skill", ID: "demo"}, Permission: "view",
+	}}})
+	if err != nil || len(batch.Decisions) != 1 || !batch.Decisions[0].IsAllowed() {
+		t.Fatalf("BatchCheck = (%+v, %v)", batch, err)
+	}
+
 	write, err := client.WriteRelationships(ctx, authz.Relationship{
 		Resource: authz.ObjectRef{Type: "skill", ID: "demo"},
 		Relation: "owner",

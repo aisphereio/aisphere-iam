@@ -31,9 +31,9 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "create"
+                value: "manage_users"
               - name: X-Aisphere-Authz-Resource
-                value: "iam:org:{org_id}:user:*"
+                value: "zone:{org_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -54,9 +54,9 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "update"
+                value: "manage_users"
               - name: X-Aisphere-Authz-Resource
-                value: "iam:org:{org_id}:user:{user_id}"
+                value: "zone:{org_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -77,9 +77,9 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "disable"
+                value: "manage_users"
               - name: X-Aisphere-Authz-Resource
-                value: "iam:org:{org_id}:user:{user_id}"
+                value: "zone:{org_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -100,9 +100,9 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "delete"
+                value: "manage_users"
               - name: X-Aisphere-Authz-Resource
-                value: "iam:org:{org_id}:user:{user_id}"
+                value: "zone:{org_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -123,15 +123,15 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "create"
+                value: "create_groups"
               - name: X-Aisphere-Authz-Resource
-                value: "iam:org:{org_id}:group:*"
+                value: "zone:{org_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
           port: 18080
     - matches:
-        - method: "PUT"
+        - method: "PATCH"
           path:
             type: PathPrefix
             value: "/v1/iam/orgs/{org_id}/groups/{group_id}"
@@ -146,9 +146,9 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "update"
+                value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "iam:org:{org_id}:group:{group_id}"
+                value: "group:{org_id}/{group_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -169,9 +169,9 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "delete"
+                value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "iam:org:{org_id}:group:{group_id}"
+                value: "group:{org_id}/{group_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -192,9 +192,9 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "assign"
+                value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "iam:org:{org_id}:group:{group_id}"
+                value: "group:{org_id}/{group_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -215,9 +215,9 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "remove"
+                value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "iam:org:{org_id}:group:{group_id}"
+                value: "group:{org_id}/{group_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"

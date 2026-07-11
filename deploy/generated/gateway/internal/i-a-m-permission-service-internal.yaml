@@ -42,6 +42,98 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
+            value: "/v1/iam/permissions:batch-check"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.v1.IAMPermissionService/BatchCheckPermissions"
+              - name: X-Aisphere-Route-Exposure
+                value: "INTERNAL"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "m2m"
+              - name: X-Aisphere-Authz-Action
+                value: "check"
+              - name: X-Aisphere-Authz-Resource
+                value: "iam:permission"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 18080
+    - matches:
+        - method: "POST"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/relationships:write"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.v1.IAMPermissionService/WriteRelationships"
+              - name: X-Aisphere-Route-Exposure
+                value: "INTERNAL"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "m2m"
+              - name: X-Aisphere-Authz-Action
+                value: "write"
+              - name: X-Aisphere-Authz-Resource
+                value: "iam:relationship"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 18080
+    - matches:
+        - method: "POST"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/relationships:delete"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.v1.IAMPermissionService/DeleteRelationships"
+              - name: X-Aisphere-Route-Exposure
+                value: "INTERNAL"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "m2m"
+              - name: X-Aisphere-Authz-Action
+                value: "delete"
+              - name: X-Aisphere-Authz-Resource
+                value: "iam:relationship"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 18080
+    - matches:
+        - method: "POST"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/relationships:read"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.v1.IAMPermissionService/ReadRelationships"
+              - name: X-Aisphere-Route-Exposure
+                value: "INTERNAL"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "m2m"
+              - name: X-Aisphere-Authz-Action
+                value: "read"
+              - name: X-Aisphere-Authz-Resource
+                value: "iam:relationship"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 18080
+    - matches:
+        - method: "POST"
+          path:
+            type: PathPrefix
             value: "/v1/iam/resources/lookup"
       filters:
         - type: RequestHeaderModifier

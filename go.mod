@@ -15,6 +15,15 @@ require (
 )
 
 require (
+	buf.build/go/protovalidate v1.2.0 // indirect
+	cel.dev/expr v0.25.2 // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
+	github.com/google/cel-go v0.28.0 // indirect
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.3 // indirect
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.69.0 // indirect
+)
+
+require (
 	github.com/aisphereio/kernel v0.4.2
 	github.com/authzed/authzed-go v1.10.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -52,7 +61,6 @@ require (
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible // indirect
-	github.com/onsi/gomega v1.34.1 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
