@@ -28,13 +28,14 @@ jobs:
           go-version: '1.25.8'
           cache: true
 
-      - name: Apply runtime authorization API repair
+      - name: Apply IAM contract repairs
         run: |
           python3 .github/scripts/apply_authzgrpc_runtime_api.py
           python3 .github/scripts/add_internal_resource_reasons.py
+          python3 .github/scripts/align_identity_admin_contract.py
 
       - name: Format source
-        run: gofmt -w client/authzgrpc/client.go client/authzgrpc/client_test.go internal/service/iam.go
+        run: gofmt -w client/authzgrpc/client.go client/authzgrpc/client_test.go internal/service/iam.go internal/data/identity_mode.go internal/data/identity_mode_test.go
 
       - name: Generate API and deploy manifests
         run: |
@@ -92,7 +93,7 @@ jobs:
       - name: Commit final IAM repair
         run: |
           git checkout origin/main -- .github/workflows/ci.yml
-          rm -f .github/scripts/apply_authzgrpc_runtime_api.py .github/scripts/add_internal_resource_reasons.py .github/iam-authzgrpc-diagnostics.txt .github/iam-contract-check-failure.txt .github/iam-test-failure.txt
+          rm -f .github/scripts/apply_authzgrpc_runtime_api.py .github/scripts/add_internal_resource_reasons.py .github/scripts/align_identity_admin_contract.py .github/iam-authzgrpc-diagnostics.txt .github/iam-contract-check-failure.txt .github/iam-test-failure.txt
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add -A
