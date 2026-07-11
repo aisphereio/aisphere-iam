@@ -63,12 +63,10 @@ jobs:
       - name: Build container image
         run: docker build --build-arg VERSION=${{ github.sha }} -t aisphere-iam:${{ github.sha }} .
 
-      - name: Commit final IAM changes
+      - name: Commit validated IAM product changes
         shell: bash
         run: |
           set -euxo pipefail
-          git checkout origin/main -- .github/workflows/ci.yml
-          sed -i "s/go-version: '1.25.8'/go-version: '1.25.12'/" .github/workflows/ci.yml
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add -A
