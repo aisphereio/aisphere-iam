@@ -8,11 +8,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: iam-authzgrpc-contract-diagnostics
+  group: iam-authzgrpc-runtime-repair
   cancel-in-progress: true
 
 jobs:
-  inspect:
+  repair:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repair branch
@@ -22,31 +22,43 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Collect permission service implementation
-        run: |
-          if [ -f .github/iam-authzgrpc-diagnostics.txt ]; then
-            echo "diagnostics already collected"
-            exit 0
-          fi
-          {
-            echo '=== FILE LIST ==='
-            find internal/service internal/server api/iam/v1 -maxdepth 2 -type f | sort
-            echo
-            echo '=== MATCHING GO FILES ==='
-            for file in $(grep -R -l -E 'CheckPermission|WriteRelationship|DeleteRelationship|LookupResources|LookupSubjects' internal api/iam/v1 --include='*.go' --include='*.proto' | sort -u); do
-              echo
-              echo "===== ${file} ====="
-              cat "${file}"
-            done
-          } > .github/iam-authzgrpc-diagnostics.txt
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.8'
+          cache: true
 
-      - name: Commit diagnostics
+      - name: Apply runtime authorization API repair
+        run: python3 .github/scripts/apply_authzgrpc_runtime_api.py
+
+      - name: Format source
+        run: gofmt -w client/authzgrpc/client.go client/authzgrpc/client_test.go internal/service/iam.go
+
+      - name: Generate API and deploy manifests
         run: |
-          if git diff --quiet -- .github/iam-authzgrpc-diagnostics.txt && git ls-files --error-unmatch .github/iam-authzgrpc-diagnostics.txt >/dev/null 2>&1; then
-            exit 0
-          fi
+          make tools
+          make api
+          make deploy
+
+      - name: Contract checks
+        run: make proto-check
+
+      - name: Test
+        run: go test ./... -count=1
+
+      - name: Build binary
+        run: make build
+
+      - name: Build container image
+        run: docker build --build-arg VERSION=${{ github.sha }} -t aisphere-iam:${{ github.sha }} .
+
+      - name: Commit final IAM repair
+        run: |
+          git checkout origin/main -- .github/workflows/ci.yml
+          rm -f .github/scripts/apply_authzgrpc_runtime_api.py .github/iam-authzgrpc-diagnostics.txt
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add -f .github/iam-authzgrpc-diagnostics.txt
-          git commit -m "chore: capture IAM authz gRPC implementation"
+          git add -A
+          git diff --cached --stat
+          git commit -m "fix: expose complete IAM runtime authorization gRPC API"
           git push origin HEAD:fix/authzgrpc-kernel-contract
