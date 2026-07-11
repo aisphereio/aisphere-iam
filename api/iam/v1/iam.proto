@@ -164,6 +164,46 @@ service IAMPermissionService {
     };
   }
 
+  rpc BatchCheckPermissions(BatchCheckPermissionsRequest) returns (BatchCheckPermissionsReply) {
+    option (google.api.http) = { post: "/v1/iam/permissions:batch-check" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "check" resource: "iam:permission" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.permission.batch_check" risk: "medium" }
+      reason: "Batch permission decisions are restricted to trusted platform services."
+    };
+  }
+
+  rpc WriteRelationships(WriteRelationshipsRequest) returns (WriteRelationshipsReply) {
+    option (google.api.http) = { post: "/v1/iam/relationships:write" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "write" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.relationship.batch_write" risk: "high" }
+      reason: "Relationship projection is restricted to trusted platform services."
+    };
+  }
+
+  rpc DeleteRelationships(DeleteRelationshipsRequest) returns (DeleteRelationshipsReply) {
+    option (google.api.http) = { post: "/v1/iam/relationships:delete" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "delete" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.relationship.batch_delete" risk: "high" }
+      reason: "Relationship projection cleanup is restricted to trusted platform services."
+    };
+  }
+
+  rpc ReadRelationships(ListRelationshipsRequest) returns (ListRelationshipsReply) {
+    option (google.api.http) = { post: "/v1/iam/relationships:read" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: INTERNAL
+      authz: { action: "read" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.relationship.read" risk: "medium" }
+      reason: "Relationship graph reads are restricted to trusted platform services."
+    };
+  }
+
   rpc WriteRelationship(WriteRelationshipRequest) returns (WriteRelationshipReply) {
     option (google.api.http) = { post: "/v1/iam/relationships" body: "*" };
     option (aisphere.access.v1.policy) = {
@@ -312,6 +352,8 @@ message CheckDirectoryProjectionDriftReply { int32 desired = 1; int32 missing = 
 
 message CheckPermissionRequest { SubjectRef subject = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; ObjectRef resource = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; string permission = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1]; string org_id = 4; string project_id = 5; }
 message CheckPermissionReply { bool allowed = 1; string effect = 2; string reason = 3; string consistency_token = 4; }
+message BatchCheckPermissionsRequest { repeated CheckPermissionRequest checks = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).repeated.min_items = 1]; }
+message BatchCheckPermissionsReply { repeated CheckPermissionReply decisions = 1; }
 message WriteRelationshipRequest { Relationship relationship = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; }
 message WriteRelationshipReply { int32 written = 1; string consistency_token = 2; }
 message DeleteRelationshipRequest { RelationshipFilter filter = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).required = true]; }

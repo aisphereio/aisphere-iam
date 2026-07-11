@@ -76,6 +76,7 @@ service ResourceService {
       exposure: INTERNAL
       authz: { action: "move" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.resource.move" risk: "high" }
+      reason: "Resource moves are requested only by trusted resource owner services."
     };
   }
 
@@ -85,6 +86,7 @@ service ResourceService {
       exposure: INTERNAL
       authz: { action: "archive" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.resource.archive" risk: "high" }
+      reason: "Resource archival is synchronized from trusted resource owner services."
     };
   }
 
@@ -94,6 +96,7 @@ service ResourceService {
       exposure: INTERNAL
       authz: { action: "delete" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.resource.delete" risk: "high" }
+      reason: "Resource deletion is synchronized from trusted resource owner services."
     };
   }
 
@@ -103,6 +106,7 @@ service ResourceService {
       exposure: INTERNAL
       authz: { action: "bind" resource: "iam:resource_binding" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.resource_binding.bind" risk: "high" }
+      reason: "Resource bindings are projected by trusted platform services."
     };
   }
 
@@ -112,6 +116,7 @@ service ResourceService {
       exposure: INTERNAL
       authz: { action: "unbind" resource: "iam:resource_binding:{binding_id}" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.resource_binding.unbind" risk: "high" }
+      reason: "Resource binding removal is projected by trusted platform services."
     };
   }
 
@@ -130,6 +135,7 @@ service ResourceService {
       exposure: INTERNAL
       authz: { action: "bind" resource: "iam:external_resource_binding" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.external_resource_binding.bind" risk: "high" }
+      reason: "External resource mappings are projected by trusted integration services."
     };
   }
 

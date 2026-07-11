@@ -1,8 +1,0 @@
-iam/resource/v1/resource.proto:iam.resource.v1.ResourceService/ArchiveResource: INTERNAL endpoint should set access.reason explaining the service boundary
-iam/resource/v1/resource.proto:iam.resource.v1.ResourceService/BindExternalResource: INTERNAL endpoint should set access.reason explaining the service boundary
-iam/resource/v1/resource.proto:iam.resource.v1.ResourceService/BindResource: INTERNAL endpoint should set access.reason explaining the service boundary
-iam/resource/v1/resource.proto:iam.resource.v1.ResourceService/DeleteResource: INTERNAL endpoint should set access.reason explaining the service boundary
-iam/resource/v1/resource.proto:iam.resource.v1.ResourceService/MoveResource: INTERNAL endpoint should set access.reason explaining the service boundary
-iam/resource/v1/resource.proto:iam.resource.v1.ResourceService/UnbindResource: INTERNAL endpoint should set access.reason explaining the service boundary
-buf-check-aisphere: 6 contract violation(s) found
-make: *** [Makefile:173: proto-check] Error 1

@@ -3,24 +3,15 @@ name: CI
 on:
   pull_request:
     branches: [main]
-
-permissions:
-  contents: write
-
-concurrency:
-  group: iam-authzgrpc-runtime-repair
-  cancel-in-progress: true
+  push:
+    branches: [main]
 
 jobs:
-  repair:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repair branch
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: fix/authzgrpc-kernel-contract
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -28,75 +19,20 @@ jobs:
           go-version: '1.25.8'
           cache: true
 
-      - name: Apply IAM contract repairs
-        run: |
-          python3 .github/scripts/apply_authzgrpc_runtime_api.py
-          python3 .github/scripts/add_internal_resource_reasons.py
-          python3 .github/scripts/align_identity_admin_contract.py
-
-      - name: Format source
-        run: gofmt -w client/authzgrpc/client.go client/authzgrpc/client_test.go internal/service/iam.go internal/data/identity_mode.go internal/data/identity_mode_test.go
-
       - name: Generate API and deploy manifests
         run: |
           make tools
           make api
           make deploy
 
-      - name: Normalize module graph
-        run: go mod tidy
-
       - name: Contract checks
-        id: contract
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          make proto-check 2>&1 | tee /tmp/iam-contract-check.txt
-
-      - name: Persist contract diagnostics
-        if: steps.contract.outcome == 'failure'
-        run: |
-          cp /tmp/iam-contract-check.txt .github/iam-contract-check-failure.txt
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add -f .github/iam-contract-check-failure.txt
-          git commit -m "chore: capture IAM contract check failure" || true
-          git push origin HEAD:fix/authzgrpc-kernel-contract
-          exit 1
+        run: make proto-check
 
       - name: Test
-        id: tests
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          go test ./... -count=1 2>&1 | tee /tmp/iam-test.txt
-
-      - name: Persist test diagnostics
-        if: steps.tests.outcome == 'failure'
-        run: |
-          cp /tmp/iam-test.txt .github/iam-test-failure.txt
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add -f .github/iam-test-failure.txt
-          git commit -m "chore: capture IAM test failure" || true
-          git push origin HEAD:fix/authzgrpc-kernel-contract
-          exit 1
+        run: go test ./...
 
       - name: Build binary
         run: make build
 
       - name: Build container image
         run: docker build --build-arg VERSION=${{ github.sha }} -t aisphere-iam:${{ github.sha }} .
-
-      - name: Commit final IAM repair
-        run: |
-          git checkout origin/main -- .github/workflows/ci.yml
-          rm -f .github/scripts/apply_authzgrpc_runtime_api.py .github/scripts/add_internal_resource_reasons.py .github/scripts/align_identity_admin_contract.py .github/iam-authzgrpc-diagnostics.txt .github/iam-contract-check-failure.txt .github/iam-test-failure.txt
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add -A
-          git diff --cached --stat
-          git commit -m "fix: expose complete IAM runtime authorization gRPC API"
-          git push origin HEAD:fix/authzgrpc-kernel-contract

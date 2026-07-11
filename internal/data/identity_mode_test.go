@@ -15,7 +15,7 @@ func TestAuthzProjectingIdentityAdminWritesZoneQualifiedGroupEdges(t *testing.T)
 		IdentityAdmin: fakeIdentityAdmin{
 			group: authn.Group{ID: "platform", OrgID: "aisphere", ParentID: "root"},
 		},
-		relationships: store,
+		projection: NewIdentityProjectionDispatcher(store, nil, nil),
 	}
 
 	if _, err := admin.CreateGroup(ctx, authn.CreateGroupRequest{

@@ -195,9 +195,9 @@ func mapError(err error) error {
 // not implement authz.SchemaManager: IAM owns schema publication internally and
 // only exposes data-plane authorization operations to business services.
 var (
-	_ authz.Authorizer         = (*Client)(nil)
-	_ authz.BatchAuthorizer    = (*Client)(nil)
-	_ authz.ResourceLookup     = (*Client)(nil)
-	_ authz.SubjectLookup      = (*Client)(nil)
-	_ authz.RelationshipStore  = (*Client)(nil)
+	_ authz.Authorizer        = (*Client)(nil)
+	_ authz.BatchAuthorizer   = (*Client)(nil)
+	_ authz.ResourceLookup    = (*Client)(nil)
+	_ authz.SubjectLookup     = (*Client)(nil)
+	_ authz.RelationshipStore = (*Client)(nil)
 )
