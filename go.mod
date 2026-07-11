@@ -4,7 +4,6 @@ go 1.25.8
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
-	github.com/aisphereio/kernel v0.4.1
 	github.com/casdoor/casdoor-go-sdk v1.46.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0
@@ -16,6 +15,7 @@ require (
 )
 
 require (
+	github.com/aisphereio/kernel v0.4.2
 	github.com/authzed/authzed-go v1.10.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
