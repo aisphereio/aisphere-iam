@@ -1,0 +1,138 @@
+go: downloading github.com/aisphereio/kernel v0.4.1
+go: downloading buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
+go: downloading google.golang.org/grpc v1.81.1
+go: downloading github.com/casdoor/casdoor-go-sdk v1.46.0
+go: downloading github.com/golang-jwt/jwt/v4 v4.5.2
+go: downloading golang.org/x/oauth2 v0.36.0
+go: downloading github.com/gorilla/mux v1.8.1
+go: downloading github.com/gorilla/websocket v1.5.3
+go: downloading google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa
+go: downloading golang.org/x/net v0.55.0
+go: downloading golang.org/x/sync v0.21.0
+go: downloading github.com/prometheus/client_golang v1.23.2
+go: downloading github.com/prometheus/otlptranslator v1.0.0
+go: downloading go.opentelemetry.io/otel v1.44.0
+go: downloading go.opentelemetry.io/otel/exporters/prometheus v0.66.0
+go: downloading go.opentelemetry.io/otel/metric v1.44.0
+go: downloading go.opentelemetry.io/otel/sdk/metric v1.44.0
+go: downloading go.opentelemetry.io/otel/sdk v1.44.0
+go: downloading github.com/fsnotify/fsnotify v1.10.1
+go: downloading github.com/dtm-labs/client v1.16.6
+go: downloading github.com/authzed/authzed-go v1.10.0
+go: downloading gorm.io/gorm v1.31.2
+go: downloading github.com/redis/go-redis/v9 v9.21.0
+go: downloading github.com/jackc/pgx/v5 v5.10.0
+go: downloading gorm.io/driver/postgres v1.6.0
+go: downloading github.com/minio/minio-go/v7 v7.2.1
+go: downloading github.com/go-playground/form/v4 v4.3.0
+go: downloading golang.org/x/sys v0.45.0
+go: downloading github.com/beorn7/perks v1.0.1
+go: downloading github.com/cespare/xxhash/v2 v2.3.0
+go: downloading github.com/prometheus/client_model v0.6.2
+go: downloading github.com/prometheus/common v0.67.5
+go: downloading github.com/prometheus/procfs v0.20.1
+go: downloading github.com/dtm-labs/logger v0.0.1
+go: downloading github.com/go-redis/redis/v8 v8.11.5
+go: downloading github.com/go-resty/resty/v2 v2.7.0
+go: downloading go.mongodb.org/mongo-driver v1.17.6
+go: downloading github.com/envoyproxy/protoc-gen-validate v1.3.3
+go: downloading github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10
+go: downloading github.com/cenkalti/backoff/v4 v4.3.0
+go: downloading github.com/jzelinskie/stringz v0.0.3
+go: downloading github.com/jinzhu/now v1.1.5
+go: downloading github.com/jackc/pgpassfile v1.0.0
+go: downloading github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761
+go: downloading gopkg.in/ini.v1 v1.67.2
+go: downloading github.com/dustin/go-humanize v1.0.1
+go: downloading github.com/klauspost/compress v1.18.6
+go: downloading github.com/klauspost/crc32 v1.3.0
+go: downloading github.com/minio/crc64nvme v1.1.1
+go: downloading github.com/minio/md5-simd v1.1.2
+go: downloading github.com/zeebo/xxh3 v1.1.0
+go: downloading github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822
+go: downloading go.yaml.in/yaml/v2 v2.4.4
+go: downloading github.com/go-logr/logr v1.4.3
+go: downloading go.opentelemetry.io/otel/trace v1.44.0
+go: downloading go.opentelemetry.io/auto/sdk v1.2.1
+go: downloading github.com/dtm-labs/dtmdriver v0.0.6
+go: downloading github.com/natefinch/lumberjack v2.0.0+incompatible
+go: downloading github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f
+go: downloading github.com/jinzhu/inflection v1.0.0
+go: downloading github.com/klauspost/cpuid/v2 v2.3.0
+go: downloading golang.org/x/crypto v0.51.0
+go: downloading github.com/rs/xid v1.6.0
+go: downloading github.com/tinylib/msgp v1.6.1
+go: downloading go.uber.org/atomic v1.11.0
+go: downloading github.com/jackc/puddle/v2 v2.2.2
+go: downloading github.com/philhofer/fwd v1.2.0
+go: downloading github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78
+go: downloading github.com/golang/snappy v0.0.4
+go: downloading github.com/xdg-go/scram v1.1.2
+go: downloading github.com/xdg-go/stringprep v1.0.4
+go: downloading github.com/montanaflynn/stats v0.7.1
+go: downloading github.com/xdg-go/pbkdf2 v1.0.0
+# github.com/aisphereio/aisphere-iam/client/authzgrpc
+../../../go/pkg/mod/github.com/aisphereio/kernel@v0.4.1/grpcx/runtime.go:9:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+# github.com/aisphereio/aisphere-iam/client/authzgrpc
+../../../go/pkg/mod/github.com/aisphereio/kernel@v0.4.1/grpcx/validate.go:8:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+# github.com/aisphereio/aisphere-iam/client/authzgrpc
+../../../go/pkg/mod/github.com/aisphereio/kernel@v0.4.1/grpcx/runtime.go:13:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+# github.com/aisphereio/aisphere-iam/client/authzgrpc
+../../../go/pkg/mod/github.com/aisphereio/kernel@v0.4.1/grpcx/runtime.go:14:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+# github.com/aisphereio/aisphere-iam/client/authzgrpc
+../../../go/pkg/mod/github.com/aisphereio/kernel@v0.4.1/grpcx/runtime.go:15:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+# github.com/aisphereio/aisphere-iam/client/authzgrpc
+../../../go/pkg/mod/github.com/aisphereio/kernel@v0.4.1/grpcx/runtime.go:16:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+FAIL	github.com/aisphereio/aisphere-iam/client/authzgrpc [setup failed]
+# github.com/aisphereio/aisphere-iam/cmd/aisphere-iam
+../../../go/pkg/mod/github.com/minio/crc64nvme@v1.1.1/crc64_amd64.go:10:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+FAIL	github.com/aisphereio/aisphere-iam/cmd/aisphere-iam [setup failed]
+# github.com/aisphereio/aisphere-iam/internal/biz/defaults
+../../../go/pkg/mod/github.com/minio/crc64nvme@v1.1.1/crc64_amd64.go:10:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+FAIL	github.com/aisphereio/aisphere-iam/internal/biz/defaults [setup failed]
+# github.com/aisphereio/aisphere-iam/internal/biz/grant
+../../../go/pkg/mod/github.com/minio/crc64nvme@v1.1.1/crc64_amd64.go:10:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+FAIL	github.com/aisphereio/aisphere-iam/internal/biz/grant [setup failed]
+# github.com/aisphereio/aisphere-iam/internal/biz/project
+../../../go/pkg/mod/github.com/minio/crc64nvme@v1.1.1/crc64_amd64.go:10:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+FAIL	github.com/aisphereio/aisphere-iam/internal/biz/project [setup failed]
+# github.com/aisphereio/aisphere-iam/internal/biz/projection
+../../../go/pkg/mod/github.com/minio/crc64nvme@v1.1.1/crc64_amd64.go:10:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+FAIL	github.com/aisphereio/aisphere-iam/internal/biz/projection [setup failed]
+# github.com/aisphereio/aisphere-iam/internal/biz/resource
+../../../go/pkg/mod/github.com/minio/crc64nvme@v1.1.1/crc64_amd64.go:10:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+FAIL	github.com/aisphereio/aisphere-iam/internal/biz/resource [setup failed]
+# github.com/aisphereio/aisphere-iam/internal/data
+../../../go/pkg/mod/github.com/minio/crc64nvme@v1.1.1/crc64_amd64.go:10:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+FAIL	github.com/aisphereio/aisphere-iam/internal/data [setup failed]
+# github.com/aisphereio/aisphere-iam/internal/server
+../../../go/pkg/mod/github.com/minio/crc64nvme@v1.1.1/crc64_amd64.go:10:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+FAIL	github.com/aisphereio/aisphere-iam/internal/server [setup failed]
+# github.com/aisphereio/aisphere-iam/internal/service
+../../../go/pkg/mod/github.com/minio/crc64nvme@v1.1.1/crc64_amd64.go:10:2: github.com/klauspost/cpuid/v2@v2.3.0: missing go.sum entry for go.mod file; to add it:
+	go mod download github.com/klauspost/cpuid/v2
+FAIL	github.com/aisphereio/aisphere-iam/internal/service [setup failed]
+?   	github.com/aisphereio/aisphere-iam/api/aisphere/access/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/api/aisphere/options/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/api/iam/grant/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/api/iam/project/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/api/iam/resource/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/api/iam/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/internal/biz/graph	[no test files]
+ok  	github.com/aisphereio/aisphere-iam/internal/biz/idgen	0.002s
+?   	github.com/aisphereio/aisphere-iam/internal/conf	[no test files]
+FAIL
