@@ -1,0 +1,36 @@
+?   	github.com/aisphereio/aisphere-iam/api/aisphere/access/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/api/aisphere/options/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/api/iam/grant/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/api/iam/project/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/api/iam/resource/v1	[no test files]
+?   	github.com/aisphereio/aisphere-iam/api/iam/v1	[no test files]
+ok  	github.com/aisphereio/aisphere-iam/client/authzgrpc	0.034s
+?   	github.com/aisphereio/aisphere-iam/cmd/aisphere-iam	[no test files]
+?   	github.com/aisphereio/aisphere-iam/internal/biz/defaults	[no test files]
+?   	github.com/aisphereio/aisphere-iam/internal/biz/grant	[no test files]
+?   	github.com/aisphereio/aisphere-iam/internal/biz/graph	[no test files]
+ok  	github.com/aisphereio/aisphere-iam/internal/biz/idgen	0.002s
+?   	github.com/aisphereio/aisphere-iam/internal/biz/project	[no test files]
+# github.com/aisphereio/aisphere-iam/internal/data [github.com/aisphereio/aisphere-iam/internal/data.test]
+internal/data/identity_mode_test.go:18:3: unknown field relationships in struct literal of type authzProjectingIdentityAdmin
+ok  	github.com/aisphereio/aisphere-iam/internal/biz/projection	0.014s
+?   	github.com/aisphereio/aisphere-iam/internal/biz/resource	[no test files]
+?   	github.com/aisphereio/aisphere-iam/internal/conf	[no test files]
+FAIL	github.com/aisphereio/aisphere-iam/internal/data [build failed]
+--- FAIL: TestIdentityAdminGeneratedAccessUsesGroupManagementModel (0.00s)
+    --- FAIL: TestIdentityAdminGeneratedAccessUsesGroupManagementModel/create_top_level_group_checks_zone_create_groups (0.00s)
+        identity_admin_contract_test.go:67: resource = authz.ObjectRef{Type:"iam", ID:"org:aisphere:group:*"}, want authz.ObjectRef{Type:"zone", ID:"aisphere"}
+    --- FAIL: TestIdentityAdminGeneratedAccessUsesGroupManagementModel/update_group_checks_group_manage (0.00s)
+        identity_admin_contract_test.go:67: resource = authz.ObjectRef{Type:"iam", ID:"org:aisphere:group:platform"}, want authz.ObjectRef{Type:"group", ID:"aisphere/platform"}
+    --- FAIL: TestIdentityAdminGeneratedAccessUsesGroupManagementModel/delete_group_checks_group_manage (0.00s)
+        identity_admin_contract_test.go:67: resource = authz.ObjectRef{Type:"iam", ID:"org:aisphere:group:platform"}, want authz.ObjectRef{Type:"group", ID:"aisphere/platform"}
+    --- FAIL: TestIdentityAdminGeneratedAccessUsesGroupManagementModel/assign_group_member_checks_group_manage (0.00s)
+        identity_admin_contract_test.go:67: resource = authz.ObjectRef{Type:"iam", ID:"org:aisphere:group:platform"}, want authz.ObjectRef{Type:"group", ID:"aisphere/platform"}
+    --- FAIL: TestIdentityAdminGeneratedAccessUsesGroupManagementModel/remove_group_member_checks_group_manage (0.00s)
+        identity_admin_contract_test.go:67: resource = authz.ObjectRef{Type:"iam", ID:"org:aisphere:group:platform"}, want authz.ObjectRef{Type:"group", ID:"aisphere/platform"}
+--- FAIL: TestIdentityAdminGeneratedGatewayUsesPatchForGroupUpdate (0.00s)
+    identity_admin_contract_test.go:83: UpdateGroup gateway method = "PUT", want PATCH
+FAIL
+FAIL	github.com/aisphereio/aisphere-iam/internal/server	0.014s
+ok  	github.com/aisphereio/aisphere-iam/internal/service	0.011s
+FAIL

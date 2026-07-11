@@ -190,4 +190,14 @@ func mapError(err error) error {
 	}
 }
 
-var _ authz.RuntimeService = (*Client)(nil)
+// Keep the published client compatible with Kernel v0.4.1, which exposes the
+// runtime capabilities as granular interfaces. The client intentionally does
+// not implement authz.SchemaManager: IAM owns schema publication internally and
+// only exposes data-plane authorization operations to business services.
+var (
+	_ authz.Authorizer         = (*Client)(nil)
+	_ authz.BatchAuthorizer    = (*Client)(nil)
+	_ authz.ResourceLookup     = (*Client)(nil)
+	_ authz.SubjectLookup      = (*Client)(nil)
+	_ authz.RelationshipStore  = (*Client)(nil)
+)
