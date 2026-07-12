@@ -1,6 +1,6 @@
 # Built-in Aisphere resource-control-plane defaults.
-# This file is Phase 2 contract data. Phase 5 will load it during bootstrap and
-# reconcile it into IAM DB + SpiceDB schema relationships.
+# Casdoor Organization is the single platform root and maps to resource type `zone`.
+# IAM does not maintain a second platform `organization` entity.
 capabilities:
   - id: iam
     name: iam
@@ -59,6 +59,16 @@ resource_types:
     relations: [zone, parent, member, owner, manager, viewer, permission_admin]
     permissions: [view, manage, create_child_groups, manage_members, view_permissions, manage_permissions]
     status: active
+  - type: project
+    capability_id: iam
+    owner_service: aisphere-iam
+    parent_types: [zone]
+    grantable: true
+    auditable: true
+    spicedb_type: project
+    relations: [zone, owner, admin, developer, operator, viewer]
+    permissions: [manage, write, operate, read, list]
+    status: active
   - type: skill_space
     capability_id: hub
     owner_service: aisphere-hub
@@ -66,7 +76,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: skill_space
-    relations: [owner, editor, viewer]
+    relations: [parent, owner, editor, viewer]
     permissions: [manage, edit, view]
     status: active
   - type: skill
@@ -76,7 +86,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: skill
-    relations: [owner, editor, reviewer, viewer]
+    relations: [parent, owner, editor, reviewer, viewer]
     permissions: [manage, edit, review, publish, view]
     status: active
   - type: git_namespace
@@ -86,7 +96,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: git_namespace
-    relations: [owner, developer, viewer]
+    relations: [parent, owner, developer, viewer]
     permissions: [manage, write, read]
     status: active
   - type: git_repository
@@ -96,7 +106,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: git_repository
-    relations: [owner, maintainer, writer, reader, backing_skill]
+    relations: [parent, owner, maintainer, writer, reader, backing_skill]
     permissions: [admin, write, read]
     status: active
   - type: agent_space
@@ -106,7 +116,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: agent_space
-    relations: [owner, editor, viewer]
+    relations: [parent, owner, editor, viewer]
     permissions: [manage, edit, view]
     status: active
   - type: agent
@@ -116,7 +126,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: agent
-    relations: [owner, editor, operator, executor, viewer]
+    relations: [parent, owner, editor, operator, executor, viewer]
     permissions: [manage, edit, operate, execute, view]
     status: active
   - type: tool_space
@@ -126,7 +136,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: tool_space
-    relations: [owner, editor, viewer]
+    relations: [parent, owner, editor, viewer]
     permissions: [manage, edit, view]
     status: active
   - type: tool
@@ -136,7 +146,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: tool
-    relations: [owner, editor, executor, viewer]
+    relations: [parent, owner, editor, executor, viewer]
     permissions: [manage, edit, execute, view]
     status: active
   - type: sandbox_space
@@ -146,7 +156,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: sandbox_space
-    relations: [owner, operator, viewer]
+    relations: [parent, owner, operator, viewer]
     permissions: [manage, operate, view]
     status: active
   - type: sandbox
@@ -156,7 +166,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: sandbox
-    relations: [owner, operator, viewer]
+    relations: [parent, owner, operator, viewer]
     permissions: [manage, operate, view]
     status: active
   - type: runtime_environment
@@ -166,7 +176,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: runtime_environment
-    relations: [owner, deployer, operator, viewer]
+    relations: [parent, owner, deployer, operator, viewer]
     permissions: [manage, deploy, operate, view]
     status: active
   - type: deployment
@@ -176,197 +186,32 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: deployment
-    relations: [owner, operator, viewer, runs_agent]
+    relations: [parent, owner, operator, viewer, runs_agent]
     permissions: [manage, operate, view]
     status: active
 
 role_templates:
-  - resource_type: zone
-    role_key: zone_owner
-    display_name: Zone Owner
-    relation: owner
-    built_in: true
-    enabled: true
-    sort_order: 10
-  - resource_type: zone
-    role_key: zone_admin
-    display_name: Zone Admin
-    relation: admin
-    built_in: true
-    enabled: true
-    sort_order: 20
-  - resource_type: zone
-    role_key: user_viewer
-    display_name: User Viewer
-    relation: user_viewer
-    built_in: true
-    enabled: true
-    sort_order: 30
-  - resource_type: zone
-    role_key: user_manager
-    display_name: User Manager
-    relation: user_manager
-    built_in: true
-    enabled: true
-    sort_order: 40
-  - resource_type: zone
-    role_key: group_viewer
-    display_name: Group Viewer
-    relation: group_viewer
-    built_in: true
-    enabled: true
-    sort_order: 50
-  - resource_type: zone
-    role_key: group_manager
-    display_name: Group Manager
-    relation: group_manager
-    built_in: true
-    enabled: true
-    sort_order: 60
-  - resource_type: zone
-    role_key: permission_admin
-    display_name: Permission Admin
-    relation: permission_admin
-    built_in: true
-    enabled: true
-    sort_order: 70
-  - resource_type: group
-    role_key: group_owner
-    display_name: Group Owner
-    relation: owner
-    built_in: true
-    enabled: true
-    sort_order: 10
-  - resource_type: group
-    role_key: group_manager
-    display_name: Group Manager
-    relation: manager
-    built_in: true
-    enabled: true
-    sort_order: 20
-  - resource_type: group
-    role_key: group_viewer
-    display_name: Group Viewer
-    relation: viewer
-    built_in: true
-    enabled: true
-    sort_order: 30
-  - resource_type: group
-    role_key: group_member
-    display_name: Group Member
-    relation: member
-    built_in: true
-    enabled: true
-    sort_order: 40
-  - resource_type: organization
-    role_key: owner
-    display_name: Organization Owner
-    relation: owner
-    built_in: true
-    enabled: true
-    sort_order: 10
-  - resource_type: organization
-    role_key: admin
-    display_name: Organization Admin
-    relation: admin
-    built_in: true
-    enabled: true
-    sort_order: 20
-  - resource_type: organization
-    role_key: member
-    display_name: Organization Member
-    relation: member
-    built_in: true
-    enabled: true
-    sort_order: 30
-  - resource_type: project
-    role_key: owner
-    display_name: Project Owner
-    relation: owner
-    built_in: true
-    enabled: true
-    sort_order: 10
-  - resource_type: project
-    role_key: admin
-    display_name: Project Admin
-    relation: admin
-    built_in: true
-    enabled: true
-    sort_order: 20
-  - resource_type: project
-    role_key: developer
-    display_name: Project Developer
-    relation: developer
-    built_in: true
-    enabled: true
-    sort_order: 30
-  - resource_type: project
-    role_key: operator
-    display_name: Project Operator
-    relation: operator
-    built_in: true
-    enabled: true
-    sort_order: 40
-  - resource_type: project
-    role_key: viewer
-    display_name: Project Viewer
-    relation: viewer
-    built_in: true
-    enabled: true
-    sort_order: 50
-  - resource_type: skill
-    role_key: owner
-    display_name: Skill Owner
-    relation: owner
-    built_in: true
-    enabled: true
-    sort_order: 10
-  - resource_type: skill
-    role_key: editor
-    display_name: Skill Editor
-    relation: editor
-    built_in: true
-    enabled: true
-    sort_order: 20
-  - resource_type: skill
-    role_key: reviewer
-    display_name: Skill Reviewer
-    relation: reviewer
-    built_in: true
-    enabled: true
-    sort_order: 30
-  - resource_type: git_repository
-    role_key: maintainer
-    display_name: Repository Maintainer
-    relation: maintainer
-    built_in: true
-    enabled: true
-    sort_order: 10
-  - resource_type: git_repository
-    role_key: writer
-    display_name: Repository Writer
-    relation: writer
-    built_in: true
-    enabled: true
-    sort_order: 20
-  - resource_type: git_repository
-    role_key: reader
-    display_name: Repository Reader
-    relation: reader
-    built_in: true
-    enabled: true
-    sort_order: 30
-  - resource_type: agent
-    role_key: operator
-    display_name: Agent Operator
-    relation: operator
-    built_in: true
-    enabled: true
-    sort_order: 20
-  - resource_type: sandbox
-    role_key: operator
-    display_name: Sandbox Operator
-    relation: operator
-    built_in: true
-    enabled: true
-    sort_order: 20
+  - { resource_type: zone, role_key: zone_owner, display_name: Zone Owner, relation: owner, built_in: true, enabled: true, sort_order: 10 }
+  - { resource_type: zone, role_key: zone_admin, display_name: Zone Admin, relation: admin, built_in: true, enabled: true, sort_order: 20 }
+  - { resource_type: zone, role_key: user_viewer, display_name: User Viewer, relation: user_viewer, built_in: true, enabled: true, sort_order: 30 }
+  - { resource_type: zone, role_key: user_manager, display_name: User Manager, relation: user_manager, built_in: true, enabled: true, sort_order: 40 }
+  - { resource_type: zone, role_key: group_viewer, display_name: Group Viewer, relation: group_viewer, built_in: true, enabled: true, sort_order: 50 }
+  - { resource_type: zone, role_key: group_manager, display_name: Group Manager, relation: group_manager, built_in: true, enabled: true, sort_order: 60 }
+  - { resource_type: zone, role_key: permission_admin, display_name: Permission Admin, relation: permission_admin, built_in: true, enabled: true, sort_order: 70 }
+  - { resource_type: group, role_key: group_owner, display_name: Group Owner, relation: owner, built_in: true, enabled: true, sort_order: 10 }
+  - { resource_type: group, role_key: group_manager, display_name: Group Manager, relation: manager, built_in: true, enabled: true, sort_order: 20 }
+  - { resource_type: group, role_key: group_viewer, display_name: Group Viewer, relation: viewer, built_in: true, enabled: true, sort_order: 30 }
+  - { resource_type: group, role_key: group_member, display_name: Group Member, relation: member, built_in: true, enabled: true, sort_order: 40 }
+  - { resource_type: project, role_key: owner, display_name: Project Owner, relation: owner, built_in: true, enabled: true, sort_order: 10 }
+  - { resource_type: project, role_key: admin, display_name: Project Admin, relation: admin, built_in: true, enabled: true, sort_order: 20 }
+  - { resource_type: project, role_key: developer, display_name: Project Developer, relation: developer, built_in: true, enabled: true, sort_order: 30 }
+  - { resource_type: project, role_key: operator, display_name: Project Operator, relation: operator, built_in: true, enabled: true, sort_order: 40 }
+  - { resource_type: project, role_key: viewer, display_name: Project Viewer, relation: viewer, built_in: true, enabled: true, sort_order: 50 }
+  - { resource_type: skill, role_key: owner, display_name: Skill Owner, relation: owner, built_in: true, enabled: true, sort_order: 10 }
+  - { resource_type: skill, role_key: editor, display_name: Skill Editor, relation: editor, built_in: true, enabled: true, sort_order: 20 }
+  - { resource_type: skill, role_key: reviewer, display_name: Skill Reviewer, relation: reviewer, built_in: true, enabled: true, sort_order: 30 }
+  - { resource_type: git_repository, role_key: maintainer, display_name: Repository Maintainer, relation: maintainer, built_in: true, enabled: true, sort_order: 10 }
+  - { resource_type: git_repository, role_key: writer, display_name: Repository Writer, relation: writer, built_in: true, enabled: true, sort_order: 20 }
+  - { resource_type: git_repository, role_key: reader, display_name: Repository Reader, relation: reader, built_in: true, enabled: true, sort_order: 30 }
+  - { resource_type: agent, role_key: operator, display_name: Agent Operator, relation: operator, built_in: true, enabled: true, sort_order: 20 }
+  - { resource_type: sandbox, role_key: operator, display_name: Sandbox Operator, relation: operator, built_in: true, enabled: true, sort_order: 20 }
