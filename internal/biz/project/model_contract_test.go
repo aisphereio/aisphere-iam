@@ -13,6 +13,7 @@ func TestAuthorizationModelHasSingleOrganizationRoot(t *testing.T) {
 	root := filepath.Join("..", "..", "..")
 	schema := mustReadContractFile(t, filepath.Join(root, "configs", "spicedb", "aisphere.schema.zed"))
 	defaults := mustReadContractFile(t, filepath.Join(root, "configs", "resource", "defaults.yaml"))
+	projectSource := mustReadContractFile(t, filepath.Join(root, "internal", "biz", "project", "project.go"))
 
 	forbiddenSchema := []string{
 		"definition organization",
@@ -58,6 +59,27 @@ func TestAuthorizationModelHasSingleOrganizationRoot(t *testing.T) {
 	for _, token := range requiredDefaults {
 		if !strings.Contains(defaults, token) {
 			t.Fatalf("resource defaults are missing required project/zone contract %q", token)
+		}
+	}
+
+	forbiddenProjectSource := []string{
+		"Relation: RelationParent,\n\t\tSubject:  graph.Subject(ResourceTypeOrganization",
+	}
+	for _, token := range forbiddenProjectSource {
+		if strings.Contains(projectSource, token) {
+			t.Fatalf("project creation still projects the legacy organization relationship %q", token)
+		}
+	}
+
+	requiredProjectSource := []string{
+		"ResourceTypeZone         = \"zone\"",
+		"RelationZone   = \"zone\"",
+		"Relation: RelationZone",
+		"graph.Subject(ResourceTypeZone, zoneID, \"\")",
+	}
+	for _, token := range requiredProjectSource {
+		if !strings.Contains(projectSource, token) {
+			t.Fatalf("project creation is missing required zone projection contract %q", token)
 		}
 	}
 }
