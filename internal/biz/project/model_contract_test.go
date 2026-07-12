@@ -14,11 +14,12 @@ func TestAuthorizationModelHasSingleOrganizationRoot(t *testing.T) {
 	schema := mustReadContractFile(t, filepath.Join(root, "configs", "spicedb", "aisphere.schema.zed"))
 	defaults := mustReadContractFile(t, filepath.Join(root, "configs", "resource", "defaults.yaml"))
 
-	forbidden := []string{
+	forbiddenSchema := []string{
 		"definition organization",
 		"relation parent: organization",
+		"organization:",
 	}
-	for _, token := range forbidden {
+	for _, token := range forbiddenSchema {
 		if strings.Contains(schema, token) {
 			t.Fatalf("SpiceDB schema contains removed platform-organization model %q", token)
 		}
@@ -36,8 +37,15 @@ func TestAuthorizationModelHasSingleOrganizationRoot(t *testing.T) {
 		}
 	}
 
-	if strings.Contains(defaults, "type: organization") || strings.Contains(defaults, "resource_type: organization") {
-		t.Fatal("resource defaults must not register a second platform organization resource or role template")
+	forbiddenDefaults := []string{
+		"type: organization",
+		"resource_type: organization",
+		"parent_types: [organization]",
+	}
+	for _, token := range forbiddenDefaults {
+		if strings.Contains(defaults, token) {
+			t.Fatalf("resource defaults contain removed platform-organization contract %q", token)
+		}
 	}
 
 	requiredDefaults := []string{
