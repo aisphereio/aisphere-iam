@@ -191,27 +191,171 @@ resource_types:
     status: active
 
 role_templates:
-  - { resource_type: zone, role_key: zone_owner, display_name: Zone Owner, relation: owner, built_in: true, enabled: true, sort_order: 10 }
-  - { resource_type: zone, role_key: zone_admin, display_name: Zone Admin, relation: admin, built_in: true, enabled: true, sort_order: 20 }
-  - { resource_type: zone, role_key: user_viewer, display_name: User Viewer, relation: user_viewer, built_in: true, enabled: true, sort_order: 30 }
-  - { resource_type: zone, role_key: user_manager, display_name: User Manager, relation: user_manager, built_in: true, enabled: true, sort_order: 40 }
-  - { resource_type: zone, role_key: group_viewer, display_name: Group Viewer, relation: group_viewer, built_in: true, enabled: true, sort_order: 50 }
-  - { resource_type: zone, role_key: group_manager, display_name: Group Manager, relation: group_manager, built_in: true, enabled: true, sort_order: 60 }
-  - { resource_type: zone, role_key: permission_admin, display_name: Permission Admin, relation: permission_admin, built_in: true, enabled: true, sort_order: 70 }
-  - { resource_type: group, role_key: group_owner, display_name: Group Owner, relation: owner, built_in: true, enabled: true, sort_order: 10 }
-  - { resource_type: group, role_key: group_manager, display_name: Group Manager, relation: manager, built_in: true, enabled: true, sort_order: 20 }
-  - { resource_type: group, role_key: group_viewer, display_name: Group Viewer, relation: viewer, built_in: true, enabled: true, sort_order: 30 }
-  - { resource_type: group, role_key: group_member, display_name: Group Member, relation: member, built_in: true, enabled: true, sort_order: 40 }
-  - { resource_type: project, role_key: owner, display_name: Project Owner, relation: owner, built_in: true, enabled: true, sort_order: 10 }
-  - { resource_type: project, role_key: admin, display_name: Project Admin, relation: admin, built_in: true, enabled: true, sort_order: 20 }
-  - { resource_type: project, role_key: developer, display_name: Project Developer, relation: developer, built_in: true, enabled: true, sort_order: 30 }
-  - { resource_type: project, role_key: operator, display_name: Project Operator, relation: operator, built_in: true, enabled: true, sort_order: 40 }
-  - { resource_type: project, role_key: viewer, display_name: Project Viewer, relation: viewer, built_in: true, enabled: true, sort_order: 50 }
-  - { resource_type: skill, role_key: owner, display_name: Skill Owner, relation: owner, built_in: true, enabled: true, sort_order: 10 }
-  - { resource_type: skill, role_key: editor, display_name: Skill Editor, relation: editor, built_in: true, enabled: true, sort_order: 20 }
-  - { resource_type: skill, role_key: reviewer, display_name: Skill Reviewer, relation: reviewer, built_in: true, enabled: true, sort_order: 30 }
-  - { resource_type: git_repository, role_key: maintainer, display_name: Repository Maintainer, relation: maintainer, built_in: true, enabled: true, sort_order: 10 }
-  - { resource_type: git_repository, role_key: writer, display_name: Repository Writer, relation: writer, built_in: true, enabled: true, sort_order: 20 }
-  - { resource_type: git_repository, role_key: reader, display_name: Repository Reader, relation: reader, built_in: true, enabled: true, sort_order: 30 }
-  - { resource_type: agent, role_key: operator, display_name: Agent Operator, relation: operator, built_in: true, enabled: true, sort_order: 20 }
-  - { resource_type: sandbox, role_key: operator, display_name: Sandbox Operator, relation: operator, built_in: true, enabled: true, sort_order: 20 }
+  - resource_type: zone
+    role_key: zone_owner
+    display_name: Zone Owner
+    relation: owner
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: zone
+    role_key: zone_admin
+    display_name: Zone Admin
+    relation: admin
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: zone
+    role_key: user_viewer
+    display_name: User Viewer
+    relation: user_viewer
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: zone
+    role_key: user_manager
+    display_name: User Manager
+    relation: user_manager
+    built_in: true
+    enabled: true
+    sort_order: 40
+  - resource_type: zone
+    role_key: group_viewer
+    display_name: Group Viewer
+    relation: group_viewer
+    built_in: true
+    enabled: true
+    sort_order: 50
+  - resource_type: zone
+    role_key: group_manager
+    display_name: Group Manager
+    relation: group_manager
+    built_in: true
+    enabled: true
+    sort_order: 60
+  - resource_type: zone
+    role_key: permission_admin
+    display_name: Permission Admin
+    relation: permission_admin
+    built_in: true
+    enabled: true
+    sort_order: 70
+  - resource_type: group
+    role_key: group_owner
+    display_name: Group Owner
+    relation: owner
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: group
+    role_key: group_manager
+    display_name: Group Manager
+    relation: manager
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: group
+    role_key: group_viewer
+    display_name: Group Viewer
+    relation: viewer
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: group
+    role_key: group_member
+    display_name: Group Member
+    relation: member
+    built_in: true
+    enabled: true
+    sort_order: 40
+  - resource_type: project
+    role_key: owner
+    display_name: Project Owner
+    relation: owner
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: project
+    role_key: admin
+    display_name: Project Admin
+    relation: admin
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: project
+    role_key: developer
+    display_name: Project Developer
+    relation: developer
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: project
+    role_key: operator
+    display_name: Project Operator
+    relation: operator
+    built_in: true
+    enabled: true
+    sort_order: 40
+  - resource_type: project
+    role_key: viewer
+    display_name: Project Viewer
+    relation: viewer
+    built_in: true
+    enabled: true
+    sort_order: 50
+  - resource_type: skill
+    role_key: owner
+    display_name: Skill Owner
+    relation: owner
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: skill
+    role_key: editor
+    display_name: Skill Editor
+    relation: editor
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: skill
+    role_key: reviewer
+    display_name: Skill Reviewer
+    relation: reviewer
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: git_repository
+    role_key: maintainer
+    display_name: Repository Maintainer
+    relation: maintainer
+    built_in: true
+    enabled: true
+    sort_order: 10
+  - resource_type: git_repository
+    role_key: writer
+    display_name: Repository Writer
+    relation: writer
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: git_repository
+    role_key: reader
+    display_name: Repository Reader
+    relation: reader
+    built_in: true
+    enabled: true
+    sort_order: 30
+  - resource_type: agent
+    role_key: operator
+    display_name: Agent Operator
+    relation: operator
+    built_in: true
+    enabled: true
+    sort_order: 20
+  - resource_type: sandbox
+    role_key: operator
+    display_name: Sandbox Operator
+    relation: operator
+    built_in: true
+    enabled: true
+    sort_order: 20
