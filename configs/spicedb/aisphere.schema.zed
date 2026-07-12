@@ -25,8 +25,8 @@ definition group {
 }
 
 definition zone {
-  // Casdoor Organization mapped as the top-level availability-zone resource.
-  // The frontend treats zones as read-only roots; IAM grants decide who can manage below them.
+  // One Casdoor Organization maps to exactly one read-only platform root.
+  // Groups and projects live directly under this root; there is no second platform-organization model.
   relation member: user | service | service_account | group#member
 
   relation owner: user | service | service_account | group#member
@@ -54,8 +54,6 @@ definition zone {
 }
 
 definition iam_authz {
-  // Global IAM authorization-control resource for SpiceDB schema, relationships,
-  // permission explain, drift repair, and Permission Console operations.
   relation owner: user | service | service_account | group#member
   relation admin: user | service | service_account | group#member
   relation schema_admin: user | service | service_account | group#member
@@ -87,22 +85,8 @@ definition iam {
   permission explain = admin
 }
 
-definition organization {
-  relation owner: user | group#member
-  relation admin: user | group#member
-  relation member: user | group#member
-  relation auditor: user | group#member
-
-  permission manage = owner + admin
-  permission view = manage + member + auditor
-  permission read = view
-  permission list = view
-  permission create_project = manage
-  permission audit = manage + auditor
-}
-
 definition project {
-  relation parent: organization
+  relation zone: zone
 
   relation owner: user | group#member
   relation admin: user | group#member
@@ -110,10 +94,10 @@ definition project {
   relation operator: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + admin + parent->manage
+  permission manage = owner + admin + zone->manage_permissions
   permission write = manage + developer
   permission operate = manage + operator
-  permission read = write + operate + viewer + parent->view
+  permission read = write + operate + viewer + zone->view_zone
   permission list = read
 }
 
