@@ -18,3 +18,5 @@
 | 2026-07-13T00:00:00Z | yuanyp8 | [C1] Approve integration test environment | Use aisphere-dev (36.137.200.194) K8s cluster with existing Casdoor, SpiceDB, PostgreSQL, DTM services. | REQ-IAM-ENG-008 |
 | 2026-07-13T00:00:00Z | yuanyp8 | [C1] Gate 1: APPROVED — 63 requirements approved with priorities | P0: 认证/目录/授权/Project/Resource (34个); P1: 投影/授权管理/Grant (18个); P2: 工程 (8个) | REQ-IAM-ENG-008 |
 | 2026-07-13T00:00:00Z | logic-gatekeeper | [C1] Phase 02-Constrain: PASS_WITH_FINDINGS | 63 REQs validated. No conflicts found. 9 ambiguous terms, 5 missing metrics, 7 missing edge cases identified. | REQ-IAM-ENG-008 |
+| 2026-07-13T00:00:00Z | threat-modeler | [C1] STRIDE threat modeling complete | 8 threats identified: 3 CRITICAL (all mitigated), 3 HIGH (2 open), 1 MEDIUM (open). See evidence/THREAT_MODEL.md | REQ-IAM-ENG-004 |
+| 2026-07-13T00:00:00Z | compliance-auditor | [C1] Compliance audit complete | ATM: 100% REQ→ART coverage, 24% test coverage. 2 NCs closed. 2 FLAGs in CONTROL_MATRIX fixed. See evidence/COMPLIANCE_AUDIT.md | REQ-IAM-ENG-008 |

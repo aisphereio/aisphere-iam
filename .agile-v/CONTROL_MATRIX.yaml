@@ -66,8 +66,15 @@ rollback:
   strategy: clean reset
   data_preservation: none required
 
+cost_limit:
+  cycle_budget: "C1: 0 (analysis only); C2+: TBD"
+
+rollback:
+  strategy: clean reset
+  data_preservation: none required
+
 owner:
   business_owner: yuanyp8
   technical_owner: yuanyp8
   security_owner: yuanyp8
-  reviewer: TBD
+  reviewer: yuanyp8

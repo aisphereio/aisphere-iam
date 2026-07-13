@@ -17,3 +17,5 @@
 | 2026-07-13T00:00:00Z | logic-gatekeeper | C1-Constrain | Executed Phase 02 constraint validation | 63 REQs validated: 9 ambiguous terms flagged, 5 missing metrics, 7 missing edge cases, 0 conflicts | REQ-IAM-ENG-008 |
 | 2026-07-13T00:00:00Z | build-agent | C1-Orchestrate | Generated Build Manifest | 62 ART entries across 10 services; 0 code-without-REQ found | REQ-IAM-ENG-008 |
 | 2026-07-13T00:00:00Z | test-designer | C1-Orchestrate | Designed test specification | 15 existing tests, 27 missing tests identified (16 P0, 6 P1, 5 P2) | REQ-IAM-ENG-008 |
+| 2026-07-13T00:00:00Z | threat-modeler | C1-Specify | STRIDE threat modeling | 8 threats: 3 CRITICAL mitigated, 2 HIGH open, 1 MEDIUM open | REQ-IAM-ENG-004 |
+| 2026-07-13T00:00:00Z | compliance-auditor | C1-Evolve | Compliance audit | ATM 100% REQ→ART; 24% test coverage; 2 NCs closed; CONTROL_MATRIX fixed | REQ-IAM-ENG-008 |
