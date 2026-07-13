@@ -785,13 +785,13 @@ var IAMDirectoryProjectionService_ServiceDesc = grpc.ServiceDesc{
 const (
 	IAMPermissionService_CheckPermission_FullMethodName       = "/iam.v1.IAMPermissionService/CheckPermission"
 	IAMPermissionService_BatchCheckPermissions_FullMethodName = "/iam.v1.IAMPermissionService/BatchCheckPermissions"
+	IAMPermissionService_WriteRelationships_FullMethodName    = "/iam.v1.IAMPermissionService/WriteRelationships"
+	IAMPermissionService_DeleteRelationships_FullMethodName   = "/iam.v1.IAMPermissionService/DeleteRelationships"
+	IAMPermissionService_ReadRelationships_FullMethodName     = "/iam.v1.IAMPermissionService/ReadRelationships"
 	IAMPermissionService_WriteRelationship_FullMethodName     = "/iam.v1.IAMPermissionService/WriteRelationship"
 	IAMPermissionService_DeleteRelationship_FullMethodName    = "/iam.v1.IAMPermissionService/DeleteRelationship"
 	IAMPermissionService_LookupResources_FullMethodName       = "/iam.v1.IAMPermissionService/LookupResources"
 	IAMPermissionService_LookupSubjects_FullMethodName        = "/iam.v1.IAMPermissionService/LookupSubjects"
-	IAMPermissionService_WriteRelationships_FullMethodName    = "/iam.v1.IAMPermissionService/WriteRelationships"
-	IAMPermissionService_DeleteRelationships_FullMethodName   = "/iam.v1.IAMPermissionService/DeleteRelationships"
-	IAMPermissionService_ReadRelationships_FullMethodName     = "/iam.v1.IAMPermissionService/ReadRelationships"
 )
 
 // IAMPermissionServiceClient is the client API for IAMPermissionService service.
@@ -800,13 +800,13 @@ const (
 type IAMPermissionServiceClient interface {
 	CheckPermission(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*CheckPermissionReply, error)
 	BatchCheckPermissions(ctx context.Context, in *BatchCheckPermissionsRequest, opts ...grpc.CallOption) (*BatchCheckPermissionsReply, error)
+	WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...grpc.CallOption) (*WriteRelationshipsReply, error)
+	DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...grpc.CallOption) (*DeleteRelationshipsReply, error)
+	ReadRelationships(ctx context.Context, in *ListRelationshipsRequest, opts ...grpc.CallOption) (*ListRelationshipsReply, error)
 	WriteRelationship(ctx context.Context, in *WriteRelationshipRequest, opts ...grpc.CallOption) (*WriteRelationshipReply, error)
 	DeleteRelationship(ctx context.Context, in *DeleteRelationshipRequest, opts ...grpc.CallOption) (*DeleteRelationshipReply, error)
 	LookupResources(ctx context.Context, in *LookupResourcesRequest, opts ...grpc.CallOption) (*LookupResourcesReply, error)
 	LookupSubjects(ctx context.Context, in *LookupSubjectsRequest, opts ...grpc.CallOption) (*LookupSubjectsReply, error)
-	WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...grpc.CallOption) (*WriteRelationshipsReply, error)
-	DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...grpc.CallOption) (*DeleteRelationshipsReply, error)
-	ReadRelationships(ctx context.Context, in *ListRelationshipsRequest, opts ...grpc.CallOption) (*ListRelationshipsReply, error)
 }
 
 type iAMPermissionServiceClient struct {
@@ -831,6 +831,36 @@ func (c *iAMPermissionServiceClient) BatchCheckPermissions(ctx context.Context, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(BatchCheckPermissionsReply)
 	err := c.cc.Invoke(ctx, IAMPermissionService_BatchCheckPermissions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMPermissionServiceClient) WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...grpc.CallOption) (*WriteRelationshipsReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WriteRelationshipsReply)
+	err := c.cc.Invoke(ctx, IAMPermissionService_WriteRelationships_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMPermissionServiceClient) DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...grpc.CallOption) (*DeleteRelationshipsReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteRelationshipsReply)
+	err := c.cc.Invoke(ctx, IAMPermissionService_DeleteRelationships_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMPermissionServiceClient) ReadRelationships(ctx context.Context, in *ListRelationshipsRequest, opts ...grpc.CallOption) (*ListRelationshipsReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRelationshipsReply)
+	err := c.cc.Invoke(ctx, IAMPermissionService_ReadRelationships_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -877,49 +907,19 @@ func (c *iAMPermissionServiceClient) LookupSubjects(ctx context.Context, in *Loo
 	return out, nil
 }
 
-func (c *iAMPermissionServiceClient) WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...grpc.CallOption) (*WriteRelationshipsReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(WriteRelationshipsReply)
-	err := c.cc.Invoke(ctx, IAMPermissionService_WriteRelationships_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMPermissionServiceClient) DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...grpc.CallOption) (*DeleteRelationshipsReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteRelationshipsReply)
-	err := c.cc.Invoke(ctx, IAMPermissionService_DeleteRelationships_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMPermissionServiceClient) ReadRelationships(ctx context.Context, in *ListRelationshipsRequest, opts ...grpc.CallOption) (*ListRelationshipsReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListRelationshipsReply)
-	err := c.cc.Invoke(ctx, IAMPermissionService_ReadRelationships_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // IAMPermissionServiceServer is the server API for IAMPermissionService service.
 // All implementations must embed UnimplementedIAMPermissionServiceServer
 // for forward compatibility.
 type IAMPermissionServiceServer interface {
 	CheckPermission(context.Context, *CheckPermissionRequest) (*CheckPermissionReply, error)
 	BatchCheckPermissions(context.Context, *BatchCheckPermissionsRequest) (*BatchCheckPermissionsReply, error)
+	WriteRelationships(context.Context, *WriteRelationshipsRequest) (*WriteRelationshipsReply, error)
+	DeleteRelationships(context.Context, *DeleteRelationshipsRequest) (*DeleteRelationshipsReply, error)
+	ReadRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error)
 	WriteRelationship(context.Context, *WriteRelationshipRequest) (*WriteRelationshipReply, error)
 	DeleteRelationship(context.Context, *DeleteRelationshipRequest) (*DeleteRelationshipReply, error)
 	LookupResources(context.Context, *LookupResourcesRequest) (*LookupResourcesReply, error)
 	LookupSubjects(context.Context, *LookupSubjectsRequest) (*LookupSubjectsReply, error)
-	WriteRelationships(context.Context, *WriteRelationshipsRequest) (*WriteRelationshipsReply, error)
-	DeleteRelationships(context.Context, *DeleteRelationshipsRequest) (*DeleteRelationshipsReply, error)
-	ReadRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error)
 	mustEmbedUnimplementedIAMPermissionServiceServer()
 }
 
@@ -936,6 +936,15 @@ func (UnimplementedIAMPermissionServiceServer) CheckPermission(context.Context, 
 func (UnimplementedIAMPermissionServiceServer) BatchCheckPermissions(context.Context, *BatchCheckPermissionsRequest) (*BatchCheckPermissionsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BatchCheckPermissions not implemented")
 }
+func (UnimplementedIAMPermissionServiceServer) WriteRelationships(context.Context, *WriteRelationshipsRequest) (*WriteRelationshipsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WriteRelationships not implemented")
+}
+func (UnimplementedIAMPermissionServiceServer) DeleteRelationships(context.Context, *DeleteRelationshipsRequest) (*DeleteRelationshipsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteRelationships not implemented")
+}
+func (UnimplementedIAMPermissionServiceServer) ReadRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadRelationships not implemented")
+}
 func (UnimplementedIAMPermissionServiceServer) WriteRelationship(context.Context, *WriteRelationshipRequest) (*WriteRelationshipReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WriteRelationship not implemented")
 }
@@ -947,15 +956,6 @@ func (UnimplementedIAMPermissionServiceServer) LookupResources(context.Context, 
 }
 func (UnimplementedIAMPermissionServiceServer) LookupSubjects(context.Context, *LookupSubjectsRequest) (*LookupSubjectsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LookupSubjects not implemented")
-}
-func (UnimplementedIAMPermissionServiceServer) WriteRelationships(context.Context, *WriteRelationshipsRequest) (*WriteRelationshipsReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WriteRelationships not implemented")
-}
-func (UnimplementedIAMPermissionServiceServer) DeleteRelationships(context.Context, *DeleteRelationshipsRequest) (*DeleteRelationshipsReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteRelationships not implemented")
-}
-func (UnimplementedIAMPermissionServiceServer) ReadRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ReadRelationships not implemented")
 }
 func (UnimplementedIAMPermissionServiceServer) mustEmbedUnimplementedIAMPermissionServiceServer() {}
 func (UnimplementedIAMPermissionServiceServer) testEmbeddedByValue()                              {}
@@ -1010,6 +1010,60 @@ func _IAMPermissionService_BatchCheckPermissions_Handler(srv interface{}, ctx co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IAMPermissionServiceServer).BatchCheckPermissions(ctx, req.(*BatchCheckPermissionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMPermissionService_WriteRelationships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WriteRelationshipsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMPermissionServiceServer).WriteRelationships(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMPermissionService_WriteRelationships_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMPermissionServiceServer).WriteRelationships(ctx, req.(*WriteRelationshipsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMPermissionService_DeleteRelationships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRelationshipsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMPermissionServiceServer).DeleteRelationships(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMPermissionService_DeleteRelationships_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMPermissionServiceServer).DeleteRelationships(ctx, req.(*DeleteRelationshipsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMPermissionService_ReadRelationships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRelationshipsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMPermissionServiceServer).ReadRelationships(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMPermissionService_ReadRelationships_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMPermissionServiceServer).ReadRelationships(ctx, req.(*ListRelationshipsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1086,60 +1140,6 @@ func _IAMPermissionService_LookupSubjects_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IAMPermissionService_WriteRelationships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WriteRelationshipsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMPermissionServiceServer).WriteRelationships(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMPermissionService_WriteRelationships_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMPermissionServiceServer).WriteRelationships(ctx, req.(*WriteRelationshipsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMPermissionService_DeleteRelationships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRelationshipsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMPermissionServiceServer).DeleteRelationships(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMPermissionService_DeleteRelationships_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMPermissionServiceServer).DeleteRelationships(ctx, req.(*DeleteRelationshipsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMPermissionService_ReadRelationships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRelationshipsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMPermissionServiceServer).ReadRelationships(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMPermissionService_ReadRelationships_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMPermissionServiceServer).ReadRelationships(ctx, req.(*ListRelationshipsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // IAMPermissionService_ServiceDesc is the grpc.ServiceDesc for IAMPermissionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1156,6 +1156,18 @@ var IAMPermissionService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _IAMPermissionService_BatchCheckPermissions_Handler,
 		},
 		{
+			MethodName: "WriteRelationships",
+			Handler:    _IAMPermissionService_WriteRelationships_Handler,
+		},
+		{
+			MethodName: "DeleteRelationships",
+			Handler:    _IAMPermissionService_DeleteRelationships_Handler,
+		},
+		{
+			MethodName: "ReadRelationships",
+			Handler:    _IAMPermissionService_ReadRelationships_Handler,
+		},
+		{
 			MethodName: "WriteRelationship",
 			Handler:    _IAMPermissionService_WriteRelationship_Handler,
 		},
@@ -1170,18 +1182,6 @@ var IAMPermissionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LookupSubjects",
 			Handler:    _IAMPermissionService_LookupSubjects_Handler,
-		},
-		{
-			MethodName: "WriteRelationships",
-			Handler:    _IAMPermissionService_WriteRelationships_Handler,
-		},
-		{
-			MethodName: "DeleteRelationships",
-			Handler:    _IAMPermissionService_DeleteRelationships_Handler,
-		},
-		{
-			MethodName: "ReadRelationships",
-			Handler:    _IAMPermissionService_ReadRelationships_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

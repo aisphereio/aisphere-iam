@@ -22,7 +22,7 @@ service IAMIdentityAdminService {
     option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/users" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "create" resource: "iam:org:{org_id}:user:*" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage_users" resource: "zone:{org_id}" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.user.create" risk: "high" }
     };
   }
@@ -31,7 +31,7 @@ service IAMIdentityAdminService {
     option (google.api.http) = { put: "/v1/iam/orgs/{org_id}/users/{user_id}" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "update" resource: "iam:org:{org_id}:user:{user_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage_users" resource: "zone:{org_id}" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.user.update" risk: "high" }
     };
   }
@@ -40,7 +40,7 @@ service IAMIdentityAdminService {
     option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/users/{user_id}:disable" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "disable" resource: "iam:org:{org_id}:user:{user_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage_users" resource: "zone:{org_id}" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.user.disable" risk: "high" }
     };
   }
@@ -49,7 +49,7 @@ service IAMIdentityAdminService {
     option (google.api.http) = { delete: "/v1/iam/orgs/{org_id}/users/{user_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "delete" resource: "iam:org:{org_id}:user:{user_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage_users" resource: "zone:{org_id}" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.user.delete" risk: "critical" }
     };
   }
