@@ -1,0 +1,96 @@
+name: Temporary C4 resource binding lifecycle
+
+on:
+  pull_request:
+    branches:
+      - fix/c3-project-lifecycle
+
+permissions:
+  contents: write
+
+jobs:
+  resource-bindings:
+    if: github.head_ref == 'fix/c4-resource-binding-lifecycle'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      KERNEL_VERSION: v0.4.3
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: fix/c4-resource-binding-lifecycle
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.12'
+          cache: true
+
+      - name: Apply C4 implementation
+        run: python3 .github/scripts/c4_resource_bindings.py
+
+      - name: Format source
+        run: |
+          gofmt -w \
+            internal/data/resource_repository.go \
+            internal/data/memory.go \
+            internal/biz/resource/lifecycle.go \
+            internal/biz/resource/lifecycle_test.go \
+            internal/service/control_plane.go \
+            internal/service/resource_binding_lifecycle.go \
+            internal/service/resource_binding_contract_test.go
+
+      - name: Install generators
+        run: make KERNEL_VERSION=${KERNEL_VERSION} tools
+
+      - name: Generate API and deploy manifests
+        run: |
+          make KERNEL_VERSION=${KERNEL_VERSION} api
+          make KERNEL_VERSION=${KERNEL_VERSION} deploy
+          go mod tidy
+
+      - name: Contract checks
+        run: make KERNEL_VERSION=${KERNEL_VERSION} proto-check
+
+      - name: Go tests
+        id: tests
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          go test ./... -count=1 -v 2>&1 | tee c4-go-test.log
+
+      - name: Upload test diagnostics
+        if: steps.tests.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: c4-resource-binding-test-log
+          path: c4-go-test.log
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Enforce test result
+        if: steps.tests.outcome == 'failure'
+        run: exit 1
+
+      - name: Build and check drift
+        run: |
+          make build
+          git diff --check
+
+      - name: Commit verified product tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f \
+            .github/workflows/tmp-c4-resource-binding-lifecycle.yml \
+            .github/scripts/c4_resource_bindings.py
+          rmdir .github/scripts 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat(iam): close resource binding lifecycle"
+          git push origin HEAD:fix/c4-resource-binding-lifecycle
