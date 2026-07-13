@@ -15,3 +15,5 @@
 | 2026-07-13T00:00:00Z | yuanyp8 | C1-Orchestrate | Implemented UpdateProject and ArchiveProject | Added UpsertProject-based update, ArchiveProject in repo, Zone permission check for GetProject | REQ-IAM-PROJECT-005, REQ-IAM-PROJECT-006 |
 | 2026-07-13T00:00:00Z | yuanyp8 | C1-Orchestrate | Implemented 4 Resource RPCs | MoveResource (parent update), DeleteResource (status=DELETED), UnbindResource (binding removal), ListExternalResourceBindings (query) | REQ-IAM-RESOURCE-005, REQ-IAM-RESOURCE-006, REQ-IAM-RESOURCE-007 |
 | 2026-07-13T00:00:00Z | logic-gatekeeper | C1-Constrain | Executed Phase 02 constraint validation | 63 REQs validated: 9 ambiguous terms flagged, 5 missing metrics, 7 missing edge cases, 0 conflicts | REQ-IAM-ENG-008 |
+| 2026-07-13T00:00:00Z | build-agent | C1-Orchestrate | Generated Build Manifest | 62 ART entries across 10 services; 0 code-without-REQ found | REQ-IAM-ENG-008 |
+| 2026-07-13T00:00:00Z | test-designer | C1-Orchestrate | Designed test specification | 15 existing tests, 27 missing tests identified (16 P0, 6 P1, 5 P2) | REQ-IAM-ENG-008 |
