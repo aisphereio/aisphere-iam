@@ -2,6 +2,8 @@ ARG GO_VERSION=1.26.5
 
 FROM golang:${GO_VERSION}-alpine AS builder
 
+ENV GOTOOLCHAIN=local
+
 WORKDIR /src
 RUN apk add --no-cache ca-certificates git make tzdata
 
@@ -10,7 +12,6 @@ RUN go mod download
 
 COPY . .
 ARG VERSION=dev
-# KERNEL_VERSION is no longer used here; go.mod pins the dependency.
 RUN go mod tidy \
     && go mod download \
     && CGO_ENABLED=0 GOOS=linux go build \
