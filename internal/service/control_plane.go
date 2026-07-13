@@ -14,10 +14,8 @@ import (
 	projectbiz "github.com/aisphereio/aisphere-iam/internal/biz/project"
 	resourcebiz "github.com/aisphereio/aisphere-iam/internal/biz/resource"
 	"github.com/aisphereio/aisphere-iam/internal/data"
-	"github.com/aisphereio/kernel/authn"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/encoding/protojson"
+"github.com/aisphereio/kernel/authn"
+		"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

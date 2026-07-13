@@ -125,6 +125,18 @@ func (r *MemoryControlPlaneRepository) ListProjects(ctx context.Context, opts Li
 	return pageOf(out, opts.Page, opts.Size), nil
 }
 
+func (r *MemoryControlPlaneRepository) ArchiveProject(ctx context.Context, id string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	v := r.projects[id]
+	if v == nil {
+		return fmt.Errorf("%w: project %s", ErrNotFound, id)
+	}
+	v.Status = StatusArchived
+	v.UpdatedAt = time.Now().UTC()
+	return nil
+}
+
 func (r *MemoryControlPlaneRepository) UpsertCapability(ctx context.Context, cap *CapabilityModel) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -246,6 +258,18 @@ func (r *MemoryControlPlaneRepository) ArchiveResource(ctx context.Context, typ,
 	return nil
 }
 
+func (r *MemoryControlPlaneRepository) DeleteResource(ctx context.Context, typ, id string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	v := r.resources[key(typ, id)]
+	if v == nil {
+		return fmt.Errorf("%w: resource %s/%s", ErrNotFound, typ, id)
+	}
+	v.Status = StatusDeleted
+	v.UpdatedAt = time.Now().UTC()
+	return nil
+}
+
 func (r *MemoryControlPlaneRepository) BindResource(ctx context.Context, b *ResourceBindingModel, events ...*OutboxEventModel) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -267,6 +291,23 @@ func (r *MemoryControlPlaneRepository) ListResourceBindings(ctx context.Context,
 	var out []ResourceBindingModel
 	for _, v := range r.bindings {
 		if (opts.ResourceType == "" || v.SourceType == opts.ResourceType) && (opts.ResourceID == "" || v.SourceID == opts.ResourceID) && statusOK(v.Status, opts.Status) {
+			out = append(out, *clone(v))
+		}
+	}
+	return out, nil
+}
+func (r *MemoryControlPlaneRepository) UnbindResource(ctx context.Context, bindingID string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	delete(r.bindings, bindingID)
+	return nil
+}
+func (r *MemoryControlPlaneRepository) ListExternalResourceBindings(ctx context.Context, opts ListOptions) ([]ExternalResourceBindingModel, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	var out []ExternalResourceBindingModel
+	for _, v := range r.externalBindings {
+		if (opts.ResourceType == "" || v.ResourceType == opts.ResourceType) && (opts.ResourceID == "" || v.ResourceID == opts.ResourceID) && statusOK(v.SyncStatus, opts.Status) {
 			out = append(out, *clone(v))
 		}
 	}

@@ -32,7 +32,7 @@ func TestResourceServiceFullLifecycle(t *testing.T) {
 
 	// Upsert resource
 	created, err := service.UpsertResource(ctx, &resourcev1.UpsertResourceRequest{
-		Resource: &resourcev1.Resource{Ref: &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"}, Slug: "my-skill", DisplayName: "My Skill"},
+		Resource: &resourcev1.Resource{Ref: &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"}, OrgId: "zone-a", Slug: "my-skill", DisplayName: "My Skill"},
 	})
 	if err != nil {
 		t.Fatalf("UpsertResource: %v", err)
@@ -99,10 +99,18 @@ func TestResourceServiceBindUnbind(t *testing.T) {
 
 	// Create resource
 	_, err = service.UpsertResource(ctx, &resourcev1.UpsertResourceRequest{
-		Resource: &resourcev1.Resource{Ref: &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"}, DisplayName: "Skill 1"},
+		Resource: &resourcev1.Resource{Ref: &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"}, OrgId: "zone-a", DisplayName: "Skill 1"},
 	})
 	if err != nil {
 		t.Fatalf("UpsertResource: %v", err)
+	}
+
+	// Create target resource for binding
+	_, err = service.UpsertResource(ctx, &resourcev1.UpsertResourceRequest{
+		Resource: &resourcev1.Resource{Ref: &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-2"}, OrgId: "zone-a", DisplayName: "Target"},
+	})
+	if err != nil {
+		t.Fatalf("UpsertResource target: %v", err)
 	}
 
 	// Bind resource
@@ -110,7 +118,7 @@ func TestResourceServiceBindUnbind(t *testing.T) {
 		Binding: &resourcev1.ResourceBinding{
 			Source:   &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"},
 			Relation: "owner",
-			Target:   &resourcev1.ResourceRef{Type: "user", Id: "alice"},
+			Target:   &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-2"},
 		},
 	})
 	if err != nil {
@@ -167,8 +175,11 @@ func TestResourceServiceExternalBindings(t *testing.T) {
 	}
 
 	// Create resource
-	_, err = service.UpsertResource(ctx, &resourcev1.UpsertResourceRequest{
-		Resource: &resourcev1.Resource{Ref: &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"}, Type: "test_skill"},
+	ctx2 := authn.ContextWithPrincipal(context.Background(), authn.Principal{
+		SubjectID: "alice", SubjectType: "user", OrgID: "zone-a",
+	})
+	_, err = service.UpsertResource(ctx2, &resourcev1.UpsertResourceRequest{
+		Resource: &resourcev1.Resource{Ref: &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"}, OrgId: "zone-a"},
 	})
 	if err != nil {
 		t.Fatalf("UpsertResource: %v", err)
