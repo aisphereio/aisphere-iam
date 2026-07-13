@@ -1,0 +1,66 @@
+name: Temporary C2 convergence from PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  converge:
+    if: github.head_ref == 'fix/c2-iam-api-boundaries'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: fix/c2-iam-api-boundaries
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.12'
+          cache: true
+
+      - name: Apply C2 decisions
+        run: python3 .github/scripts/c2_converge.py
+
+      - name: Format, generate and verify
+        shell: bash
+        env:
+          KERNEL_VERSION: v0.4.3
+        run: |
+          set -euo pipefail
+          gofmt -w \
+            internal/service/directory_group.go \
+            internal/service/api_surface_contract_test.go \
+            internal/data/identity_membership_projection_test.go \
+            internal/data/identity_mode.go
+          make KERNEL_VERSION=${KERNEL_VERSION} tools
+          make KERNEL_VERSION=${KERNEL_VERSION} api
+          make KERNEL_VERSION=${KERNEL_VERSION} deploy
+          go mod tidy
+          make KERNEL_VERSION=${KERNEL_VERSION} proto-check
+          go test ./... -count=1
+          make build
+          git diff --check
+
+      - name: Commit verified product tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f \
+            .github/workflows/tmp-c2-converge-api-boundaries.yml \
+            .github/workflows/tmp-c2-converge-api-boundaries-pr.yml \
+            .github/scripts/c2_converge.py
+          rmdir .github/scripts 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix(iam): converge directory and relationship API boundaries"
+          git push origin HEAD:fix/c2-iam-api-boundaries
