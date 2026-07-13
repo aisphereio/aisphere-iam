@@ -14,7 +14,7 @@
 | 01-Specify | ✅ COMPLETE | 63 REQs approved with P0/P1/P2; Gate 0 + Gate 1 passed; threat model generated |
 | 02-Constrain | ✅ COMPLETE | logic-gatekeeper validation: PASS_WITH_FINDINGS; threat model reviewed |
 | 03-Orchestrate | ✅ COMPLETE | Build Manifest (62 ART); 0 code-without-REQ; 18 existing tests (3 new: group_admin, resource_lifecycle), 24 missing tests; compliance audit complete |
-| 04-Prove | ⏳ PENDING | Integration test suite needed |
+| 04-Prove | ⏳ IN_PROGRESS | Test databases created (aisphere_iam_test, spicedb_test); config.test.yaml written; integration test file created (build-tagged) |
 | 05-Evolve | ⏳ PENDING | Decision log maintained |
 | 06-Verify | ⏳ PENDING | Red Team verification pending |
 

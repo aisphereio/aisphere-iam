@@ -1,0 +1,133 @@
+service:
+  name: iam-service
+  version: test
+  env: test
+
+server:
+  http:
+    addr: 0.0.0.0:18080
+    timeout_ns: 5000000000
+  grpc:
+    addr: 0.0.0.0:19080
+    timeout_ns: 5000000000
+
+log:
+  service_name: iam-service
+  env: test
+  version: test
+  level: debug
+  format: console
+  output: stdout
+  add_source: true
+  redact:
+    enabled: true
+    keys: [password, secret, token, access_key, secret_key, client_secret]
+    value: "***"
+  access_log:
+    enabled: false
+
+data:
+  database:
+    enabled: true
+    config:
+      auto_create_database: false
+      driver: postgres
+      dsn: "postgres://postgres:ChangeMe_PostgreSQL_123root@36.137.200.194:30080/aisphere_iam_test?sslmode=disable"
+      max_open_conns: 10
+      max_idle_conns: 5
+      conn_max_lifetime_ns: 1800000000000
+      conn_max_idle_time_ns: 300000000000
+      query_timeout_ns: 5000000000
+      slow_query_threshold_ns: 200000000
+      audit_enabled: true
+      metrics_enabled: false
+  migration:
+    enabled: true
+    config:
+      enabled: true
+      engine: goose
+      dir: migrations
+      table: iam_schema_migrations
+      mode: apply
+      fail_on_pending: true
+      allow_concurrent: false
+  cache:
+    enabled: false
+  object_store:
+    enabled: false
+
+security:
+  authn:
+    enabled: true
+    mode: gateway_trusted
+    provider: casdoor
+    cache_ttl_ns: 300000000000
+    oidc:
+      provider: casdoor
+      issuer: http://36.137.200.194:30082
+      discovery_url: http://36.137.200.194:30082/.well-known/openid-configuration
+      jwks_url: http://36.137.200.194:30082/.well-known/jwks
+      audience: [bbdcfc272e2b990cb923]
+      allowed_owners: [aisphere]
+      allowed_algs: [RS256, RS512, ES256, ES512]
+      jwks_cache_ttl_ns: 600000000000
+      clock_skew_ns: 60000000000
+    casdoor:
+      endpoint: http://36.137.200.194:30082
+      organization_name: aisphere
+      application_name: aisphere
+      client_id: "bbdcfc272e2b990cb923"
+      client_secret: "c4d351406d40251b267624328e50e8a1f7352a65"
+      jwt_certificate_file: ./configs/casdoor.pub
+      timeout: 10000000000
+      metrics_enabled: false
+      admin:
+        enabled: true
+        organization_name: aisphere
+        application_name: iam-service
+        client_id: "869aff97ab0408cbbd1c"
+        client_secret: "dbd4c663c6dbd947da0d23616cddaf532dcee7be"
+        jwt_certificate_file: ./configs/casdoor.pub
+  internal_call:
+    enabled: false
+    header: X-Aisphere-Internal-Token
+    token: ""
+  authz:
+    enabled: true
+    provider: spicedb
+    dev_allow_all: false
+    install_default_schema: true
+    schema_path: configs/spicedb/aisphere.schema.zed
+    spicedb:
+      endpoint: 36.137.200.194:30084
+      token: "keykeykey"
+      transport: grpc
+      insecure: true
+      timeout: 5000000000
+      fully_consistent: true
+      metrics_enabled: false
+
+control_plane:
+  defaults:
+    enabled: true
+    path: configs/resource/defaults.yaml
+  bootstrap_admins:
+    enabled: true
+    subjects:
+      - type: user
+        username: admin
+        zone_id: aisphere
+        casdoor_org: aisphere
+        role: zone_owner
+        source: bootstrap
+        reason: initial Casdoor admin user
+
+audit:
+  enabled: true
+  store: memory
+
+metrics:
+  enabled: false
+
+dtm:
+  enabled: false
