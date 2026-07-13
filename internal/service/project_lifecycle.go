@@ -7,7 +7,6 @@ import (
 	projectv1 "github.com/aisphereio/aisphere-iam/api/iam/project/v1"
 	resourcev1 "github.com/aisphereio/aisphere-iam/api/iam/resource/v1"
 	projectbiz "github.com/aisphereio/aisphere-iam/internal/biz/project"
-	"github.com/aisphereio/aisphere-iam/internal/data"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -187,5 +186,3 @@ func projectSubjectStringToProto(raw string) *resourcev1.SubjectRef {
 	}
 	return &resourcev1.SubjectRef{Type: strings.TrimSpace(parts[0]), Id: strings.TrimSpace(parts[1]), Relation: strings.TrimSpace(relation)}
 }
-
-var _ = data.StatusActive
