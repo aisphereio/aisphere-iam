@@ -12,7 +12,7 @@
 | Gap Analysis | PASS | traceability/traceability_gaps.md (17 gaps) | P0 gaps identified |
 | Architecture Convergence | PASS | PR #40 merged; legacy Organization removed | GAP-IAM-001 closed |
 | Integration Tests | PASS | 14/14 integration checks passed against aisphere-dev | GAP-IAM-005~009 partially closed |
-| Audit Observability | FAIL | Audit is contractual only; no durable sink | GAP-IAM-010 |
+| Audit Observability | PASS | Audit now writes to PostgreSQL iam_audit_logs table | GAP-IAM-010 closed |
 | Grant Expiry | FAIL | No expiry executor implemented | GAP-IAM-014 |
 | Performance/Reliability | NOT_EVALUATED | No SLOs, no load tests | GAP-IAM-016 |
 

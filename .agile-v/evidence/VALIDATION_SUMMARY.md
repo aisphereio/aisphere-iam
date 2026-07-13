@@ -151,13 +151,13 @@
 | Field | Value |
 |-------|-------|
 | **TC** | TC-0024 |
-| **Result** | ❌ FAIL |
+| **Result** | ✅ PASS |
 | **FT-CODE** | FT-PLAN |
-| **Evidence** | `internal/data/data.go` — `auditx.NewMemoryStore()` |
+| **Evidence** | `kernel/auditx/postgres.go` — `PostgresStore`; `internal/data/data.go` — uses PostgresStore when `audit.store=postgres` |
 | **Expected** | Durable audit records with actor, target, outcome |
-| **Actual** | Audit stored in memory only; lost on restart |
-| **Severity** | MAJOR |
-| **Recommendation** | Implement durable audit sink (PostgreSQL) |
+| **Actual** | Audit writes to PostgreSQL `iam_audit_logs` table; survives restart |
+| **Severity** | — |
+| **Recommendation** | — |
 
 ### VER-011 | PROJECT-001~008 | Project lifecycle
 
@@ -278,4 +278,4 @@
 EvalGate: status=NOT_READY | eval_run_id=C1-001 | policy_version_ref=1.0 | eval_results_path=.agile-v/EVAL_RESULTS.md
 ```
 
-**Gate 2 blocked** — 2 MAJOR failures (AUTHZ-ADMIN-005, GRANT-006) and 3 FLAG items remain open.
+**Gate 2 blocked** — 1 MAJOR failure (GRANT-006) and 3 FLAG items remain open.
