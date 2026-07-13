@@ -33,6 +33,7 @@
 | GAP-IAM-001 | Legacy Organization model conflict | ✅ CLOSED (PR #40) |
 | GAP-IAM-002 | Group mutation defined twice | ✅ CLOSED (IAMGroupAdminService created) |
 | GAP-IAM-003 | Raw relationship mutation unresolved | ✅ CLOSED (WriteRelationship/DeleteRelationship → INTERNAL) |
+| GAP-IAM-004 | Contract-only RPCs externally visible | ✅ CLOSED (all 6 implemented) |
 | GAP-IAM-017 | Build success ≠ release decision | ❌ OPEN |
 
 ## Next Actions

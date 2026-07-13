@@ -131,12 +131,7 @@ Implemented or partially implemented capabilities include:
 - bind/list Resource Binding;
 - bind external resource.
 
-Observed main-branch gaps:
-
-- `MoveResource` is unimplemented;
-- `DeleteResource` is unimplemented;
-- `UnbindResource` is unimplemented;
-- `ListExternalResourceBindings` is unimplemented.
+All Resource RPCs have been implemented — `MoveResource`, `DeleteResource`, `UnbindResource`, and `ListExternalResourceBindings` are no longer gaps.
 
 ### GrantService
 

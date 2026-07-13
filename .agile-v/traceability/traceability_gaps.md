@@ -39,16 +39,12 @@
 
 ### GAP-IAM-004 — Contract-only RPCs are externally visible
 
+- **Status:** ✅ **CLOSED**
 - **Priority:** `P1`
 - **Affected requirements:** `REQ-IAM-RESOURCE-005`, `006`, `007`
-- **Observed unimplemented methods:**
-  - `MoveResource`
-  - `DeleteResource`
-  - `UnbindResource`
-  - `ListExternalResourceBindings`
-- **Risk:** generated documentation and routes imply usable features that always fail at runtime.
-- **Closure options:** implement and verify each approved requirement, or remove it from the release contract until scheduled.
-- **Resolved:** `UpdateProject` and `ArchiveProject` have been implemented — Project CRUD is now complete.
+- **Observed:** `MoveResource`, `DeleteResource`, `UnbindResource`, `ListExternalResourceBindings` returned `Unimplemented`.
+- **Remediation:** All 4 RPCs implemented. `MoveResource` updates parent relationship via `UpsertResource`. `DeleteResource` sets status=DELETED. `UnbindResource` removes binding record. `ListExternalResourceBindings` queries external bindings by resource/provider/sync_status.
+- **Closure evidence:** `internal/service/control_plane.go` — all 4 methods implemented; `internal/data/resource_repository.go` — `DeleteResource`, `UnbindResource`, `ListExternalResourceBindings` added to interface and implementation.
 
 ### GAP-IAM-005 — No real Casdoor directory verification suite
 

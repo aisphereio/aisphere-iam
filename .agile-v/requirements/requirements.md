@@ -403,25 +403,25 @@ Evidence qualifiers:
 
 ## REQ-IAM-RESOURCE-005 — Move and delete a Resource
 
-- **Status:** `CONTRACT_ONLY`
-- **Requirement:** approved Resource Types may support move and delete under explicit lifecycle and dependency rules.
-- **Current implementation:** `MoveResource` and `DeleteResource` return `Unimplemented`.
-- **Verification criteria:** cycles, invalid parent, dependent resources, soft/hard delete and relationship cleanup are covered.
+- **Status:** `OBSERVED_IMPLEMENTED`
+- **Requirement:** approved Resource types may support move and delete under explicit lifecycle and dependency rules.
+- **Implementation:** `MoveResource` updates parent relationship via `UpsertResource`. `DeleteResource` sets status=DELETED via `DeleteResource` in repository.
+- **Verification criteria:** cycles, invalid parent, dependent resources, soft delete and relationship cleanup are covered.
 - **Done criteria:** product requirements are approved before implementation.
 
-## REQ-IAM-RESOURCE-006 — Bind and unbind internal Resources
+## REQ-IAM-RESOURCE-006 — Unbind and unbind internal Resources
 
-- **Status:** `PARTIAL_IMPLEMENTATION`
+- **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall create, list and remove typed Resource bindings.
-- **Current implementation:** bind/list exist; unbind returns `Unimplemented`.
+- **Implementation:** `UnbindResource` deletes the binding record via `UnbindResource` in repository. Bind and list were already implemented.
 - **Verification criteria:** duplicate binding, invalid relation, cross-scope binding and unbind idempotency are tested.
 - **Done criteria:** the full binding lifecycle is implemented and verified.
 
 ## REQ-IAM-RESOURCE-007 — Bind and list external Resources
 
-- **Status:** `PARTIAL_IMPLEMENTATION`
+- **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall bind an internal Resource to an external provider identity/path/URL and list those bindings.
-- **Current implementation:** bind exists; list returns `Unimplemented`.
+- **Implementation:** `ListExternalResourceBindings` queries external bindings by resource, provider, and sync status. Bind was already implemented.
 - **Verification criteria:** provider uniqueness, sync mode/status and stale external identity are covered.
 - **Done criteria:** read lifecycle and synchronization policy are implemented.
 

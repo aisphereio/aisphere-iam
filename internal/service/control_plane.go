@@ -167,8 +167,20 @@ func (s *ResourceService) ListResources(ctx context.Context, req *resourcev1.Lis
 	return &resourcev1.ListResourcesReply{Resources: out, TotalSize: page.Total, NextPageToken: nextPage(page)}, nil
 }
 
-func (s *ResourceService) MoveResource(context.Context, *resourcev1.MoveResourceRequest) (*resourcev1.Resource, error) {
-	return nil, status.Error(codes.Unimplemented, "MoveResource is not implemented")
+func (s *ResourceService) MoveResource(ctx context.Context, req *resourcev1.MoveResourceRequest) (*resourcev1.Resource, error) {
+	resource, err := s.repo.GetResource(ctx, req.GetResourceType(), req.GetResourceId())
+	if err != nil {
+		return nil, err
+	}
+	newParent := req.GetNewParent()
+	if newParent != nil {
+		resource.ParentType = newParent.GetType()
+		resource.ParentID = newParent.GetId()
+	}
+	if err := s.repo.UpsertResource(ctx, resource); err != nil {
+		return nil, err
+	}
+	return s.GetResource(ctx, &resourcev1.GetResourceRequest{ResourceType: req.GetResourceType(), ResourceId: req.GetResourceId()})
 }
 
 func (s *ResourceService) ArchiveResource(ctx context.Context, req *resourcev1.ArchiveResourceRequest) (*resourcev1.Resource, error) {
@@ -178,8 +190,11 @@ func (s *ResourceService) ArchiveResource(ctx context.Context, req *resourcev1.A
 	return s.GetResource(ctx, &resourcev1.GetResourceRequest{ResourceType: req.GetResourceType(), ResourceId: req.GetResourceId()})
 }
 
-func (s *ResourceService) DeleteResource(context.Context, *resourcev1.DeleteResourceRequest) (*resourcev1.DeleteResourceReply, error) {
-	return nil, status.Error(codes.Unimplemented, "DeleteResource is not implemented")
+func (s *ResourceService) DeleteResource(ctx context.Context, req *resourcev1.DeleteResourceRequest) (*resourcev1.DeleteResourceReply, error) {
+	if err := s.repo.DeleteResource(ctx, req.GetResourceType(), req.GetResourceId()); err != nil {
+		return nil, err
+	}
+	return &resourcev1.DeleteResourceReply{Ref: &resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()}, Deleted: true}, nil
 }
 
 func (s *ResourceService) BindResource(ctx context.Context, req *resourcev1.BindResourceRequest) (*resourcev1.ResourceBinding, error) {
@@ -195,8 +210,11 @@ func (s *ResourceService) BindResource(ctx context.Context, req *resourcev1.Bind
 	return resourceBindingModelToProto(model), nil
 }
 
-func (s *ResourceService) UnbindResource(context.Context, *resourcev1.UnbindResourceRequest) (*resourcev1.UnbindResourceReply, error) {
-	return nil, status.Error(codes.Unimplemented, "UnbindResource is not implemented")
+func (s *ResourceService) UnbindResource(ctx context.Context, req *resourcev1.UnbindResourceRequest) (*resourcev1.UnbindResourceReply, error) {
+	if err := s.repo.UnbindResource(ctx, req.GetBindingId()); err != nil {
+		return nil, err
+	}
+	return &resourcev1.UnbindResourceReply{BindingId: req.GetBindingId(), Unbound: true}, nil
 }
 
 func (s *ResourceService) ListResourceBindings(ctx context.Context, req *resourcev1.ListResourceBindingsRequest) (*resourcev1.ListResourceBindingsReply, error) {
@@ -221,8 +239,17 @@ func (s *ResourceService) BindExternalResource(ctx context.Context, req *resourc
 	return externalBindingModelToProto(model), nil
 }
 
-func (s *ResourceService) ListExternalResourceBindings(context.Context, *resourcev1.ListExternalResourceBindingsRequest) (*resourcev1.ListExternalResourceBindingsReply, error) {
-	return nil, status.Error(codes.Unimplemented, "ListExternalResourceBindings is not implemented")
+func (s *ResourceService) ListExternalResourceBindings(ctx context.Context, req *resourcev1.ListExternalResourceBindingsRequest) (*resourcev1.ListExternalResourceBindingsReply, error) {
+	source := req.GetResource()
+	items, err := s.repo.ListExternalResourceBindings(ctx, data.ListOptions{ResourceType: source.GetType(), ResourceID: source.GetId(), Type: req.GetProvider(), Status: req.GetSyncStatus()})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]*resourcev1.ExternalResourceBinding, 0, len(items))
+	for i := range items {
+		out = append(out, externalBindingModelToProto(&items[i]))
+	}
+	return &resourcev1.ListExternalResourceBindingsReply{Bindings: out, TotalSize: int64(len(out))}, nil
 }
 
 type GrantService struct {

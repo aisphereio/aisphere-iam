@@ -58,11 +58,14 @@ type ControlPlaneRepository interface {
 	UpsertResource(ctx context.Context, resource *ResourceModel, outbox ...*OutboxEventModel) error
 	GetResource(ctx context.Context, typ, id string) (*ResourceModel, error)
 	ListResources(ctx context.Context, opts ListOptions) (*Page[ResourceModel], error)
-	ArchiveResource(ctx context.Context, typ, id string) error
+ArchiveResource(ctx context.Context, typ, id string) error
+		DeleteResource(ctx context.Context, typ, id string) error
 
-	BindResource(ctx context.Context, binding *ResourceBindingModel, outbox ...*OutboxEventModel) error
-	ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error)
-	BindExternalResource(ctx context.Context, binding *ExternalResourceBindingModel) error
+		BindResource(ctx context.Context, binding *ResourceBindingModel, outbox ...*OutboxEventModel) error
+		ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error)
+		UnbindResource(ctx context.Context, bindingID string) error
+		BindExternalResource(ctx context.Context, binding *ExternalResourceBindingModel) error
+		ListExternalResourceBindings(ctx context.Context, opts ListOptions) ([]ExternalResourceBindingModel, error)
 
 	UpsertRoleTemplate(ctx context.Context, role *RoleTemplateModel) error
 	ListRoleTemplates(ctx context.Context, resourceType string) ([]RoleTemplateModel, error)
@@ -185,6 +188,11 @@ func (r *DBControlPlaneRepository) ArchiveResource(ctx context.Context, typ, id 
 	return r.db.Update(ctx, &ResourceModel{}, "type = ? AND id = ?", []any{typ, id}, map[string]any{"status": StatusArchived, "updated_at": now})
 }
 
+func (r *DBControlPlaneRepository) DeleteResource(ctx context.Context, typ, id string) error {
+	now := time.Now().UTC()
+	return r.db.Update(ctx, &ResourceModel{}, "type = ? AND id = ?", []any{typ, id}, map[string]any{"status": StatusDeleted, "updated_at": now})
+}
+
 func (r *DBControlPlaneRepository) BindResource(ctx context.Context, binding *ResourceBindingModel, outbox ...*OutboxEventModel) error {
 	return r.db.InTx(ctx, func(tx dbx.Tx) error {
 		if err := tx.SafeUpsert(ctx, binding, []string{"status", "updated_at"}); err != nil {
@@ -200,8 +208,18 @@ func (r *DBControlPlaneRepository) ListResourceBindings(ctx context.Context, opt
 	return out, r.db.FindMany(ctx, &out, query, args...)
 }
 
+func (r *DBControlPlaneRepository) UnbindResource(ctx context.Context, bindingID string) error {
+	return r.db.Delete(ctx, &ResourceBindingModel{}, "id = ?", bindingID)
+}
+
 func (r *DBControlPlaneRepository) BindExternalResource(ctx context.Context, binding *ExternalResourceBindingModel) error {
 	return r.db.SafeUpsert(ctx, binding, []string{"resource_type", "resource_id", "external_path", "external_url", "sync_mode", "sync_status", "last_synced_at", "metadata_json", "updated_at"})
+}
+
+func (r *DBControlPlaneRepository) ListExternalResourceBindings(ctx context.Context, opts ListOptions) ([]ExternalResourceBindingModel, error) {
+	var out []ExternalResourceBindingModel
+	query, args := whereBuilder().eq("resource_type", opts.ResourceType).eq("resource_id", opts.ResourceID).eq("provider", opts.Type).eq("sync_status", opts.Status).build()
+	return out, r.db.FindMany(ctx, &out, query, args...)
 }
 
 func (r *DBControlPlaneRepository) UpsertRoleTemplate(ctx context.Context, role *RoleTemplateModel) error {

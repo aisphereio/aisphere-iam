@@ -31,16 +31,15 @@ The system is sufficiently understood to begin **candidate requirement recovery 
 
 ### F-002 — Contract surface exceeds implemented behavior
 
-The following main-branch RPC implementations explicitly return `Unimplemented`:
+✅ **CLOSED** — All previously unimplemented RPCs have been implemented.
 
-- `ResourceService.MoveResource`
-- `ResourceService.DeleteResource`
-- `ResourceService.UnbindResource`
-- `ResourceService.ListExternalResourceBindings`
-
-**Impact:** these operations are `CONTRACT_ONLY` or `PARTIAL_IMPLEMENTATION`, not completed capabilities.
-
-**Resolved:** `ProjectService.UpdateProject` and `ProjectService.ArchiveProject` have been implemented — Project CRUD is now complete.
+**Resolved:**
+- `ProjectService.UpdateProject` — implemented
+- `ProjectService.ArchiveProject` — implemented
+- `ResourceService.MoveResource` — implemented (parent relationship update)
+- `ResourceService.DeleteResource` — implemented (status=DELETED)
+- `ResourceService.UnbindResource` — implemented (binding removal)
+- `ResourceService.ListExternalResourceBindings` — implemented (query external bindings)
 
 ### F-003 — Overlapping Group mutation contracts
 

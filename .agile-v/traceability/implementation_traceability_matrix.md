@@ -89,9 +89,9 @@ This matrix links recovered candidate requirements to implementation and current
 | `REQ-IAM-RESOURCE-002` | upsert/get Resource | service derives actor/default owner and calls biz/repository | Principal fallback unit test covers helper only | `Partial`; scope/projection integration missing |
 | `REQ-IAM-RESOURCE-003` | list Resources | database filters and pagination response exist | no authorization leakage/pagination test identified | `Observed` |
 | `REQ-IAM-RESOURCE-004` | archive Resource | repository archive then get exists | no lifecycle/projection test identified | `Observed` |
-| `REQ-IAM-RESOURCE-005` | move/delete Resource | Proto contracts exist | both service methods return `Unimplemented` | `Contract only` |
-| `REQ-IAM-RESOURCE-006` | bind/list/unbind Resource | bind and list implementations exist | unbind returns `Unimplemented`; no relation validation test identified | `Partial` |
-| `REQ-IAM-RESOURCE-007` | bind/list external Resource | bind implementation exists | list returns `Unimplemented` | `Partial` |
+| `REQ-IAM-RESOURCE-005` | move/delete Resource | `MoveResource` updates parent; `DeleteResource` sets status=DELETED | no integration test identified | `Observed` |
+| `REQ-IAM-RESOURCE-006` | bind/list/unbind Resource | bind, list, and unbind all implemented | no integration test identified | `Observed` |
+| `REQ-IAM-RESOURCE-007` | bind/list external Resource | bind and list both implemented | no integration test identified | `Observed` |
 
 ## Grant control plane
 
