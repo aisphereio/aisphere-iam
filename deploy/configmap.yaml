@@ -132,6 +132,16 @@ data:
       defaults:
         enabled: true
         path: configs/resource/defaults.yaml
+      bootstrap_admins:
+        enabled: true
+        subjects:
+          - type: user
+            username: admin
+            zone_id: aisphere
+            casdoor_org: aisphere
+            role: zone_owner
+            source: bootstrap
+            reason: initial Casdoor admin user
 
     audit:
       enabled: true

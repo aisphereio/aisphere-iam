@@ -49,9 +49,10 @@ func getTestConfigPath() string {
 }
 
 // adminContext creates a context with trusted headers for the admin user.
+// The SubjectID must match the Casdoor UUID stored in SpiceDB.
 func adminContext() context.Context {
 	p := authn.Principal{
-		SubjectID:   "admin",
+		SubjectID:   "496333c7-7acc-4717-8596-056544fc0a68",
 		SubjectType: authn.SubjectTypeUser,
 		OrgID:       "aisphere",
 		Provider:    "casdoor",
