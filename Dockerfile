@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.25.12
+ARG GO_VERSION=1.26.5
 
 FROM golang:${GO_VERSION}-alpine AS builder
 
@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY . .
 ARG VERSION=dev
-ARG KERNEL_VERSION=v0.4.5
+# KERNEL_VERSION is no longer used here; go.mod pins the dependency.
 RUN go mod tidy \
     && go mod download \
     && CGO_ENABLED=0 GOOS=linux go build \
