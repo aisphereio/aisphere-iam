@@ -55,7 +55,19 @@ jobs:
         run: make KERNEL_VERSION=${KERNEL_VERSION} proto-check
 
       - name: Test
-        run: go test ./... -count=1
+        shell: bash
+        run: |
+          set -o pipefail
+          go test ./... -count=1 -v 2>&1 | tee go-test.log
+
+      - name: Upload Go test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iam-go-test-log
+          path: go-test.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Build binary
         run: make build
