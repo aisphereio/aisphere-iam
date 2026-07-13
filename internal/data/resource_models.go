@@ -19,6 +19,7 @@ type ProjectModel struct {
 	Visibility      string     `gorm:"column:visibility;not null;default:'private'" json:"visibility"`
 	LabelsJSON      string     `gorm:"column:labels_json;type:jsonb;default:'{}'" json:"labels_json"`
 	AnnotationsJSON string     `gorm:"column:annotations_json;type:jsonb;default:'{}'" json:"annotations_json"`
+	MetadataJSON    string     `gorm:"column:metadata_json;type:jsonb;default:'{}'" json:"metadata_json"`
 	CreatedBy       string     `gorm:"column:created_by" json:"created_by"`
 	CreatedAt       time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt       time.Time  `gorm:"column:updated_at;autoUpdateTime" json:"updated_at"`

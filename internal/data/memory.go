@@ -92,14 +92,16 @@ func (r *MemoryControlPlaneRepository) saveEvent(event *OutboxEventModel) {
 	}
 }
 
-func (r *MemoryControlPlaneRepository) CreateProject(ctx context.Context, p *ProjectModel, event *OutboxEventModel) error {
+func (r *MemoryControlPlaneRepository) CreateProject(ctx context.Context, p *ProjectModel, events ...*OutboxEventModel) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	v := clone(p)
 	v.CreatedAt = nowIfZero(v.CreatedAt)
 	v.UpdatedAt = nowIfZero(v.UpdatedAt)
 	r.projects[v.ID] = v
-	r.saveEvent(event)
+	for _, event := range events {
+		r.saveEvent(event)
+	}
 	return nil
 }
 func (r *MemoryControlPlaneRepository) GetProject(ctx context.Context, id string) (*ProjectModel, error) {
@@ -197,7 +199,7 @@ func (r *MemoryControlPlaneRepository) ListResourceTypes(ctx context.Context, op
 	return out, nil
 }
 
-func (r *MemoryControlPlaneRepository) UpsertResource(ctx context.Context, res *ResourceModel, event *OutboxEventModel) error {
+func (r *MemoryControlPlaneRepository) UpsertResource(ctx context.Context, res *ResourceModel, events ...*OutboxEventModel) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	v := clone(res)
@@ -207,7 +209,9 @@ func (r *MemoryControlPlaneRepository) UpsertResource(ctx context.Context, res *
 		v.Status = StatusActive
 	}
 	r.resources[key(v.Type, v.ID)] = v
-	r.saveEvent(event)
+	for _, event := range events {
+		r.saveEvent(event)
+	}
 	return nil
 }
 func (r *MemoryControlPlaneRepository) GetResource(ctx context.Context, typ, id string) (*ResourceModel, error) {
@@ -242,7 +246,7 @@ func (r *MemoryControlPlaneRepository) ArchiveResource(ctx context.Context, typ,
 	return nil
 }
 
-func (r *MemoryControlPlaneRepository) BindResource(ctx context.Context, b *ResourceBindingModel, event *OutboxEventModel) error {
+func (r *MemoryControlPlaneRepository) BindResource(ctx context.Context, b *ResourceBindingModel, events ...*OutboxEventModel) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	v := clone(b)
@@ -252,7 +256,9 @@ func (r *MemoryControlPlaneRepository) BindResource(ctx context.Context, b *Reso
 		v.Status = StatusActive
 	}
 	r.bindings[v.ID] = v
-	r.saveEvent(event)
+	for _, event := range events {
+		r.saveEvent(event)
+	}
 	return nil
 }
 func (r *MemoryControlPlaneRepository) ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error) {
@@ -300,7 +306,7 @@ func (r *MemoryControlPlaneRepository) ListRoleTemplates(ctx context.Context, re
 	return out, nil
 }
 
-func (r *MemoryControlPlaneRepository) CreateGrant(ctx context.Context, grant *GrantModel, audit *GrantAuditModel, event *OutboxEventModel) error {
+func (r *MemoryControlPlaneRepository) CreateGrant(ctx context.Context, grant *GrantModel, audit *GrantAuditModel, events ...*OutboxEventModel) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	g := clone(grant)
@@ -309,7 +315,9 @@ func (r *MemoryControlPlaneRepository) CreateGrant(ctx context.Context, grant *G
 	if audit != nil {
 		r.audits[audit.ID] = clone(audit)
 	}
-	r.saveEvent(event)
+	for _, event := range events {
+		r.saveEvent(event)
+	}
 	return nil
 }
 func (r *MemoryControlPlaneRepository) GetGrant(ctx context.Context, id string) (*GrantModel, error) {
@@ -321,7 +329,7 @@ func (r *MemoryControlPlaneRepository) GetGrant(ctx context.Context, id string) 
 	}
 	return clone(v), nil
 }
-func (r *MemoryControlPlaneRepository) RevokeGrant(ctx context.Context, id string, revokedAt time.Time, audit *GrantAuditModel, event *OutboxEventModel) error {
+func (r *MemoryControlPlaneRepository) RevokeGrant(ctx context.Context, id string, revokedAt time.Time, audit *GrantAuditModel, events ...*OutboxEventModel) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	v := r.grants[id]
@@ -333,7 +341,9 @@ func (r *MemoryControlPlaneRepository) RevokeGrant(ctx context.Context, id strin
 	if audit != nil {
 		r.audits[audit.ID] = clone(audit)
 	}
-	r.saveEvent(event)
+	for _, event := range events {
+		r.saveEvent(event)
+	}
 	return nil
 }
 func (r *MemoryControlPlaneRepository) ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error) {

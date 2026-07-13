@@ -15,7 +15,6 @@ lint:
     - PACKAGE_VERSION_SUFFIX
     - DIRECTORY_SAME_PACKAGE
     - ENUM_NO_ALLOW_ALIAS
-    - IMPORT_NO_UNUSED
 deps:
   - buf.build/googleapis/googleapis
   - buf.build/grpc-ecosystem/grpc-gateway

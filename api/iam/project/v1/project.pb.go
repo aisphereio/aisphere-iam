@@ -13,6 +13,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
@@ -887,6 +888,7 @@ type UpdateProjectRequest struct {
 	Labels        map[string]string      `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Annotations   map[string]string      `protobuf:"bytes,6,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Metadata      *structpb.Struct       `protobuf:"bytes,7,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,8,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -966,6 +968,13 @@ func (x *UpdateProjectRequest) GetAnnotations() map[string]string {
 func (x *UpdateProjectRequest) GetMetadata() *structpb.Struct {
 	if x != nil {
 		return x.Metadata
+	}
+	return nil
+}
+
+func (x *UpdateProjectRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
 	}
 	return nil
 }
@@ -1390,7 +1399,7 @@ var File_iam_project_v1_project_proto protoreflect.FileDescriptor
 
 const file_iam_project_v1_project_proto_rawDesc = "" +
 	"\n" +
-	"\x1ciam/project/v1/project.proto\x12\x0eiam.project.v1\x1a\x1faisphere/access/v1/access.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1eiam/resource/v1/resource.proto\"\xf3\x06\n" +
+	"\x1ciam/project/v1/project.proto\x12\x0eiam.project.v1\x1a\x1faisphere/access/v1/access.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1eiam/resource/v1/resource.proto\"\xf3\x06\n" +
 	"\aProject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x12\n" +
@@ -1493,7 +1502,7 @@ const file_iam_project_v1_project_proto_rawDesc = "" +
 	"\bprojects\x18\x01 \x03(\v2\x17.iam.project.v1.ProjectR\bprojects\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x95\x04\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xd2\x04\n" +
 	"\x14UpdateProjectRequest\x12\"\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tprojectId\x12!\n" +
@@ -1504,7 +1513,9 @@ const file_iam_project_v1_project_proto_rawDesc = "" +
 	"visibility\x12H\n" +
 	"\x06labels\x18\x05 \x03(\v20.iam.project.v1.UpdateProjectRequest.LabelsEntryR\x06labels\x12W\n" +
 	"\vannotations\x18\x06 \x03(\v25.iam.project.v1.UpdateProjectRequest.AnnotationsEntryR\vannotations\x123\n" +
-	"\bmetadata\x18\a \x01(\v2\x17.google.protobuf.StructR\bmetadata\x1a9\n" +
+	"\bmetadata\x18\a \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12;\n" +
+	"\vupdate_mask\x18\b \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
@@ -1623,6 +1634,7 @@ var file_iam_project_v1_project_proto_goTypes = []any{
 	(*structpb.Struct)(nil),                 // 26: google.protobuf.Struct
 	(*v1.SubjectRef)(nil),                   // 27: iam.resource.v1.SubjectRef
 	(*timestamppb.Timestamp)(nil),           // 28: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),           // 29: google.protobuf.FieldMask
 }
 var file_iam_project_v1_project_proto_depIdxs = []int32{
 	0,  // 0: iam.project.v1.Project.status:type_name -> iam.project.v1.LifecycleStatus
@@ -1654,37 +1666,38 @@ var file_iam_project_v1_project_proto_depIdxs = []int32{
 	24, // 26: iam.project.v1.UpdateProjectRequest.labels:type_name -> iam.project.v1.UpdateProjectRequest.LabelsEntry
 	25, // 27: iam.project.v1.UpdateProjectRequest.annotations:type_name -> iam.project.v1.UpdateProjectRequest.AnnotationsEntry
 	26, // 28: iam.project.v1.UpdateProjectRequest.metadata:type_name -> google.protobuf.Struct
-	4,  // 29: iam.project.v1.RegisterCapabilityRequest.capability:type_name -> iam.project.v1.Capability
-	0,  // 30: iam.project.v1.ListCapabilitiesRequest.status:type_name -> iam.project.v1.LifecycleStatus
-	4,  // 31: iam.project.v1.ListCapabilitiesReply.capabilities:type_name -> iam.project.v1.Capability
-	26, // 32: iam.project.v1.EnableProjectCapabilityRequest.config:type_name -> google.protobuf.Struct
-	26, // 33: iam.project.v1.EnableProjectCapabilityRequest.quota:type_name -> google.protobuf.Struct
-	5,  // 34: iam.project.v1.ListProjectCapabilitiesReply.capabilities:type_name -> iam.project.v1.ProjectCapability
-	6,  // 35: iam.project.v1.ProjectService.CreateProject:input_type -> iam.project.v1.CreateProjectRequest
-	7,  // 36: iam.project.v1.ProjectService.GetProject:input_type -> iam.project.v1.GetProjectRequest
-	8,  // 37: iam.project.v1.ProjectService.ListProjects:input_type -> iam.project.v1.ListProjectsRequest
-	10, // 38: iam.project.v1.ProjectService.UpdateProject:input_type -> iam.project.v1.UpdateProjectRequest
-	11, // 39: iam.project.v1.ProjectService.ArchiveProject:input_type -> iam.project.v1.ArchiveProjectRequest
-	12, // 40: iam.project.v1.ProjectService.RegisterCapability:input_type -> iam.project.v1.RegisterCapabilityRequest
-	13, // 41: iam.project.v1.ProjectService.ListCapabilities:input_type -> iam.project.v1.ListCapabilitiesRequest
-	15, // 42: iam.project.v1.ProjectService.EnableProjectCapability:input_type -> iam.project.v1.EnableProjectCapabilityRequest
-	16, // 43: iam.project.v1.ProjectService.DisableProjectCapability:input_type -> iam.project.v1.DisableProjectCapabilityRequest
-	17, // 44: iam.project.v1.ProjectService.ListProjectCapabilities:input_type -> iam.project.v1.ListProjectCapabilitiesRequest
-	2,  // 45: iam.project.v1.ProjectService.CreateProject:output_type -> iam.project.v1.Project
-	2,  // 46: iam.project.v1.ProjectService.GetProject:output_type -> iam.project.v1.Project
-	9,  // 47: iam.project.v1.ProjectService.ListProjects:output_type -> iam.project.v1.ListProjectsReply
-	2,  // 48: iam.project.v1.ProjectService.UpdateProject:output_type -> iam.project.v1.Project
-	2,  // 49: iam.project.v1.ProjectService.ArchiveProject:output_type -> iam.project.v1.Project
-	4,  // 50: iam.project.v1.ProjectService.RegisterCapability:output_type -> iam.project.v1.Capability
-	14, // 51: iam.project.v1.ProjectService.ListCapabilities:output_type -> iam.project.v1.ListCapabilitiesReply
-	5,  // 52: iam.project.v1.ProjectService.EnableProjectCapability:output_type -> iam.project.v1.ProjectCapability
-	5,  // 53: iam.project.v1.ProjectService.DisableProjectCapability:output_type -> iam.project.v1.ProjectCapability
-	18, // 54: iam.project.v1.ProjectService.ListProjectCapabilities:output_type -> iam.project.v1.ListProjectCapabilitiesReply
-	45, // [45:55] is the sub-list for method output_type
-	35, // [35:45] is the sub-list for method input_type
-	35, // [35:35] is the sub-list for extension type_name
-	35, // [35:35] is the sub-list for extension extendee
-	0,  // [0:35] is the sub-list for field type_name
+	29, // 29: iam.project.v1.UpdateProjectRequest.update_mask:type_name -> google.protobuf.FieldMask
+	4,  // 30: iam.project.v1.RegisterCapabilityRequest.capability:type_name -> iam.project.v1.Capability
+	0,  // 31: iam.project.v1.ListCapabilitiesRequest.status:type_name -> iam.project.v1.LifecycleStatus
+	4,  // 32: iam.project.v1.ListCapabilitiesReply.capabilities:type_name -> iam.project.v1.Capability
+	26, // 33: iam.project.v1.EnableProjectCapabilityRequest.config:type_name -> google.protobuf.Struct
+	26, // 34: iam.project.v1.EnableProjectCapabilityRequest.quota:type_name -> google.protobuf.Struct
+	5,  // 35: iam.project.v1.ListProjectCapabilitiesReply.capabilities:type_name -> iam.project.v1.ProjectCapability
+	6,  // 36: iam.project.v1.ProjectService.CreateProject:input_type -> iam.project.v1.CreateProjectRequest
+	7,  // 37: iam.project.v1.ProjectService.GetProject:input_type -> iam.project.v1.GetProjectRequest
+	8,  // 38: iam.project.v1.ProjectService.ListProjects:input_type -> iam.project.v1.ListProjectsRequest
+	10, // 39: iam.project.v1.ProjectService.UpdateProject:input_type -> iam.project.v1.UpdateProjectRequest
+	11, // 40: iam.project.v1.ProjectService.ArchiveProject:input_type -> iam.project.v1.ArchiveProjectRequest
+	12, // 41: iam.project.v1.ProjectService.RegisterCapability:input_type -> iam.project.v1.RegisterCapabilityRequest
+	13, // 42: iam.project.v1.ProjectService.ListCapabilities:input_type -> iam.project.v1.ListCapabilitiesRequest
+	15, // 43: iam.project.v1.ProjectService.EnableProjectCapability:input_type -> iam.project.v1.EnableProjectCapabilityRequest
+	16, // 44: iam.project.v1.ProjectService.DisableProjectCapability:input_type -> iam.project.v1.DisableProjectCapabilityRequest
+	17, // 45: iam.project.v1.ProjectService.ListProjectCapabilities:input_type -> iam.project.v1.ListProjectCapabilitiesRequest
+	2,  // 46: iam.project.v1.ProjectService.CreateProject:output_type -> iam.project.v1.Project
+	2,  // 47: iam.project.v1.ProjectService.GetProject:output_type -> iam.project.v1.Project
+	9,  // 48: iam.project.v1.ProjectService.ListProjects:output_type -> iam.project.v1.ListProjectsReply
+	2,  // 49: iam.project.v1.ProjectService.UpdateProject:output_type -> iam.project.v1.Project
+	2,  // 50: iam.project.v1.ProjectService.ArchiveProject:output_type -> iam.project.v1.Project
+	4,  // 51: iam.project.v1.ProjectService.RegisterCapability:output_type -> iam.project.v1.Capability
+	14, // 52: iam.project.v1.ProjectService.ListCapabilities:output_type -> iam.project.v1.ListCapabilitiesReply
+	5,  // 53: iam.project.v1.ProjectService.EnableProjectCapability:output_type -> iam.project.v1.ProjectCapability
+	5,  // 54: iam.project.v1.ProjectService.DisableProjectCapability:output_type -> iam.project.v1.ProjectCapability
+	18, // 55: iam.project.v1.ProjectService.ListProjectCapabilities:output_type -> iam.project.v1.ListProjectCapabilitiesReply
+	46, // [46:56] is the sub-list for method output_type
+	36, // [36:46] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_iam_project_v1_project_proto_init() }
