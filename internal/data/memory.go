@@ -261,16 +261,45 @@ func (r *MemoryControlPlaneRepository) BindResource(ctx context.Context, b *Reso
 	}
 	return nil
 }
-func (r *MemoryControlPlaneRepository) ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error) {
+func (r *MemoryControlPlaneRepository) GetResourceBinding(_ context.Context, id string) (*ResourceBindingModel, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	v := r.bindings[id]
+	if v == nil {
+		return nil, fmt.Errorf("%w: resource binding %s", ErrNotFound, id)
+	}
+	return clone(v), nil
+}
+
+func (r *MemoryControlPlaneRepository) UnbindResource(_ context.Context, id string, events ...*OutboxEventModel) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	v := r.bindings[id]
+	if v == nil {
+		return fmt.Errorf("%w: resource binding %s", ErrNotFound, id)
+	}
+	v.Status = StatusArchived
+	v.UpdatedAt = time.Now().UTC()
+	for _, event := range events {
+		r.saveEvent(event)
+	}
+	return nil
+}
+
+func (r *MemoryControlPlaneRepository) ListResourceBindings(_ context.Context, opts ListOptions) (*Page[ResourceBindingModel], error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	var out []ResourceBindingModel
 	for _, v := range r.bindings {
-		if (opts.ResourceType == "" || v.SourceType == opts.ResourceType) && (opts.ResourceID == "" || v.SourceID == opts.ResourceID) && statusOK(v.Status, opts.Status) {
+		if (opts.ResourceType == "" || v.SourceType == opts.ResourceType) &&
+			(opts.ResourceID == "" || v.SourceID == opts.ResourceID) &&
+			(opts.TargetType == "" || v.TargetType == opts.TargetType) &&
+			(opts.TargetID == "" || v.TargetID == opts.TargetID) &&
+			(opts.Relation == "" || v.Relation == opts.Relation) && statusOK(v.Status, opts.Status) {
 			out = append(out, *clone(v))
 		}
 	}
-	return out, nil
+	return pageOf(out, opts.Page, opts.Size), nil
 }
 func (r *MemoryControlPlaneRepository) BindExternalResource(ctx context.Context, b *ExternalResourceBindingModel) error {
 	r.mu.Lock()
@@ -283,6 +312,22 @@ func (r *MemoryControlPlaneRepository) BindExternalResource(ctx context.Context,
 	}
 	r.externalBindings[v.ID] = v
 	return nil
+}
+
+func (r *MemoryControlPlaneRepository) ListExternalResourceBindings(_ context.Context, opts ListOptions) (*Page[ExternalResourceBindingModel], error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	var out []ExternalResourceBindingModel
+	for _, v := range r.externalBindings {
+		if (opts.ResourceType == "" || v.ResourceType == opts.ResourceType) &&
+			(opts.ResourceID == "" || v.ResourceID == opts.ResourceID) &&
+			(opts.Provider == "" || v.Provider == opts.Provider) &&
+			(opts.ExternalType == "" || v.ExternalType == opts.ExternalType) &&
+			(opts.ExternalID == "" || v.ExternalID == opts.ExternalID) && statusOK(v.SyncStatus, opts.Status) {
+			out = append(out, *clone(v))
+		}
+	}
+	return pageOf(out, opts.Page, opts.Size), nil
 }
 
 func (r *MemoryControlPlaneRepository) UpsertRoleTemplate(ctx context.Context, role *RoleTemplateModel) error {

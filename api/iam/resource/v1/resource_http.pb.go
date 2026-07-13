@@ -20,14 +20,12 @@ const _ = http.SupportPackageIsVersion3
 const OperationResourceServiceArchiveResource = "/iam.resource.v1.ResourceService/ArchiveResource"
 const OperationResourceServiceBindExternalResource = "/iam.resource.v1.ResourceService/BindExternalResource"
 const OperationResourceServiceBindResource = "/iam.resource.v1.ResourceService/BindResource"
-const OperationResourceServiceDeleteResource = "/iam.resource.v1.ResourceService/DeleteResource"
 const OperationResourceServiceGetResource = "/iam.resource.v1.ResourceService/GetResource"
 const OperationResourceServiceGetResourceType = "/iam.resource.v1.ResourceService/GetResourceType"
 const OperationResourceServiceListExternalResourceBindings = "/iam.resource.v1.ResourceService/ListExternalResourceBindings"
 const OperationResourceServiceListResourceBindings = "/iam.resource.v1.ResourceService/ListResourceBindings"
 const OperationResourceServiceListResourceTypes = "/iam.resource.v1.ResourceService/ListResourceTypes"
 const OperationResourceServiceListResources = "/iam.resource.v1.ResourceService/ListResources"
-const OperationResourceServiceMoveResource = "/iam.resource.v1.ResourceService/MoveResource"
 const OperationResourceServiceRegisterResourceType = "/iam.resource.v1.ResourceService/RegisterResourceType"
 const OperationResourceServiceUnbindResource = "/iam.resource.v1.ResourceService/UnbindResource"
 const OperationResourceServiceUpsertResource = "/iam.resource.v1.ResourceService/UpsertResource"
@@ -36,14 +34,12 @@ type ResourceServiceHTTPServer interface {
 	ArchiveResource(context.Context, *ArchiveResourceRequest) (*Resource, error)
 	BindExternalResource(context.Context, *BindExternalResourceRequest) (*ExternalResourceBinding, error)
 	BindResource(context.Context, *BindResourceRequest) (*ResourceBinding, error)
-	DeleteResource(context.Context, *DeleteResourceRequest) (*DeleteResourceReply, error)
 	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
 	GetResourceType(context.Context, *GetResourceTypeRequest) (*ResourceType, error)
 	ListExternalResourceBindings(context.Context, *ListExternalResourceBindingsRequest) (*ListExternalResourceBindingsReply, error)
 	ListResourceBindings(context.Context, *ListResourceBindingsRequest) (*ListResourceBindingsReply, error)
 	ListResourceTypes(context.Context, *ListResourceTypesRequest) (*ListResourceTypesReply, error)
 	ListResources(context.Context, *ListResourcesRequest) (*ListResourcesReply, error)
-	MoveResource(context.Context, *MoveResourceRequest) (*Resource, error)
 	RegisterResourceType(context.Context, *RegisterResourceTypeRequest) (*ResourceType, error)
 	UnbindResource(context.Context, *UnbindResourceRequest) (*UnbindResourceReply, error)
 	UpsertResource(context.Context, *UpsertResourceRequest) (*Resource, error)
@@ -51,7 +47,6 @@ type ResourceServiceHTTPServer interface {
 
 func RegisterResourceServiceHTTPServer(s *http.Server, srv ResourceServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("DELETE", "/v1/iam/control-plane/resources/{resource_type}/{resource_id}", _ResourceService_DeleteResource0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/control-plane/external-resource-bindings", _ResourceService_ListExternalResourceBindings0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/control-plane/resource-bindings", _ResourceService_ListResourceBindings0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/control-plane/resource-types", _ResourceService_ListResourceTypes0_HTTP_Handler(srv))
@@ -63,33 +58,7 @@ func RegisterResourceServiceHTTPServer(s *http.Server, srv ResourceServiceHTTPSe
 	r.Handle("POST", "/v1/iam/control-plane/resource-types", _ResourceService_RegisterResourceType0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/resource-bindings/{binding_id}/unbind", _ResourceService_UnbindResource0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive", _ResourceService_ArchiveResource0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move", _ResourceService_MoveResource0_HTTP_Handler(srv))
 	r.Handle("PUT", "/v1/iam/control-plane/resources", _ResourceService_UpsertResource0_HTTP_Handler(srv))
-}
-
-func _ResourceService_DeleteResource0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteResourceRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationResourceServiceDeleteResource)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteResource(ctx, req.(*DeleteResourceRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*DeleteResourceReply)
-		return ctx.Result(200, reply)
-	}
 }
 
 func _ResourceService_ListExternalResourceBindings0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
@@ -346,31 +315,6 @@ func _ResourceService_ArchiveResource0_HTTP_Handler(srv ResourceServiceHTTPServe
 	}
 }
 
-func _ResourceService_MoveResource0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in MoveResourceRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationResourceServiceMoveResource)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.MoveResource(ctx, req.(*MoveResourceRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*Resource)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _ResourceService_UpsertResource0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in UpsertResourceRequest
@@ -397,14 +341,12 @@ type ResourceServiceHTTPClient interface {
 	ArchiveResource(ctx context.Context, req *ArchiveResourceRequest, opts ...http.CallOption) (rsp *Resource, err error)
 	BindExternalResource(ctx context.Context, req *BindExternalResourceRequest, opts ...http.CallOption) (rsp *ExternalResourceBinding, err error)
 	BindResource(ctx context.Context, req *BindResourceRequest, opts ...http.CallOption) (rsp *ResourceBinding, err error)
-	DeleteResource(ctx context.Context, req *DeleteResourceRequest, opts ...http.CallOption) (rsp *DeleteResourceReply, err error)
 	GetResource(ctx context.Context, req *GetResourceRequest, opts ...http.CallOption) (rsp *Resource, err error)
 	GetResourceType(ctx context.Context, req *GetResourceTypeRequest, opts ...http.CallOption) (rsp *ResourceType, err error)
 	ListExternalResourceBindings(ctx context.Context, req *ListExternalResourceBindingsRequest, opts ...http.CallOption) (rsp *ListExternalResourceBindingsReply, err error)
 	ListResourceBindings(ctx context.Context, req *ListResourceBindingsRequest, opts ...http.CallOption) (rsp *ListResourceBindingsReply, err error)
 	ListResourceTypes(ctx context.Context, req *ListResourceTypesRequest, opts ...http.CallOption) (rsp *ListResourceTypesReply, err error)
 	ListResources(ctx context.Context, req *ListResourcesRequest, opts ...http.CallOption) (rsp *ListResourcesReply, err error)
-	MoveResource(ctx context.Context, req *MoveResourceRequest, opts ...http.CallOption) (rsp *Resource, err error)
 	RegisterResourceType(ctx context.Context, req *RegisterResourceTypeRequest, opts ...http.CallOption) (rsp *ResourceType, err error)
 	UnbindResource(ctx context.Context, req *UnbindResourceRequest, opts ...http.CallOption) (rsp *UnbindResourceReply, err error)
 	UpsertResource(ctx context.Context, req *UpsertResourceRequest, opts ...http.CallOption) (rsp *Resource, err error)
@@ -463,22 +405,6 @@ func (c *ResourceServiceHTTPClientImpl) BindResource(ctx context.Context, in *Bi
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *ResourceServiceHTTPClientImpl) DeleteResource(ctx context.Context, in *DeleteResourceRequest, opts ...http.CallOption) (*DeleteResourceReply, error) {
-	var out DeleteResourceReply
-	pattern := "/v1/iam/control-plane/resources/{resource_type}/{resource_id}"
-	path := http.BuildPath(pattern, in, http.WithQueryParams())
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.Operation(OperationResourceServiceDeleteResource),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -575,23 +501,6 @@ func (c *ResourceServiceHTTPClientImpl) ListResources(ctx context.Context, in *L
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *ResourceServiceHTTPClientImpl) MoveResource(ctx context.Context, in *MoveResourceRequest, opts ...http.CallOption) (*Resource, error) {
-	var out Resource
-	pattern := "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationResourceServiceMoveResource),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -25,9 +25,7 @@ const (
 	ResourceService_UpsertResource_FullMethodName               = "/iam.resource.v1.ResourceService/UpsertResource"
 	ResourceService_GetResource_FullMethodName                  = "/iam.resource.v1.ResourceService/GetResource"
 	ResourceService_ListResources_FullMethodName                = "/iam.resource.v1.ResourceService/ListResources"
-	ResourceService_MoveResource_FullMethodName                 = "/iam.resource.v1.ResourceService/MoveResource"
 	ResourceService_ArchiveResource_FullMethodName              = "/iam.resource.v1.ResourceService/ArchiveResource"
-	ResourceService_DeleteResource_FullMethodName               = "/iam.resource.v1.ResourceService/DeleteResource"
 	ResourceService_BindResource_FullMethodName                 = "/iam.resource.v1.ResourceService/BindResource"
 	ResourceService_UnbindResource_FullMethodName               = "/iam.resource.v1.ResourceService/UnbindResource"
 	ResourceService_ListResourceBindings_FullMethodName         = "/iam.resource.v1.ResourceService/ListResourceBindings"
@@ -49,9 +47,7 @@ type ResourceServiceClient interface {
 	UpsertResource(ctx context.Context, in *UpsertResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	ListResources(ctx context.Context, in *ListResourcesRequest, opts ...grpc.CallOption) (*ListResourcesReply, error)
-	MoveResource(ctx context.Context, in *MoveResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	ArchiveResource(ctx context.Context, in *ArchiveResourceRequest, opts ...grpc.CallOption) (*Resource, error)
-	DeleteResource(ctx context.Context, in *DeleteResourceRequest, opts ...grpc.CallOption) (*DeleteResourceReply, error)
 	BindResource(ctx context.Context, in *BindResourceRequest, opts ...grpc.CallOption) (*ResourceBinding, error)
 	UnbindResource(ctx context.Context, in *UnbindResourceRequest, opts ...grpc.CallOption) (*UnbindResourceReply, error)
 	ListResourceBindings(ctx context.Context, in *ListResourceBindingsRequest, opts ...grpc.CallOption) (*ListResourceBindingsReply, error)
@@ -127,30 +123,10 @@ func (c *resourceServiceClient) ListResources(ctx context.Context, in *ListResou
 	return out, nil
 }
 
-func (c *resourceServiceClient) MoveResource(ctx context.Context, in *MoveResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Resource)
-	err := c.cc.Invoke(ctx, ResourceService_MoveResource_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *resourceServiceClient) ArchiveResource(ctx context.Context, in *ArchiveResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Resource)
 	err := c.cc.Invoke(ctx, ResourceService_ArchiveResource_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *resourceServiceClient) DeleteResource(ctx context.Context, in *DeleteResourceRequest, opts ...grpc.CallOption) (*DeleteResourceReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteResourceReply)
-	err := c.cc.Invoke(ctx, ResourceService_DeleteResource_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -221,9 +197,7 @@ type ResourceServiceServer interface {
 	UpsertResource(context.Context, *UpsertResourceRequest) (*Resource, error)
 	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
 	ListResources(context.Context, *ListResourcesRequest) (*ListResourcesReply, error)
-	MoveResource(context.Context, *MoveResourceRequest) (*Resource, error)
 	ArchiveResource(context.Context, *ArchiveResourceRequest) (*Resource, error)
-	DeleteResource(context.Context, *DeleteResourceRequest) (*DeleteResourceReply, error)
 	BindResource(context.Context, *BindResourceRequest) (*ResourceBinding, error)
 	UnbindResource(context.Context, *UnbindResourceRequest) (*UnbindResourceReply, error)
 	ListResourceBindings(context.Context, *ListResourceBindingsRequest) (*ListResourceBindingsReply, error)
@@ -257,14 +231,8 @@ func (UnimplementedResourceServiceServer) GetResource(context.Context, *GetResou
 func (UnimplementedResourceServiceServer) ListResources(context.Context, *ListResourcesRequest) (*ListResourcesReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListResources not implemented")
 }
-func (UnimplementedResourceServiceServer) MoveResource(context.Context, *MoveResourceRequest) (*Resource, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method MoveResource not implemented")
-}
 func (UnimplementedResourceServiceServer) ArchiveResource(context.Context, *ArchiveResourceRequest) (*Resource, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArchiveResource not implemented")
-}
-func (UnimplementedResourceServiceServer) DeleteResource(context.Context, *DeleteResourceRequest) (*DeleteResourceReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteResource not implemented")
 }
 func (UnimplementedResourceServiceServer) BindResource(context.Context, *BindResourceRequest) (*ResourceBinding, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BindResource not implemented")
@@ -410,24 +378,6 @@ func _ResourceService_ListResources_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ResourceService_MoveResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MoveResourceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResourceServiceServer).MoveResource(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ResourceService_MoveResource_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceServiceServer).MoveResource(ctx, req.(*MoveResourceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ResourceService_ArchiveResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ArchiveResourceRequest)
 	if err := dec(in); err != nil {
@@ -442,24 +392,6 @@ func _ResourceService_ArchiveResource_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ResourceServiceServer).ArchiveResource(ctx, req.(*ArchiveResourceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ResourceService_DeleteResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteResourceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResourceServiceServer).DeleteResource(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ResourceService_DeleteResource_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceServiceServer).DeleteResource(ctx, req.(*DeleteResourceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -586,16 +518,8 @@ var ResourceService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ResourceService_ListResources_Handler,
 		},
 		{
-			MethodName: "MoveResource",
-			Handler:    _ResourceService_MoveResource_Handler,
-		},
-		{
 			MethodName: "ArchiveResource",
 			Handler:    _ResourceService_ArchiveResource_Handler,
-		},
-		{
-			MethodName: "DeleteResource",
-			Handler:    _ResourceService_DeleteResource_Handler,
 		},
 		{
 			MethodName: "BindResource",

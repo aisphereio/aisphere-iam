@@ -118,17 +118,6 @@ var ResourceServiceKernelAuthzRules = authz.Rules{
 		AuditEvent: "iam.resource.list",
 		AuditRisk:  "medium",
 	},
-	"/iam.resource.v1.ResourceService/MoveResource": {
-		Service:    "iam.resource.v1.ResourceService",
-		Method:     "MoveResource",
-		FullMethod: "/iam.resource.v1.ResourceService/MoveResource",
-		Action:     "move",
-		Resource:   "iam:resource",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
-		AuditEvent: "iam.resource.move",
-		AuditRisk:  "high",
-	},
 	"/iam.resource.v1.ResourceService/ArchiveResource": {
 		Service:    "iam.resource.v1.ResourceService",
 		Method:     "ArchiveResource",
@@ -138,17 +127,6 @@ var ResourceServiceKernelAuthzRules = authz.Rules{
 		Audience:   "iam-service",
 		Mode:       authz.RuleMode("CHECK_ONLY"),
 		AuditEvent: "iam.resource.archive",
-		AuditRisk:  "high",
-	},
-	"/iam.resource.v1.ResourceService/DeleteResource": {
-		Service:    "iam.resource.v1.ResourceService",
-		Method:     "DeleteResource",
-		FullMethod: "/iam.resource.v1.ResourceService/DeleteResource",
-		Action:     "delete",
-		Resource:   "iam:resource",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
-		AuditEvent: "iam.resource.delete",
 		AuditRisk:  "high",
 	},
 	"/iam.resource.v1.ResourceService/BindResource": {
@@ -303,21 +281,6 @@ func ResourceServiceKernelRequestInfoResolver(ctx context.Context, operation str
 		info.Labels["audit_event"] = "iam.resource.list"
 		info.Labels["audit_risk"] = "medium"
 		return info.Normalize(), true, nil
-	case "/iam.resource.v1.ResourceService/MoveResource":
-		info := requestx.Info{
-			Service:       "iam.resource.v1.ResourceService",
-			Method:        "MoveResource",
-			Operation:     "/iam.resource.v1.ResourceService/MoveResource",
-			Exposure:      v1.Exposure_INTERNAL,
-			Action:        "move",
-			Resource:      "iam:resource",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "CHECK_ONLY"
-		info.Labels["audit_event"] = "iam.resource.move"
-		info.Labels["audit_risk"] = "high"
-		return info.Normalize(), true, nil
 	case "/iam.resource.v1.ResourceService/ArchiveResource":
 		info := requestx.Info{
 			Service:       "iam.resource.v1.ResourceService",
@@ -331,21 +294,6 @@ func ResourceServiceKernelRequestInfoResolver(ctx context.Context, operation str
 		}
 		info.Labels["authz_mode"] = "CHECK_ONLY"
 		info.Labels["audit_event"] = "iam.resource.archive"
-		info.Labels["audit_risk"] = "high"
-		return info.Normalize(), true, nil
-	case "/iam.resource.v1.ResourceService/DeleteResource":
-		info := requestx.Info{
-			Service:       "iam.resource.v1.ResourceService",
-			Method:        "DeleteResource",
-			Operation:     "/iam.resource.v1.ResourceService/DeleteResource",
-			Exposure:      v1.Exposure_INTERNAL,
-			Action:        "delete",
-			Resource:      "iam:resource",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "CHECK_ONLY"
-		info.Labels["audit_event"] = "iam.resource.delete"
 		info.Labels["audit_risk"] = "high"
 		return info.Normalize(), true, nil
 	case "/iam.resource.v1.ResourceService/BindResource":
@@ -465,12 +413,8 @@ func _ResourceServiceKernelNormalizeOperation(operation string) string {
 		return "/iam.resource.v1.ResourceService/GetResource"
 	case "ListResources", "iam.resource.v1.ResourceService/ListResources":
 		return "/iam.resource.v1.ResourceService/ListResources"
-	case "MoveResource", "iam.resource.v1.ResourceService/MoveResource":
-		return "/iam.resource.v1.ResourceService/MoveResource"
 	case "ArchiveResource", "iam.resource.v1.ResourceService/ArchiveResource":
 		return "/iam.resource.v1.ResourceService/ArchiveResource"
-	case "DeleteResource", "iam.resource.v1.ResourceService/DeleteResource":
-		return "/iam.resource.v1.ResourceService/DeleteResource"
 	case "BindResource", "iam.resource.v1.ResourceService/BindResource":
 		return "/iam.resource.v1.ResourceService/BindResource"
 	case "UnbindResource", "iam.resource.v1.ResourceService/UnbindResource":

@@ -70,16 +70,6 @@ service ResourceService {
     };
   }
 
-  rpc MoveResource(MoveResourceRequest) returns (Resource) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: INTERNAL
-      authz: { action: "move" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.resource.move" risk: "high" }
-      reason: "Resource moves are requested only by trusted resource owner services."
-    };
-  }
-
   rpc ArchiveResource(ArchiveResourceRequest) returns (Resource) {
     option (google.api.http) = { post: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive" body: "*" };
     option (aisphere.access.v1.policy) = {
@@ -87,16 +77,6 @@ service ResourceService {
       authz: { action: "archive" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.resource.archive" risk: "high" }
       reason: "Resource archival is synchronized from trusted resource owner services."
-    };
-  }
-
-  rpc DeleteResource(DeleteResourceRequest) returns (DeleteResourceReply) {
-    option (google.api.http) = { delete: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}" };
-    option (aisphere.access.v1.policy) = {
-      exposure: INTERNAL
-      authz: { action: "delete" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.resource.delete" risk: "high" }
-      reason: "Resource deletion is synchronized from trusted resource owner services."
     };
   }
 
@@ -298,18 +278,6 @@ message ListResourcesReply {
   int64 total_size = 3;
 }
 
-message MoveResourceRequest {
-  string resource_type = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string resource_id = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  ResourceRef new_parent = 3 [(google.api.field_behavior) = REQUIRED];
-}
-
 message ArchiveResourceRequest {
   string resource_type = 1 [
     (google.api.field_behavior) = REQUIRED,
@@ -320,24 +288,6 @@ message ArchiveResourceRequest {
     (buf.validate.field).string.min_len = 1
   ];
   string reason = 3;
-}
-
-message DeleteResourceRequest {
-  string resource_type = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string resource_id = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  bool hard_delete = 3;
-  string reason = 4;
-}
-
-message DeleteResourceReply {
-  ResourceRef ref = 1;
-  bool deleted = 2;
 }
 
 message BindResourceRequest {
