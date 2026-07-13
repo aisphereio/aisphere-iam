@@ -53,7 +53,25 @@ jobs:
         run: go mod tidy
 
       - name: Contract checks
-        run: make KERNEL_VERSION=${KERNEL_VERSION} proto-check
+        id: contract
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          make KERNEL_VERSION=${KERNEL_VERSION} proto-check 2>&1 | tee c2-contract.log
+
+      - name: Upload contract diagnostics
+        if: steps.contract.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: c2-contract-diagnostics
+          path: c2-contract.log
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Enforce contract result
+        if: steps.contract.outcome == 'failure'
+        run: exit 1
 
       - name: Go tests
         run: go test ./... -count=1
