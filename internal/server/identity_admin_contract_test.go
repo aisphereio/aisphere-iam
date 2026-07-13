@@ -8,7 +8,7 @@ import (
 	"github.com/aisphereio/kernel/authz"
 )
 
-func TestIdentityAdminGeneratedAccessUsesGroupManagementModel(t *testing.T) {
+func TestGroupAdminGeneratedAccessUsesGroupManagementModel(t *testing.T) {
 	catalog := IAMCatalog()
 	tests := []struct {
 		name       string
@@ -19,37 +19,37 @@ func TestIdentityAdminGeneratedAccessUsesGroupManagementModel(t *testing.T) {
 	}{
 		{
 			name:       "create top level group checks zone create_groups",
-			operation:  "/iam.v1.IAMIdentityAdminService/CreateGroup",
+			operation:  "/iam.v1.IAMGroupAdminService/CreateGroup",
 			req:        &v1.CreateGroupRequest{OrgId: "aisphere", Group: &v1.Group{Name: "platform"}},
 			resource:   authz.ObjectRef{Type: "zone", ID: "aisphere"},
 			permission: "create_groups",
 		},
 		{
 			name:       "update group checks group manage",
-			operation:  "/iam.v1.IAMIdentityAdminService/UpdateGroup",
+			operation:  "/iam.v1.IAMGroupAdminService/UpdateGroup",
 			req:        &v1.UpdateGroupRequest{OrgId: "aisphere", GroupId: "platform", Group: &v1.Group{Name: "platform"}},
-			resource:   authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
+			resource:   authz.ObjectRef{Type: "group", ID: "platform"},
 			permission: "manage",
 		},
 		{
 			name:       "delete group checks group manage",
-			operation:  "/iam.v1.IAMIdentityAdminService/DeleteGroup",
+			operation:  "/iam.v1.IAMGroupAdminService/DeleteGroup",
 			req:        &v1.DeleteGroupRequest{OrgId: "aisphere", GroupId: "platform"},
-			resource:   authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
+			resource:   authz.ObjectRef{Type: "group", ID: "platform"},
 			permission: "manage",
 		},
 		{
 			name:       "assign group member checks group manage",
-			operation:  "/iam.v1.IAMIdentityAdminService/AssignUserToGroup",
+			operation:  "/iam.v1.IAMGroupAdminService/AssignUserToGroup",
 			req:        &v1.AssignUserToGroupRequest{OrgId: "aisphere", GroupId: "platform", UserId: "user-1"},
-			resource:   authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
+			resource:   authz.ObjectRef{Type: "group", ID: "platform"},
 			permission: "manage",
 		},
 		{
 			name:       "remove group member checks group manage",
-			operation:  "/iam.v1.IAMIdentityAdminService/RemoveUserFromGroup",
+			operation:  "/iam.v1.IAMGroupAdminService/RemoveUserFromGroup",
 			req:        &v1.RemoveUserFromGroupRequest{OrgId: "aisphere", GroupId: "platform", UserId: "user-1"},
-			resource:   authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
+			resource:   authz.ObjectRef{Type: "group", ID: "platform"},
 			permission: "manage",
 		},
 	}
@@ -73,10 +73,10 @@ func TestIdentityAdminGeneratedAccessUsesGroupManagementModel(t *testing.T) {
 	}
 }
 
-func TestIdentityAdminGeneratedGatewayUsesPatchForGroupUpdate(t *testing.T) {
-	manifest := v1.IAMIdentityAdminServiceGatewayManifest()
+func TestGroupAdminGeneratedGatewayUsesPatchForGroupUpdate(t *testing.T) {
+	manifest := v1.IAMGroupAdminServiceGatewayManifest()
 	for _, route := range manifest.Routes {
-		if route.Upstream.Operation != "/iam.v1.IAMIdentityAdminService/UpdateGroup" {
+		if route.Upstream.Operation != "/iam.v1.IAMGroupAdminService/UpdateGroup" {
 			continue
 		}
 		if route.Method != "PATCH" {
@@ -85,4 +85,18 @@ func TestIdentityAdminGeneratedGatewayUsesPatchForGroupUpdate(t *testing.T) {
 		return
 	}
 	t.Fatal("UpdateGroup route not found in generated gateway manifest")
+}
+
+func TestIdentityAdminHasNoGroupOperations(t *testing.T) {
+	manifest := v1.IAMIdentityAdminServiceGatewayManifest()
+	for _, route := range manifest.Routes {
+		switch route.Upstream.Operation {
+		case "/iam.v1.IAMIdentityAdminService/CreateGroup",
+			"/iam.v1.IAMIdentityAdminService/UpdateGroup",
+			"/iam.v1.IAMIdentityAdminService/DeleteGroup",
+			"/iam.v1.IAMIdentityAdminService/AssignUserToGroup",
+			"/iam.v1.IAMIdentityAdminService/RemoveUserFromGroup":
+			t.Fatalf("IAMIdentityAdminService still exposes group operation: %s", route.Upstream.Operation)
+		}
+	}
 }
