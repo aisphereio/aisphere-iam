@@ -6,8 +6,8 @@ import (
 
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
-	accessv1 "github.com/aisphereio/kernel/api/aisphere/access/v1"
 	"github.com/aisphereio/kernel/accessx"
+	accessv1 "github.com/aisphereio/kernel/api/aisphere/access/v1"
 	"github.com/aisphereio/kernel/middleware"
 	accessmw "github.com/aisphereio/kernel/middleware/access"
 	"github.com/aisphereio/kernel/securityx"
@@ -29,15 +29,15 @@ func iamServerMiddlewares(resources *data.Resources, cfg conf.SecurityConfig) []
 }
 
 func mustSecurityRuntime(cfg conf.SecurityConfig) *securityx.Runtime {
-		// IAM runs behind Envoy Gateway with NetworkPolicy/mTLS boundary.
-		// Internal token is disabled; trust is provided by network isolation.
-		internalCall := cfg.InternalCall
-		if strings.EqualFold(cfg.Authn.Mode, securityx.AuthnModeGatewayTrusted) {
-			internalCall.Enabled = false
-			internalCall.Token = ""
-		}
+	// IAM runs behind Envoy Gateway with NetworkPolicy/mTLS boundary.
+	// Internal token is disabled; trust is provided by network isolation.
+	internalCall := cfg.InternalCall
+	if strings.EqualFold(cfg.Authn.Mode, securityx.AuthnModeGatewayTrusted) {
+		internalCall.Enabled = false
+		internalCall.Token = ""
+	}
 
-		runtime, err := securityx.NewRuntime(context.Background(), securityx.Config{
+	runtime, err := securityx.NewRuntime(context.Background(), securityx.Config{
 		Authn: securityx.AuthnBoundaryConfig{
 			Enabled:        cfg.Authn.Enabled,
 			Mode:           cfg.Authn.Mode,
@@ -86,10 +86,6 @@ func iamSkipPolicyResolver(catalog serverx.ServiceCatalog) accessmw.SkipPolicyRe
 			if strings.EqualFold(info.Labels["authz_mode"], "SELF_CHECK") {
 				return accessx.SkipAuthz
 			}
-		}
-		switch op {
-		case "CreateOrganization", "iam.project.v1.ProjectService/CreateOrganization", "/iam.project.v1.ProjectService/CreateOrganization":
-			return accessx.SkipAuthz
 		}
 		return accessx.SkipDefault
 	}

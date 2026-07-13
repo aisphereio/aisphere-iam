@@ -325,7 +325,7 @@ func toAuthzSubject(s SubjectRef) authz.SubjectRef {
 func (s *Service) resourceByRef(ctx context.Context, ref ResourceRef) (any, error) {
 	switch strings.TrimSpace(ref.Type) {
 	case "organization":
-		return s.repo.GetOrganization(ctx, ref.ID)
+		return nil, errors.New("resource type organization is removed; use zone")
 	case "project":
 		return s.repo.GetProject(ctx, ref.ID)
 	case "zone", "group":

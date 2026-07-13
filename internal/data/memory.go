@@ -14,7 +14,6 @@ var ErrNotFound = errors.New("iam data: not found")
 
 type MemoryControlPlaneRepository struct {
 	mu               sync.RWMutex
-	orgs             map[string]*OrganizationModel
 	projects         map[string]*ProjectModel
 	caps             map[string]*CapabilityModel
 	projectCaps      map[string]*ProjectCapabilityModel
@@ -31,7 +30,7 @@ type MemoryControlPlaneRepository struct {
 
 func NewMemoryControlPlaneRepository() *MemoryControlPlaneRepository {
 	return &MemoryControlPlaneRepository{
-		orgs: map[string]*OrganizationModel{}, projects: map[string]*ProjectModel{}, caps: map[string]*CapabilityModel{}, projectCaps: map[string]*ProjectCapabilityModel{},
+		projects: map[string]*ProjectModel{}, caps: map[string]*CapabilityModel{}, projectCaps: map[string]*ProjectCapabilityModel{},
 		resourceTypes: map[string]*ResourceTypeModel{}, resources: map[string]*ResourceModel{}, bindings: map[string]*ResourceBindingModel{}, externalBindings: map[string]*ExternalResourceBindingModel{},
 		roles: map[string]*RoleTemplateModel{}, grants: map[string]*GrantModel{}, audits: map[string]*GrantAuditModel{}, events: map[string]*OutboxEventModel{}, localUsers: map[string]*LocalUserModel{},
 	}
@@ -91,46 +90,6 @@ func (r *MemoryControlPlaneRepository) saveEvent(event *OutboxEventModel) {
 		}
 		r.events[e.ID] = e
 	}
-}
-
-func (r *MemoryControlPlaneRepository) CreateOrganization(ctx context.Context, org *OrganizationModel, event *OutboxEventModel) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	o := clone(org)
-	o.CreatedAt = nowIfZero(o.CreatedAt)
-	o.UpdatedAt = nowIfZero(o.UpdatedAt)
-	r.orgs[o.ID] = o
-	r.saveEvent(event)
-	return nil
-}
-func (r *MemoryControlPlaneRepository) UpsertOrganization(ctx context.Context, org *OrganizationModel) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	o := clone(org)
-	o.CreatedAt = nowIfZero(o.CreatedAt)
-	o.UpdatedAt = nowIfZero(o.UpdatedAt)
-	r.orgs[o.ID] = o
-	return nil
-}
-func (r *MemoryControlPlaneRepository) GetOrganization(ctx context.Context, id string) (*OrganizationModel, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	v := r.orgs[id]
-	if v == nil {
-		return nil, fmt.Errorf("%w: organization %s", ErrNotFound, id)
-	}
-	return clone(v), nil
-}
-func (r *MemoryControlPlaneRepository) ListOrganizations(ctx context.Context, opts ListOptions) (*Page[OrganizationModel], error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	var out []OrganizationModel
-	for _, v := range r.orgs {
-		if statusOK(v.Status, opts.Status) && containsFold(v.Slug+" "+v.DisplayName, opts.Q) {
-			out = append(out, *clone(v))
-		}
-	}
-	return pageOf(out, opts.Page, opts.Size), nil
 }
 
 func (r *MemoryControlPlaneRepository) CreateProject(ctx context.Context, p *ProjectModel, event *OutboxEventModel) error {

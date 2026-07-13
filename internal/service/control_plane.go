@@ -32,72 +32,15 @@ func NewProjectService(biz *projectbiz.Service, repo data.ControlPlaneRepository
 	return &ProjectService{biz: biz, repo: repo}
 }
 
-func (s *ProjectService) CreateOrganization(ctx context.Context, req *projectv1.CreateOrganizationRequest) (*projectv1.Organization, error) {
-	owner, err := currentProjectSubject(ctx)
-	if err != nil {
-		return nil, err
-	}
-	org, _, err := s.biz.CreateOrganization(ctx, projectbiz.CreateOrganizationRequest{
-		Slug: req.GetSlug(), DisplayName: req.GetDisplayName(), CasdoorOrg: req.GetCasdoorOrg(), Plan: req.GetPlan(), Region: req.GetRegion(),
-		MetadataJSON: structToJSON(req.GetMetadata(), "{}"), Owner: owner,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return organizationModelToProto(org), nil
-}
-
-func (s *ProjectService) GetOrganization(ctx context.Context, req *projectv1.GetOrganizationRequest) (*projectv1.Organization, error) {
-	org, err := s.repo.GetOrganization(ctx, req.GetOrgId())
-	if err != nil {
-		return nil, err
-	}
-	return organizationModelToProto(org), nil
-}
-
-func (s *ProjectService) ListOrganizations(ctx context.Context, req *projectv1.ListOrganizationsRequest) (*projectv1.ListOrganizationsReply, error) {
-	page, err := s.repo.ListOrganizations(ctx, data.ListOptions{Q: req.GetQuery(), Status: lifecycleToStatus(req.GetStatus()), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
-	if err != nil {
-		return nil, err
-	}
-	out := make([]*projectv1.Organization, 0, len(page.Items))
-	for i := range page.Items {
-		out = append(out, organizationModelToProto(&page.Items[i]))
-	}
-	return &projectv1.ListOrganizationsReply{Organizations: out, TotalSize: page.Total, NextPageToken: nextPage(page)}, nil
-}
-
-func (s *ProjectService) UpdateOrganization(ctx context.Context, req *projectv1.UpdateOrganizationRequest) (*projectv1.Organization, error) {
-	org, err := s.biz.UpdateOrganization(ctx, projectbiz.UpdateOrganizationRequest{
-		ID:           req.GetOrgId(),
-		DisplayName:  req.GetDisplayName(),
-		Plan:         req.GetPlan(),
-		Region:       req.GetRegion(),
-		MetadataJSON: structToJSON(req.GetMetadata(), ""),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return organizationModelToProto(org), nil
-}
-
-func (s *ProjectService) ArchiveOrganization(ctx context.Context, req *projectv1.ArchiveOrganizationRequest) (*projectv1.Organization, error) {
-	org, err := s.biz.ArchiveOrganization(ctx, req.GetOrgId())
-	if err != nil {
-		return nil, err
-	}
-	return organizationModelToProto(org), nil
-}
-
 func (s *ProjectService) CreateProject(ctx context.Context, req *projectv1.CreateProjectRequest) (*projectv1.Project, error) {
-	actor, err := currentProjectSubject(ctx)
+	orgID, actor, err := currentProjectContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 	project, _, err := s.biz.CreateProject(ctx, projectbiz.CreateProjectRequest{
-		OrgID: req.GetOrgId(), Slug: req.GetSlug(), DisplayName: req.GetDisplayName(), Description: req.GetDescription(),
+		ZoneID: orgID, Slug: req.GetSlug(), DisplayName: req.GetDisplayName(), Description: req.GetDescription(),
 		Visibility: visibilityToStatus(req.GetVisibility()), LabelsJSON: mapStringToJSON(req.GetLabels()), AnnotationsJSON: mapStringToJSON(req.GetAnnotations()),
-		CreatedBy: actor, Owner: projectSubjectOr(req.GetOwner(), actor),
+		CreatedBy: actor, Owner: actor,
 	})
 	if err != nil {
 		return nil, err
@@ -114,7 +57,11 @@ func (s *ProjectService) GetProject(ctx context.Context, req *projectv1.GetProje
 }
 
 func (s *ProjectService) ListProjects(ctx context.Context, req *projectv1.ListProjectsRequest) (*projectv1.ListProjectsReply, error) {
-	page, err := s.repo.ListProjects(ctx, data.ListOptions{OrgID: req.GetOrgId(), Q: req.GetQuery(), Status: lifecycleToStatus(req.GetStatus()), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
+	orgID, _, err := currentProjectContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	page, err := s.repo.ListProjects(ctx, data.ListOptions{OrgID: orgID, Q: req.GetQuery(), Status: lifecycleToStatus(req.GetStatus()), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
 	if err != nil {
 		return nil, err
 	}
@@ -403,13 +350,6 @@ func (s *GrantService) ExplainAccess(ctx context.Context, req *grantv1.ExplainAc
 	return &grantv1.ExplainAccessReply{Allowed: reply.Allowed, Effect: reply.Effect, Reason: reply.Reason, ConsistencyToken: reply.ConsistencyToken}, nil
 }
 
-func organizationModelToProto(in *data.OrganizationModel) *projectv1.Organization {
-	if in == nil {
-		return nil
-	}
-	return &projectv1.Organization{Id: in.ID, Slug: in.Slug, DisplayName: in.DisplayName, Status: statusToLifecycle(in.Status), CasdoorOrg: in.CasdoorOrg, Plan: in.Plan, Region: in.Region, Metadata: jsonToStruct(in.MetadataJSON), CreatedAt: ts(in.CreatedAt), UpdatedAt: ts(in.UpdatedAt)}
-}
-
 func projectModelToProto(in *data.ProjectModel) *projectv1.Project {
 	if in == nil {
 		return nil
@@ -473,12 +413,6 @@ func grantModelToProto(in *data.GrantModel) *grantv1.Grant {
 	return &grantv1.Grant{Id: in.ID, Resource: &resourcev1.ResourceRef{Type: in.ResourceType, Id: in.ResourceID}, RoleKey: in.RoleKey, Relation: in.Relation, Subject: &resourcev1.SubjectRef{Type: in.SubjectType, Id: in.SubjectID, Relation: in.SubjectRelation}, Source: in.Source, Reason: in.Reason, ExpiresAt: tsPtr(in.ExpiresAt), CreatedBy: &resourcev1.SubjectRef{Type: in.CreatedByType, Id: in.CreatedByID}, CreatedAt: ts(in.CreatedAt), RevokedAt: tsPtr(in.RevokedAt)}
 }
 
-func projectSubject(in *resourcev1.SubjectRef) projectbiz.SubjectRef {
-	if in == nil {
-		return projectbiz.SubjectRef{}
-	}
-	return projectbiz.SubjectRef{Type: in.GetType(), ID: in.GetId(), Relation: in.GetRelation()}
-}
 func resourceSubject(in *resourcev1.SubjectRef) resourcebiz.SubjectRef {
 	if in == nil {
 		return resourcebiz.SubjectRef{}
@@ -516,12 +450,25 @@ func currentPrincipalSubject(ctx context.Context) (string, string, error) {
 	return subjectType, strings.TrimSpace(principal.SubjectID), nil
 }
 
-func currentProjectSubject(ctx context.Context) (projectbiz.SubjectRef, error) {
-	subjectType, subjectID, err := currentPrincipalSubject(ctx)
-	if err != nil {
-		return projectbiz.SubjectRef{}, err
+func currentProjectContext(ctx context.Context) (string, projectbiz.SubjectRef, error) {
+	principal, ok := authn.PrincipalFromContext(ctx)
+	if !ok || !principal.IsAuthenticated() {
+		return "", projectbiz.SubjectRef{}, authn.ErrMissingCredential("kernel principal is required")
 	}
-	return projectbiz.SubjectRef{Type: subjectType, ID: subjectID}, nil
+	orgID := strings.TrimSpace(principal.OrgID)
+	if orgID == "" {
+		return "", projectbiz.SubjectRef{}, authn.ErrMissingCredential("kernel principal org_id is required")
+	}
+	subjectType := strings.TrimSpace(principal.SubjectType)
+	if subjectType == "" {
+		subjectType = authn.SubjectTypeUser
+	}
+	return orgID, projectbiz.SubjectRef{Type: subjectType, ID: strings.TrimSpace(principal.SubjectID)}, nil
+}
+
+func currentProjectSubject(ctx context.Context) (projectbiz.SubjectRef, error) {
+	_, subject, err := currentProjectContext(ctx)
+	return subject, err
 }
 
 func currentResourceSubject(ctx context.Context) (resourcebiz.SubjectRef, error) {
@@ -538,14 +485,6 @@ func currentGrantSubject(ctx context.Context) (grantbiz.SubjectRef, error) {
 		return grantbiz.SubjectRef{}, err
 	}
 	return grantbiz.SubjectRef{Type: subjectType, ID: subjectID}, nil
-}
-
-func projectSubjectOr(in *resourcev1.SubjectRef, fallback projectbiz.SubjectRef) projectbiz.SubjectRef {
-	subject := projectSubject(in)
-	if strings.TrimSpace(subject.Type) == "" || strings.TrimSpace(subject.ID) == "" {
-		return fallback
-	}
-	return subject
 }
 
 func resourceSubjectOr(in *resourcev1.SubjectRef, fallback resourcebiz.SubjectRef) resourcebiz.SubjectRef {

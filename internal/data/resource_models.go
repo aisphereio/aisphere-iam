@@ -9,23 +9,6 @@ import "time"
 // control-plane records only; domain resources such as skills, repositories,
 // agents, and sandboxes remain owned by their domain services.
 
-type OrganizationModel struct {
-	ID           string     `gorm:"column:id;primaryKey" json:"id"`
-	Slug         string     `gorm:"column:slug;uniqueIndex;not null" json:"slug"`
-	DisplayName  string     `gorm:"column:display_name;not null" json:"display_name"`
-	Status       string     `gorm:"column:status;not null" json:"status"`
-	CasdoorOrg   string     `gorm:"column:casdoor_org" json:"casdoor_org"`
-	Plan         string     `gorm:"column:plan" json:"plan"`
-	Region       string     `gorm:"column:region" json:"region"`
-	MetadataJSON string     `gorm:"column:metadata_json;type:jsonb;default:'{}'" json:"metadata_json"`
-	CreatedBy    string     `gorm:"column:created_by" json:"created_by"`
-	CreatedAt    time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
-	UpdatedAt    time.Time  `gorm:"column:updated_at;autoUpdateTime" json:"updated_at"`
-	DeletedAt    *time.Time `gorm:"column:deleted_at;index" json:"deleted_at,omitempty"`
-}
-
-func (OrganizationModel) TableName() string { return "iam_organizations" }
-
 type ProjectModel struct {
 	ID              string     `gorm:"column:id;primaryKey" json:"id"`
 	OrgID           string     `gorm:"column:org_id;not null;index;uniqueIndex:idx_iam_project_org_slug" json:"org_id"`
@@ -238,7 +221,6 @@ func (LocalUserModel) TableName() string { return "iam_local_users" }
 
 func ControlPlaneModels() []any {
 	return []any{
-		&OrganizationModel{},
 		&ProjectModel{},
 		&CapabilityModel{},
 		&ProjectCapabilityModel{},

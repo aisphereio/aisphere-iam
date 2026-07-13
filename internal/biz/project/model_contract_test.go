@@ -84,6 +84,48 @@ func TestAuthorizationModelHasSingleOrganizationRoot(t *testing.T) {
 	}
 }
 
+func TestLegacyOrganizationSurfaceRemoved(t *testing.T) {
+	t.Parallel()
+
+	root := filepath.Join("..", "..", "..")
+	files := map[string]string{
+		"project proto":            mustReadContractFile(t, filepath.Join(root, "api", "iam", "project", "v1", "project.proto")),
+		"project transport":        mustReadContractFile(t, filepath.Join(root, "internal", "service", "control_plane.go")),
+		"project business":         mustReadContractFile(t, filepath.Join(root, "internal", "biz", "project", "project.go")),
+		"control-plane models":     mustReadContractFile(t, filepath.Join(root, "internal", "data", "resource_models.go")),
+		"control-plane repository": mustReadContractFile(t, filepath.Join(root, "internal", "data", "resource_repository.go")),
+	}
+	for file, content := range files {
+		for _, token := range []string{
+			"CreateOrganization", "UpdateOrganization", "ArchiveOrganization", "ListOrganizations",
+			"CreateOrganizationRequest", "OrganizationModel", "ResourceTypeOrganization",
+			"organization:{org_id}", "iam_organizations",
+		} {
+			if strings.Contains(content, token) {
+				t.Fatalf("%s still contains removed platform Organization token %q", file, token)
+			}
+		}
+	}
+
+	proto := files["project proto"]
+	for _, token := range []string{
+		`post: "/v1/iam/control-plane/projects"`,
+		`reserved "org_id", "owner"`,
+		"string org_id = 2;",
+	} {
+		if !strings.Contains(proto, token) {
+			t.Fatalf("project proto is missing Principal-scoped contract %q", token)
+		}
+	}
+
+	transport := files["project transport"]
+	for _, token := range []string{"ZoneID: orgID", "CreatedBy: actor, Owner: actor", "OrgID: orgID"} {
+		if !strings.Contains(transport, token) {
+			t.Fatalf("project service is missing Principal-bound contract %q", token)
+		}
+	}
+}
+
 func mustReadContractFile(t *testing.T, path string) string {
 	t.Helper()
 	data, err := os.ReadFile(path)

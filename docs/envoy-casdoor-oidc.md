@@ -96,7 +96,6 @@ orgID := principal.OrgID      // Casdoor owner / Aisphere org 投影
 控制面写操作不得信任请求体里的 `owner`、`created_by`、`actor` 来代表当前调用者。IAM 服务层应使用 ctx Principal 填充：
 
 ```text
-CreateOrganization.Owner = ctx Principal
 CreateProject.CreatedBy = ctx Principal
 CreateProject.Owner = request owner 或 ctx Principal fallback
 UpsertResource.CreatedBy = ctx Principal
