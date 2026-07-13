@@ -20,5 +20,11 @@
 
 ## Required for Gate 2 PASS
 
-1. Build integration test environment (C3)
+1. Build integration test suite against aisphere-dev (C3)
 2. Verify one business slice end-to-end (C4)
+
+## Integration Environment
+
+- **Environment:** aisphere-dev (36.137.200.194) K8s cluster
+- **Available services:** Casdoor, SpiceDB, PostgreSQL, DTM, IAM (already deployed)
+- **Test approach:** TBD — local Docker Compose or K8s in-cluster test runner

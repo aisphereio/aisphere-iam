@@ -38,7 +38,7 @@
 
 ## Next Actions
 
-1. Human review of candidate requirements (Gate 1)
-2. Select canonical Group write API
-3. Decide raw relationship API exposure
-4. Plan C2 — architecture convergence
+1. Assign priorities (P0/P1/P2) to approved requirements
+2. Approve Gate 1 — move requirements from Candidate to Approved [C1]
+3. Build integration test suite against aisphere-dev
+4. Plan C2 — integration test environment and end-to-end verification

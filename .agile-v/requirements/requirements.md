@@ -581,6 +581,6 @@ The requirement catalogue can move from `Candidate` to `Approved [C1]` only afte
 - [x] approve Principal-derived Project scope and owner rules;
 - [x] select the canonical Group mutation API — **IAMGroupAdminService**;
 - [x] decide the raw/singular relationship mutation surface — **INTERNAL**;
-- [x] approve which unimplemented RPCs belong in the first release — **UpdateProject/ArchiveProject implemented; Resource RPCs deferred**;
-- [ ] approve the required integration environment and Gate 2 evidence standard;
+- [x] approve which unimplemented RPCs belong in the first release — **全部已实现（UpdateProject, ArchiveProject, MoveResource, DeleteResource, UnbindResource, ListExternalResourceBindings）**;
+- [x] approve the required integration environment — **aisphere-dev (36.137.200.194) K8s 集群**;
 - [ ] assign priorities (`P0`, `P1`, `P2`) and release milestone to approved requirements.
