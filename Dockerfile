@@ -5,19 +5,18 @@ FROM golang:${GO_VERSION}-alpine AS builder
 WORKDIR /src
 RUN apk add --no-cache ca-certificates git make tzdata
 
-# Copy kernel first for local replace
-COPY kernel/go.mod kernel/go.sum ./kernel/
-COPY kernel/ ./kernel/
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Copy IAM
-COPY aisphere-iam/go.mod aisphere-iam/go.sum ./aisphere-iam/
-COPY aisphere-iam/ ./aisphere-iam/
-
+COPY . .
 ARG VERSION=dev
-RUN cd aisphere-iam && \
-    go mod edit -replace github.com/aisphereio/kernel=../kernel && \
-    go mod tidy && \
-    CGO_ENABLED=0 GOOS=linux go build \
+ARG KERNEL_VERSION=v0.4.3
+RUN make KERNEL_VERSION=${KERNEL_VERSION} tools \
+    && make KERNEL_VERSION=${KERNEL_VERSION} api \
+    && make KERNEL_VERSION=${KERNEL_VERSION} deploy \
+    && go mod tidy \
+    && go mod download \
+    && CGO_ENABLED=0 GOOS=linux go build \
       -trimpath \
       -ldflags "-s -w -X main.Name=aisphere-iam -X main.Version=${VERSION}" \
       -o /app/server \
