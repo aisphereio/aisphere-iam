@@ -13,6 +13,8 @@ jobs:
     if: github.head_ref == 'fix/c2-iam-api-boundaries'
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      KERNEL_VERSION: v0.4.3
     steps:
       - name: Checkout source branch
         uses: actions/checkout@v4
@@ -30,25 +32,37 @@ jobs:
       - name: Apply C2 decisions
         run: python3 .github/scripts/c2_converge.py
 
-      - name: Format, generate and verify
-        shell: bash
-        env:
-          KERNEL_VERSION: v0.4.3
+      - name: Format source
         run: |
-          set -euo pipefail
           gofmt -w \
             internal/service/directory_group.go \
             internal/service/api_surface_contract_test.go \
             internal/data/identity_membership_projection_test.go \
             internal/data/identity_mode.go
-          make KERNEL_VERSION=${KERNEL_VERSION} tools
-          make KERNEL_VERSION=${KERNEL_VERSION} api
-          make KERNEL_VERSION=${KERNEL_VERSION} deploy
-          go mod tidy
-          make KERNEL_VERSION=${KERNEL_VERSION} proto-check
-          go test ./... -count=1
-          make build
-          git diff --check
+
+      - name: Install generators
+        run: make KERNEL_VERSION=${KERNEL_VERSION} tools
+
+      - name: Generate API
+        run: make KERNEL_VERSION=${KERNEL_VERSION} api
+
+      - name: Generate deploy manifests
+        run: make KERNEL_VERSION=${KERNEL_VERSION} deploy
+
+      - name: Normalize modules
+        run: go mod tidy
+
+      - name: Contract checks
+        run: make KERNEL_VERSION=${KERNEL_VERSION} proto-check
+
+      - name: Go tests
+        run: go test ./... -count=1
+
+      - name: Build binary
+        run: make build
+
+      - name: Diff sanity
+        run: git diff --check
 
       - name: Commit verified product tree
         shell: bash
