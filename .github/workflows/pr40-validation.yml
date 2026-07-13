@@ -33,6 +33,10 @@ jobs:
           set +e
           : > pr40-validation.log
 
+          echo '=== make tools ===' | tee -a pr40-validation.log
+          make tools 2>&1 | tee -a pr40-validation.log
+          tools_status=${PIPESTATUS[0]}
+
           echo '=== make proto-check ===' | tee -a pr40-validation.log
           make proto-check 2>&1 | tee -a pr40-validation.log
           proto_status=${PIPESTATUS[0]}
@@ -50,8 +54,8 @@ jobs:
           dirty_status=0
           if [[ -n "$(git status --porcelain)" ]]; then dirty_status=1; fi
 
-          echo "statuses: proto=${proto_status} test=${test_status} build=${build_status} dirty=${dirty_status}" | tee -a pr40-validation.log
-          if (( proto_status != 0 || test_status != 0 || build_status != 0 || dirty_status != 0 )); then
+          echo "statuses: tools=${tools_status} proto=${proto_status} test=${test_status} build=${build_status} dirty=${dirty_status}" | tee -a pr40-validation.log
+          if (( tools_status != 0 || proto_status != 0 || test_status != 0 || build_status != 0 || dirty_status != 0 )); then
             exit 1
           fi
 
