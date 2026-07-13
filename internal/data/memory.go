@@ -402,6 +402,25 @@ func (r *MemoryControlPlaneRepository) ListGrants(ctx context.Context, opts List
 	return pageOf(out, opts.Page, opts.Size), nil
 }
 
+func (r *MemoryControlPlaneRepository) ListDueExpiringGrants(ctx context.Context, limit int) ([]GrantModel, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	now := time.Now().UTC()
+	var out []GrantModel
+	for _, v := range r.grants {
+		if v.RevokedAt != nil || v.ExpiresAt == nil {
+			continue
+		}
+		if v.ExpiresAt.Before(now) || v.ExpiresAt.Equal(now) {
+			out = append(out, *clone(v))
+			if len(out) >= limit {
+				break
+			}
+		}
+	}
+	return out, nil
+}
+
 func (r *MemoryControlPlaneRepository) GetOutboxEvent(ctx context.Context, id string) (*OutboxEventModel, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()

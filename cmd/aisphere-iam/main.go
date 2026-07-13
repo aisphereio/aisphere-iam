@@ -13,6 +13,8 @@ import (
 	_ "github.com/aisphereio/kernel/dtmx/dtm"
 	"github.com/aisphereio/kernel/logx"
 	"github.com/aisphereio/kernel/metricsx"
+	"github.com/aisphereio/kernel/taskx"
+	taskxdapr "github.com/aisphereio/kernel/taskx/dapr"
 
 	defaults "github.com/aisphereio/aisphere-iam/internal/biz/defaults"
 	grantbiz "github.com/aisphereio/aisphere-iam/internal/biz/grant"
@@ -94,10 +96,54 @@ authService := service.NewIAMAuthService(deps)
 		resourceService := service.NewResourceService(resourceUsecase, resources.ControlPlane)
 		grantService := service.NewGrantService(grantUsecase, resources.ControlPlane)
 
-		httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
-		grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
+httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
+			grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
 
-	options := []kernel.Option{kernel.Name(bc.Service.Name), kernel.Version(bc.Service.Version), kernel.LogxLogger(logger), kernel.Metrics(metrics), kernel.DTM(dtmManager), kernel.Server(httpServer, grpcServer), kernel.StopTimeout(10 * time.Second)}
+		// ── taskx / Dapr Jobs ──────────────────────────────────────────────
+		// Dapr callback server on a dedicated port so sidecar callbacks bypass
+		// the IAM gRPC authn/authz middleware.
+		taskRuntime, taskCallback, err := taskxdapr.NewStandalone(":19081")
+		if err != nil {
+			panic(err)
+		}
+		defer taskRuntime.Close()
+
+		// Register the grant expiration reconciler handler.
+		if err := taskRuntime.RegisterHandler("grant-expiration-reconciler",
+			func(ctx context.Context, event taskx.TriggerEvent) error {
+				return grantUsecase.ExpireDueGrants(ctx)
+			},
+		); err != nil {
+			panic(err)
+		}
+
+		// Schedule the job: run every 5 minutes, overwrite on each boot so all
+		// replicas share the same definition.
+		maxRetries := uint32(5)
+		if err := taskRuntime.Schedule(context.Background(), taskx.ManagedJob{
+			Name:      "grant-expiration-reconciler",
+			Schedule:  "@every 5m",
+			Overwrite: true,
+			Data:      []byte(`{"batch_size":100}`),
+			DataTypeURL: "application/json",
+			FailurePolicy: &taskx.DeliveryFailurePolicy{
+				Mode:       taskx.DeliveryFailureConstant,
+				MaxRetries: &maxRetries,
+				Interval:   5 * time.Second,
+			},
+		}); err != nil {
+			panic(err)
+		}
+
+		options := []kernel.Option{
+			kernel.Name(bc.Service.Name),
+			kernel.Version(bc.Service.Version),
+			kernel.LogxLogger(logger),
+			kernel.Metrics(metrics),
+			kernel.DTM(dtmManager),
+			kernel.Server(httpServer, grpcServer, taskCallback),
+			kernel.StopTimeout(10 * time.Second),
+		}
 	if bc.Metrics.Enabled && bc.Metrics.Addr != "" {
 		options = append(options, kernel.PrometheusMetrics(bc.Metrics.Addr), kernel.MetricsPath(bc.Metrics.Path), kernel.MetricsPprof(bc.Metrics.Pprof))
 	}

@@ -338,6 +338,78 @@ func (s *Service) resourceByRef(ctx context.Context, ref ResourceRef) (any, erro
 	}
 }
 
+// ExpireDueGrants scans for grants whose expires_at has passed and revokes
+// them. It is designed to be called from a scheduled task (taskx) and is
+// idempotent: already-revoked grants are skipped by the query.
+func (s *Service) ExpireDueGrants(ctx context.Context) error {
+	if s.repo == nil {
+		return errors.New("grant service repository is nil")
+	}
+	grants, err := s.repo.ListDueExpiringGrants(ctx, 100)
+	if err != nil {
+		return err
+	}
+	if len(grants) == 0 {
+		return nil
+	}
+
+	var lastErr error
+	for _, grant := range grants {
+		if err := s.expireOne(ctx, &grant); err != nil {
+			lastErr = err
+			continue
+		}
+	}
+	return lastErr
+}
+
+func (s *Service) expireOne(ctx context.Context, grant *data.GrantModel) error {
+	now := s.now()
+	spiceType, err := s.spiceType(ctx, grant.ResourceType)
+	if err != nil {
+		return err
+	}
+	filter := authz.RelationshipFilter{
+		ResourceType: spiceType,
+		ResourceID:   grant.ResourceID,
+		Relation:     grant.Relation,
+		SubjectType:  grant.SubjectType,
+		SubjectID:    grant.SubjectID,
+		SubjectRel:   grant.SubjectRelation,
+	}
+	rel := authz.Relationship{
+		Resource:  graph.Object(spiceType, grant.ResourceID),
+		Relation:  grant.Relation,
+		Subject:   graph.Subject(grant.SubjectType, grant.SubjectID, grant.SubjectRelation),
+		ExpiresAt: derefTime(grant.ExpiresAt),
+	}
+	audit := &data.GrantAuditModel{
+		ID:              idgen.New("gaudit"),
+		GrantID:         grant.ID,
+		Action:          "expire",
+		ResourceType:    grant.ResourceType,
+		ResourceID:      grant.ResourceID,
+		Relation:        grant.Relation,
+		SubjectType:     grant.SubjectType,
+		SubjectID:       grant.SubjectID,
+		SubjectRelation: grant.SubjectRelation,
+		ActorType:       "system",
+		ActorID:         "taskx/grant-expiration-reconciler",
+		Reason:          "grant expired",
+		MetadataJSON:    "{}",
+		CreatedAt:       now,
+	}
+	event, err := s.projection.NewDeleteEvent("grant", grant.ID, filter, rel)
+	if err != nil {
+		return err
+	}
+	if err := s.repo.RevokeGrant(ctx, grant.ID, now, audit, event); err != nil {
+		return err
+	}
+	_, err = s.projection.Dispatch(ctx, event)
+	return err
+}
+
 func firstProjectionManager(managers []*projection.Manager) *projection.Manager {
 	for _, manager := range managers {
 		if manager != nil {

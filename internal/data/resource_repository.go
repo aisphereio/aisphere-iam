@@ -70,10 +70,11 @@ ArchiveResource(ctx context.Context, typ, id string) error
 	UpsertRoleTemplate(ctx context.Context, role *RoleTemplateModel) error
 	ListRoleTemplates(ctx context.Context, resourceType string) ([]RoleTemplateModel, error)
 
-	CreateGrant(ctx context.Context, grant *GrantModel, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
-	GetGrant(ctx context.Context, id string) (*GrantModel, error)
-	RevokeGrant(ctx context.Context, id string, revokedAt time.Time, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
-	ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error)
+CreateGrant(ctx context.Context, grant *GrantModel, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
+		GetGrant(ctx context.Context, id string) (*GrantModel, error)
+		RevokeGrant(ctx context.Context, id string, revokedAt time.Time, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
+		ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error)
+		ListDueExpiringGrants(ctx context.Context, limit int) ([]GrantModel, error)
 
 	CreateOutboxEvents(ctx context.Context, events ...*OutboxEventModel) error
 	GetOutboxEvent(ctx context.Context, id string) (*OutboxEventModel, error)
@@ -273,6 +274,15 @@ func (r *DBControlPlaneRepository) ListGrants(ctx context.Context, opts ListOpti
 	query, args := whereBuilder().eq("resource_type", opts.ResourceType).eq("resource_id", opts.ResourceID).eq("subject_type", opts.SubjectType).eq("subject_id", opts.SubjectID).build()
 	res, err := r.db.Paginate(ctx, &out, &GrantModel{}, query, args, opts.Page, opts.Size)
 	return pageFrom(out, res, err)
+}
+
+func (r *DBControlPlaneRepository) ListDueExpiringGrants(ctx context.Context, limit int) ([]GrantModel, error) {
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	var out []GrantModel
+	now := time.Now().UTC()
+	return out, r.db.FindMany(ctx, &out, "expires_at IS NOT NULL AND expires_at <= ? AND revoked_at IS NULL ORDER BY expires_at ASC LIMIT ?", now, limit)
 }
 
 func (r *DBControlPlaneRepository) CreateOutboxEvents(ctx context.Context, events ...*OutboxEventModel) error {
