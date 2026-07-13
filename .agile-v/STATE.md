@@ -11,19 +11,19 @@
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| 01-Specify | ✅ COMPLETE | 60 candidate REQs recovered; Gate 0 passed |
-| 02-Constrain | ⏳ PENDING | Requires Gate 1 approval |
-| 03-Orchestrate | ⏳ PENDING | Not started |
-| 04-Prove | ⏳ PENDING | Not started |
-| 05-Evolve | ⏳ PENDING | PR #40 merged (legacy Organization removed) |
-| 06-Verify | ⏳ PENDING | Not started |
+| 01-Specify | ✅ COMPLETE | 63 REQs approved with P0/P1/P2; Gate 0 + Gate 1 passed |
+| 02-Constrain | ⏳ PENDING | Ready to start — use logic-gatekeeper |
+| 03-Orchestrate | ⏳ PENDING | All unimplemented RPCs already built during C1 |
+| 04-Prove | ⏳ PENDING | Integration test suite needed |
+| 05-Evolve | ⏳ PENDING | Decision log maintained |
+| 06-Verify | ⏳ PENDING | Red Team verification pending |
 
 ## Gate Status
 
 | Gate | Status | Evidence |
 |------|--------|----------|
 | Gate 0 — System Understanding | ✅ PASS_WITH_FINDINGS | `understanding/system_overview.md`, `understanding/understanding_gate_decision.md` |
-| Gate 1 — Requirement Approval | ⏳ PENDING | `requirements/requirements.md` ready for human review |
+| Gate 1 — Requirement Approval | ✅ APPROVED | `requirements/requirements.md` — 63 requirements approved with P0/P1/P2 priorities |
 | Gate 2 — Verification Evidence | ❌ NOT_STARTED | Requires integration evidence |
 
 ## Open P0 Gaps

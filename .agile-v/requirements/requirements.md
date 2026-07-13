@@ -33,24 +33,26 @@ Evidence qualifiers:
 
 ## 3. Requirement summary
 
-| Domain and Capability | Candidate requirements | Main finding |
-|---|---:|---|
-| Authentication and Principal | 4 | Kernel Context is authoritative, but Gateway runtime evidence is missing |
-| Identity directory | 7 | reads are well-defined; Group write surface overlaps |
-| Directory projection | 7 | durable retry model exists; real failure/recovery proof is missing |
-| Runtime authorization | 8 | core data-plane API exists; exposure of singular tuple APIs needs a decision |
-| Authorization administration | 5 | administration surface exists; audit evidence is contractual only |
-| Project and Capability | 6 | legacy Organization model removed; Project scope/owner now from Principal |
-| Resource control plane | 7 | core create/read/archive/bind exists; several RPCs are unimplemented |
-| Grant control plane | 6 | Grant lifecycle exists; real and real-SpiceDB evidence is missing |
-| Engineering and release controls | 8 | CI is strong for build consistency, not release readiness |
+| Domain and Capability | Candidate requirements | Priority | Main finding |
+|---|---:|---:|---|
+| Authentication and Principal | 4 | P0 | Kernel Context is authoritative, but Gateway runtime evidence is missing |
+| Identity directory | 7 | P0 | reads are well-defined; Group write surface consolidated |
+| Directory projection | 7 | P1 | durable retry model exists; real failure/recovery proof is missing |
+| Runtime authorization | 8 | P0 | core data-plane API exists; singular tuple APIs moved to INTERNAL |
+| Authorization administration | 5 | P1 | administration surface exists; audit evidence is contractual only |
+| Project and Capability | 8 | P0 | full CRUD implemented; scope/owner from Principal |
+| Resource control plane | 7 | P0 | full lifecycle implemented |
+| Grant control plane | 6 | P1 | Grant lifecycle exists; real SpiceDB evidence is missing |
+| Engineering and release controls | 8 | P2 | CI is strong for build consistency, not release readiness |
 
 ---
 
-# 4. Authentication and Principal requirements
+# 4. Authentication and Principal requirements (P0)
 
 ## REQ-IAM-AUTHN-001 — Return the authenticated current Principal
+- **Priority:** P0
 
+- **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** `GetMe` shall return the normalized authenticated Principal restored by Kernel middleware from request Context.
 - **Constraint:** IAM business code shall not reconstruct the current Principal from ordinary request headers or request-body identity fields.
@@ -61,7 +63,9 @@ Evidence qualifiers:
 - **Done criteria:** unit test, HTTP test behind Gateway, gRPC test and header-spoofing negative test pass.
 
 ## REQ-IAM-AUTHN-002 — Verify a token only for trusted platform services
+- **Priority:** P0
 
+- **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall expose token verification only as an INTERNAL platform-service operation and delegate verification to the configured token provider.
 - **Constraint:** IAM shall return a dependency/backend failure when the token provider is unavailable and shall not fabricate a Principal.
@@ -69,15 +73,19 @@ Evidence qualifiers:
 - **Done criteria:** Casdoor-backed integration tests and Gateway route-isolation tests pass.
 
 ## REQ-IAM-AUTHN-003 — Derive actors from Kernel Context
+- **Priority:** P0
 
-- **Status:** `PARTIAL_IMPLEMENTATION`, `UNIT_EVIDENCE`
+- **Priority:** P0
+- **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** every control-plane mutation shall derive `created_by`, `actor` and default owner from the authenticated Kernel Principal.
 - **Constraint:** a client-provided actor or owner shall not override the authenticated caller unless an explicitly approved delegated-administration requirement exists.
 - **Verification criteria:** Project, Resource and Grant mutation requests with forged actor/owner values cannot change the recorded actor; missing Principal is rejected.
 - **Done criteria:** all mutation services use one shared Principal extraction contract and have negative tests.
 
 ## REQ-IAM-AUTHN-004 — Keep browser authentication outside IAM
+- **Priority:** P0
 
+- **Priority:** P0
 - **Status:** `ARCHITECTURE_REQUIRED`
 - **Requirement:** Envoy Gateway shall remain the external OIDC/JWT authentication boundary; IAM shall not own browser Session, authorization-code callback state or refresh-token lifecycle.
 - **Constraint:** IAM may adapt or verify identities for trusted services but shall not become a browser-facing session server.
@@ -86,23 +94,28 @@ Evidence qualifiers:
 
 ---
 
-# 5. Identity directory requirements
+# 5. Identity directory requirements (P0)
 
 ## REQ-IAM-DIR-001 — Read a User only with Zone permission
+- **Priority:** P0
 
+- **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** reading a User from an Organization shall require `zone:<org_id>#view_users` for the current Principal before calling the identity provider.
 - **Verification criteria:** allowed, denied, missing Principal and SpiceDB unavailable scenarios are tested.
 - **Done criteria:** Casdoor + SpiceDB integration tests pass and denial is fail-closed.
 
 ## REQ-IAM-DIR-002 — List Users only with Zone permission
+- **Priority:** P0
 
+- **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** listing Users shall require `zone:<org_id>#view_users` and shall pass supported filters to the identity provider.
 - **Verification criteria:** Organization, Group, Role and page-size filters are validated; cross-Organization access is rejected.
 - **Done criteria:** filter, pagination and authorization integration tests pass.
 
 ## REQ-IAM-DIR-003 — Read Casdoor Organization metadata as the identity-domain root
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall expose read-only metadata for the selected Casdoor Organization after `zone:<org_id>#view_zone` authorization.
@@ -111,6 +124,7 @@ Evidence qualifiers:
 - **Done criteria:** Casdoor integration and architecture-boundary tests pass.
 
 ## REQ-IAM-DIR-004 — List Groups only with Zone permission
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** listing the multi-level Group tree shall require `zone:<org_id>#view_groups` and support parent/type/user filtering.
@@ -118,6 +132,7 @@ Evidence qualifiers:
 - **Done criteria:** real Casdoor Group-tree tests and pagination/empty-tree tests pass.
 
 ## REQ-IAM-DIR-005 — Manage Groups through one canonical API
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall provide one canonical contract for creating, updating and deleting Casdoor-backed Groups.
@@ -127,6 +142,7 @@ Evidence qualifiers:
 - **Done criteria:** contract tests enforce the canonical service.
 
 ## REQ-IAM-DIR-006 — Assign and remove User membership
+- **Priority:** P0
 
 - **Status:** `PARTIAL_IMPLEMENTATION`, `UNIT_EVIDENCE`
 - **Requirement:** an authorized caller shall be able to assign a User to a Group and remove that membership through IAM, without the frontend calling Casdoor directly.
@@ -135,6 +151,7 @@ Evidence qualifiers:
 - **Done criteria:** Casdoor mutation and SpiceDB projection are verified end-to-end.
 
 ## REQ-IAM-DIR-007 — Enforce identity-provider mode boundaries
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** in `casdoor_local` mode IAM may perform configured identity-provider writes; in `external_oidc` mode IAM shall reject upstream User/Organization mutation while preserving approved Aisphere Group and membership operations.
@@ -146,6 +163,7 @@ Evidence qualifiers:
 # 6. Directory projection requirements
 
 ## REQ-IAM-PROJ-001 — Project Group identity with Organization qualification
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** a Casdoor Group shall be projected as `group:<org_id>/<group_id>` and linked to `zone:<org_id>`.
@@ -153,6 +171,7 @@ Evidence qualifiers:
 - **Done criteria:** unit and real SpiceDB tests confirm the relationship shape.
 
 ## REQ-IAM-PROJ-002 — Project the multi-level Group parent relation
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** a child Group shall have a `parent` relationship to its Organization-qualified parent Group.
@@ -160,6 +179,7 @@ Evidence qualifiers:
 - **Done criteria:** Group-tree permission inheritance is verified in SpiceDB.
 
 ## REQ-IAM-PROJ-003 — Project User membership as `group#member`
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** User membership shall be projected as `group:<qualified-id>#member@user:<stable-user-id>`.
@@ -167,6 +187,7 @@ Evidence qualifiers:
 - **Done criteria:** Casdoor membership and SpiceDB effective permission are verified in one E2E test.
 
 ## REQ-IAM-PROJ-004 — Persist projection work and state
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** when a projection store is configured, IAM shall persist a projection event containing aggregate identity, operation, payload, status, retry count, error and next-run time.
@@ -174,6 +195,7 @@ Evidence qualifiers:
 - **Done criteria:** PostgreSQL integration tests verify durable state across process restart.
 
 ## REQ-IAM-PROJ-005 — Retry failed or pending projection work
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall retry eligible pending, submitted or failed projection events with bounded batch size and observable failure state.
@@ -182,6 +204,7 @@ Evidence qualifiers:
 - **Done criteria:** no duplicate effective relationship or lost event occurs in integration tests.
 
 ## REQ-IAM-PROJ-006 — Support DTM apply and compensation
+- **Priority:** P1
 
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** when DTM is enabled, IAM shall submit projection work as a Saga with explicit apply and compensate branches and preserve the event state.
@@ -189,6 +212,7 @@ Evidence qualifiers:
 - **Done criteria:** DTM integration tests and recovery runbook exist.
 
 ## REQ-IAM-PROJ-007 — Detect and repair directory projection drift
+- **Priority:** P1
 
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** authorized administrators shall be able to detect missing desired relationships, reconcile a selected Organization and retry failed projection events.
@@ -200,6 +224,7 @@ Evidence qualifiers:
 # 7. Runtime authorization requirements
 
 ## REQ-IAM-AUTHZ-RT-001 — Check one permission
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** a trusted platform service shall be able to check a subject, resource and permission and receive allow/deny effect, reason and consistency token.
@@ -207,6 +232,7 @@ Evidence qualifiers:
 - **Done criteria:** SpiceDB integration tests prove the supported resource models.
 
 ## REQ-IAM-AUTHZ-RT-002 — Batch permission checks
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** a trusted service shall be able to submit one or more permission checks and receive decisions in the same order.
@@ -214,6 +240,7 @@ Evidence qualifiers:
 - **Done criteria:** batch correctness and latency tests pass.
 
 ## REQ-IAM-AUTHZ-RT-003 — Write relationship projections in batches
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** trusted backend services shall be able to write one or more approved authorization relationships through the INTERNAL IAM runtime API.
@@ -222,6 +249,7 @@ Evidence qualifiers:
 - **Done criteria:** internal service authentication and SpiceDB integration tests pass.
 
 ## REQ-IAM-AUTHZ-RT-004 — Delete relationship projections by filter
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** trusted backend services shall be able to delete projected relationships by an explicit filter and receive count and consistency evidence.
@@ -230,6 +258,7 @@ Evidence qualifiers:
 - **Done criteria:** deletion guardrails and audit evidence exist.
 
 ## REQ-IAM-AUTHZ-RT-005 — Read relationships for trusted services
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** trusted services shall be able to read relationships using resource and subject filters.
@@ -237,6 +266,7 @@ Evidence qualifiers:
 - **Done criteria:** real SpiceDB read tests pass.
 
 ## REQ-IAM-AUTHZ-RT-006 — Lookup accessible resources
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall return resources of a requested type for which a subject has a requested permission, with cursor and consistency token support.
@@ -244,6 +274,7 @@ Evidence qualifiers:
 - **Done criteria:** pagination and authorization correctness tests pass against SpiceDB.
 
 ## REQ-IAM-AUTHZ-RT-007 — Lookup authorized subjects
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall return subjects of a requested type that have a requested permission on a resource, with cursor and consistency support.
@@ -251,6 +282,7 @@ Evidence qualifiers:
 - **Done criteria:** real lookup-subject tests pass.
 
 ## REQ-IAM-AUTHZ-RT-008 — Propagate trusted user or service identity over gRPC
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** the IAM runtime client shall propagate the current Kernel Principal; background work shall use an explicitly supplied service Principal.
@@ -263,6 +295,7 @@ Evidence qualifiers:
 # 8. Authorization administration requirements
 
 ## REQ-IAM-AUTHZ-ADMIN-001 — Read the active authorization schema
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** only a Principal with `iam_authz:global#view_schema` shall read the current schema text and version.
@@ -270,6 +303,7 @@ Evidence qualifiers:
 - **Done criteria:** real SpiceDB and audit tests pass.
 
 ## REQ-IAM-AUTHZ-ADMIN-002 — Validate and publish a schema
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** only a Principal with `iam_authz:global#publish_schema` shall validate or publish non-empty schema text.
@@ -278,6 +312,7 @@ Evidence qualifiers:
 - **Done criteria:** rollback/compatibility policy and audit evidence exist.
 
 ## REQ-IAM-AUTHZ-ADMIN-003 — Inspect and repair relationships
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** relationship inspection shall require `view_relationships`; administrative write/delete shall require `repair_relationships`.
@@ -285,6 +320,7 @@ Evidence qualifiers:
 - **Done criteria:** permissions, audit and safety tests pass.
 
 ## REQ-IAM-AUTHZ-ADMIN-004 — Diagnose authorization decisions
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized administrator shall be able to check, explain and enumerate selected effective permissions for a subject/resource pair.
@@ -293,6 +329,7 @@ Evidence qualifiers:
 - **Done criteria:** UI/API semantics clearly distinguish provider evidence from locally formatted diagnostics.
 
 ## REQ-IAM-AUTHZ-ADMIN-005 — Audit all administrative authorization changes
+- **Priority:** P1
 
 - **Status:** `CONTRACT_ONLY`
 - **Requirement:** schema publication, relationship repair/delete and projection repair shall produce durable audit records with actor, target, reason, request ID, trace ID, decision ID and outcome.
@@ -304,6 +341,7 @@ Evidence qualifiers:
 # 9. Project and Capability requirements
 
 ## REQ-IAM-PROJECT-001 — Use Casdoor Organization as the single root
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** IAM shall map one Casdoor Organization to one read-only `zone` root and shall not maintain a second Platform Organization entity.
@@ -312,6 +350,7 @@ Evidence qualifiers:
 - **Done criteria:** contract tests pass and the legacy surface is absent.
 
 ## REQ-IAM-PROJECT-002 — Derive Project Zone from the authenticated Principal
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** `CreateProject` shall derive the Project `org_id`/Zone from `Principal.org_id`; request bodies and paths shall not override the identity domain.
@@ -320,6 +359,7 @@ Evidence qualifiers:
 - **Done criteria:** `principal_context_test.go` verifies org_id from Principal and rejects missing org_id.
 
 ## REQ-IAM-PROJECT-003 — Make the creator the Project owner
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** Project creation shall atomically persist the Project fact and project `project:<id>#owner@<creator>`.
@@ -329,6 +369,7 @@ Evidence qualifiers:
 - **Done criteria:** `principal_context_test.go` verifies actor from Principal.
 
 ## REQ-IAM-PROJECT-004 — Read and list Projects within the current Zone
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** Project reads and lists shall be authorization-aware and default to the authenticated Principal's Zone.
@@ -338,6 +379,7 @@ Evidence qualifiers:
 - **Done criteria:** cross-Zone authorization integration test is still needed.
 
 ## REQ-IAM-PROJECT-005 — Update a Project
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized Project manager shall be able to update approved mutable Project fields.
@@ -346,6 +388,7 @@ Evidence qualifiers:
 - **Done criteria:** implementation, persistence, audit and integration tests exist.
 
 ## REQ-IAM-PROJECT-006 — Archive a Project
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized manager shall archive a Project without silently deleting its audit/control-plane history.
@@ -354,13 +397,15 @@ Evidence qualifiers:
 - **Done criteria:** lifecycle and restoration/deletion policy are approved and tested.
 
 ## REQ-IAM-PROJECT-007 — Register and list Capabilities
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall register Capability metadata and list Capabilities by supported status filters.
 - **Verification criteria:** duplicate ID/name, invalid owner service and schema validation are tested.
 - **Done criteria:** persistence and authorization integration tests pass.
 
-## REQ-IAM-PROJECT-006 — Enable, disable and list Project Capabilities
+## REQ-IAM-PROJECT-008 — Enable, disable and list Project Capabilities
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized Project manager shall enable or disable a registered Capability with config/quota and list the resulting Project Capability state.
@@ -372,6 +417,7 @@ Evidence qualifiers:
 # 10. Resource control-plane requirements
 
 ## REQ-IAM-RESOURCE-001 — Register and discover Resource Types
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall register, get and list Resource Types including capability ownership, parent types, grantability, auditability, SpiceDB type, relations and permissions.
@@ -379,6 +425,7 @@ Evidence qualifiers:
 - **Done criteria:** defaults and runtime registration obey one validation contract.
 
 ## REQ-IAM-RESOURCE-002 — Upsert and read a Resource
+- **Priority:** P0
 
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** an authorized service shall upsert a Resource fact and retrieve it by typed reference.
@@ -387,6 +434,7 @@ Evidence qualifiers:
 - **Done criteria:** PostgreSQL and SpiceDB structural/ownership projection tests pass.
 
 ## REQ-IAM-RESOURCE-003 — List Resources with scoped filters
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall list Resources using approved type, Zone, Project, status and pagination filters.
@@ -395,6 +443,7 @@ Evidence qualifiers:
 - **Done criteria:** authorization-aware list behavior is proven.
 
 ## REQ-IAM-RESOURCE-004 — Archive a Resource
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall archive a Resource and return its updated state.
@@ -402,6 +451,7 @@ Evidence qualifiers:
 - **Done criteria:** relationship cleanup/retention behavior is defined and verified.
 
 ## REQ-IAM-RESOURCE-005 — Move and delete a Resource
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** approved Resource types may support move and delete under explicit lifecycle and dependency rules.
@@ -410,6 +460,7 @@ Evidence qualifiers:
 - **Done criteria:** product requirements are approved before implementation.
 
 ## REQ-IAM-RESOURCE-006 — Unbind and unbind internal Resources
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall create, list and remove typed Resource bindings.
@@ -418,6 +469,7 @@ Evidence qualifiers:
 - **Done criteria:** the full binding lifecycle is implemented and verified.
 
 ## REQ-IAM-RESOURCE-007 — Bind and list external Resources
+- **Priority:** P0
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall bind an internal Resource to an external provider identity/path/URL and list those bindings.
@@ -430,6 +482,7 @@ Evidence qualifiers:
 # 11. Grant control-plane requirements
 
 ## REQ-IAM-GRANT-001 — Register and list Role Templates
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall register and list Role Templates that map a product-facing role key to a SpiceDB relation for a Resource Type.
@@ -437,6 +490,7 @@ Evidence qualifiers:
 - **Done criteria:** Role Template validation is tied to Resource Type and schema metadata.
 
 ## REQ-IAM-GRANT-002 — Grant access as a high-level control-plane operation
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized actor shall grant a Role Template to a User, Group memberset or Service on a Resource; IAM shall persist the Grant fact and write the corresponding relationship.
@@ -445,6 +499,7 @@ Evidence qualifiers:
 - **Done criteria:** PostgreSQL + SpiceDB integration proves fact/projection consistency.
 
 ## REQ-IAM-GRANT-003 — Revoke access and remove its projection
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized actor shall revoke an active Grant, record actor/reason/time and remove the graph relationship.
@@ -452,6 +507,7 @@ Evidence qualifiers:
 - **Done criteria:** durable recovery and audit evidence exist.
 
 ## REQ-IAM-GRANT-004 — List Grants
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall list Grants by Resource and/or Subject with stable pagination.
@@ -459,6 +515,7 @@ Evidence qualifiers:
 - **Done criteria:** authorization scope and pagination tests pass.
 
 ## REQ-IAM-GRANT-005 — Explain effective access
+- **Priority:** P1
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall explain whether a Subject has a requested permission on a Resource using the authorization provider decision.
@@ -467,6 +524,7 @@ Evidence qualifiers:
 - **Done criteria:** semantics are documented and verified against SpiceDB.
 
 ## REQ-IAM-GRANT-006 — Enforce Grant expiry
+- **Priority:** P1
 
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** a Grant with `expires_at` shall cease to provide effective access at the defined time and shall have an observable lifecycle state.
@@ -479,6 +537,7 @@ Evidence qualifiers:
 # 12. Engineering, security and release requirements
 
 ## REQ-IAM-ENG-001 — Use Proto as the API source of truth
+- **Priority:** P2
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `CI_EVIDENCE`
 - **Requirement:** supported HTTP/gRPC routes, validation metadata, access policy, audit metadata, Kernel registration and Gateway manifests shall be generated from Proto contracts.
@@ -487,6 +546,7 @@ Evidence qualifiers:
 - **Done criteria:** generated drift check remains mandatory.
 
 ## REQ-IAM-ENG-002 — Keep Kernel runtime and generators aligned
+- **Priority:** P2
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `CI_EVIDENCE`
 - **Requirement:** the Kernel runtime module and all Kernel code generators shall use the same released version.
@@ -494,6 +554,7 @@ Evidence qualifiers:
 - **Done criteria:** local, CI and Docker generation use the same version source.
 
 ## REQ-IAM-ENG-003 — Enforce API and authorization contract checks
+- **Priority:** P2
 
 - **Status:** `OBSERVED_IMPLEMENTED`, `CI_EVIDENCE`
 - **Requirement:** every change to Proto or authorization contracts shall pass Buf lint/build and Aisphere contract checks before merge.
@@ -501,6 +562,7 @@ Evidence qualifiers:
 - **Done criteria:** negative fixtures cover all critical rules.
 
 ## REQ-IAM-ENG-004 — Fail closed on identity or authorization dependency failure
+- **Priority:** P2
 
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** missing/unavailable identity or authorization providers shall never result in an allow decision or fabricated identity.
@@ -508,6 +570,7 @@ Evidence qualifiers:
 - **Done criteria:** chaos/fault-injection integration suite passes.
 
 ## REQ-IAM-ENG-005 — Return stable error classes
+- **Priority:** P2
 
 - **Status:** `ARCHITECTURE_REQUIRED`
 - **Requirement:** APIs shall distinguish invalid input, unauthenticated, permission denied, not found, conflict, dependency failure and projection failure consistently over HTTP and gRPC.
@@ -515,6 +578,7 @@ Evidence qualifiers:
 - **Done criteria:** generated/open API documentation and tests encode the matrix.
 
 ## REQ-IAM-ENG-006 — Produce durable audit evidence
+- **Priority:** P2
 
 - **Status:** `CONTRACT_ONLY`
 - **Requirement:** operations marked for audit shall produce durable records containing actor, action, target, risk, outcome and correlation identifiers.
@@ -522,6 +586,7 @@ Evidence qualifiers:
 - **Done criteria:** audit sink and retention policy are verified.
 
 ## REQ-IAM-ENG-007 — Expose health, metrics, logs and traces
+- **Priority:** P2
 
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** IAM shall expose readiness/health, Prometheus metrics, structured logs and tracing sufficient to diagnose Casdoor, PostgreSQL, SpiceDB and projection failures.
@@ -529,6 +594,7 @@ Evidence qualifiers:
 - **Done criteria:** dashboards, alerts and runbooks are validated in the test environment.
 
 ## REQ-IAM-ENG-008 — Require evidence before release
+- **Priority:** P2
 
 - **Status:** `ARCHITECTURE_REQUIRED`
 - **Requirement:** an IAM release shall not be marked ready solely because generation, unit tests and compilation pass.
@@ -550,6 +616,7 @@ Evidence qualifiers:
 # 13. Explicitly deprecated or unresolved surfaces
 
 ## REQ-IAM-DEPRECATED-001 — Remove the second Platform Organization control plane
+- **Priority:** P0
 
 - **Status:** `DEPRECATED`
 - **Behavior to remove:** Organization CRUD/archive under `ProjectService`, Organization persistence/repository state and `organization:*` authorization resources.
@@ -557,6 +624,7 @@ Evidence qualifiers:
 - **Removal evidence required:** no Proto method, generated route, service method, database model/migration, defaults entry or SpiceDB definition remains.
 
 ## REQ-IAM-DECISION-001 — Decide the singular relationship mutation surface
+- **Priority:** P0
 
 - **Status:** `DECIDED`
 - **Decision:** `WriteRelationship` and `DeleteRelationship` changed from `AUTHORIZED` to `INTERNAL`. GrantAccess/RevokeAccess remain the only product-facing access control operations.
@@ -565,6 +633,7 @@ Evidence qualifiers:
 - **Gate 1 requirement:** confirm the decision and add a regression test preventing surface drift.
 
 ## REQ-IAM-DECISION-002 — Decide the canonical Group mutation surface
+- **Priority:** P0
 
 - **Status:** `DECIDED`
 - **Decision:** Group writes consolidated into `IAMGroupAdminService` (`api/iam/v1/group_admin.proto`). Routes: `/v1/iam/groups/...`. Permissions: `zone:*` for create, `group:*` for manage. Group writes removed from `IAMDirectoryService` and `IAMIdentityAdminService`.
@@ -583,4 +652,4 @@ The requirement catalogue can move from `Candidate` to `Approved [C1]` only afte
 - [x] decide the raw/singular relationship mutation surface — **INTERNAL**;
 - [x] approve which unimplemented RPCs belong in the first release — **全部已实现（UpdateProject, ArchiveProject, MoveResource, DeleteResource, UnbindResource, ListExternalResourceBindings）**;
 - [x] approve the required integration environment — **aisphere-dev (36.137.200.194) K8s 集群**;
-- [ ] assign priorities (`P0`, `P1`, `P2`) and release milestone to approved requirements.
+- [x] assign priorities (`P0`, `P1`, `P2`) and release milestone to approved requirements — **P0: 认证/目录/授权/Project/Resource (34个); P1: 投影/授权管理/Grant (18个); P2: 工程 (8个)**;

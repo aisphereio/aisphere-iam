@@ -7,7 +7,7 @@
 | Dimension | Result | Evidence | Notes |
 |-----------|--------|----------|-------|
 | System Understanding | PASS | understanding/system_overview.md, understanding/understanding_gate_decision.md | Confidence: Medium |
-| Requirements Recovery | PASS | requirements/requirements.md (60 REQs) | Candidate status; pending Gate 1 |
+| Requirements Recovery | PASS | requirements/requirements.md (63 REQs) | Approved with P0/P1/P2 priorities |
 | Traceability Matrix | PASS | traceability/implementation_traceability_matrix.md | Unit evidence only |
 | Gap Analysis | PASS | traceability/traceability_gaps.md (17 gaps) | P0 gaps identified |
 | Architecture Convergence | PASS | PR #40 merged; legacy Organization removed | GAP-IAM-001 closed |
