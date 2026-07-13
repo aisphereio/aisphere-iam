@@ -30,7 +30,11 @@ jobs:
           cache: true
 
       - name: Apply C2 decisions
-        run: python3 .github/scripts/c2_converge.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/c2_converge.py
+          sed -i '/^import "google\/protobuf\/empty.proto";$/d' api/iam/v1/iam.proto
 
       - name: Format source
         run: |
