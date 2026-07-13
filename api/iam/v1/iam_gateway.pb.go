@@ -105,41 +105,6 @@ func IAMDirectoryServiceGatewayManifest() gatewayx.Manifest {
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMDirectoryService/GetGroup"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
-			{
-				ID:       "i.a.m.directory.create.group",
-				Method:   "POST",
-				Path:     "/v1/iam/orgs/{org_id}/groups",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMDirectoryService/CreateGroup"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
-				ID:       "i.a.m.directory.update.group",
-				Method:   "PUT",
-				Path:     "/v1/iam/orgs/{org_id}/groups/{group_id}",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMDirectoryService/UpdateGroup"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
-				ID:       "i.a.m.directory.delete.group",
-				Method:   "DELETE",
-				Path:     "/v1/iam/orgs/{org_id}/groups/{group_id}",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMDirectoryService/DeleteGroup"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
-				ID:       "i.a.m.directory.assign.user.to.group",
-				Method:   "POST",
-				Path:     "/v1/iam/directory/group-memberships:assign",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMDirectoryService/AssignUserToGroup"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
-				ID:       "i.a.m.directory.remove.user.from.group",
-				Method:   "POST",
-				Path:     "/v1/iam/directory/group-memberships:remove",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMDirectoryService/RemoveUserFromGroup"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
 		},
 	}
 }
@@ -220,76 +185,6 @@ func IAMDirectoryServiceGatewayBindGetGroup(req gatewayx.DispatchRequest, match 
 	return out, nil
 }
 
-func IAMDirectoryServiceGatewayBindCreateGroup(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*CreateGroupRequest, error) {
-	out := &CreateGroupRequest{}
-	if v, ok := req.Body.(*CreateGroupRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(CreateGroupRequest); ok {
-		out = &v
-	}
-	if v := match.Params["org_id"]; v != "" {
-		out.OrgId = v
-	}
-	return out, nil
-}
-
-func IAMDirectoryServiceGatewayBindUpdateGroup(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*UpdateGroupRequest, error) {
-	out := &UpdateGroupRequest{}
-	if v, ok := req.Body.(*UpdateGroupRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(UpdateGroupRequest); ok {
-		out = &v
-	}
-	if v := match.Params["org_id"]; v != "" {
-		out.OrgId = v
-	}
-	if v := match.Params["group_id"]; v != "" {
-		out.GroupId = v
-	}
-	return out, nil
-}
-
-func IAMDirectoryServiceGatewayBindDeleteGroup(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*DeleteGroupRequest, error) {
-	out := &DeleteGroupRequest{}
-	if v, ok := req.Body.(*DeleteGroupRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(DeleteGroupRequest); ok {
-		out = &v
-	}
-	if v := match.Params["org_id"]; v != "" {
-		out.OrgId = v
-	}
-	if v := match.Params["group_id"]; v != "" {
-		out.GroupId = v
-	}
-	return out, nil
-}
-
-func IAMDirectoryServiceGatewayBindAssignUserToGroup(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*AssignUserToGroupRequest, error) {
-	out := &AssignUserToGroupRequest{}
-	if v, ok := req.Body.(*AssignUserToGroupRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(AssignUserToGroupRequest); ok {
-		out = &v
-	}
-	return out, nil
-}
-
-func IAMDirectoryServiceGatewayBindRemoveUserFromGroup(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*RemoveUserFromGroupRequest, error) {
-	out := &RemoveUserFromGroupRequest{}
-	if v, ok := req.Body.(*RemoveUserFromGroupRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(RemoveUserFromGroupRequest); ok {
-		out = &v
-	}
-	return out, nil
-}
-
 func RegisterIAMDirectoryServiceGatewayInvokers(registry *gatewayx.InvokerRegistry, client IAMDirectoryServiceClient) error {
 	if err := registry.Register("/iam.v1.IAMDirectoryService/GetUser", gatewayx.GRPCUnaryInvoker(IAMDirectoryServiceGatewayBindGetUser, client.GetUser)); err != nil {
 		return err
@@ -304,21 +199,6 @@ func RegisterIAMDirectoryServiceGatewayInvokers(registry *gatewayx.InvokerRegist
 		return err
 	}
 	if err := registry.Register("/iam.v1.IAMDirectoryService/GetGroup", gatewayx.GRPCUnaryInvoker(IAMDirectoryServiceGatewayBindGetGroup, client.GetGroup)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.v1.IAMDirectoryService/CreateGroup", gatewayx.GRPCUnaryInvoker(IAMDirectoryServiceGatewayBindCreateGroup, client.CreateGroup)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.v1.IAMDirectoryService/UpdateGroup", gatewayx.GRPCUnaryInvoker(IAMDirectoryServiceGatewayBindUpdateGroup, client.UpdateGroup)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.v1.IAMDirectoryService/DeleteGroup", gatewayx.GRPCUnaryInvoker(IAMDirectoryServiceGatewayBindDeleteGroup, client.DeleteGroup)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.v1.IAMDirectoryService/AssignUserToGroup", gatewayx.GRPCUnaryInvoker(IAMDirectoryServiceGatewayBindAssignUserToGroup, client.AssignUserToGroup)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.v1.IAMDirectoryService/RemoveUserFromGroup", gatewayx.GRPCUnaryInvoker(IAMDirectoryServiceGatewayBindRemoveUserFromGroup, client.RemoveUserFromGroup)); err != nil {
 		return err
 	}
 	return nil
@@ -441,20 +321,6 @@ func IAMPermissionServiceGatewayManifest() gatewayx.Manifest {
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
-				ID:       "i.a.m.permission.write.relationship",
-				Method:   "POST",
-				Path:     "/v1/iam/relationships",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMPermissionService/WriteRelationship"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
-				ID:       "i.a.m.permission.delete.relationship",
-				Method:   "POST",
-				Path:     "/v1/iam/relationships/delete",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMPermissionService/DeleteRelationship"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
 				ID:       "i.a.m.permission.lookup.resources",
 				Method:   "POST",
 				Path:     "/v1/iam/resources/lookup",
@@ -527,28 +393,6 @@ func IAMPermissionServiceGatewayBindReadRelationships(req gatewayx.DispatchReque
 	return out, nil
 }
 
-func IAMPermissionServiceGatewayBindWriteRelationship(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*WriteRelationshipRequest, error) {
-	out := &WriteRelationshipRequest{}
-	if v, ok := req.Body.(*WriteRelationshipRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(WriteRelationshipRequest); ok {
-		out = &v
-	}
-	return out, nil
-}
-
-func IAMPermissionServiceGatewayBindDeleteRelationship(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*DeleteRelationshipRequest, error) {
-	out := &DeleteRelationshipRequest{}
-	if v, ok := req.Body.(*DeleteRelationshipRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(DeleteRelationshipRequest); ok {
-		out = &v
-	}
-	return out, nil
-}
-
 func IAMPermissionServiceGatewayBindLookupResources(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*LookupResourcesRequest, error) {
 	out := &LookupResourcesRequest{}
 	if v, ok := req.Body.(*LookupResourcesRequest); ok && v != nil {
@@ -585,12 +429,6 @@ func RegisterIAMPermissionServiceGatewayInvokers(registry *gatewayx.InvokerRegis
 		return err
 	}
 	if err := registry.Register("/iam.v1.IAMPermissionService/ReadRelationships", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindReadRelationships, client.ReadRelationships)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.v1.IAMPermissionService/WriteRelationship", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindWriteRelationship, client.WriteRelationship)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.v1.IAMPermissionService/DeleteRelationship", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindDeleteRelationship, client.DeleteRelationship)); err != nil {
 		return err
 	}
 	if err := registry.Register("/iam.v1.IAMPermissionService/LookupResources", gatewayx.GRPCUnaryInvoker(IAMPermissionServiceGatewayBindLookupResources, client.LookupResources)); err != nil {

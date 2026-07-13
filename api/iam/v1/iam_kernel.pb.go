@@ -188,10 +188,10 @@ var IAMDirectoryServiceKernelAuthzRules = authz.Rules{
 		Service:    "iam.v1.IAMDirectoryService",
 		Method:     "GetUser",
 		FullMethod: "/iam.v1.IAMDirectoryService/GetUser",
-		Action:     "read",
-		Resource:   "iam:org:{org_id}:user:{user_id}",
+		Action:     "view_users",
+		Resource:   "zone:{org_id}",
 		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
+		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.user.get",
 		AuditRisk:  "low",
 	},
@@ -199,10 +199,10 @@ var IAMDirectoryServiceKernelAuthzRules = authz.Rules{
 		Service:    "iam.v1.IAMDirectoryService",
 		Method:     "ListUsers",
 		FullMethod: "/iam.v1.IAMDirectoryService/ListUsers",
-		Action:     "list",
-		Resource:   "iam:org:{org_id}:user:*",
+		Action:     "view_users",
+		Resource:   "zone:{org_id}",
 		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
+		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.user.list",
 		AuditRisk:  "medium",
 	},
@@ -210,10 +210,10 @@ var IAMDirectoryServiceKernelAuthzRules = authz.Rules{
 		Service:    "iam.v1.IAMDirectoryService",
 		Method:     "GetOrganization",
 		FullMethod: "/iam.v1.IAMDirectoryService/GetOrganization",
-		Action:     "read",
-		Resource:   "iam:org:{org_id}:organization:{org_id}",
+		Action:     "view_zone",
+		Resource:   "zone:{org_id}",
 		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
+		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.org.get",
 		AuditRisk:  "low",
 	},
@@ -221,10 +221,10 @@ var IAMDirectoryServiceKernelAuthzRules = authz.Rules{
 		Service:    "iam.v1.IAMDirectoryService",
 		Method:     "ListGroups",
 		FullMethod: "/iam.v1.IAMDirectoryService/ListGroups",
-		Action:     "list",
-		Resource:   "iam:org:{org_id}:group:*",
+		Action:     "view_groups",
+		Resource:   "zone:{org_id}",
 		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
+		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.group.list",
 		AuditRisk:  "medium",
 	},
@@ -232,67 +232,12 @@ var IAMDirectoryServiceKernelAuthzRules = authz.Rules{
 		Service:    "iam.v1.IAMDirectoryService",
 		Method:     "GetGroup",
 		FullMethod: "/iam.v1.IAMDirectoryService/GetGroup",
-		Action:     "view",
-		Resource:   "group:{group_id}",
+		Action:     "view_groups",
+		Resource:   "zone:{org_id}",
 		Audience:   "iam-service",
 		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.group.get",
 		AuditRisk:  "low",
-	},
-	"/iam.v1.IAMDirectoryService/CreateGroup": {
-		Service:    "iam.v1.IAMDirectoryService",
-		Method:     "CreateGroup",
-		FullMethod: "/iam.v1.IAMDirectoryService/CreateGroup",
-		Action:     "create_groups",
-		Resource:   "zone:{org_id}",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.group.create",
-		AuditRisk:  "high",
-	},
-	"/iam.v1.IAMDirectoryService/UpdateGroup": {
-		Service:    "iam.v1.IAMDirectoryService",
-		Method:     "UpdateGroup",
-		FullMethod: "/iam.v1.IAMDirectoryService/UpdateGroup",
-		Action:     "manage",
-		Resource:   "group:{group_id}",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.group.update",
-		AuditRisk:  "high",
-	},
-	"/iam.v1.IAMDirectoryService/DeleteGroup": {
-		Service:    "iam.v1.IAMDirectoryService",
-		Method:     "DeleteGroup",
-		FullMethod: "/iam.v1.IAMDirectoryService/DeleteGroup",
-		Action:     "manage",
-		Resource:   "group:{group_id}",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.group.delete",
-		AuditRisk:  "critical",
-	},
-	"/iam.v1.IAMDirectoryService/AssignUserToGroup": {
-		Service:    "iam.v1.IAMDirectoryService",
-		Method:     "AssignUserToGroup",
-		FullMethod: "/iam.v1.IAMDirectoryService/AssignUserToGroup",
-		Action:     "manage_members",
-		Resource:   "group:{group_id}",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.group.member.assign",
-		AuditRisk:  "high",
-	},
-	"/iam.v1.IAMDirectoryService/RemoveUserFromGroup": {
-		Service:    "iam.v1.IAMDirectoryService",
-		Method:     "RemoveUserFromGroup",
-		FullMethod: "/iam.v1.IAMDirectoryService/RemoveUserFromGroup",
-		Action:     "manage_members",
-		Resource:   "group:{group_id}",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.group.member.remove",
-		AuditRisk:  "high",
 	},
 }
 
@@ -307,12 +252,12 @@ func IAMDirectoryServiceKernelRequestInfoResolver(ctx context.Context, operation
 			Method:        "GetUser",
 			Operation:     "/iam.v1.IAMDirectoryService/GetUser",
 			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "read",
-			Resource:      "iam:org:{org_id}:user:{user_id}",
+			Action:        "view_users",
+			Resource:      "zone:{org_id}",
 			TargetService: "iam-service",
 			Labels:        map[string]string{},
 		}
-		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["authz_mode"] = "SELF_CHECK"
 		info.Labels["audit_event"] = "iam.user.get"
 		info.Labels["audit_risk"] = "low"
 		return info.Normalize(), true, nil
@@ -322,12 +267,12 @@ func IAMDirectoryServiceKernelRequestInfoResolver(ctx context.Context, operation
 			Method:        "ListUsers",
 			Operation:     "/iam.v1.IAMDirectoryService/ListUsers",
 			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "list",
-			Resource:      "iam:org:{org_id}:user:*",
+			Action:        "view_users",
+			Resource:      "zone:{org_id}",
 			TargetService: "iam-service",
 			Labels:        map[string]string{},
 		}
-		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["authz_mode"] = "SELF_CHECK"
 		info.Labels["audit_event"] = "iam.user.list"
 		info.Labels["audit_risk"] = "medium"
 		return info.Normalize(), true, nil
@@ -337,12 +282,12 @@ func IAMDirectoryServiceKernelRequestInfoResolver(ctx context.Context, operation
 			Method:        "GetOrganization",
 			Operation:     "/iam.v1.IAMDirectoryService/GetOrganization",
 			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "read",
-			Resource:      "iam:org:{org_id}:organization:{org_id}",
+			Action:        "view_zone",
+			Resource:      "zone:{org_id}",
 			TargetService: "iam-service",
 			Labels:        map[string]string{},
 		}
-		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["authz_mode"] = "SELF_CHECK"
 		info.Labels["audit_event"] = "iam.org.get"
 		info.Labels["audit_risk"] = "low"
 		return info.Normalize(), true, nil
@@ -352,12 +297,12 @@ func IAMDirectoryServiceKernelRequestInfoResolver(ctx context.Context, operation
 			Method:        "ListGroups",
 			Operation:     "/iam.v1.IAMDirectoryService/ListGroups",
 			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "list",
-			Resource:      "iam:org:{org_id}:group:*",
+			Action:        "view_groups",
+			Resource:      "zone:{org_id}",
 			TargetService: "iam-service",
 			Labels:        map[string]string{},
 		}
-		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["authz_mode"] = "SELF_CHECK"
 		info.Labels["audit_event"] = "iam.group.list"
 		info.Labels["audit_risk"] = "medium"
 		return info.Normalize(), true, nil
@@ -367,89 +312,14 @@ func IAMDirectoryServiceKernelRequestInfoResolver(ctx context.Context, operation
 			Method:        "GetGroup",
 			Operation:     "/iam.v1.IAMDirectoryService/GetGroup",
 			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "view",
-			Resource:      "group:{group_id}",
+			Action:        "view_groups",
+			Resource:      "zone:{org_id}",
 			TargetService: "iam-service",
 			Labels:        map[string]string{},
 		}
 		info.Labels["authz_mode"] = "SELF_CHECK"
 		info.Labels["audit_event"] = "iam.group.get"
 		info.Labels["audit_risk"] = "low"
-		return info.Normalize(), true, nil
-	case "/iam.v1.IAMDirectoryService/CreateGroup":
-		info := requestx.Info{
-			Service:       "iam.v1.IAMDirectoryService",
-			Method:        "CreateGroup",
-			Operation:     "/iam.v1.IAMDirectoryService/CreateGroup",
-			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "create_groups",
-			Resource:      "zone:{org_id}",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "SELF_CHECK"
-		info.Labels["audit_event"] = "iam.group.create"
-		info.Labels["audit_risk"] = "high"
-		return info.Normalize(), true, nil
-	case "/iam.v1.IAMDirectoryService/UpdateGroup":
-		info := requestx.Info{
-			Service:       "iam.v1.IAMDirectoryService",
-			Method:        "UpdateGroup",
-			Operation:     "/iam.v1.IAMDirectoryService/UpdateGroup",
-			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "manage",
-			Resource:      "group:{group_id}",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "SELF_CHECK"
-		info.Labels["audit_event"] = "iam.group.update"
-		info.Labels["audit_risk"] = "high"
-		return info.Normalize(), true, nil
-	case "/iam.v1.IAMDirectoryService/DeleteGroup":
-		info := requestx.Info{
-			Service:       "iam.v1.IAMDirectoryService",
-			Method:        "DeleteGroup",
-			Operation:     "/iam.v1.IAMDirectoryService/DeleteGroup",
-			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "manage",
-			Resource:      "group:{group_id}",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "SELF_CHECK"
-		info.Labels["audit_event"] = "iam.group.delete"
-		info.Labels["audit_risk"] = "critical"
-		return info.Normalize(), true, nil
-	case "/iam.v1.IAMDirectoryService/AssignUserToGroup":
-		info := requestx.Info{
-			Service:       "iam.v1.IAMDirectoryService",
-			Method:        "AssignUserToGroup",
-			Operation:     "/iam.v1.IAMDirectoryService/AssignUserToGroup",
-			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "manage_members",
-			Resource:      "group:{group_id}",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "SELF_CHECK"
-		info.Labels["audit_event"] = "iam.group.member.assign"
-		info.Labels["audit_risk"] = "high"
-		return info.Normalize(), true, nil
-	case "/iam.v1.IAMDirectoryService/RemoveUserFromGroup":
-		info := requestx.Info{
-			Service:       "iam.v1.IAMDirectoryService",
-			Method:        "RemoveUserFromGroup",
-			Operation:     "/iam.v1.IAMDirectoryService/RemoveUserFromGroup",
-			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "manage_members",
-			Resource:      "group:{group_id}",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "SELF_CHECK"
-		info.Labels["audit_event"] = "iam.group.member.remove"
-		info.Labels["audit_risk"] = "high"
 		return info.Normalize(), true, nil
 	default:
 		return requestx.Info{}, false, nil
@@ -491,16 +361,6 @@ func _IAMDirectoryServiceKernelNormalizeOperation(operation string) string {
 		return "/iam.v1.IAMDirectoryService/ListGroups"
 	case "GetGroup", "iam.v1.IAMDirectoryService/GetGroup":
 		return "/iam.v1.IAMDirectoryService/GetGroup"
-	case "CreateGroup", "iam.v1.IAMDirectoryService/CreateGroup":
-		return "/iam.v1.IAMDirectoryService/CreateGroup"
-	case "UpdateGroup", "iam.v1.IAMDirectoryService/UpdateGroup":
-		return "/iam.v1.IAMDirectoryService/UpdateGroup"
-	case "DeleteGroup", "iam.v1.IAMDirectoryService/DeleteGroup":
-		return "/iam.v1.IAMDirectoryService/DeleteGroup"
-	case "AssignUserToGroup", "iam.v1.IAMDirectoryService/AssignUserToGroup":
-		return "/iam.v1.IAMDirectoryService/AssignUserToGroup"
-	case "RemoveUserFromGroup", "iam.v1.IAMDirectoryService/RemoveUserFromGroup":
-		return "/iam.v1.IAMDirectoryService/RemoveUserFromGroup"
 	default:
 		return operation
 	}
@@ -755,28 +615,6 @@ var IAMPermissionServiceKernelAuthzRules = authz.Rules{
 		AuditEvent: "iam.relationship.read",
 		AuditRisk:  "medium",
 	},
-	"/iam.v1.IAMPermissionService/WriteRelationship": {
-		Service:    "iam.v1.IAMPermissionService",
-		Method:     "WriteRelationship",
-		FullMethod: "/iam.v1.IAMPermissionService/WriteRelationship",
-		Action:     "write",
-		Resource:   "iam:relationship",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
-		AuditEvent: "iam.relationship.write",
-		AuditRisk:  "high",
-	},
-	"/iam.v1.IAMPermissionService/DeleteRelationship": {
-		Service:    "iam.v1.IAMPermissionService",
-		Method:     "DeleteRelationship",
-		FullMethod: "/iam.v1.IAMPermissionService/DeleteRelationship",
-		Action:     "delete",
-		Resource:   "iam:relationship",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
-		AuditEvent: "iam.relationship.delete",
-		AuditRisk:  "high",
-	},
 	"/iam.v1.IAMPermissionService/LookupResources": {
 		Service:    "iam.v1.IAMPermissionService",
 		Method:     "LookupResources",
@@ -881,36 +719,6 @@ func IAMPermissionServiceKernelRequestInfoResolver(ctx context.Context, operatio
 		info.Labels["audit_event"] = "iam.relationship.read"
 		info.Labels["audit_risk"] = "medium"
 		return info.Normalize(), true, nil
-	case "/iam.v1.IAMPermissionService/WriteRelationship":
-		info := requestx.Info{
-			Service:       "iam.v1.IAMPermissionService",
-			Method:        "WriteRelationship",
-			Operation:     "/iam.v1.IAMPermissionService/WriteRelationship",
-			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "write",
-			Resource:      "iam:relationship",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "CHECK_ONLY"
-		info.Labels["audit_event"] = "iam.relationship.write"
-		info.Labels["audit_risk"] = "high"
-		return info.Normalize(), true, nil
-	case "/iam.v1.IAMPermissionService/DeleteRelationship":
-		info := requestx.Info{
-			Service:       "iam.v1.IAMPermissionService",
-			Method:        "DeleteRelationship",
-			Operation:     "/iam.v1.IAMPermissionService/DeleteRelationship",
-			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "delete",
-			Resource:      "iam:relationship",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "CHECK_ONLY"
-		info.Labels["audit_event"] = "iam.relationship.delete"
-		info.Labels["audit_risk"] = "high"
-		return info.Normalize(), true, nil
 	case "/iam.v1.IAMPermissionService/LookupResources":
 		info := requestx.Info{
 			Service:       "iam.v1.IAMPermissionService",
@@ -981,10 +789,6 @@ func _IAMPermissionServiceKernelNormalizeOperation(operation string) string {
 		return "/iam.v1.IAMPermissionService/DeleteRelationships"
 	case "ReadRelationships", "iam.v1.IAMPermissionService/ReadRelationships":
 		return "/iam.v1.IAMPermissionService/ReadRelationships"
-	case "WriteRelationship", "iam.v1.IAMPermissionService/WriteRelationship":
-		return "/iam.v1.IAMPermissionService/WriteRelationship"
-	case "DeleteRelationship", "iam.v1.IAMPermissionService/DeleteRelationship":
-		return "/iam.v1.IAMPermissionService/DeleteRelationship"
 	case "LookupResources", "iam.v1.IAMPermissionService/LookupResources":
 		return "/iam.v1.IAMPermissionService/LookupResources"
 	case "LookupSubjects", "iam.v1.IAMPermissionService/LookupSubjects":
