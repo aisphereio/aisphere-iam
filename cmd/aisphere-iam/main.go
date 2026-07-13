@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"sync"
 	"time"
 
 	kernel "github.com/aisphereio/kernel"
@@ -133,16 +134,23 @@ httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metric
 				Interval:   5 * time.Second,
 			},
 		}
-		// Defer scheduling to after kernel.Run() starts the servers, so the
-		// Dapr sidecar has time to connect to the scheduler control plane.
-		go func() {
-			time.Sleep(5 * time.Second)
-			if err := taskRuntime.Schedule(context.Background(), jobSpec); err != nil {
-				logger.Error("failed to schedule grant expiration job", logx.Any("error", err))
-			} else {
-				logger.Info("grant expiration reconciler scheduled")
-			}
-		}()
+		// Use kernel.AfterStart to schedule the job after all servers (including
+		// the Dapr callback server on :19081) are running. This ensures the Dapr
+		// sidecar has completed its initialization and is ready to accept gRPC
+		// calls from the application.
+		scheduleOnce := sync.Once{}
+		afterStart := func(ctx context.Context) error {
+			var scheduleErr error
+			scheduleOnce.Do(func() {
+				if err := taskRuntime.Schedule(ctx, jobSpec); err != nil {
+					logger.Error("failed to schedule grant expiration job", logx.Any("error", err))
+					scheduleErr = err
+				} else {
+					logger.Info("grant expiration reconciler scheduled")
+				}
+			})
+			return scheduleErr
+		}
 
 		options := []kernel.Option{
 			kernel.Name(bc.Service.Name),
@@ -151,6 +159,7 @@ httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metric
 			kernel.Metrics(metrics),
 			kernel.DTM(dtmManager),
 			kernel.Server(httpServer, grpcServer, taskCallback),
+			kernel.AfterStart(afterStart),
 			kernel.StopTimeout(10 * time.Second),
 		}
 	if bc.Metrics.Enabled && bc.Metrics.Addr != "" {
