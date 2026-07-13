@@ -17,7 +17,7 @@ This matrix links recovered candidate requirements to implementation and current
 |---|---|---|---|---|
 | `REQ-IAM-AUTHN-001` | `IAMAuthService.GetMe` | `internal/service/iam.go::GetMe`; Kernel `PrincipalFromContext` | `internal/service/principal_context_test.go` verifies Context extraction and missing Principal helper behavior | `Verified (unit scope)` |
 | `REQ-IAM-AUTHN-002` | `IAMAuthService.VerifyToken`; `POST /v1/iam/auth/verify` | `internal/service/iam.go::VerifyToken` delegates to `authn.TokenService`; Proto marks INTERNAL | no real Casdoor token test identified | `Observed` |
-| `REQ-IAM-AUTHN-003` | Project/Resource/Grant mutations | `internal/service/control_plane.go` calls `currentProjectSubject`, `currentResourceSubject`, `currentGrantSubject` | `principal_context_test.go` verifies actor/owner fallback helpers | `Partial`; Project main still accepts request owner/scope |
+| `REQ-IAM-AUTHN-003` | Project/Resource/Grant mutations | `internal/service/control_plane.go` calls `currentProjectContext`, `currentResourceSubject`, `currentGrantSubject` | `principal_context_test.go` verifies actor/owner fallback helpers and rejects missing org_id | `Verified (unit scope)`; PR #40 removed request owner/scope |
 | `REQ-IAM-AUTHN-004` | Envoy Gateway OIDC and trusted identity propagation | `README.md`, `docs/architecture-boundaries.md`, Kernel authn mode/config | generated/deployment presence observed; no Gateway spoofing E2E evidence | `Architecture required` |
 
 ## Identity directory
@@ -71,15 +71,15 @@ This matrix links recovered candidate requirements to implementation and current
 
 | Requirement | API / entry point | Implementation evidence | Test / CI evidence | C1 result |
 |---|---|---|---|---|
-| `REQ-IAM-PROJECT-001` | target Project/Zone root model | architecture contract and SpiceDB/defaults/project biz model use Zone | `model_contract_test.go` rejects SpiceDB/defaults legacy Organization model | `Conflict`: main API/service still expose second Organization |
-| `REQ-IAM-PROJECT-002` | `CreateProject` scope | target documented in architecture and PR #40; main service uses `req.GetOrgId()` | PR #40 CI succeeds, but current main contract conflicts | `Architecture required` |
-| `REQ-IAM-PROJECT-003` | creator ownership | project biz projects Zone/owner; service derives actor but accepts request owner fallback | Principal fallback unit test; model contract checks Zone relationship | `Partial` |
-| `REQ-IAM-PROJECT-004` | `GetProject`, `ListProjects` scoped to current Zone | repository read/list methods called by main service; target scope documented | no cross-Zone authorization integration test identified | `Partial` |
-| `REQ-IAM-PROJECT-005` | `UpdateProject` | Proto contract exists | `internal/service/control_plane.go` returns `codes.Unimplemented` | `Contract only` |
-| `REQ-IAM-PROJECT-006` | `ArchiveProject` | Proto contract exists | service returns `codes.Unimplemented` | `Contract only` |
+| `REQ-IAM-PROJECT-001` | target Project/Zone root model | architecture contract and SpiceDB/defaults/project biz model use Zone; PR #40 removed legacy Organization | `model_contract_test.go` rejects SpiceDB/defaults legacy Organization model | `Verified (unit scope)`; PR #40 merged |
+| `REQ-IAM-PROJECT-002` | `CreateProject` scope | `internal/service/control_plane.go` uses `currentProjectContext` deriving from `authn.Principal.OrgID` | `principal_context_test.go` verifies org_id from Principal; rejects missing org_id | `Verified (unit scope)`; PR #40 merged |
+| `REQ-IAM-PROJECT-003` | creator ownership | project biz projects Zone/owner; service derives actor from Principal | `principal_context_test.go` verifies actor from Principal | `Verified (unit scope)`; PR #40 merged |
+| `REQ-IAM-PROJECT-004` | `GetProject`, `ListProjects` scoped to current Zone | repository read/list methods called by main service; `ListProjects` filters by `orgID` from Principal | no cross-Zone authorization integration test identified | `Observed` |
+| `REQ-IAM-PROJECT-005` | `UpdateProject` | `internal/service/control_plane.go::UpdateProject` uses `UpsertProject`; Zone permission checked | no integration test identified | `Observed` |
+| `REQ-IAM-PROJECT-006` | `ArchiveProject` | `internal/service/control_plane.go::ArchiveProject`; `internal/data/resource_repository.go::ArchiveProject` sets status to ARCHIVED; Zone permission checked | no integration test identified | `Observed` |
 | `REQ-IAM-PROJECT-007` | register/list Capability | service and project biz/repository calls exist | no focused integration test identified | `Observed` |
 | `REQ-IAM-PROJECT-008` | enable/disable/list Project Capability | service and project biz/repository calls exist | no schema/config or persistence integration evidence identified | `Observed` |
-| `REQ-IAM-DEPRECATED-001` | legacy Organization control plane | main Proto/service/data still contain surface; architecture rejects it | model contract currently guards schema/defaults only; PR #40 removes wider surface | `Deprecated / removal in progress` |
+| `REQ-IAM-DEPRECATED-001` | legacy Organization control plane | PR #40 removed Organization CRUD from proto, deleted `internal/biz/project/service.go`, cleaned up data layer | `model_contract_test.go` enforces single-root Zone model; Grant/Resource services reject `organization` type | `Deprecated / removed` |
 
 ## Resource control plane
 

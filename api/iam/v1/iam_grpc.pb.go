@@ -169,6 +169,11 @@ const (
 // IAMDirectoryServiceClient is the client API for IAMDirectoryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// IAMDirectoryService provides read-only directory access.
+//
+// Group CRUD and membership operations have been consolidated into
+// IAMGroupAdminService (api/iam/v1/group_admin.proto).
 type IAMDirectoryServiceClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error)
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersReply, error)
@@ -238,6 +243,11 @@ func (c *iAMDirectoryServiceClient) GetGroup(ctx context.Context, in *GetGroupRe
 // IAMDirectoryServiceServer is the server API for IAMDirectoryService service.
 // All implementations must embed UnimplementedIAMDirectoryServiceServer
 // for forward compatibility.
+//
+// IAMDirectoryService provides read-only directory access.
+//
+// Group CRUD and membership operations have been consolidated into
+// IAMGroupAdminService (api/iam/v1/group_admin.proto).
 type IAMDirectoryServiceServer interface {
 	GetUser(context.Context, *GetUserRequest) (*User, error)
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersReply, error)

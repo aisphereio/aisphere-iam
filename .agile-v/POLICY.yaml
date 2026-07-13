@@ -1,0 +1,51 @@
+# Policy-as-Code — Aisphere IAM
+# Version: 1.0 | Cycle: C1
+
+policies:
+  - id: POL-IAM-001
+    description: "All code changes must trace to a REQ-IAM-* requirement"
+    rule: "Every commit message must reference at least one REQ-IAM-* identifier"
+    enforcement: manual review
+    exception: "Documentation-only changes (docs/, .agile-v/)"
+
+  - id: POL-IAM-002
+    description: "No hand-written Gateway routes"
+    rule: "All external HTTP routes must be generated from Proto google.api.http annotations"
+    enforcement: CI drift check
+    exception: "healthz, readyz, metrics (system routes managed by serverx)"
+
+  - id: POL-IAM-003
+    description: "Principal must come from Kernel Context"
+    rule: "Business code must use authn.PrincipalFromContext(ctx); never parse raw headers or request body identity fields"
+    enforcement: code review
+    exception: "None"
+
+  - id: POL-IAM-004
+    description: "Authorization must fail closed"
+    rule: "When SpiceDB or authz provider is unavailable, IAM must deny access, not allow"
+    enforcement: integration test
+    exception: "DevAllowAll mode for local development only"
+
+  - id: POL-IAM-005
+    description: "No raw errors in business code"
+    rule: "All errors must use errorx constructors; no errors.New, fmt.Errorf, or panic(err)"
+    enforcement: CI check (scripts/check-errorx-usage.sh)
+    reference: "Kernel AGENTS.md, docs/ai/errorx.md"
+
+  - id: POL-IAM-006
+    description: "Generated artifacts must be committed and drift-free"
+    rule: "Proto generation output must be committed; CI must reject drift"
+    enforcement: CI drift check
+    exception: "None"
+
+  - id: POL-IAM-007
+    description: "Decision Log is append-only"
+    rule: "Never overwrite or delete entries in DECISION_LOG.md"
+    enforcement: manual
+    exception: "None"
+
+  - id: POL-IAM-008
+    description: "No production deployment without Gate 2"
+    rule: "Release requires Gate 2 evidence with EVAL_RESULTS.md showing eval_gate_status PASS or WAIVED"
+    enforcement: manual
+    reference: "Agile V Directive #7"

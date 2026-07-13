@@ -283,7 +283,7 @@ const file_iam_v1_identity_admin_proto_rawDesc = "" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12#\n" +
 	"\auser_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06userId\x12\x12\n" +
-	"\x04hard\x18\x03 \x01(\bR\x04hard2\xc1\x0e\n" +
+	"\x04hard\x18\x03 \x01(\bR\x04hard2\x95\x06\n" +
 	"\x17IAMIdentityAdminService\x12\xac\x01\n" +
 	"\n" +
 	"CreateUser\x12\x19.iam.v1.CreateUserRequest\x1a\f.iam.v1.User\"u\x92\xf4\x18K\b\x03\x12,\n" +
@@ -295,17 +295,7 @@ const file_iam_v1_identity_admin_proto_rawDesc = "" +
 	"\fmanage_users\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.user.disable\x1a\x04high\x82\xd3\xe4\x93\x022:\x01*\"-/v1/iam/orgs/{org_id}/users/{user_id}:disable\x12\xc2\x01\n" +
 	"\n" +
 	"DeleteUser\x12\x19.iam.v1.DeleteUserRequest\x1a\x16.google.protobuf.Empty\"\x80\x01\x92\xf4\x18O\b\x03\x12,\n" +
-	"\fmanage_users\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x0fiam.user.delete\x1a\bcritical\x82\xd3\xe4\x93\x02'*%/v1/iam/orgs/{org_id}/users/{user_id}\x12\xb2\x01\n" +
-	"\vCreateGroup\x12\x1a.iam.v1.CreateGroupRequest\x1a\r.iam.v1.Group\"x\x92\xf4\x18M\b\x03\x12-\n" +
-	"\rcreate_groups\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.group.create\x1a\x04high\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/orgs/{org_id}/groups\x12\xc3\x01\n" +
-	"\vUpdateGroup\x12\x1a.iam.v1.UpdateGroupRequest\x1a\r.iam.v1.Group\"\x88\x01\x92\xf4\x18R\b\x03\x122\n" +
-	"\x06manage\x12\x19group:{org_id}/{group_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.group.update\x1a\x04high\x82\xd3\xe4\x93\x02,:\x01*2'/v1/iam/orgs/{org_id}/groups/{group_id}\x12\xcd\x01\n" +
-	"\vDeleteGroup\x12\x1a.iam.v1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\x89\x01\x92\xf4\x18V\b\x03\x122\n" +
-	"\x06manage\x12\x19group:{org_id}/{group_id}\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x10iam.group.delete\x1a\bcritical\x82\xd3\xe4\x93\x02)*'/v1/iam/orgs/{org_id}/groups/{group_id}\x12\xed\x01\n" +
-	"\x11AssignUserToGroup\x12 .iam.v1.AssignUserToGroupRequest\x1a\x16.google.protobuf.Empty\"\x9d\x01\x92\xf4\x18W\b\x03\x122\n" +
-	"\x06manage\x12\x19group:{org_id}/{group_id}\x1a\viam-service \x01\x1a\x1f\b\x01\x12\x15iam.group.user.assign\x1a\x04high\x82\xd3\xe4\x93\x02<:\x01*\"7/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}\x12\xee\x01\n" +
-	"\x13RemoveUserFromGroup\x12\".iam.v1.RemoveUserFromGroupRequest\x1a\x16.google.protobuf.Empty\"\x9a\x01\x92\xf4\x18W\b\x03\x122\n" +
-	"\x06manage\x12\x19group:{org_id}/{group_id}\x1a\viam-service \x01\x1a\x1f\b\x01\x12\x15iam.group.user.remove\x1a\x04high\x82\xd3\xe4\x93\x029*7/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}B2Z0github.com/aisphereio/aisphere-iam/api/iam/v1;v1b\x06proto3"
+	"\fmanage_users\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x0fiam.user.delete\x1a\bcritical\x82\xd3\xe4\x93\x02'*%/v1/iam/orgs/{org_id}/users/{user_id}B2Z0github.com/aisphereio/aisphere-iam/api/iam/v1;v1b\x06proto3"
 
 var (
 	file_iam_v1_identity_admin_proto_rawDescOnce sync.Once
@@ -321,45 +311,29 @@ func file_iam_v1_identity_admin_proto_rawDescGZIP() []byte {
 
 var file_iam_v1_identity_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_iam_v1_identity_admin_proto_goTypes = []any{
-	(*CreateUserRequest)(nil),          // 0: iam.v1.CreateUserRequest
-	(*UpdateUserRequest)(nil),          // 1: iam.v1.UpdateUserRequest
-	(*DisableUserRequest)(nil),         // 2: iam.v1.DisableUserRequest
-	(*DeleteUserRequest)(nil),          // 3: iam.v1.DeleteUserRequest
-	(*User)(nil),                       // 4: iam.v1.User
-	(*CreateGroupRequest)(nil),         // 5: iam.v1.CreateGroupRequest
-	(*UpdateGroupRequest)(nil),         // 6: iam.v1.UpdateGroupRequest
-	(*DeleteGroupRequest)(nil),         // 7: iam.v1.DeleteGroupRequest
-	(*AssignUserToGroupRequest)(nil),   // 8: iam.v1.AssignUserToGroupRequest
-	(*RemoveUserFromGroupRequest)(nil), // 9: iam.v1.RemoveUserFromGroupRequest
-	(*emptypb.Empty)(nil),              // 10: google.protobuf.Empty
-	(*Group)(nil),                      // 11: iam.v1.Group
+	(*CreateUserRequest)(nil),  // 0: iam.v1.CreateUserRequest
+	(*UpdateUserRequest)(nil),  // 1: iam.v1.UpdateUserRequest
+	(*DisableUserRequest)(nil), // 2: iam.v1.DisableUserRequest
+	(*DeleteUserRequest)(nil),  // 3: iam.v1.DeleteUserRequest
+	(*User)(nil),               // 4: iam.v1.User
+	(*emptypb.Empty)(nil),      // 5: google.protobuf.Empty
 }
 var file_iam_v1_identity_admin_proto_depIdxs = []int32{
-	4,  // 0: iam.v1.CreateUserRequest.user:type_name -> iam.v1.User
-	4,  // 1: iam.v1.UpdateUserRequest.user:type_name -> iam.v1.User
-	0,  // 2: iam.v1.IAMIdentityAdminService.CreateUser:input_type -> iam.v1.CreateUserRequest
-	1,  // 3: iam.v1.IAMIdentityAdminService.UpdateUser:input_type -> iam.v1.UpdateUserRequest
-	2,  // 4: iam.v1.IAMIdentityAdminService.DisableUser:input_type -> iam.v1.DisableUserRequest
-	3,  // 5: iam.v1.IAMIdentityAdminService.DeleteUser:input_type -> iam.v1.DeleteUserRequest
-	5,  // 6: iam.v1.IAMIdentityAdminService.CreateGroup:input_type -> iam.v1.CreateGroupRequest
-	6,  // 7: iam.v1.IAMIdentityAdminService.UpdateGroup:input_type -> iam.v1.UpdateGroupRequest
-	7,  // 8: iam.v1.IAMIdentityAdminService.DeleteGroup:input_type -> iam.v1.DeleteGroupRequest
-	8,  // 9: iam.v1.IAMIdentityAdminService.AssignUserToGroup:input_type -> iam.v1.AssignUserToGroupRequest
-	9,  // 10: iam.v1.IAMIdentityAdminService.RemoveUserFromGroup:input_type -> iam.v1.RemoveUserFromGroupRequest
-	4,  // 11: iam.v1.IAMIdentityAdminService.CreateUser:output_type -> iam.v1.User
-	4,  // 12: iam.v1.IAMIdentityAdminService.UpdateUser:output_type -> iam.v1.User
-	10, // 13: iam.v1.IAMIdentityAdminService.DisableUser:output_type -> google.protobuf.Empty
-	10, // 14: iam.v1.IAMIdentityAdminService.DeleteUser:output_type -> google.protobuf.Empty
-	11, // 15: iam.v1.IAMIdentityAdminService.CreateGroup:output_type -> iam.v1.Group
-	11, // 16: iam.v1.IAMIdentityAdminService.UpdateGroup:output_type -> iam.v1.Group
-	10, // 17: iam.v1.IAMIdentityAdminService.DeleteGroup:output_type -> google.protobuf.Empty
-	10, // 18: iam.v1.IAMIdentityAdminService.AssignUserToGroup:output_type -> google.protobuf.Empty
-	10, // 19: iam.v1.IAMIdentityAdminService.RemoveUserFromGroup:output_type -> google.protobuf.Empty
-	11, // [11:20] is the sub-list for method output_type
-	2,  // [2:11] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	4, // 0: iam.v1.CreateUserRequest.user:type_name -> iam.v1.User
+	4, // 1: iam.v1.UpdateUserRequest.user:type_name -> iam.v1.User
+	0, // 2: iam.v1.IAMIdentityAdminService.CreateUser:input_type -> iam.v1.CreateUserRequest
+	1, // 3: iam.v1.IAMIdentityAdminService.UpdateUser:input_type -> iam.v1.UpdateUserRequest
+	2, // 4: iam.v1.IAMIdentityAdminService.DisableUser:input_type -> iam.v1.DisableUserRequest
+	3, // 5: iam.v1.IAMIdentityAdminService.DeleteUser:input_type -> iam.v1.DeleteUserRequest
+	4, // 6: iam.v1.IAMIdentityAdminService.CreateUser:output_type -> iam.v1.User
+	4, // 7: iam.v1.IAMIdentityAdminService.UpdateUser:output_type -> iam.v1.User
+	5, // 8: iam.v1.IAMIdentityAdminService.DisableUser:output_type -> google.protobuf.Empty
+	5, // 9: iam.v1.IAMIdentityAdminService.DeleteUser:output_type -> google.protobuf.Empty
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_iam_v1_identity_admin_proto_init() }

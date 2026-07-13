@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package iam.v1;
+
+import "aisphere/access/v1/access.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "iam/v1/iam.proto";
+
+option go_package = "github.com/aisphereio/aisphere-iam/api/iam/v1;v1";
+
+// IAMGroupAdminService is the canonical Group management surface.
+//
+// This consolidates Group CRUD and membership operations that were previously
+// split across IAMDirectoryService and IAMIdentityAdminService. All Group
+// mutations go through this single service with consistent routes, permissions,
+// and audit metadata.
+//
+// Group reads (ListGroups, GetGroup) remain in IAMDirectoryService alongside
+// other directory read operations.
+service IAMGroupAdminService {
+  rpc CreateGroup(CreateGroupRequest) returns (Group) {
+    option (google.api.http) = { post: "/v1/iam/groups" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "create_groups" resource: "zone:{org_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.create" risk: "high" }
+    };
+  }
+
+  rpc UpdateGroup(UpdateGroupRequest) returns (Group) {
+    option (google.api.http) = { patch: "/v1/iam/groups/{group_id}" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage" resource: "group:{group_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.update" risk: "high" }
+    };
+  }
+
+  rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/iam/groups/{group_id}" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage" resource: "group:{group_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.delete" risk: "critical" }
+    };
+  }
+
+  rpc AssignUserToGroup(AssignUserToGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { post: "/v1/iam/groups/{group_id}/users/{user_id}" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage" resource: "group:{group_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.user.assign" risk: "high" }
+    };
+  }
+
+  rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/iam/groups/{group_id}/users/{user_id}" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage" resource: "group:{group_id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.group.user.remove" risk: "high" }
+    };
+  }
+}

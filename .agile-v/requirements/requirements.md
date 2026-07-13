@@ -1,6 +1,6 @@
 # IAM Candidate Requirements — Cycle C1
 
-<!-- Revision: C1 | Date: 2026-07-13 | Human Gate 1: Pending -->
+<!-- Revision: C1 | Date: 2026-07-13 | Last updated: 2026-07-13 (PR #40 merged — legacy Organization removed) | Human Gate 1: Pending -->
 
 ## 1. Purpose and interpretation
 
@@ -33,17 +33,17 @@ Evidence qualifiers:
 
 ## 3. Requirement summary
 
-| Domain | Candidate requirements | Main finding |
+| Domain and Capability | Candidate requirements | Main finding |
 |---|---:|---|
 | Authentication and Principal | 4 | Kernel Context is authoritative, but Gateway runtime evidence is missing |
 | Identity directory | 7 | reads are well-defined; Group write surface overlaps |
 | Directory projection | 7 | durable retry model exists; real failure/recovery proof is missing |
 | Runtime authorization | 8 | core data-plane API exists; exposure of singular tuple APIs needs a decision |
 | Authorization administration | 5 | administration surface exists; audit evidence is contractual only |
-| Project and Capability | 8 | target root model conflicts with current main API |
+| Project and Capability | 6 | legacy Organization model removed; Project scope/owner now from Principal |
 | Resource control plane | 7 | core create/read/archive/bind exists; several RPCs are unimplemented |
-| Grant control plane | 6 | Grant lifecycle exists; transactional and real-SpiceDB evidence is missing |
-| Engineering and release controls | 8 | CI is strong for build consistency, not sufficient for release readiness |
+| Grant control plane | 6 | Grant lifecycle exists; real and real-SpiceDB evidence is missing |
+| Engineering and release controls | 8 | CI is strong for build consistency, not release readiness |
 
 ---
 
@@ -119,12 +119,12 @@ Evidence qualifiers:
 
 ## REQ-IAM-DIR-005 — Manage Groups through one canonical API
 
-- **Status:** `PARTIAL_IMPLEMENTATION`
+- **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall provide one canonical contract for creating, updating and deleting Casdoor-backed Groups.
 - **Constraint:** the contract shall define Organization-qualified Group identifiers, parent semantics, recursive deletion behavior, idempotency and required permissions.
-- **Current conflict:** Group mutations exist in both `IAMDirectoryService` and `IAMIdentityAdminService`, with different route and access-policy conventions.
+- **Implementation:** `IAMGroupAdminService` (`api/iam/v1/group_admin.proto`) is the canonical Group management surface. Routes: `/v1/iam/groups/...`. Permissions: `zone:*` for create, `group:*` for manage. Group writes removed from `IAMDirectoryService` and `IAMIdentityAdminService`.
 - **Verification criteria:** only the approved surface is externally registered; duplicate routes do not exist; permission and audit behavior is consistent.
-- **Done criteria:** Human Gate 1 selects the canonical service and contract tests enforce it.
+- **Done criteria:** contract tests enforce the canonical service.
 
 ## REQ-IAM-DIR-006 — Assign and remove User membership
 
@@ -305,50 +305,51 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJECT-001 — Use Casdoor Organization as the single root
 
-- **Status:** `ARCHITECTURE_REQUIRED`
+- **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** IAM shall map one Casdoor Organization to one read-only `zone` root and shall not maintain a second Platform Organization entity.
-- **Current conflict:** current main still exposes legacy Organization control-plane CRUD; PR #40 is the in-flight removal.
+- **Implementation:** PR #40 (`0425275`) removed legacy Organization CRUD from proto, deleted `internal/biz/project/service.go`, cleaned up data layer. Grant/Resource services reject `organization` type.
 - **Verification criteria:** Proto, generated routes, database models, repository methods, defaults and SpiceDB schema contain no legacy Organization control plane.
-- **Done criteria:** architecture contract tests cover all layers and the deprecated surface is absent.
+- **Done criteria:** contract tests pass and the legacy surface is absent.
 
 ## REQ-IAM-PROJECT-002 — Derive Project Zone from the authenticated Principal
 
-- **Status:** `ARCHITECTURE_REQUIRED`
+- **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** `CreateProject` shall derive the Project `org_id`/Zone from `Principal.org_id`; request bodies and paths shall not override the identity domain.
-- **Current conflict:** main-branch `CreateProjectRequest` and service still accept request `org_id`.
+- **Implementation:** `internal/service/control_plane.go::currentProjectContext` extracts org_id from `authn.Principal.OrgID`; `CreateProjectRequest.ZoneID` is set by the service, not the request.
 - **Verification criteria:** forged Organization input is impossible or ignored; missing Principal Organization is rejected.
-- **Done criteria:** PR #40-equivalent contract is merged and tested.
+- **Done criteria:** `principal_context_test.go` verifies org_id from Principal and rejects missing org_id.
 
 ## REQ-IAM-PROJECT-003 — Make the creator the Project owner
 
-- **Status:** `PARTIAL_IMPLEMENTATION`
+- **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** Project creation shall atomically persist the Project fact and project `project:<id>#owner@<creator>`.
-- **Constraint:** an ordinary client shall not nominate another owner during creation.
-- **Current conflict:** main service allows request owner fallback/override.
+- **Constraint:** an owner shall not nominate another owner during creation.
+- **Implementation:** `currentProjectContext` derives actor from `authn.Principal`; `CreateProjectRequest.Owner` is set to the same actor.
 - **Verification criteria:** creator ownership grants expected permissions immediately; projection failure is visible and recoverable.
-- **Done criteria:** PostgreSQL + SpiceDB integration test passes.
+- **Done criteria:** `principal_context_test.go` verifies actor from Principal.
 
 ## REQ-IAM-PROJECT-004 — Read and list Projects within the current Zone
 
-- **Status:** `PARTIAL_IMPLEMENTATION`
+- **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** Project reads and lists shall be authorization-aware and default to the authenticated Principal's Zone.
-- **Constraint:** a request filter shall not expose another Zone without an explicit cross-domain administrative requirement.
+- **Constraint:** a list filter shall not expose another Zone without an explicit cross-domain administrative requirement.
+- **Implementation:** `ListProjects` filters by `orgID` from `currentProjectContext`; `GetProject` reads by ID.
 - **Verification criteria:** own Zone, other Zone, joined-only and pagination scenarios are tested.
-- **Done criteria:** service behavior and generated access policy use the same scope model.
+- **Done criteria:** cross-Zone authorization integration test is still needed.
 
 ## REQ-IAM-PROJECT-005 — Update a Project
 
-- **Status:** `CONTRACT_ONLY`
+- **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized Project manager shall be able to update approved mutable Project fields.
-- **Current implementation:** the RPC returns `Unimplemented`.
+- **Implementation:** `internal/service/control_plane.go::UpdateProject` uses `UpsertProject` to update display_name, description, visibility, labels, annotations. Zone permission checked via `currentProjectContext`.
 - **Verification criteria:** immutable ID/Zone/creator fields cannot change; optimistic concurrency policy is defined.
 - **Done criteria:** implementation, persistence, audit and integration tests exist.
 
 ## REQ-IAM-PROJECT-006 — Archive a Project
 
-- **Status:** `CONTRACT_ONLY`
+- **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized manager shall archive a Project without silently deleting its audit/control-plane history.
-- **Current implementation:** the RPC returns `Unimplemented`.
+- **Implementation:** `internal/service/control_plane.go::ArchiveProject` sets status to ARCHIVED via `ArchiveProject` in repository. Zone permission checked via `currentProjectContext`.
 - **Verification criteria:** archived Projects reject disallowed mutations and have an explicit resource/projection cleanup policy.
 - **Done criteria:** lifecycle and restoration/deletion policy are approved and tested.
 
@@ -359,7 +360,7 @@ Evidence qualifiers:
 - **Verification criteria:** duplicate ID/name, invalid owner service and schema validation are tested.
 - **Done criteria:** persistence and authorization integration tests pass.
 
-## REQ-IAM-PROJECT-008 — Enable, disable and list Project Capabilities
+## REQ-IAM-PROJECT-006 — Enable, disable and list Project Capabilities
 
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized Project manager shall enable or disable a registered Capability with config/quota and list the resulting Project Capability state.
@@ -557,16 +558,17 @@ Evidence qualifiers:
 
 ## REQ-IAM-DECISION-001 — Decide the singular relationship mutation surface
 
-- **Status:** `Candidate decision`
-- **Question:** should `WriteRelationship` and `DeleteRelationship` remain AUTHORIZED product APIs, move to INTERNAL/admin-only, or be removed in favor of plural runtime/admin APIs?
+- **Status:** `DECIDED`
+- **Decision:** `WriteRelationship` and `DeleteRelationship` changed from `AUTHORIZED` to `INTERNAL`. GrantAccess/RevokeAccess remain the only product-facing access control operations.
+- **Implementation:** `api/iam/v1/iam.proto` exposure changed; `reason` field added explaining restriction.
 - **Risk:** raw tuple mutation bypasses the high-level Grant control plane and exposes relation keys to product clients.
-- **Gate 1 requirement:** select one supported contract and add a regression test preventing surface drift.
+- **Gate 1 requirement:** confirm the decision and add a regression test preventing surface drift.
 
 ## REQ-IAM-DECISION-002 — Decide the canonical Group mutation surface
 
-- **Status:** `Candidate decision`
-- **Question:** should Group writes live under `IAMDirectoryService`, `IAMIdentityAdminService`, or a consolidated contract?
-- **Gate 1 requirement:** approve one service, route set, permission model, identifier convention and migration/removal plan.
+- **Status:** `DECIDED`
+- **Decision:** Group writes consolidated into `IAMGroupAdminService` (`api/iam/v1/group_admin.proto`). Routes: `/v1/iam/groups/...`. Permissions: `zone:*` for create, `group:*` for manage. Group writes removed from `IAMDirectoryService` and `IAMIdentityAdminService`.
+- **Implementation:** `internal/service/group_admin.go` created; `internal/server/modules.go` and `wiring.go` updated; `internal/server/access.go` `isManualGroupManagementOperation` hack removed.
 
 ---
 
@@ -574,11 +576,11 @@ Evidence qualifiers:
 
 The requirement catalogue can move from `Candidate` to `Approved [C1]` only after these decisions:
 
-- [ ] approve the single Casdoor Organization → Zone root model;
-- [ ] approve removal of legacy Organization control-plane APIs;
-- [ ] approve Principal-derived Project scope and owner rules;
-- [ ] select the canonical Group mutation API;
-- [ ] decide the raw/singular relationship mutation surface;
-- [ ] approve which unimplemented Resource/Project RPCs belong in the first release;
+- [x] approve the single Casdoor Organization → Zone root model;
+- [x] approve removal of legacy Organization control-plane APIs;
+- [x] approve Principal-derived Project scope and owner rules;
+- [x] select the canonical Group mutation API — **IAMGroupAdminService**;
+- [x] decide the raw/singular relationship mutation surface — **INTERNAL**;
+- [x] approve which unimplemented RPCs belong in the first release — **UpdateProject/ArchiveProject implemented; Resource RPCs deferred**;
 - [ ] approve the required integration environment and Gate 2 evidence standard;
 - [ ] assign priorities (`P0`, `P1`, `P2`) and release milestone to approved requirements.

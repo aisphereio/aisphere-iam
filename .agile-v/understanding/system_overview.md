@@ -4,6 +4,7 @@
 
 - Repository: `aisphereio/aisphere-iam`
 - Baseline: `main@46c8785861392c15388b250e6ae6c245efb6bdc9`
+- Last updated: `main@653afc0` (PR #40 merged — legacy Organization surface removed)
 - Generated at: 2026-07-13
 - Knowledge graph: not available
 - Method: README/architecture review, Proto inspection, implementation inspection, selected tests, CI and recent PR history
@@ -12,7 +13,7 @@
 
 Aisphere IAM is a Go service built on `github.com/aisphereio/kernel`. It adapts the Casdoor identity directory, persists IAM control-plane facts in PostgreSQL, projects authorization relationships into SpiceDB, and exposes HTTP/gRPC APIs for directory operations, permission decisions, projects, generic resources and grants.
 
-The intended root model is one Casdoor Organization mapped 1:1 to a SpiceDB `zone`. The current main branch still contains parts of an older second Organization control-plane model; PR #40 is the in-flight convergence change.
+The intended root model is one Casdoor Organization mapped 1:1 to a SpiceDB `zone`. PR #40 has been merged (`0425275`), removing the legacy second Organization control-plane model. The main branch now derives Project scope and owner from the authenticated Kernel Principal.
 
 ## Architectural layers
 
@@ -115,19 +116,11 @@ The implementation performs an explicit global authorization check against `iam_
 
 The Proto currently exposes:
 
-- legacy Organization CRUD/archive;
 - Project create/get/list/update/archive;
 - Capability register/list;
 - Project Capability enable/disable/list.
 
-Observed main-branch implementation gaps:
-
-- `UpdateProject` is unimplemented;
-- `ArchiveProject` is unimplemented;
-- Project creation still accepts request `org_id` and optional `owner` on main;
-- legacy Organization CRUD still exists on main.
-
-The accepted architecture requires Project scope and owner to derive from the authenticated Principal and forbids a second Organization model. PR #40 addresses this mismatch.
+Legacy Organization CRUD has been removed by PR #40 (`0425275`). Project scope and owner now derive from the authenticated Kernel Principal via `currentProjectContext`. `UpdateProject` and `ArchiveProject` have been implemented, completing the Project CRUD surface. `GetProject` now validates Zone permission to prevent cross-zone data leakage.
 
 ### ResourceService
 
@@ -208,7 +201,7 @@ Authenticated Principal
 → response returned with consistency evidence where supported
 ```
 
-The Project main-branch implementation does not yet fully satisfy the target scoping invariant.
+The Project main-branch implementation now satisfies the target scoping invariant: scope and owner derive from the authenticated Kernel Principal, and the legacy Organization model has been removed.
 
 ### Grant flow
 
@@ -229,7 +222,7 @@ Revocation should update the Grant fact and remove the projected relationship.
 - `identity_mode_test.go` verifies zone-qualified Group, parent and User membership relationships.
 - `model_contract_test.go` prevents the old SpiceDB `organization` root from returning and requires Project → Zone projection.
 - `client/authzgrpc/client_test.go` verifies Principal propagation and core runtime client adaptation using a fake gRPC client.
-- PR #40 head has successful CI and Docker workflow results, but it is not part of the C1 main-branch baseline.
+- PR #40 merged at `0425275` with successful CI and Docker workflow results. The legacy Organization model is now removed from main.
 
 ## Known constraints and cautions
 
@@ -242,7 +235,7 @@ Revocation should update the Grant fact and remove the projected relationship.
 7. Proto contracts currently include historical/overlapping surfaces; generated existence is not proof of a valid product requirement.
 8. Several service methods return `Unimplemented`; the API surface is broader than the completed business surface.
 9. Most observed tests are unit/contract tests with fakes or source-string guards. Real Casdoor/SpiceDB/PostgreSQL/Gateway evidence is still required.
-10. The platform is not live; architecture documents allow destructive reset instead of compatibility migration for the removed Organization model.
+10. The platform is not live; architecture documents allow destructive reset instead of compatibility migration for the removed Organization model. PR #40 has removed the legacy model; a clean reset is expected.
 
 ## Unknowns requiring later evidence
 

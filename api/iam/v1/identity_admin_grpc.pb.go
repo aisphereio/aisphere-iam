@@ -20,15 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IAMIdentityAdminService_CreateUser_FullMethodName          = "/iam.v1.IAMIdentityAdminService/CreateUser"
-	IAMIdentityAdminService_UpdateUser_FullMethodName          = "/iam.v1.IAMIdentityAdminService/UpdateUser"
-	IAMIdentityAdminService_DisableUser_FullMethodName         = "/iam.v1.IAMIdentityAdminService/DisableUser"
-	IAMIdentityAdminService_DeleteUser_FullMethodName          = "/iam.v1.IAMIdentityAdminService/DeleteUser"
-	IAMIdentityAdminService_CreateGroup_FullMethodName         = "/iam.v1.IAMIdentityAdminService/CreateGroup"
-	IAMIdentityAdminService_UpdateGroup_FullMethodName         = "/iam.v1.IAMIdentityAdminService/UpdateGroup"
-	IAMIdentityAdminService_DeleteGroup_FullMethodName         = "/iam.v1.IAMIdentityAdminService/DeleteGroup"
-	IAMIdentityAdminService_AssignUserToGroup_FullMethodName   = "/iam.v1.IAMIdentityAdminService/AssignUserToGroup"
-	IAMIdentityAdminService_RemoveUserFromGroup_FullMethodName = "/iam.v1.IAMIdentityAdminService/RemoveUserFromGroup"
+	IAMIdentityAdminService_CreateUser_FullMethodName  = "/iam.v1.IAMIdentityAdminService/CreateUser"
+	IAMIdentityAdminService_UpdateUser_FullMethodName  = "/iam.v1.IAMIdentityAdminService/UpdateUser"
+	IAMIdentityAdminService_DisableUser_FullMethodName = "/iam.v1.IAMIdentityAdminService/DisableUser"
+	IAMIdentityAdminService_DeleteUser_FullMethodName  = "/iam.v1.IAMIdentityAdminService/DeleteUser"
 )
 
 // IAMIdentityAdminServiceClient is the client API for IAMIdentityAdminService service.
@@ -40,17 +35,15 @@ const (
 // This replaces the old plain HTTP /v1/users local-user endpoint. User writes
 // go through the configured identity provider. In casdoor_local mode they are
 // writable; in external_oidc mode user/org writes are rejected by the runtime
-// identity_mode guard while local application groups remain writable.
+// identity_mode guard.
+//
+// Group CRUD and membership operations have been consolidated into
+// IAMGroupAdminService (api/iam/v1/group_admin.proto).
 type IAMIdentityAdminServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*User, error)
 	DisableUser(ctx context.Context, in *DisableUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error)
-	UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...grpc.CallOption) (*Group, error)
-	DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AssignUserToGroup(ctx context.Context, in *AssignUserToGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	RemoveUserFromGroup(ctx context.Context, in *RemoveUserFromGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type iAMIdentityAdminServiceClient struct {
@@ -101,56 +94,6 @@ func (c *iAMIdentityAdminServiceClient) DeleteUser(ctx context.Context, in *Dele
 	return out, nil
 }
 
-func (c *iAMIdentityAdminServiceClient) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Group)
-	err := c.cc.Invoke(ctx, IAMIdentityAdminService_CreateGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMIdentityAdminServiceClient) UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...grpc.CallOption) (*Group, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Group)
-	err := c.cc.Invoke(ctx, IAMIdentityAdminService_UpdateGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMIdentityAdminServiceClient) DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, IAMIdentityAdminService_DeleteGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMIdentityAdminServiceClient) AssignUserToGroup(ctx context.Context, in *AssignUserToGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, IAMIdentityAdminService_AssignUserToGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMIdentityAdminServiceClient) RemoveUserFromGroup(ctx context.Context, in *RemoveUserFromGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, IAMIdentityAdminService_RemoveUserFromGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // IAMIdentityAdminServiceServer is the server API for IAMIdentityAdminService service.
 // All implementations must embed UnimplementedIAMIdentityAdminServiceServer
 // for forward compatibility.
@@ -160,17 +103,15 @@ func (c *iAMIdentityAdminServiceClient) RemoveUserFromGroup(ctx context.Context,
 // This replaces the old plain HTTP /v1/users local-user endpoint. User writes
 // go through the configured identity provider. In casdoor_local mode they are
 // writable; in external_oidc mode user/org writes are rejected by the runtime
-// identity_mode guard while local application groups remain writable.
+// identity_mode guard.
+//
+// Group CRUD and membership operations have been consolidated into
+// IAMGroupAdminService (api/iam/v1/group_admin.proto).
 type IAMIdentityAdminServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*User, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*User, error)
 	DisableUser(context.Context, *DisableUserRequest) (*emptypb.Empty, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error)
-	CreateGroup(context.Context, *CreateGroupRequest) (*Group, error)
-	UpdateGroup(context.Context, *UpdateGroupRequest) (*Group, error)
-	DeleteGroup(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error)
-	AssignUserToGroup(context.Context, *AssignUserToGroupRequest) (*emptypb.Empty, error)
-	RemoveUserFromGroup(context.Context, *RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedIAMIdentityAdminServiceServer()
 }
 
@@ -192,21 +133,6 @@ func (UnimplementedIAMIdentityAdminServiceServer) DisableUser(context.Context, *
 }
 func (UnimplementedIAMIdentityAdminServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
-}
-func (UnimplementedIAMIdentityAdminServiceServer) CreateGroup(context.Context, *CreateGroupRequest) (*Group, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
-}
-func (UnimplementedIAMIdentityAdminServiceServer) UpdateGroup(context.Context, *UpdateGroupRequest) (*Group, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateGroup not implemented")
-}
-func (UnimplementedIAMIdentityAdminServiceServer) DeleteGroup(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteGroup not implemented")
-}
-func (UnimplementedIAMIdentityAdminServiceServer) AssignUserToGroup(context.Context, *AssignUserToGroupRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AssignUserToGroup not implemented")
-}
-func (UnimplementedIAMIdentityAdminServiceServer) RemoveUserFromGroup(context.Context, *RemoveUserFromGroupRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RemoveUserFromGroup not implemented")
 }
 func (UnimplementedIAMIdentityAdminServiceServer) mustEmbedUnimplementedIAMIdentityAdminServiceServer() {
 }
@@ -302,96 +228,6 @@ func _IAMIdentityAdminService_DeleteUser_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IAMIdentityAdminService_CreateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMIdentityAdminServiceServer).CreateGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMIdentityAdminService_CreateGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMIdentityAdminServiceServer).CreateGroup(ctx, req.(*CreateGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMIdentityAdminService_UpdateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMIdentityAdminServiceServer).UpdateGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMIdentityAdminService_UpdateGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMIdentityAdminServiceServer).UpdateGroup(ctx, req.(*UpdateGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMIdentityAdminService_DeleteGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMIdentityAdminServiceServer).DeleteGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMIdentityAdminService_DeleteGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMIdentityAdminServiceServer).DeleteGroup(ctx, req.(*DeleteGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMIdentityAdminService_AssignUserToGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AssignUserToGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMIdentityAdminServiceServer).AssignUserToGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMIdentityAdminService_AssignUserToGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMIdentityAdminServiceServer).AssignUserToGroup(ctx, req.(*AssignUserToGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMIdentityAdminService_RemoveUserFromGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveUserFromGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMIdentityAdminServiceServer).RemoveUserFromGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMIdentityAdminService_RemoveUserFromGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMIdentityAdminServiceServer).RemoveUserFromGroup(ctx, req.(*RemoveUserFromGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // IAMIdentityAdminService_ServiceDesc is the grpc.ServiceDesc for IAMIdentityAdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -414,26 +250,6 @@ var IAMIdentityAdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteUser",
 			Handler:    _IAMIdentityAdminService_DeleteUser_Handler,
-		},
-		{
-			MethodName: "CreateGroup",
-			Handler:    _IAMIdentityAdminService_CreateGroup_Handler,
-		},
-		{
-			MethodName: "UpdateGroup",
-			Handler:    _IAMIdentityAdminService_UpdateGroup_Handler,
-		},
-		{
-			MethodName: "DeleteGroup",
-			Handler:    _IAMIdentityAdminService_DeleteGroup_Handler,
-		},
-		{
-			MethodName: "AssignUserToGroup",
-			Handler:    _IAMIdentityAdminService_AssignUserToGroup_Handler,
-		},
-		{
-			MethodName: "RemoveUserFromGroup",
-			Handler:    _IAMIdentityAdminService_RemoveUserFromGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

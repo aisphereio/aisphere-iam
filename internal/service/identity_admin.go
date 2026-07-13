@@ -14,11 +14,11 @@ import (
 // is enforced by iamServerMiddlewares before these methods run. Identity-mode
 // behavior is enforced by the configured authn.IdentityAdmin adapter:
 //
-//   - casdoor_local: user/org/group writes are allowed after AuthZ.
-//   - external_oidc: upstream user/org writes are rejected, while local
-//     application groups and group membership remain writable.
+//   - casdoor_local: user writes are allowed after AuthZ.
+//   - external_oidc: upstream user writes are rejected.
 //
-// Local application group writes are projected into AuthZ by data.BindIdentityAuthZ.
+// Group CRUD and membership operations have been consolidated into
+// IAMGroupAdminService (internal/service/group_admin.go).
 type IAMIdentityAdminService struct {
 	v1.UnimplementedIAMIdentityAdminServiceServer
 	deps IAMDeps
@@ -76,78 +76,6 @@ func (s *IAMIdentityAdminService) DeleteUser(ctx context.Context, req *v1.Delete
 		OrgID:  req.GetOrgId(),
 		UserID: req.GetUserId(),
 		Hard:   req.GetHard(),
-	}); err != nil {
-		return nil, err
-	}
-	return &emptypb.Empty{}, nil
-}
-
-func (s *IAMIdentityAdminService) CreateGroup(ctx context.Context, req *v1.CreateGroupRequest) (*v1.Group, error) {
-	if s.deps.Identity == nil {
-		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
-	}
-	group := groupFromProto(req.GetGroup())
-	group.OrgID = firstNonEmptyString(group.OrgID, req.GetOrgId())
-	created, err := s.deps.Identity.CreateGroup(ctx, authn.CreateGroupRequest{
-		Group:          group,
-		IdempotencyKey: req.GetIdempotencyKey(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return groupToProto(created), nil
-}
-
-func (s *IAMIdentityAdminService) UpdateGroup(ctx context.Context, req *v1.UpdateGroupRequest) (*v1.Group, error) {
-	if s.deps.Identity == nil {
-		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
-	}
-	group := groupFromProto(req.GetGroup())
-	group.ID = firstNonEmptyString(group.ID, req.GetGroupId())
-	group.OrgID = firstNonEmptyString(group.OrgID, req.GetOrgId())
-	updated, err := s.deps.Identity.UpdateGroup(ctx, authn.UpdateGroupRequest{Group: group})
-	if err != nil {
-		return nil, err
-	}
-	return groupToProto(updated), nil
-}
-
-func (s *IAMIdentityAdminService) DeleteGroup(ctx context.Context, req *v1.DeleteGroupRequest) (*emptypb.Empty, error) {
-	if s.deps.Identity == nil {
-		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
-	}
-	if err := s.deps.Identity.DeleteGroup(ctx, authn.DeleteGroupRequest{
-		OrgID:     req.GetOrgId(),
-		GroupID:   req.GetGroupId(),
-		Recursive: req.GetRecursive(),
-	}); err != nil {
-		return nil, err
-	}
-	return &emptypb.Empty{}, nil
-}
-
-func (s *IAMIdentityAdminService) AssignUserToGroup(ctx context.Context, req *v1.AssignUserToGroupRequest) (*emptypb.Empty, error) {
-	if s.deps.Identity == nil {
-		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
-	}
-	if err := s.deps.Identity.AssignUserToGroup(ctx, authn.AssignUserToGroupRequest{
-		OrgID:   req.GetOrgId(),
-		GroupID: req.GetGroupId(),
-		UserID:  req.GetUserId(),
-	}); err != nil {
-		return nil, err
-	}
-	return &emptypb.Empty{}, nil
-}
-
-func (s *IAMIdentityAdminService) RemoveUserFromGroup(ctx context.Context, req *v1.RemoveUserFromGroupRequest) (*emptypb.Empty, error) {
-	if s.deps.Identity == nil {
-		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
-	}
-	if err := s.deps.Identity.RemoveUserFromGroup(ctx, authn.AssignUserToGroupRequest{
-		OrgID:   req.GetOrgId(),
-		GroupID: req.GetGroupId(),
-		UserID:  req.GetUserId(),
 	}); err != nil {
 		return nil, err
 	}

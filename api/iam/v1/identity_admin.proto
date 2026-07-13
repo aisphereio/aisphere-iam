@@ -16,7 +16,10 @@ option go_package = "github.com/aisphereio/aisphere-iam/api/iam/v1;v1";
 // This replaces the old plain HTTP /v1/users local-user endpoint. User writes
 // go through the configured identity provider. In casdoor_local mode they are
 // writable; in external_oidc mode user/org writes are rejected by the runtime
-// identity_mode guard while local application groups remain writable.
+// identity_mode guard.
+//
+// Group CRUD and membership operations have been consolidated into
+// IAMGroupAdminService (api/iam/v1/group_admin.proto).
 service IAMIdentityAdminService {
   rpc CreateUser(CreateUserRequest) returns (User) {
     option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/users" body: "*" };
@@ -51,51 +54,6 @@ service IAMIdentityAdminService {
       exposure: AUTHORIZED
       authz: { action: "manage_users" resource: "zone:{org_id}" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.user.delete" risk: "critical" }
-    };
-  }
-
-  rpc CreateGroup(CreateGroupRequest) returns (Group) {
-    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/groups" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "create_groups" resource: "zone:{org_id}" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.group.create" risk: "high" }
-    };
-  }
-
-  rpc UpdateGroup(UpdateGroupRequest) returns (Group) {
-    option (google.api.http) = { patch: "/v1/iam/orgs/{org_id}/groups/{group_id}" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "manage" resource: "group:{org_id}/{group_id}" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.group.update" risk: "high" }
-    };
-  }
-
-  rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { delete: "/v1/iam/orgs/{org_id}/groups/{group_id}" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "manage" resource: "group:{org_id}/{group_id}" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.group.delete" risk: "critical" }
-    };
-  }
-
-  rpc AssignUserToGroup(AssignUserToGroupRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "manage" resource: "group:{org_id}/{group_id}" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.group.user.assign" risk: "high" }
-    };
-  }
-
-  rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { delete: "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "manage" resource: "group:{org_id}/{group_id}" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.group.user.remove" risk: "high" }
     };
   }
 }

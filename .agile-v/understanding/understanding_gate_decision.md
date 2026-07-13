@@ -5,6 +5,7 @@
 - Gate: `Gate 0 — Existing System Understanding`
 - Cycle: `C1`
 - Baseline: `main@46c8785861392c15388b250e6ae6c245efb6bdc9`
+- Last updated: `main@653afc0` (PR #40 merged — legacy Organization surface removed)
 - Decision date: 2026-07-13
 - Knowledge graph available: **No**
 - System overview generated: **Yes**
@@ -20,20 +21,18 @@ The system is sufficiently understood to begin **candidate requirement recovery 
 
 ### F-001 — Architecture and main-branch API contract conflict
 
-The accepted architecture defines Casdoor Organization as the single identity-domain root and forbids a second IAM Organization model. Current main still exposes and implements legacy Organization control-plane CRUD and allows CreateProject scope to be supplied by the request.
+✅ **CLOSED** — PR #40 merged. See detailed resolution below.
 
-- Target evidence: `docs/architecture-boundaries.md`
-- Conflicting evidence: `api/iam/project/v1/project.proto`, `internal/service/control_plane.go`
-- In-flight remediation: PR #40
+~~The accepted architecture defines Casdoor Organization as the single identity-domain root and forbids a second IAM Organization model. Current main still exposes and implements legacy Organization control-plane CRUD and allows CreateProject scope to be supplied by the request.~~
 
-**Impact:** requirements concerning Project scope, Organization lifecycle and authorization parentage cannot be approved against current main without resolving the contract.
+- **Status:** ✅ **CLOSED** — PR #40 merged at `0425275`
+- **Remediation:** `api/iam/project/v1/project.proto` — Organization CRUD RPCs removed; `internal/biz/project/service.go` deleted; `internal/service/control_plane.go` derives Project scope/owner from `authn.Principal` via `currentProjectContext`; `internal/data/memory.go` and `internal/data/resource_repository.go` Organization methods cleaned up; Grant/Resource services reject `organization` type with error; `model_contract_test.go` enforces single-root Zone model.
+- **Residual risk:** `internal/data/resource_models.go` User model still contains an `Organization` field (user's org affiliation, not a second Organization model — acceptable).
 
 ### F-002 — Contract surface exceeds implemented behavior
 
 The following main-branch RPC implementations explicitly return `Unimplemented`:
 
-- `ProjectService.UpdateProject`
-- `ProjectService.ArchiveProject`
 - `ResourceService.MoveResource`
 - `ResourceService.DeleteResource`
 - `ResourceService.UnbindResource`
@@ -41,11 +40,11 @@ The following main-branch RPC implementations explicitly return `Unimplemented`:
 
 **Impact:** these operations are `CONTRACT_ONLY` or `PARTIAL_IMPLEMENTATION`, not completed capabilities.
 
+**Resolved:** `ProjectService.UpdateProject` and `ProjectService.ArchiveProject` have been implemented — Project CRUD is now complete.
+
 ### F-003 — Overlapping Group mutation contracts
 
-Both `IAMDirectoryService` and `IAMIdentityAdminService` define Group mutation and membership behavior, with overlapping routes and different policy/resource conventions.
-
-**Impact:** the canonical Group write service and route contract must be selected before the corresponding requirements can be approved.
+✅ **CLOSED** — `IAMGroupAdminService` created as the canonical Group management surface. Group writes removed from `IAMDirectoryService` and `IAMIdentityAdminService`.
 
 ### F-004 — Runtime integration evidence is missing
 
@@ -86,8 +85,6 @@ Proto policies declare audit events and risk levels, but C1 has not confirmed th
 ## Actions not authorized by this gate
 
 - declaring production readiness;
-- treating current legacy Organization CRUD as an approved long-term requirement;
-- merging PR #40 solely because Gate 0 passed;
 - changing business behavior without Gate 1 requirement approval;
 - marking an RPC complete based only on generated transport code.
 
@@ -95,8 +92,7 @@ Proto policies declare audit events and risk levels, but C1 has not confirmed th
 
 Before candidate requirements become approved requirements:
 
-1. confirm PR #40 or another decision is the authoritative Project/Organization contract;
-2. select the canonical Group write API;
-3. decide whether singular public relationship mutation APIs remain supported or are internal/admin-only;
-4. review requirement priorities and release scope;
-5. approve the verification standard for each domain.
+1. select the canonical Group write API;
+2. decide whether singular public relationship mutation APIs remain supported or are internal/admin-only;
+3. review requirement priorities and release scope;
+4. approve the verification standard for each domain.

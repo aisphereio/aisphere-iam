@@ -1,6 +1,6 @@
-# Aisphere IAM — Agile V Pilot
+# Aisphere IAM — Agile V Framework
 
-This directory is the verification and traceability workspace for the Aisphere IAM backend.
+This directory is the Agile V verification and traceability workspace for the Aisphere IAM backend.
 
 ## Pilot objective
 
@@ -12,21 +12,20 @@ Cycle `C1` applies Agile V to an existing codebase. The first objective is **req
 4. establish a requirement → implementation → test evidence chain;
 5. avoid declaring a capability release-ready without runtime evidence.
 
-This cycle does **not** change IAM business behavior.
+## Framework structure
 
-## Baseline
-
-- Repository: `aisphereio/aisphere-iam`
-- Baseline branch: `main`
-- Baseline commit when Cycle C1 started: `46c8785861392c15388b250e6ae6c245efb6bdc9`
-- Recovery change request: `CR-0001`
-- Important in-flight change: PR `#40` removes the legacy second Organization control-plane model. C1 records the main-branch behavior separately from the intended architecture.
-
-## Artifact layout
-
-```text
+```
 .agile-v/
-├── README.md
+├── README.md                          ← This file
+├── STATE.md                           ← Current phase/stage/status
+├── DECISION_LOG.md                    ← Append-only decision log
+├── APPROVALS.md                       ← Human Gate approval records
+├── CONTROL_MATRIX.yaml                ← Operating control map
+├── POLICY.yaml                        ← Policy-as-code
+├── TRACE_LOG.md                       ← Append-only trace spans
+├── EVAL_RESULTS.md                    ← Eval flywheel + eval_gate_status
+├── CHECKPOINTS.md                     ← Durable Human Gate interrupts
+├── RISK_REGISTER.md                   ← Risk register
 ├── change_requests/
 │   └── CR-0001-recover-iam-requirements.md
 ├── understanding/
@@ -34,61 +33,48 @@ This cycle does **not** change IAM business behavior.
 │   └── understanding_gate_decision.md
 ├── requirements/
 │   └── requirements.md
-└── traceability/
-    ├── implementation_traceability_matrix.md
-    └── traceability_gaps.md
+├── traceability/
+│   ├── implementation_traceability_matrix.md
+│   └── traceability_gaps.md
+├── phases/
+│   ├── 01-specify/   (PLAN.md, SUMMARY.md)
+│   ├── 02-constrain/ (PLAN.md, SUMMARY.md)
+│   ├── 03-orchestrate/ (PLAN.md, SUMMARY.md)
+│   ├── 04-prove/     (PLAN.md, SUMMARY.md)
+│   ├── 05-evolve/    (PLAN.md, SUMMARY.md)
+│   └── 06-verify/    (PLAN.md, SUMMARY.md)
+└── cycles/
+    └── C1/           (frozen archive of C1 artifacts)
 ```
 
-## Requirement recovery statuses
+## SCOPE-V Phases
+
+| Phase | Purpose | Status |
+|-------|---------|--------|
+| 01-Specify | Convert intent into traceable requirements | ✅ COMPLETE |
+| 02-Constrain | Apply domain constraints and validation | ⏳ PENDING |
+| 03-Orchestrate | Synthesize artifacts from approved REQs | ⏳ PENDING |
+| 04-Prove | Provide evidence per risk level | ⏳ PENDING |
+| 05-Evolve | Learn from failures, update knowledge | ⏳ PENDING |
+| 06-Verify | Independent verification against REQs | ⏳ PENDING |
+
+## Gates
+
+| Gate | Status |
+|------|--------|
+| Gate 0 — System Understanding | ✅ PASS_WITH_FINDINGS |
+| Gate 1 — Requirement Approval | ⏳ PENDING |
+| Gate 2 — Verification Evidence | ❌ NOT_STARTED |
+
+## Requirement statuses
 
 | Status | Meaning |
-|---|---|
-| `OBSERVED_IMPLEMENTED` | Executable implementation was found. Runtime behavior still needs evidence unless explicitly linked. |
-| `PARTIAL_IMPLEMENTATION` | Some layers exist, but the full business path is incomplete or an RPC is unimplemented. |
-| `CONTRACT_ONLY` | Proto/API contract exists, but implementation evidence is missing or incomplete. |
-| `ARCHITECTURE_REQUIRED` | Required by the accepted architecture contract, but current `main` conflicts with it. |
-| `UNIT_EVIDENCE` | Unit or contract test evidence exists. |
-| `INTEGRATION_EVIDENCE` | Real dependency or end-to-end execution evidence exists. |
-| `RELEASE_READY` | Requirement, implementation, negative cases, integration evidence and operational gates are complete. |
-| `DEPRECATED` | Surface exists historically but must not remain part of the target product contract. |
-
-`OBSERVED_IMPLEMENTED` is not equivalent to `RELEASE_READY`.
-
-## Agile V gates used by this pilot
-
-### Gate 0 — System understanding
-
-The repository must have a reviewable system overview, dependency map, known constraints and an explicit confidence decision.
-
-### Gate 1 — Requirement approval
-
-Recovered requirements are initially `Candidate`. They become `Approved` only after business and architecture review. Recovery must not silently convert accidental implementation behavior into a product requirement.
-
-### Gate 2 — Verification evidence
-
-Release readiness requires evidence from the applicable layers:
-
-```text
-Proto contract
-→ service/biz/data implementation
-→ unit/contract tests
-→ Casdoor/SpiceDB/PostgreSQL integration tests
-→ HTTP/gRPC/Gateway tests
-→ audit/observability evidence
-→ build and deployment gates
-```
-
-## Repository verification gate
-
-The current repository-defined gate is:
-
-```bash
-make api
-make deploy
-make proto-check
-go test ./... -count=1
-make build
-docker build .
-```
-
-Generated-file drift must also be clean. These checks prove build consistency; they do not by themselves prove the IAM business flows are production-ready.
+|--------|---------|
+| OBSERVED_IMPLEMENTED | Executable implementation was found |
+| PARTIAL_IMPLEMENTATION | Some layers exist, but full path is incomplete |
+| CONTRACT_ONLY | Proto/API contract exists, but implementation is missing |
+| ARCHITECTURE_REQUIRED | Required by architecture, but main does not comply |
+| UNIT_EVIDENCE | Unit or contract test evidence exists |
+| INTEGRATION_EVIDENCE | Real dependency or end-to-end evidence exists |
+| RELEASE_READY | Full evidence chain complete |
+| DEPRECATED | Must not remain in target product contract |

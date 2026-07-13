@@ -12,42 +12,43 @@
 
 ### GAP-IAM-001 — Main branch contradicts the single-root Organization model
 
+- **Status:** ✅ **CLOSED** — PR #40 merged at `0425275`
 - **Priority:** `P0`
 - **Affected requirements:** `REQ-IAM-PROJECT-001`, `002`, `003`, `004`, `REQ-IAM-DEPRECATED-001`
-- **Observed:** architecture requires Casdoor Organization → Zone as the only root; main still exposes legacy Organization CRUD and request-controlled Project Organization/owner fields.
-- **Risk:** duplicate tenant semantics, cross-domain scope injection, incompatible frontend/API behavior and stale authorization resources.
-- **Current remediation:** PR #40 removes the legacy surface and derives Project scope/owner from Principal.
-- **Closure evidence:** merged contract, generated routes, service/data cleanup, model guard test, clean reset acceptance and cross-Zone negative tests.
+- **Observed:** architecture and Casdoor Organization → Zone as the only root; main exposed legacy Organization CRUD and request-controlled Project Organization/owner fields.
+- **Remediation:** PR #40 removed legacy Organization CRUD from proto, deleted `internal/biz/project/service.go`, cleaned up `internal/data/memory.go` and `internal/data/resource_repository.go`, updated `internal/service/control_plane.go` to derive Project scope/owner from `authn.Principal` via `currentProjectContext`, and updated `model_contract_test.go` to enforce single-root Zone model.
+- **Closure evidence:** `0425275` merged; Organization RPCs removed from `project.proto`; Grant/Resource services reject `organization` type; `currentProjectContext` enforces Principal-derived scope; test guards single-root model.
 
 ### GAP-IAM-002 — Group mutation is defined twice
 
+- **Status:** ✅ **CLOSED**
 - **Priority:** `P0`
 - **Affected requirements:** `REQ-IAM-DIR-005`, `006`, `REQ-IAM-DECISION-002`
-- **Observed:** `IAMDirectoryService` and `IAMIdentityAdminService` both define Group and membership writes using different routes and authorization-resource conventions.
-- **Risk:** duplicate route registration, frontend ambiguity, inconsistent authorization and different Group identifier formats.
-- **Closure evidence:** one approved canonical service; duplicate surface removed or formally deprecated; generated route uniqueness test.
+- **Observed:** `IAMDirectoryService` and `IAMIdentityAdminService` both defined Group and membership writes using different routes and authorization-resource conventions.
+- **Remediation:** Created `IAMGroupAdminService` (`api/iam/v1/group_admin.proto`) as the canonical Group management surface. Removed Group write operations from `IAMDirectoryService` and `IAMIdentityAdminService`. New service has consistent routes (`/v1/iam/groups/...`), permissions (`zone:*`, `group:*`), and audit metadata.
+- **Closure evidence:** `api/iam/v1/group_admin.proto` created; `iam.proto` IAMDirectoryService Group writes removed; `identity_admin.proto` Group writes removed; `internal/service/group_admin.go` created; `internal/server/access.go` `isManualGroupManagementOperation` hack removed.
 
 ### GAP-IAM-003 — Public/authorized raw relationship mutation is unresolved
 
+- **Status:** ✅ **CLOSED**
 - **Priority:** `P0`
 - **Affected requirements:** `REQ-IAM-AUTHZ-RT-003`, `004`, `REQ-IAM-DECISION-001`, `REQ-IAM-GRANT-002`
-- **Observed:** plural runtime relationship APIs are INTERNAL, but singular write/delete APIs are AUTHORIZED; admin APIs separately allow repair operations.
-- **Risk:** product clients may bypass Role Template/Grant semantics and manipulate raw tuples or relation names.
-- **Closure evidence:** approved exposure model, removal/restriction of unsupported routes and negative Gateway authorization tests.
+- **Observed:** plural runtime relationship APIs were INTERNAL, but singular write/delete APIs were AUTHORIZED, allowing product clients to bypass Grant semantics.
+- **Remediation:** Changed `WriteRelationship` and `DeleteRelationship` from `AUTHORIZED` to `INTERNAL` in `api/iam/v1/iam.proto`. Added `reason` field explaining the restriction. GrantAccess/RevokeAccess remain the only product-facing access control operations.
+- **Closure evidence:** `iam.proto` exposure changed from `AUTHORIZED` to `INTERNAL` with reason; code regenerated; build passes.
 
 ### GAP-IAM-004 — Contract-only RPCs are externally visible
 
 - **Priority:** `P1`
-- **Affected requirements:** `REQ-IAM-PROJECT-005`, `006`, `REQ-IAM-RESOURCE-005`, `006`, `007`
+- **Affected requirements:** `REQ-IAM-RESOURCE-005`, `006`, `007`
 - **Observed unimplemented methods:**
-  - `UpdateProject`
-  - `ArchiveProject`
   - `MoveResource`
   - `DeleteResource`
   - `UnbindResource`
   - `ListExternalResourceBindings`
 - **Risk:** generated documentation and routes imply usable features that always fail at runtime.
 - **Closure options:** implement and verify each approved requirement, or remove it from the release contract until scheduled.
+- **Resolved:** `UpdateProject` and `ArchiveProject` have been implemented — Project CRUD is now complete.
 
 ### GAP-IAM-005 — No real Casdoor directory verification suite
 

@@ -13,6 +13,7 @@ func IAMModules() []serverx.ServiceModule {
 		v1.IAMAuthServiceKernelModule(),
 		v1.IAMDirectoryServiceKernelModule(),
 		v1.IAMIdentityAdminServiceKernelModule(),
+		v1.IAMGroupAdminServiceKernelModule(),
 		v1.IAMPermissionServiceKernelModule(),
 		projectv1.ProjectServiceKernelModule(),
 		resourcev1.ResourceServiceKernelModule(),

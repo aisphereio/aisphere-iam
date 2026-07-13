@@ -1,0 +1,73 @@
+# Control Matrix — Aisphere IAM
+# Version: 1.0 | Cycle: C1
+
+id: CM-IAM-001
+scope: aisphere-iam repository — Go service, Kernel-based, identity/authorization control plane
+applies_to: all AI agents working on aisphere-iam
+minimum_risk_level: L2
+
+data_class:
+  allowed:
+    - internal
+    - authorization_metadata
+    - control_plane_facts
+  forbidden:
+    - credentials
+    - secrets
+    - pii
+
+tools:
+  allowed:
+    - go
+    - buf
+    - docker
+    - protoc
+    - golangci-lint
+    - kernel generators (protoc-gen-go-kernel, protoc-gen-go-authz, etc.)
+  forbidden:
+    - hand-written Gateway routes
+    - raw grpc.Dial in business code
+    - direct SpiceDB schema edit outside admin API
+  requires_gate:
+    - direct Casdoor user mutation
+    - SpiceDB schema publish
+
+model:
+  vendor: anthropic
+  model_name: claude
+
+logs:
+  storage_location: .agile-v/DECISION_LOG.md, .agile-v/TRACE_LOG.md
+  retention: entire cycle
+
+max_permissions:
+  read_without_approval: true
+  write_without_approval: false
+  deploy_without_approval: false
+  schema_change_without_approval: false
+
+human_gates:
+  required_before:
+    - requirement_approval: Gate 1
+    - release: Gate 2
+
+tests:
+  required:
+    - go test ./...
+    - make proto-check
+    - make api
+    - make build
+  integration_required: true
+
+cost_limit:
+  cycle_budget: TBD
+
+rollback:
+  strategy: clean reset
+  data_preservation: none required
+
+owner:
+  business_owner: yuanyp8
+  technical_owner: yuanyp8
+  security_owner: yuanyp8
+  reviewer: TBD

@@ -44,6 +44,7 @@ type ControlPlaneRepository interface {
 	UpsertProject(ctx context.Context, project *ProjectModel) error
 	GetProject(ctx context.Context, id string) (*ProjectModel, error)
 	ListProjects(ctx context.Context, opts ListOptions) (*Page[ProjectModel], error)
+	ArchiveProject(ctx context.Context, id string) error
 
 	UpsertCapability(ctx context.Context, capability *CapabilityModel) error
 	ListCapabilities(ctx context.Context, opts ListOptions) ([]CapabilityModel, error)
@@ -104,6 +105,11 @@ func (r *DBControlPlaneRepository) GetProject(ctx context.Context, id string) (*
 		return nil, err
 	}
 	return &out, nil
+}
+
+func (r *DBControlPlaneRepository) ArchiveProject(ctx context.Context, id string) error {
+	now := time.Now().UTC()
+	return r.db.Update(ctx, &ProjectModel{}, "id = ?", []any{id}, map[string]any{"status": StatusArchived, "updated_at": now})
 }
 
 func (r *DBControlPlaneRepository) ListProjects(ctx context.Context, opts ListOptions) (*Page[ProjectModel], error) {

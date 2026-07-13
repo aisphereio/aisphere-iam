@@ -85,16 +85,17 @@ func main() {
 
 	service.ConfigureExternalAuthInternalCall(bc.Security.InternalCall)
 	deps := service.IAMDeps{Tokens: resources.Tokens, Identity: resources.Identity, Authz: resources.AuthzAdmin}
-	authService := service.NewIAMAuthService(deps)
-	directoryService := service.NewIAMDirectoryService(deps)
-	permissionService := service.NewIAMPermissionService(deps)
-	authzAdminService := service.NewIAMAuthorizationAdminService(deps)
-	projectService := service.NewProjectService(projectUsecase, resources.ControlPlane)
-	resourceService := service.NewResourceService(resourceUsecase, resources.ControlPlane)
-	grantService := service.NewGrantService(grantUsecase, resources.ControlPlane)
+authService := service.NewIAMAuthService(deps)
+		directoryService := service.NewIAMDirectoryService(deps)
+		groupService := service.NewIAMGroupAdminService(deps)
+		permissionService := service.NewIAMPermissionService(deps)
+		authzAdminService := service.NewIAMAuthorizationAdminService(deps)
+		projectService := service.NewProjectService(projectUsecase, resources.ControlPlane)
+		resourceService := service.NewResourceService(resourceUsecase, resources.ControlPlane)
+		grantService := service.NewGrantService(grantUsecase, resources.ControlPlane)
 
-	httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
-	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
+		httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
+		grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
 
 	options := []kernel.Option{kernel.Name(bc.Service.Name), kernel.Version(bc.Service.Version), kernel.LogxLogger(logger), kernel.Metrics(metrics), kernel.DTM(dtmManager), kernel.Server(httpServer, grpcServer), kernel.StopTimeout(10 * time.Second)}
 	if bc.Metrics.Enabled && bc.Metrics.Addr != "" {
