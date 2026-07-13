@@ -24,6 +24,34 @@ They are **Candidate requirements** until Human Gate 1 approval. Existing behavi
 | `ARCHITECTURE_REQUIRED` | Required by the accepted architecture but current main does not fully comply. |
 | `DEPRECATED` | Existing/historical behavior must not remain part of the target product contract. |
 
+## 2b. Priority definition
+
+| Priority | Meaning | Release criteria | Examples |
+|:--------:|---------|-----------------|----------|
+| **P0** | **核心能力** — 系统必须有的功能，缺失则产品不可用 | 必须通过 Gate 2 才能发布 | 认证、授权、身份目录、Project/Resource CRUD |
+| **P1** | **重要能力** — 产品需要有的功能，缺失则体验不完整 | 建议通过 Gate 2，可带已知问题发布 | 投影、授权管理、Grant 过期、审计持久化 |
+| **P2** | **完善性** — 锦上添花的功能，缺失不影响核心使用 | 可推迟到后续 Cycle | 性能 SLO、错误矩阵、告警规则 |
+
+### P0 判定标准（满足任一即 P0）
+
+1. **安全边界** — 认证、授权、鉴权相关，缺失会导致安全漏洞
+2. **核心业务** — 用户/组织/Project/Resource 的 CRUD，缺失则产品不可用
+3. **数据一致性** — 关键数据同步和投影，缺失会导致数据不一致
+4. **架构契约** — 已决策的架构模型，违反会导致技术债务
+
+### P1 判定标准（满足任一即 P1）
+
+1. **管理能力** — 管理员操作（Schema 管理、关系修复、审计）
+2. **生命周期完善** — 非核心但必要的生命周期操作（Grant 过期、投影修复）
+3. **可靠性** — 重试、补偿、漂移检测等可靠性机制
+4. **合规性** — 审计日志、操作记录等合规要求
+
+### P2 判定标准（满足任一即 P2）
+
+1. **工程优化** — 性能 SLO、错误矩阵、告警规则
+2. **可观测性** — 监控、日志、追踪的完善
+3. **非功能性** — 代码质量、文档、测试覆盖率的提升
+
 Evidence qualifiers:
 
 - `UNIT_EVIDENCE`

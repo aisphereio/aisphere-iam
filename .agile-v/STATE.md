@@ -38,7 +38,5 @@
 
 ## Next Actions
 
-1. Assign priorities (P0/P1/P2) to approved requirements
-2. Approve Gate 1 — move requirements from Candidate to Approved [C1]
-3. Build integration test suite against aisphere-dev
-4. Plan C2 — integration test environment and end-to-end verification
+1. Build integration test suite against aisphere-dev
+2. Plan C2 — integration test environment and end-to-end verification
