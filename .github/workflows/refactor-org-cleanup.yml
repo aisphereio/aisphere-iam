@@ -29,18 +29,7 @@ jobs:
       - name: Apply single-root refactor
         id: apply
         continue-on-error: true
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('.github/scripts/refactor_org_cleanup.py')
-          text = p.read_text()
-          old = r'''sub(access, r'\n\tswitch op \{\n\tcase "CreateOrganization".*?\n\t\}\n', '\n')'''
-          new = r'''sub(access, r'\n\t\tswitch op \{\n\t\tcase "CreateOrganization".*?\n\t\t\}\n', '\n')'''
-          if old not in text:
-              raise SystemExit('access cleanup matcher not found')
-          p.write_text(text.replace(old, new, 1))
-          PY
-          python3 .github/scripts/refactor_org_cleanup.py > org-refactor.log 2>&1
+        run: python3 .github/scripts/refactor_org_cleanup_v2.py > org-refactor.log 2>&1
 
       - name: Capture remaining Organization references
         if: always()
@@ -85,7 +74,7 @@ jobs:
       - name: Commit regenerated tree
         if: github.event_name == 'push'
         run: |
-          rm -f .github/workflows/refactor-org-cleanup.yml .github/scripts/refactor_org_cleanup.py
+          rm -f .github/workflows/refactor-org-cleanup.yml .github/scripts/refactor_org_cleanup.py .github/scripts/refactor_org_cleanup_v2.py
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add -A
