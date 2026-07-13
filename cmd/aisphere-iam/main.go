@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"sync"
 	"time"
 
 	kernel "github.com/aisphereio/kernel"

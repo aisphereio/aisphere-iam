@@ -19,6 +19,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: iam-image-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: registry.cn-beijing.aliyuncs.com
   NAMESPACE: ainfracn

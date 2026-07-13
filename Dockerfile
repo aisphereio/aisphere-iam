@@ -12,8 +12,7 @@ RUN go mod download
 
 COPY . .
 ARG VERSION=dev
-RUN go mod tidy \
-    && go mod download \
+RUN go mod download \
     && CGO_ENABLED=0 GOOS=linux go build \
       -trimpath \
       -ldflags "-s -w -X main.Name=aisphere-iam -X main.Version=${VERSION}" \
