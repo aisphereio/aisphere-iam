@@ -16,7 +16,7 @@
 | 03-Orchestrate | ✅ COMPLETE | Build Manifest (62 ART); 0 code-without-REQ; 18 existing tests (3 new: group_admin, resource_lifecycle), 24 missing tests; compliance audit complete |
 | 04-Prove | ✅ COMPLETE | Integration tests passed: IAM Health, Casdoor, SpiceDB, PostgreSQL all OK |
 | 05-Evolve | ⏳ PENDING | Decision log maintained |
-| 06-Verify | ⏳ PENDING | Red Team verification pending |
+| 06-Verify | ✅ COMPLETE | Red Team verification: 14 VER records, 2 FAIL (AUTHZ-ADMIN-005 audit, GRANT-006 expiry), 3 FLAG, Gate 2 NOT_READY |
 
 ## Gate Status
 
