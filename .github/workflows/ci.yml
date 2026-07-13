@@ -96,3 +96,10 @@ jobs:
             git diff --stat
             exit 1
           fi
+
+      - name: Build container image
+        run: |
+          docker build \
+            --build-arg VERSION=${{ github.sha }} \
+            --build-arg KERNEL_VERSION=${KERNEL_VERSION} \
+            -t aisphere-iam:${{ github.sha }} .
