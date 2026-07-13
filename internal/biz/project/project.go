@@ -1,9 +1,8 @@
 // Package project owns Aisphere project/capability control-plane use cases.
 //
-// Casdoor Organization is the single organization root and is represented in
-// authorization as a zone. The legacy IAM-local Organization methods remain
-// temporarily for source compatibility while callers migrate; new project
-// relationships must never use that legacy resource type.
+// Casdoor Organization is the single identity-domain root and is represented
+// inside Aisphere authorization as zone:<principal.org_id>. IAM does not create
+// or persist a second platform Organization model.
 package project
 
 import (
@@ -21,17 +20,11 @@ import (
 )
 
 const (
-	// ResourceTypeOrganization is retained only for the legacy control-plane
-	// Organization API. It must not be used by new project relationships.
-	ResourceTypeOrganization = "organization"
-	ResourceTypeZone         = "zone"
-	ResourceTypeProject      = "project"
+	ResourceTypeZone    = "zone"
+	ResourceTypeProject = "project"
 
-	RelationParent = "parent"
-	RelationZone   = "zone"
-	RelationOwner  = "owner"
-	RelationAdmin  = "admin"
-	RelationMember = "member"
+	RelationZone  = "zone"
+	RelationOwner = "owner"
 )
 
 type SubjectRef struct {
@@ -40,24 +33,12 @@ type SubjectRef struct {
 	Relation string
 }
 
-type CreateOrganizationRequest struct {
-	ID           string
-	Slug         string
-	DisplayName  string
-	CasdoorOrg   string
-	Plan         string
-	Region       string
-	MetadataJSON string
-	Owner        SubjectRef
-}
-
 type CreateProjectRequest struct {
 	ID string
 
-	// ZoneID is the canonical Casdoor organization identifier. OrgID is a
-	// temporary compatibility input and must be removed with the legacy proto.
+	// ZoneID is the current authenticated Principal.org_id. Callers must not
+	// supply or override this value through the public API.
 	ZoneID string
-	OrgID  string
 
 	Slug            string
 	DisplayName     string
@@ -99,133 +80,11 @@ func NewService(repo data.ControlPlaneRepository, writer authz.RelationshipWrite
 	return &Service{repo: repo, projection: pm, now: func() time.Time { return time.Now().UTC() }}
 }
 
-func (s *Service) CreateOrganization(ctx context.Context, req CreateOrganizationRequest) (*data.OrganizationModel, authz.WriteResult, error) {
-	if s.repo == nil {
-		return nil, authz.WriteResult{}, errors.New("project service repository is nil")
-	}
-	req.Slug = strings.TrimSpace(req.Slug)
-	if req.Slug == "" {
-		return nil, authz.WriteResult{}, errors.New("organization slug is required")
-	}
-	id := strings.TrimSpace(req.ID)
-	if id == "" {
-		id = idgen.New("org")
-	}
-	now := s.now()
-	org := &data.OrganizationModel{
-		ID:           id,
-		Slug:         req.Slug,
-		DisplayName:  nonEmpty(req.DisplayName, req.Slug),
-		Status:       data.StatusActive,
-		CasdoorOrg:   strings.TrimSpace(req.CasdoorOrg),
-		Plan:         strings.TrimSpace(req.Plan),
-		Region:       strings.TrimSpace(req.Region),
-		MetadataJSON: jsonOrEmptyObject(req.MetadataJSON),
-		CreatedAt:    now,
-		UpdatedAt:    now,
-	}
-	rels := make([]authz.Relationship, 0, 3)
-	if !subjectZero(req.Owner) {
-		ownerSubj := toAuthzSubject(req.Owner)
-		rels = append(rels,
-			authz.Relationship{
-				Resource: graph.Object(ResourceTypeOrganization, org.ID),
-				Relation: RelationOwner,
-				Subject:  ownerSubj,
-			},
-			authz.Relationship{
-				Resource: graph.Object(ResourceTypeOrganization, org.ID),
-				Relation: RelationAdmin,
-				Subject:  ownerSubj,
-			},
-			authz.Relationship{
-				Resource: graph.Object(ResourceTypeOrganization, org.ID),
-				Relation: RelationMember,
-				Subject:  ownerSubj,
-			},
-		)
-	}
-	event, err := s.projection.NewWriteEvent("organization", org.ID, rels...)
-	if err != nil {
-		return nil, authz.WriteResult{}, err
-	}
-	if err := s.repo.CreateOrganization(ctx, org, event); err != nil {
-		return nil, authz.WriteResult{}, err
-	}
-	wr, err := s.projection.Dispatch(ctx, event)
-	return org, wr, err
-}
-
-type UpdateOrganizationRequest struct {
-	ID           string
-	DisplayName  string
-	Plan         string
-	Region       string
-	MetadataJSON string
-}
-
-func (s *Service) UpdateOrganization(ctx context.Context, req UpdateOrganizationRequest) (*data.OrganizationModel, error) {
-	if s.repo == nil {
-		return nil, errors.New("project service repository is nil")
-	}
-	req.ID = strings.TrimSpace(req.ID)
-	if req.ID == "" {
-		return nil, errors.New("organization id is required")
-	}
-	org, err := s.repo.GetOrganization(ctx, req.ID)
-	if err != nil {
-		return nil, err
-	}
-	if req.DisplayName != "" {
-		org.DisplayName = strings.TrimSpace(req.DisplayName)
-	}
-	if req.Plan != "" {
-		org.Plan = strings.TrimSpace(req.Plan)
-	}
-	if req.Region != "" {
-		org.Region = strings.TrimSpace(req.Region)
-	}
-	if req.MetadataJSON != "" {
-		org.MetadataJSON = req.MetadataJSON
-	}
-	org.UpdatedAt = s.now()
-	if err := s.repo.UpsertOrganization(ctx, org); err != nil {
-		return nil, err
-	}
-	return org, nil
-}
-
-func (s *Service) ArchiveOrganization(ctx context.Context, id string) (*data.OrganizationModel, error) {
-	if s.repo == nil {
-		return nil, errors.New("project service repository is nil")
-	}
-	id = strings.TrimSpace(id)
-	if id == "" {
-		return nil, errors.New("organization id is required")
-	}
-	org, err := s.repo.GetOrganization(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	if org.Status == data.StatusArchived {
-		return org, nil
-	}
-	org.Status = data.StatusArchived
-	org.UpdatedAt = s.now()
-	if err := s.repo.UpsertOrganization(ctx, org); err != nil {
-		return nil, err
-	}
-	return org, nil
-}
-
 func (s *Service) CreateProject(ctx context.Context, req CreateProjectRequest) (*data.ProjectModel, authz.WriteResult, error) {
 	if s.repo == nil {
 		return nil, authz.WriteResult{}, errors.New("project service repository is nil")
 	}
 	zoneID := strings.TrimSpace(req.ZoneID)
-	if zoneID == "" {
-		zoneID = strings.TrimSpace(req.OrgID)
-	}
 	req.Slug = strings.TrimSpace(req.Slug)
 	if zoneID == "" {
 		return nil, authz.WriteResult{}, errors.New("zone_id is required")
@@ -233,6 +92,13 @@ func (s *Service) CreateProject(ctx context.Context, req CreateProjectRequest) (
 	if req.Slug == "" {
 		return nil, authz.WriteResult{}, errors.New("project slug is required")
 	}
+	if subjectZero(req.CreatedBy) {
+		return nil, authz.WriteResult{}, errors.New("authenticated project creator is required")
+	}
+	if subjectZero(req.Owner) {
+		return nil, authz.WriteResult{}, errors.New("project owner is required")
+	}
+
 	id := strings.TrimSpace(req.ID)
 	if id == "" {
 		id = idgen.New("project")
@@ -252,17 +118,17 @@ func (s *Service) CreateProject(ctx context.Context, req CreateProjectRequest) (
 		CreatedAt:       now,
 		UpdatedAt:       now,
 	}
-	rels := []authz.Relationship{{
-		Resource: graph.Object(ResourceTypeProject, project.ID),
-		Relation: RelationZone,
-		Subject:  graph.Subject(ResourceTypeZone, zoneID, ""),
-	}}
-	if !subjectZero(req.Owner) {
-		rels = append(rels, authz.Relationship{
+	rels := []authz.Relationship{
+		{
+			Resource: graph.Object(ResourceTypeProject, project.ID),
+			Relation: RelationZone,
+			Subject:  graph.Subject(ResourceTypeZone, zoneID, ""),
+		},
+		{
 			Resource: graph.Object(ResourceTypeProject, project.ID),
 			Relation: RelationOwner,
 			Subject:  toAuthzSubject(req.Owner),
-		})
+		},
 	}
 	event, err := s.projection.NewWriteEvent("project", project.ID, rels...)
 	if err != nil {
