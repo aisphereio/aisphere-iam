@@ -42,18 +42,18 @@ type IAMIdentityAdminServiceHTTPServer interface {
 
 func RegisterIAMIdentityAdminServiceHTTPServer(s *http.Server, srv IAMIdentityAdminServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("DELETE", "/v1/iam/orgs/{org_id}/groups/{group_id}", _IAMIdentityAdminService_DeleteGroup1_HTTP_Handler(srv))
+	r.Handle("DELETE", "/v1/iam/orgs/{org_id}/groups/{group_id}", _IAMIdentityAdminService_DeleteGroup0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/v1/iam/orgs/{org_id}/users/{user_id}", _IAMIdentityAdminService_DeleteUser0_HTTP_Handler(srv))
-	r.Handle("DELETE", "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}", _IAMIdentityAdminService_RemoveUserFromGroup1_HTTP_Handler(srv))
-	r.Handle("PATCH", "/v1/iam/orgs/{org_id}/groups/{group_id}", _IAMIdentityAdminService_UpdateGroup1_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/orgs/{org_id}/groups", _IAMIdentityAdminService_CreateGroup1_HTTP_Handler(srv))
+	r.Handle("DELETE", "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}", _IAMIdentityAdminService_RemoveUserFromGroup0_HTTP_Handler(srv))
+	r.Handle("PATCH", "/v1/iam/orgs/{org_id}/groups/{group_id}", _IAMIdentityAdminService_UpdateGroup0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/groups", _IAMIdentityAdminService_CreateGroup0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/orgs/{org_id}/users", _IAMIdentityAdminService_CreateUser0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/orgs/{org_id}/users/{user_id}:disable", _IAMIdentityAdminService_DisableUser0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}", _IAMIdentityAdminService_AssignUserToGroup1_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}", _IAMIdentityAdminService_AssignUserToGroup0_HTTP_Handler(srv))
 	r.Handle("PUT", "/v1/iam/orgs/{org_id}/users/{user_id}", _IAMIdentityAdminService_UpdateUser0_HTTP_Handler(srv))
 }
 
-func _IAMIdentityAdminService_DeleteGroup1_HTTP_Handler(srv IAMIdentityAdminServiceHTTPServer) func(ctx http.Context) error {
+func _IAMIdentityAdminService_DeleteGroup0_HTTP_Handler(srv IAMIdentityAdminServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in DeleteGroupRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -103,7 +103,7 @@ func _IAMIdentityAdminService_DeleteUser0_HTTP_Handler(srv IAMIdentityAdminServi
 	}
 }
 
-func _IAMIdentityAdminService_RemoveUserFromGroup1_HTTP_Handler(srv IAMIdentityAdminServiceHTTPServer) func(ctx http.Context) error {
+func _IAMIdentityAdminService_RemoveUserFromGroup0_HTTP_Handler(srv IAMIdentityAdminServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in RemoveUserFromGroupRequest
 		if err := ctx.BindQuery(&in); err != nil {
@@ -128,7 +128,7 @@ func _IAMIdentityAdminService_RemoveUserFromGroup1_HTTP_Handler(srv IAMIdentityA
 	}
 }
 
-func _IAMIdentityAdminService_UpdateGroup1_HTTP_Handler(srv IAMIdentityAdminServiceHTTPServer) func(ctx http.Context) error {
+func _IAMIdentityAdminService_UpdateGroup0_HTTP_Handler(srv IAMIdentityAdminServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in UpdateGroupRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -153,7 +153,7 @@ func _IAMIdentityAdminService_UpdateGroup1_HTTP_Handler(srv IAMIdentityAdminServ
 	}
 }
 
-func _IAMIdentityAdminService_CreateGroup1_HTTP_Handler(srv IAMIdentityAdminServiceHTTPServer) func(ctx http.Context) error {
+func _IAMIdentityAdminService_CreateGroup0_HTTP_Handler(srv IAMIdentityAdminServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in CreateGroupRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -228,7 +228,7 @@ func _IAMIdentityAdminService_DisableUser0_HTTP_Handler(srv IAMIdentityAdminServ
 	}
 }
 
-func _IAMIdentityAdminService_AssignUserToGroup1_HTTP_Handler(srv IAMIdentityAdminServiceHTTPServer) func(ctx http.Context) error {
+func _IAMIdentityAdminService_AssignUserToGroup0_HTTP_Handler(srv IAMIdentityAdminServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AssignUserToGroupRequest
 		if err := ctx.Bind(&in); err != nil {

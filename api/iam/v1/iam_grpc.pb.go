@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -160,16 +159,11 @@ var IAMAuthService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	IAMDirectoryService_GetUser_FullMethodName             = "/iam.v1.IAMDirectoryService/GetUser"
-	IAMDirectoryService_ListUsers_FullMethodName           = "/iam.v1.IAMDirectoryService/ListUsers"
-	IAMDirectoryService_GetOrganization_FullMethodName     = "/iam.v1.IAMDirectoryService/GetOrganization"
-	IAMDirectoryService_ListGroups_FullMethodName          = "/iam.v1.IAMDirectoryService/ListGroups"
-	IAMDirectoryService_GetGroup_FullMethodName            = "/iam.v1.IAMDirectoryService/GetGroup"
-	IAMDirectoryService_CreateGroup_FullMethodName         = "/iam.v1.IAMDirectoryService/CreateGroup"
-	IAMDirectoryService_UpdateGroup_FullMethodName         = "/iam.v1.IAMDirectoryService/UpdateGroup"
-	IAMDirectoryService_DeleteGroup_FullMethodName         = "/iam.v1.IAMDirectoryService/DeleteGroup"
-	IAMDirectoryService_AssignUserToGroup_FullMethodName   = "/iam.v1.IAMDirectoryService/AssignUserToGroup"
-	IAMDirectoryService_RemoveUserFromGroup_FullMethodName = "/iam.v1.IAMDirectoryService/RemoveUserFromGroup"
+	IAMDirectoryService_GetUser_FullMethodName         = "/iam.v1.IAMDirectoryService/GetUser"
+	IAMDirectoryService_ListUsers_FullMethodName       = "/iam.v1.IAMDirectoryService/ListUsers"
+	IAMDirectoryService_GetOrganization_FullMethodName = "/iam.v1.IAMDirectoryService/GetOrganization"
+	IAMDirectoryService_ListGroups_FullMethodName      = "/iam.v1.IAMDirectoryService/ListGroups"
+	IAMDirectoryService_GetGroup_FullMethodName        = "/iam.v1.IAMDirectoryService/GetGroup"
 )
 
 // IAMDirectoryServiceClient is the client API for IAMDirectoryService service.
@@ -181,11 +175,6 @@ type IAMDirectoryServiceClient interface {
 	GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 	ListGroups(ctx context.Context, in *ListGroupsRequest, opts ...grpc.CallOption) (*ListGroupsReply, error)
 	GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*Group, error)
-	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error)
-	UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...grpc.CallOption) (*Group, error)
-	DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AssignUserToGroup(ctx context.Context, in *AssignUserToGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	RemoveUserFromGroup(ctx context.Context, in *RemoveUserFromGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type iAMDirectoryServiceClient struct {
@@ -246,56 +235,6 @@ func (c *iAMDirectoryServiceClient) GetGroup(ctx context.Context, in *GetGroupRe
 	return out, nil
 }
 
-func (c *iAMDirectoryServiceClient) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Group)
-	err := c.cc.Invoke(ctx, IAMDirectoryService_CreateGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMDirectoryServiceClient) UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...grpc.CallOption) (*Group, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Group)
-	err := c.cc.Invoke(ctx, IAMDirectoryService_UpdateGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMDirectoryServiceClient) DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, IAMDirectoryService_DeleteGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMDirectoryServiceClient) AssignUserToGroup(ctx context.Context, in *AssignUserToGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, IAMDirectoryService_AssignUserToGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMDirectoryServiceClient) RemoveUserFromGroup(ctx context.Context, in *RemoveUserFromGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, IAMDirectoryService_RemoveUserFromGroup_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // IAMDirectoryServiceServer is the server API for IAMDirectoryService service.
 // All implementations must embed UnimplementedIAMDirectoryServiceServer
 // for forward compatibility.
@@ -305,11 +244,6 @@ type IAMDirectoryServiceServer interface {
 	GetOrganization(context.Context, *GetOrganizationRequest) (*Organization, error)
 	ListGroups(context.Context, *ListGroupsRequest) (*ListGroupsReply, error)
 	GetGroup(context.Context, *GetGroupRequest) (*Group, error)
-	CreateGroup(context.Context, *CreateGroupRequest) (*Group, error)
-	UpdateGroup(context.Context, *UpdateGroupRequest) (*Group, error)
-	DeleteGroup(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error)
-	AssignUserToGroup(context.Context, *AssignUserToGroupRequest) (*emptypb.Empty, error)
-	RemoveUserFromGroup(context.Context, *RemoveUserFromGroupRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedIAMDirectoryServiceServer()
 }
 
@@ -334,21 +268,6 @@ func (UnimplementedIAMDirectoryServiceServer) ListGroups(context.Context, *ListG
 }
 func (UnimplementedIAMDirectoryServiceServer) GetGroup(context.Context, *GetGroupRequest) (*Group, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGroup not implemented")
-}
-func (UnimplementedIAMDirectoryServiceServer) CreateGroup(context.Context, *CreateGroupRequest) (*Group, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
-}
-func (UnimplementedIAMDirectoryServiceServer) UpdateGroup(context.Context, *UpdateGroupRequest) (*Group, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateGroup not implemented")
-}
-func (UnimplementedIAMDirectoryServiceServer) DeleteGroup(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteGroup not implemented")
-}
-func (UnimplementedIAMDirectoryServiceServer) AssignUserToGroup(context.Context, *AssignUserToGroupRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AssignUserToGroup not implemented")
-}
-func (UnimplementedIAMDirectoryServiceServer) RemoveUserFromGroup(context.Context, *RemoveUserFromGroupRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RemoveUserFromGroup not implemented")
 }
 func (UnimplementedIAMDirectoryServiceServer) mustEmbedUnimplementedIAMDirectoryServiceServer() {}
 func (UnimplementedIAMDirectoryServiceServer) testEmbeddedByValue()                             {}
@@ -461,96 +380,6 @@ func _IAMDirectoryService_GetGroup_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IAMDirectoryService_CreateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMDirectoryServiceServer).CreateGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMDirectoryService_CreateGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMDirectoryServiceServer).CreateGroup(ctx, req.(*CreateGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMDirectoryService_UpdateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMDirectoryServiceServer).UpdateGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMDirectoryService_UpdateGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMDirectoryServiceServer).UpdateGroup(ctx, req.(*UpdateGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMDirectoryService_DeleteGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMDirectoryServiceServer).DeleteGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMDirectoryService_DeleteGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMDirectoryServiceServer).DeleteGroup(ctx, req.(*DeleteGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMDirectoryService_AssignUserToGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AssignUserToGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMDirectoryServiceServer).AssignUserToGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMDirectoryService_AssignUserToGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMDirectoryServiceServer).AssignUserToGroup(ctx, req.(*AssignUserToGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMDirectoryService_RemoveUserFromGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveUserFromGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMDirectoryServiceServer).RemoveUserFromGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMDirectoryService_RemoveUserFromGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMDirectoryServiceServer).RemoveUserFromGroup(ctx, req.(*RemoveUserFromGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // IAMDirectoryService_ServiceDesc is the grpc.ServiceDesc for IAMDirectoryService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -577,26 +406,6 @@ var IAMDirectoryService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetGroup",
 			Handler:    _IAMDirectoryService_GetGroup_Handler,
-		},
-		{
-			MethodName: "CreateGroup",
-			Handler:    _IAMDirectoryService_CreateGroup_Handler,
-		},
-		{
-			MethodName: "UpdateGroup",
-			Handler:    _IAMDirectoryService_UpdateGroup_Handler,
-		},
-		{
-			MethodName: "DeleteGroup",
-			Handler:    _IAMDirectoryService_DeleteGroup_Handler,
-		},
-		{
-			MethodName: "AssignUserToGroup",
-			Handler:    _IAMDirectoryService_AssignUserToGroup_Handler,
-		},
-		{
-			MethodName: "RemoveUserFromGroup",
-			Handler:    _IAMDirectoryService_RemoveUserFromGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -788,8 +597,6 @@ const (
 	IAMPermissionService_WriteRelationships_FullMethodName    = "/iam.v1.IAMPermissionService/WriteRelationships"
 	IAMPermissionService_DeleteRelationships_FullMethodName   = "/iam.v1.IAMPermissionService/DeleteRelationships"
 	IAMPermissionService_ReadRelationships_FullMethodName     = "/iam.v1.IAMPermissionService/ReadRelationships"
-	IAMPermissionService_WriteRelationship_FullMethodName     = "/iam.v1.IAMPermissionService/WriteRelationship"
-	IAMPermissionService_DeleteRelationship_FullMethodName    = "/iam.v1.IAMPermissionService/DeleteRelationship"
 	IAMPermissionService_LookupResources_FullMethodName       = "/iam.v1.IAMPermissionService/LookupResources"
 	IAMPermissionService_LookupSubjects_FullMethodName        = "/iam.v1.IAMPermissionService/LookupSubjects"
 )
@@ -803,8 +610,6 @@ type IAMPermissionServiceClient interface {
 	WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...grpc.CallOption) (*WriteRelationshipsReply, error)
 	DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...grpc.CallOption) (*DeleteRelationshipsReply, error)
 	ReadRelationships(ctx context.Context, in *ListRelationshipsRequest, opts ...grpc.CallOption) (*ListRelationshipsReply, error)
-	WriteRelationship(ctx context.Context, in *WriteRelationshipRequest, opts ...grpc.CallOption) (*WriteRelationshipReply, error)
-	DeleteRelationship(ctx context.Context, in *DeleteRelationshipRequest, opts ...grpc.CallOption) (*DeleteRelationshipReply, error)
 	LookupResources(ctx context.Context, in *LookupResourcesRequest, opts ...grpc.CallOption) (*LookupResourcesReply, error)
 	LookupSubjects(ctx context.Context, in *LookupSubjectsRequest, opts ...grpc.CallOption) (*LookupSubjectsReply, error)
 }
@@ -867,26 +672,6 @@ func (c *iAMPermissionServiceClient) ReadRelationships(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *iAMPermissionServiceClient) WriteRelationship(ctx context.Context, in *WriteRelationshipRequest, opts ...grpc.CallOption) (*WriteRelationshipReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(WriteRelationshipReply)
-	err := c.cc.Invoke(ctx, IAMPermissionService_WriteRelationship_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *iAMPermissionServiceClient) DeleteRelationship(ctx context.Context, in *DeleteRelationshipRequest, opts ...grpc.CallOption) (*DeleteRelationshipReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteRelationshipReply)
-	err := c.cc.Invoke(ctx, IAMPermissionService_DeleteRelationship_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *iAMPermissionServiceClient) LookupResources(ctx context.Context, in *LookupResourcesRequest, opts ...grpc.CallOption) (*LookupResourcesReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LookupResourcesReply)
@@ -916,8 +701,6 @@ type IAMPermissionServiceServer interface {
 	WriteRelationships(context.Context, *WriteRelationshipsRequest) (*WriteRelationshipsReply, error)
 	DeleteRelationships(context.Context, *DeleteRelationshipsRequest) (*DeleteRelationshipsReply, error)
 	ReadRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error)
-	WriteRelationship(context.Context, *WriteRelationshipRequest) (*WriteRelationshipReply, error)
-	DeleteRelationship(context.Context, *DeleteRelationshipRequest) (*DeleteRelationshipReply, error)
 	LookupResources(context.Context, *LookupResourcesRequest) (*LookupResourcesReply, error)
 	LookupSubjects(context.Context, *LookupSubjectsRequest) (*LookupSubjectsReply, error)
 	mustEmbedUnimplementedIAMPermissionServiceServer()
@@ -944,12 +727,6 @@ func (UnimplementedIAMPermissionServiceServer) DeleteRelationships(context.Conte
 }
 func (UnimplementedIAMPermissionServiceServer) ReadRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadRelationships not implemented")
-}
-func (UnimplementedIAMPermissionServiceServer) WriteRelationship(context.Context, *WriteRelationshipRequest) (*WriteRelationshipReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WriteRelationship not implemented")
-}
-func (UnimplementedIAMPermissionServiceServer) DeleteRelationship(context.Context, *DeleteRelationshipRequest) (*DeleteRelationshipReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteRelationship not implemented")
 }
 func (UnimplementedIAMPermissionServiceServer) LookupResources(context.Context, *LookupResourcesRequest) (*LookupResourcesReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LookupResources not implemented")
@@ -1068,42 +845,6 @@ func _IAMPermissionService_ReadRelationships_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IAMPermissionService_WriteRelationship_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WriteRelationshipRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMPermissionServiceServer).WriteRelationship(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMPermissionService_WriteRelationship_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMPermissionServiceServer).WriteRelationship(ctx, req.(*WriteRelationshipRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _IAMPermissionService_DeleteRelationship_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRelationshipRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(IAMPermissionServiceServer).DeleteRelationship(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: IAMPermissionService_DeleteRelationship_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMPermissionServiceServer).DeleteRelationship(ctx, req.(*DeleteRelationshipRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _IAMPermissionService_LookupResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LookupResourcesRequest)
 	if err := dec(in); err != nil {
@@ -1166,14 +907,6 @@ var IAMPermissionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReadRelationships",
 			Handler:    _IAMPermissionService_ReadRelationships_Handler,
-		},
-		{
-			MethodName: "WriteRelationship",
-			Handler:    _IAMPermissionService_WriteRelationship_Handler,
-		},
-		{
-			MethodName: "DeleteRelationship",
-			Handler:    _IAMPermissionService_DeleteRelationship_Handler,
 		},
 		{
 			MethodName: "LookupResources",

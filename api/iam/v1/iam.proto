@@ -6,7 +6,6 @@ import "aisphere/access/v1/access.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/aisphereio/aisphere-iam/api/iam/v1;v1";
@@ -37,7 +36,7 @@ service IAMDirectoryService {
     option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/users/{user_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "iam:org:{org_id}:user:{user_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "view_users" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.user.get" risk: "low" }
     };
   }
@@ -46,7 +45,7 @@ service IAMDirectoryService {
     option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/users" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:org:{org_id}:user:*" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "view_users" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.user.list" risk: "medium" }
     };
   }
@@ -55,7 +54,7 @@ service IAMDirectoryService {
     option (google.api.http) = { get: "/v1/iam/orgs/{org_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "iam:org:{org_id}:organization:{org_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "view_zone" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.org.get" risk: "low" }
     };
   }
@@ -64,7 +63,7 @@ service IAMDirectoryService {
     option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/groups" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:org:{org_id}:group:*" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "view_groups" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.group.list" risk: "medium" }
     };
   }
@@ -73,55 +72,11 @@ service IAMDirectoryService {
     option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/groups/{group_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "view" resource: "group:{group_id}" audience: "iam-service" mode: SELF_CHECK }
+      authz: { action: "view_groups" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.group.get" risk: "low" }
     };
   }
 
-  rpc CreateGroup(CreateGroupRequest) returns (Group) {
-    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/groups" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "create_groups" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
-      audit: { enabled: true event: "iam.group.create" risk: "high" }
-    };
-  }
-
-  rpc UpdateGroup(UpdateGroupRequest) returns (Group) {
-    option (google.api.http) = { put: "/v1/iam/orgs/{org_id}/groups/{group_id}" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "manage" resource: "group:{group_id}" audience: "iam-service" mode: SELF_CHECK }
-      audit: { enabled: true event: "iam.group.update" risk: "high" }
-    };
-  }
-
-  rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { delete: "/v1/iam/orgs/{org_id}/groups/{group_id}" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "manage" resource: "group:{group_id}" audience: "iam-service" mode: SELF_CHECK }
-      audit: { enabled: true event: "iam.group.delete" risk: "critical" }
-    };
-  }
-
-  rpc AssignUserToGroup(AssignUserToGroupRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { post: "/v1/iam/directory/group-memberships:assign" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "manage_members" resource: "group:{group_id}" audience: "iam-service" mode: SELF_CHECK }
-      audit: { enabled: true event: "iam.group.member.assign" risk: "high" }
-    };
-  }
-
-  rpc RemoveUserFromGroup(RemoveUserFromGroupRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { post: "/v1/iam/directory/group-memberships:remove" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "manage_members" resource: "group:{group_id}" audience: "iam-service" mode: SELF_CHECK }
-      audit: { enabled: true event: "iam.group.member.remove" risk: "high" }
-    };
-  }
 }
 
 service IAMDirectoryProjectionService {
@@ -201,24 +156,6 @@ service IAMPermissionService {
       authz: { action: "read" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.relationship.read" risk: "medium" }
       reason: "Relationship graph reads are restricted to trusted platform services."
-    };
-  }
-
-  rpc WriteRelationship(WriteRelationshipRequest) returns (WriteRelationshipReply) {
-    option (google.api.http) = { post: "/v1/iam/relationships" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "write" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.relationship.write" risk: "high" }
-    };
-  }
-
-  rpc DeleteRelationship(DeleteRelationshipRequest) returns (DeleteRelationshipReply) {
-    option (google.api.http) = { post: "/v1/iam/relationships/delete" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "delete" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
-      audit: { enabled: true event: "iam.relationship.delete" risk: "high" }
     };
   }
 

@@ -13,7 +13,6 @@ import (
 	contextx "github.com/aisphereio/kernel/contextx"
 	requestx "github.com/aisphereio/kernel/requestx"
 	grpc "google.golang.org/grpc"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	strings "strings"
 )
 
@@ -24,10 +23,10 @@ var IAMDirectoryServiceAuthzRules = authz.Rules{
 		Service:    "iam.v1.IAMDirectoryService",
 		Method:     "GetUser",
 		FullMethod: "/iam.v1.IAMDirectoryService/GetUser",
-		Action:     "read",
-		Resource:   "iam:org:{org_id}:user:{user_id}",
+		Action:     "view_users",
+		Resource:   "zone:{org_id}",
 		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
+		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.user.get",
 		AuditRisk:  "low",
 	},
@@ -35,10 +34,10 @@ var IAMDirectoryServiceAuthzRules = authz.Rules{
 		Service:    "iam.v1.IAMDirectoryService",
 		Method:     "ListUsers",
 		FullMethod: "/iam.v1.IAMDirectoryService/ListUsers",
-		Action:     "list",
-		Resource:   "iam:org:{org_id}:user:*",
+		Action:     "view_users",
+		Resource:   "zone:{org_id}",
 		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
+		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.user.list",
 		AuditRisk:  "medium",
 	},
@@ -46,10 +45,10 @@ var IAMDirectoryServiceAuthzRules = authz.Rules{
 		Service:    "iam.v1.IAMDirectoryService",
 		Method:     "GetOrganization",
 		FullMethod: "/iam.v1.IAMDirectoryService/GetOrganization",
-		Action:     "read",
-		Resource:   "iam:org:{org_id}:organization:{org_id}",
+		Action:     "view_zone",
+		Resource:   "zone:{org_id}",
 		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
+		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.org.get",
 		AuditRisk:  "low",
 	},
@@ -57,10 +56,10 @@ var IAMDirectoryServiceAuthzRules = authz.Rules{
 		Service:    "iam.v1.IAMDirectoryService",
 		Method:     "ListGroups",
 		FullMethod: "/iam.v1.IAMDirectoryService/ListGroups",
-		Action:     "list",
-		Resource:   "iam:org:{org_id}:group:*",
+		Action:     "view_groups",
+		Resource:   "zone:{org_id}",
 		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
+		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.group.list",
 		AuditRisk:  "medium",
 	},
@@ -68,67 +67,12 @@ var IAMDirectoryServiceAuthzRules = authz.Rules{
 		Service:    "iam.v1.IAMDirectoryService",
 		Method:     "GetGroup",
 		FullMethod: "/iam.v1.IAMDirectoryService/GetGroup",
-		Action:     "view",
-		Resource:   "group:{group_id}",
+		Action:     "view_groups",
+		Resource:   "zone:{org_id}",
 		Audience:   "iam-service",
 		Mode:       authz.RuleMode("SELF_CHECK"),
 		AuditEvent: "iam.group.get",
 		AuditRisk:  "low",
-	},
-	"/iam.v1.IAMDirectoryService/CreateGroup": {
-		Service:    "iam.v1.IAMDirectoryService",
-		Method:     "CreateGroup",
-		FullMethod: "/iam.v1.IAMDirectoryService/CreateGroup",
-		Action:     "create_groups",
-		Resource:   "zone:{org_id}",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.group.create",
-		AuditRisk:  "high",
-	},
-	"/iam.v1.IAMDirectoryService/UpdateGroup": {
-		Service:    "iam.v1.IAMDirectoryService",
-		Method:     "UpdateGroup",
-		FullMethod: "/iam.v1.IAMDirectoryService/UpdateGroup",
-		Action:     "manage",
-		Resource:   "group:{group_id}",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.group.update",
-		AuditRisk:  "high",
-	},
-	"/iam.v1.IAMDirectoryService/DeleteGroup": {
-		Service:    "iam.v1.IAMDirectoryService",
-		Method:     "DeleteGroup",
-		FullMethod: "/iam.v1.IAMDirectoryService/DeleteGroup",
-		Action:     "manage",
-		Resource:   "group:{group_id}",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.group.delete",
-		AuditRisk:  "critical",
-	},
-	"/iam.v1.IAMDirectoryService/AssignUserToGroup": {
-		Service:    "iam.v1.IAMDirectoryService",
-		Method:     "AssignUserToGroup",
-		FullMethod: "/iam.v1.IAMDirectoryService/AssignUserToGroup",
-		Action:     "manage_members",
-		Resource:   "group:{group_id}",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.group.member.assign",
-		AuditRisk:  "high",
-	},
-	"/iam.v1.IAMDirectoryService/RemoveUserFromGroup": {
-		Service:    "iam.v1.IAMDirectoryService",
-		Method:     "RemoveUserFromGroup",
-		FullMethod: "/iam.v1.IAMDirectoryService/RemoveUserFromGroup",
-		Action:     "manage_members",
-		Resource:   "group:{group_id}",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.group.member.remove",
-		AuditRisk:  "high",
 	},
 }
 
@@ -138,10 +82,10 @@ const IAMDirectoryServiceAuthzManifestJSON = `{
       "service": "iam.v1.IAMDirectoryService",
       "method": "GetUser",
       "full_method": "/iam.v1.IAMDirectoryService/GetUser",
-      "action": "read",
-      "resource": "iam:org:{org_id}:user:{user_id}",
+      "action": "view_users",
+      "resource": "zone:{org_id}",
       "audience": "iam-service",
-      "mode": "CHECK_ONLY",
+      "mode": "SELF_CHECK",
       "audit_event": "iam.user.get",
       "audit_risk": "low"
     },
@@ -149,10 +93,10 @@ const IAMDirectoryServiceAuthzManifestJSON = `{
       "service": "iam.v1.IAMDirectoryService",
       "method": "ListUsers",
       "full_method": "/iam.v1.IAMDirectoryService/ListUsers",
-      "action": "list",
-      "resource": "iam:org:{org_id}:user:*",
+      "action": "view_users",
+      "resource": "zone:{org_id}",
       "audience": "iam-service",
-      "mode": "CHECK_ONLY",
+      "mode": "SELF_CHECK",
       "audit_event": "iam.user.list",
       "audit_risk": "medium"
     },
@@ -160,10 +104,10 @@ const IAMDirectoryServiceAuthzManifestJSON = `{
       "service": "iam.v1.IAMDirectoryService",
       "method": "GetOrganization",
       "full_method": "/iam.v1.IAMDirectoryService/GetOrganization",
-      "action": "read",
-      "resource": "iam:org:{org_id}:organization:{org_id}",
+      "action": "view_zone",
+      "resource": "zone:{org_id}",
       "audience": "iam-service",
-      "mode": "CHECK_ONLY",
+      "mode": "SELF_CHECK",
       "audit_event": "iam.org.get",
       "audit_risk": "low"
     },
@@ -171,10 +115,10 @@ const IAMDirectoryServiceAuthzManifestJSON = `{
       "service": "iam.v1.IAMDirectoryService",
       "method": "ListGroups",
       "full_method": "/iam.v1.IAMDirectoryService/ListGroups",
-      "action": "list",
-      "resource": "iam:org:{org_id}:group:*",
+      "action": "view_groups",
+      "resource": "zone:{org_id}",
       "audience": "iam-service",
-      "mode": "CHECK_ONLY",
+      "mode": "SELF_CHECK",
       "audit_event": "iam.group.list",
       "audit_risk": "medium"
     },
@@ -182,67 +126,12 @@ const IAMDirectoryServiceAuthzManifestJSON = `{
       "service": "iam.v1.IAMDirectoryService",
       "method": "GetGroup",
       "full_method": "/iam.v1.IAMDirectoryService/GetGroup",
-      "action": "view",
-      "resource": "group:{group_id}",
+      "action": "view_groups",
+      "resource": "zone:{org_id}",
       "audience": "iam-service",
       "mode": "SELF_CHECK",
       "audit_event": "iam.group.get",
       "audit_risk": "low"
-    },
-    {
-      "service": "iam.v1.IAMDirectoryService",
-      "method": "CreateGroup",
-      "full_method": "/iam.v1.IAMDirectoryService/CreateGroup",
-      "action": "create_groups",
-      "resource": "zone:{org_id}",
-      "audience": "iam-service",
-      "mode": "SELF_CHECK",
-      "audit_event": "iam.group.create",
-      "audit_risk": "high"
-    },
-    {
-      "service": "iam.v1.IAMDirectoryService",
-      "method": "UpdateGroup",
-      "full_method": "/iam.v1.IAMDirectoryService/UpdateGroup",
-      "action": "manage",
-      "resource": "group:{group_id}",
-      "audience": "iam-service",
-      "mode": "SELF_CHECK",
-      "audit_event": "iam.group.update",
-      "audit_risk": "high"
-    },
-    {
-      "service": "iam.v1.IAMDirectoryService",
-      "method": "DeleteGroup",
-      "full_method": "/iam.v1.IAMDirectoryService/DeleteGroup",
-      "action": "manage",
-      "resource": "group:{group_id}",
-      "audience": "iam-service",
-      "mode": "SELF_CHECK",
-      "audit_event": "iam.group.delete",
-      "audit_risk": "critical"
-    },
-    {
-      "service": "iam.v1.IAMDirectoryService",
-      "method": "AssignUserToGroup",
-      "full_method": "/iam.v1.IAMDirectoryService/AssignUserToGroup",
-      "action": "manage_members",
-      "resource": "group:{group_id}",
-      "audience": "iam-service",
-      "mode": "SELF_CHECK",
-      "audit_event": "iam.group.member.assign",
-      "audit_risk": "high"
-    },
-    {
-      "service": "iam.v1.IAMDirectoryService",
-      "method": "RemoveUserFromGroup",
-      "full_method": "/iam.v1.IAMDirectoryService/RemoveUserFromGroup",
-      "action": "manage_members",
-      "resource": "group:{group_id}",
-      "audience": "iam-service",
-      "mode": "SELF_CHECK",
-      "audit_event": "iam.group.member.remove",
-      "audit_risk": "high"
     }
   ],
   "service": "iam.v1.IAMDirectoryService"
@@ -321,16 +210,6 @@ func _IAMDirectoryServiceNormalizeOperation(operation string) string {
 		return "/iam.v1.IAMDirectoryService/ListGroups"
 	case "GetGroup", "iam.v1.IAMDirectoryService/GetGroup":
 		return "/iam.v1.IAMDirectoryService/GetGroup"
-	case "CreateGroup", "iam.v1.IAMDirectoryService/CreateGroup":
-		return "/iam.v1.IAMDirectoryService/CreateGroup"
-	case "UpdateGroup", "iam.v1.IAMDirectoryService/UpdateGroup":
-		return "/iam.v1.IAMDirectoryService/UpdateGroup"
-	case "DeleteGroup", "iam.v1.IAMDirectoryService/DeleteGroup":
-		return "/iam.v1.IAMDirectoryService/DeleteGroup"
-	case "AssignUserToGroup", "iam.v1.IAMDirectoryService/AssignUserToGroup":
-		return "/iam.v1.IAMDirectoryService/AssignUserToGroup"
-	case "RemoveUserFromGroup", "iam.v1.IAMDirectoryService/RemoveUserFromGroup":
-		return "/iam.v1.IAMDirectoryService/RemoveUserFromGroup"
 	default:
 		return operation
 	}
@@ -541,201 +420,6 @@ func (c *IAMDirectoryServiceSecureClient) GetGroup(ctx context.Context, in *GetG
 		}
 	}
 	return c.raw.GetGroup(ctx, in, opts...)
-}
-
-func (c *IAMDirectoryServiceSecureClient) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error) {
-	if c != nil && c.guard != nil {
-		rule := IAMDirectoryServiceAuthzRules["/iam.v1.IAMDirectoryService/CreateGroup"]
-		resource, err := c.resolver.ResolveResource(rule, in)
-		if err != nil {
-			return nil, err
-		}
-		subject := _IAMDirectoryServiceAuthzSubjectFromContext(ctx)
-		switch rule.Mode {
-		case authz.RuleModeScopedToken:
-			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-			if token != "" {
-				ctx = contextx.WithScopedToken(ctx, token)
-			}
-		case authz.RuleModeCheckOnly:
-			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-		case authz.RuleModeSelfCheck:
-		// SELF_CHECK means the target resource service performs the final check.
-		case authz.RuleModeUnspecified:
-			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
-		default:
-			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
-		}
-	}
-	return c.raw.CreateGroup(ctx, in, opts...)
-}
-
-func (c *IAMDirectoryServiceSecureClient) UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...grpc.CallOption) (*Group, error) {
-	if c != nil && c.guard != nil {
-		rule := IAMDirectoryServiceAuthzRules["/iam.v1.IAMDirectoryService/UpdateGroup"]
-		resource, err := c.resolver.ResolveResource(rule, in)
-		if err != nil {
-			return nil, err
-		}
-		subject := _IAMDirectoryServiceAuthzSubjectFromContext(ctx)
-		switch rule.Mode {
-		case authz.RuleModeScopedToken:
-			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-			if token != "" {
-				ctx = contextx.WithScopedToken(ctx, token)
-			}
-		case authz.RuleModeCheckOnly:
-			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-		case authz.RuleModeSelfCheck:
-		// SELF_CHECK means the target resource service performs the final check.
-		case authz.RuleModeUnspecified:
-			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
-		default:
-			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
-		}
-	}
-	return c.raw.UpdateGroup(ctx, in, opts...)
-}
-
-func (c *IAMDirectoryServiceSecureClient) DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	if c != nil && c.guard != nil {
-		rule := IAMDirectoryServiceAuthzRules["/iam.v1.IAMDirectoryService/DeleteGroup"]
-		resource, err := c.resolver.ResolveResource(rule, in)
-		if err != nil {
-			return nil, err
-		}
-		subject := _IAMDirectoryServiceAuthzSubjectFromContext(ctx)
-		switch rule.Mode {
-		case authz.RuleModeScopedToken:
-			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-			if token != "" {
-				ctx = contextx.WithScopedToken(ctx, token)
-			}
-		case authz.RuleModeCheckOnly:
-			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-		case authz.RuleModeSelfCheck:
-		// SELF_CHECK means the target resource service performs the final check.
-		case authz.RuleModeUnspecified:
-			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
-		default:
-			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
-		}
-	}
-	return c.raw.DeleteGroup(ctx, in, opts...)
-}
-
-func (c *IAMDirectoryServiceSecureClient) AssignUserToGroup(ctx context.Context, in *AssignUserToGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	if c != nil && c.guard != nil {
-		rule := IAMDirectoryServiceAuthzRules["/iam.v1.IAMDirectoryService/AssignUserToGroup"]
-		resource, err := c.resolver.ResolveResource(rule, in)
-		if err != nil {
-			return nil, err
-		}
-		subject := _IAMDirectoryServiceAuthzSubjectFromContext(ctx)
-		switch rule.Mode {
-		case authz.RuleModeScopedToken:
-			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-			if token != "" {
-				ctx = contextx.WithScopedToken(ctx, token)
-			}
-		case authz.RuleModeCheckOnly:
-			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-		case authz.RuleModeSelfCheck:
-		// SELF_CHECK means the target resource service performs the final check.
-		case authz.RuleModeUnspecified:
-			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
-		default:
-			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
-		}
-	}
-	return c.raw.AssignUserToGroup(ctx, in, opts...)
-}
-
-func (c *IAMDirectoryServiceSecureClient) RemoveUserFromGroup(ctx context.Context, in *RemoveUserFromGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	if c != nil && c.guard != nil {
-		rule := IAMDirectoryServiceAuthzRules["/iam.v1.IAMDirectoryService/RemoveUserFromGroup"]
-		resource, err := c.resolver.ResolveResource(rule, in)
-		if err != nil {
-			return nil, err
-		}
-		subject := _IAMDirectoryServiceAuthzSubjectFromContext(ctx)
-		switch rule.Mode {
-		case authz.RuleModeScopedToken:
-			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-			if token != "" {
-				ctx = contextx.WithScopedToken(ctx, token)
-			}
-		case authz.RuleModeCheckOnly:
-			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-		case authz.RuleModeSelfCheck:
-		// SELF_CHECK means the target resource service performs the final check.
-		case authz.RuleModeUnspecified:
-			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
-		default:
-			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
-		}
-	}
-	return c.raw.RemoveUserFromGroup(ctx, in, opts...)
 }
 
 func _IAMDirectoryServiceAuthzSubjectFromContext(ctx context.Context) authz.SubjectRef {
@@ -1029,261 +713,6 @@ func (c *IAMDirectoryProjectionServiceSecureClient) CheckDirectoryProjectionDrif
 }
 
 func _IAMDirectoryProjectionServiceAuthzSubjectFromContext(ctx context.Context) authz.SubjectRef {
-	p := contextx.PrincipalFromContext(ctx)
-	if p == nil {
-		return authz.SubjectRef{}
-	}
-	typ := authz.SubjectTypeUser
-	if strings.HasPrefix(p.SubjectID, "svc:") {
-		typ = authz.SubjectTypeService
-	}
-	return authz.SubjectRef{Type: typ, ID: p.SubjectID}
-}
-
-var IAMPermissionServiceAuthzRules = authz.Rules{
-	"/iam.v1.IAMPermissionService/WriteRelationship": {
-		Service:    "iam.v1.IAMPermissionService",
-		Method:     "WriteRelationship",
-		FullMethod: "/iam.v1.IAMPermissionService/WriteRelationship",
-		Action:     "write",
-		Resource:   "iam:relationship",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
-		AuditEvent: "iam.relationship.write",
-		AuditRisk:  "high",
-	},
-	"/iam.v1.IAMPermissionService/DeleteRelationship": {
-		Service:    "iam.v1.IAMPermissionService",
-		Method:     "DeleteRelationship",
-		FullMethod: "/iam.v1.IAMPermissionService/DeleteRelationship",
-		Action:     "delete",
-		Resource:   "iam:relationship",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("CHECK_ONLY"),
-		AuditEvent: "iam.relationship.delete",
-		AuditRisk:  "high",
-	},
-}
-
-const IAMPermissionServiceAuthzManifestJSON = `{
-  "methods": [
-    {
-      "service": "iam.v1.IAMPermissionService",
-      "method": "WriteRelationship",
-      "full_method": "/iam.v1.IAMPermissionService/WriteRelationship",
-      "action": "write",
-      "resource": "iam:relationship",
-      "audience": "iam-service",
-      "mode": "CHECK_ONLY",
-      "audit_event": "iam.relationship.write",
-      "audit_risk": "high"
-    },
-    {
-      "service": "iam.v1.IAMPermissionService",
-      "method": "DeleteRelationship",
-      "full_method": "/iam.v1.IAMPermissionService/DeleteRelationship",
-      "action": "delete",
-      "resource": "iam:relationship",
-      "audience": "iam-service",
-      "mode": "CHECK_ONLY",
-      "audit_event": "iam.relationship.delete",
-      "audit_risk": "high"
-    }
-  ],
-  "service": "iam.v1.IAMPermissionService"
-}`
-
-// IAMPermissionServiceRequestInfoResolver maps generated proto access policy into requestx.Info.
-// It should be passed to autowire.WithRequestInfoResolver / WithClientRequestInfoResolver.
-func IAMPermissionServiceRequestInfoResolver(ctx context.Context, operation string, req any) (requestx.Info, bool, error) {
-	_ = ctx
-	_ = req
-	rule, ok := IAMPermissionServiceAuthzRules[operation]
-	if !ok && operation != "" {
-		rule, ok = IAMPermissionServiceAuthzRules[_IAMPermissionServiceNormalizeOperation(operation)]
-	}
-	if !ok {
-		return requestx.Info{}, false, nil
-	}
-	info := requestx.Info{
-		Service:       rule.Service,
-		Method:        rule.Method,
-		Operation:     rule.FullMethod,
-		Exposure:      v1.Exposure_AUTHORIZED,
-		Action:        rule.Action,
-		Resource:      rule.Resource,
-		TargetService: rule.Audience,
-		Labels:        map[string]string{"authz_mode": string(rule.Mode)},
-	}
-	if rule.AuditEvent != "" {
-		info.Labels["audit_event"] = rule.AuditEvent
-	}
-	if rule.AuditRisk != "" {
-		info.Labels["audit_risk"] = rule.AuditRisk
-	}
-	if rule.Capability != "" {
-		info.Labels["capability"] = rule.Capability
-	}
-	return info.Normalize(), true, nil
-}
-
-// IAMPermissionServiceAccessResolver maps generated proto authz rules into accessx.Check.
-// It matches middleware/access.Resolver, so services can pass it directly to autowire.WithAccess.
-func IAMPermissionServiceAccessResolver(ctx context.Context, operation string, req any) (accessx.Check, bool, error) {
-	rule, ok := IAMPermissionServiceAuthzRules[operation]
-	if !ok && operation != "" {
-		rule, ok = IAMPermissionServiceAuthzRules[_IAMPermissionServiceNormalizeOperation(operation)]
-	}
-	if !ok || rule.Action == "" {
-		return accessx.Check{}, false, nil
-	}
-	resource, err := (authz.RuleResolver{}).ResolveResource(rule, req)
-	if err != nil {
-		return accessx.Check{}, true, err
-	}
-	_ = ctx
-	check := accessx.Check{
-		Permission:  rule.Action,
-		Resource:    resource,
-		AuditAction: rule.AuditEvent,
-		Metadata:    map[string]any{"authz_rule": rule.FullMethod, "authz_mode": string(rule.Mode)},
-	}
-	if check.AuditAction == "" {
-		check.AuditAction = rule.Action
-	}
-	return check, true, nil
-}
-
-func _IAMPermissionServiceNormalizeOperation(operation string) string {
-	switch operation {
-	case "WriteRelationship", "iam.v1.IAMPermissionService/WriteRelationship":
-		return "/iam.v1.IAMPermissionService/WriteRelationship"
-	case "DeleteRelationship", "iam.v1.IAMPermissionService/DeleteRelationship":
-		return "/iam.v1.IAMPermissionService/DeleteRelationship"
-	default:
-		return operation
-	}
-}
-
-type IAMPermissionServiceSecureClient struct {
-	raw      IAMPermissionServiceClient
-	guard    authz.Guard
-	resolver authz.RuleResolver
-}
-
-func NewIAMPermissionServiceSecureClient(raw IAMPermissionServiceClient, guard authz.Guard) *IAMPermissionServiceSecureClient {
-	return &IAMPermissionServiceSecureClient{raw: raw, guard: guard, resolver: authz.RuleResolver{}}
-}
-
-var _ IAMPermissionServiceClient = (*IAMPermissionServiceSecureClient)(nil)
-
-func (c *IAMPermissionServiceSecureClient) CheckPermission(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*CheckPermissionReply, error) {
-	return c.raw.CheckPermission(ctx, in, opts...)
-}
-
-func (c *IAMPermissionServiceSecureClient) BatchCheckPermissions(ctx context.Context, in *BatchCheckPermissionsRequest, opts ...grpc.CallOption) (*BatchCheckPermissionsReply, error) {
-	return c.raw.BatchCheckPermissions(ctx, in, opts...)
-}
-
-func (c *IAMPermissionServiceSecureClient) WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...grpc.CallOption) (*WriteRelationshipsReply, error) {
-	return c.raw.WriteRelationships(ctx, in, opts...)
-}
-
-func (c *IAMPermissionServiceSecureClient) DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...grpc.CallOption) (*DeleteRelationshipsReply, error) {
-	return c.raw.DeleteRelationships(ctx, in, opts...)
-}
-
-func (c *IAMPermissionServiceSecureClient) ReadRelationships(ctx context.Context, in *ListRelationshipsRequest, opts ...grpc.CallOption) (*ListRelationshipsReply, error) {
-	return c.raw.ReadRelationships(ctx, in, opts...)
-}
-
-func (c *IAMPermissionServiceSecureClient) WriteRelationship(ctx context.Context, in *WriteRelationshipRequest, opts ...grpc.CallOption) (*WriteRelationshipReply, error) {
-	if c != nil && c.guard != nil {
-		rule := IAMPermissionServiceAuthzRules["/iam.v1.IAMPermissionService/WriteRelationship"]
-		resource, err := c.resolver.ResolveResource(rule, in)
-		if err != nil {
-			return nil, err
-		}
-		subject := _IAMPermissionServiceAuthzSubjectFromContext(ctx)
-		switch rule.Mode {
-		case authz.RuleModeScopedToken:
-			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-			if token != "" {
-				ctx = contextx.WithScopedToken(ctx, token)
-			}
-		case authz.RuleModeCheckOnly:
-			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-		case authz.RuleModeSelfCheck:
-		// SELF_CHECK means the target resource service performs the final check.
-		case authz.RuleModeUnspecified:
-			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
-		default:
-			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
-		}
-	}
-	return c.raw.WriteRelationship(ctx, in, opts...)
-}
-
-func (c *IAMPermissionServiceSecureClient) DeleteRelationship(ctx context.Context, in *DeleteRelationshipRequest, opts ...grpc.CallOption) (*DeleteRelationshipReply, error) {
-	if c != nil && c.guard != nil {
-		rule := IAMPermissionServiceAuthzRules["/iam.v1.IAMPermissionService/DeleteRelationship"]
-		resource, err := c.resolver.ResolveResource(rule, in)
-		if err != nil {
-			return nil, err
-		}
-		subject := _IAMPermissionServiceAuthzSubjectFromContext(ctx)
-		switch rule.Mode {
-		case authz.RuleModeScopedToken:
-			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-			if token != "" {
-				ctx = contextx.WithScopedToken(ctx, token)
-			}
-		case authz.RuleModeCheckOnly:
-			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-		case authz.RuleModeSelfCheck:
-		// SELF_CHECK means the target resource service performs the final check.
-		case authz.RuleModeUnspecified:
-			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
-		default:
-			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
-		}
-	}
-	return c.raw.DeleteRelationship(ctx, in, opts...)
-}
-
-func (c *IAMPermissionServiceSecureClient) LookupResources(ctx context.Context, in *LookupResourcesRequest, opts ...grpc.CallOption) (*LookupResourcesReply, error) {
-	return c.raw.LookupResources(ctx, in, opts...)
-}
-
-func (c *IAMPermissionServiceSecureClient) LookupSubjects(ctx context.Context, in *LookupSubjectsRequest, opts ...grpc.CallOption) (*LookupSubjectsReply, error) {
-	return c.raw.LookupSubjects(ctx, in, opts...)
-}
-
-func _IAMPermissionServiceAuthzSubjectFromContext(ctx context.Context) authz.SubjectRef {
 	p := contextx.PrincipalFromContext(ctx)
 	if p == nil {
 		return authz.SubjectRef{}

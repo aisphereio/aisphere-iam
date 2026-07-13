@@ -9,7 +9,6 @@ package v1
 import (
 	context "context"
 	http "github.com/aisphereio/kernel/transportx/http"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -122,67 +121,27 @@ func (c *IAMAuthServiceHTTPClientImpl) VerifyToken(ctx context.Context, in *Veri
 	return &out, nil
 }
 
-const OperationIAMDirectoryServiceAssignUserToGroup = "/iam.v1.IAMDirectoryService/AssignUserToGroup"
-const OperationIAMDirectoryServiceCreateGroup = "/iam.v1.IAMDirectoryService/CreateGroup"
-const OperationIAMDirectoryServiceDeleteGroup = "/iam.v1.IAMDirectoryService/DeleteGroup"
 const OperationIAMDirectoryServiceGetGroup = "/iam.v1.IAMDirectoryService/GetGroup"
 const OperationIAMDirectoryServiceGetOrganization = "/iam.v1.IAMDirectoryService/GetOrganization"
 const OperationIAMDirectoryServiceGetUser = "/iam.v1.IAMDirectoryService/GetUser"
 const OperationIAMDirectoryServiceListGroups = "/iam.v1.IAMDirectoryService/ListGroups"
 const OperationIAMDirectoryServiceListUsers = "/iam.v1.IAMDirectoryService/ListUsers"
-const OperationIAMDirectoryServiceRemoveUserFromGroup = "/iam.v1.IAMDirectoryService/RemoveUserFromGroup"
-const OperationIAMDirectoryServiceUpdateGroup = "/iam.v1.IAMDirectoryService/UpdateGroup"
 
 type IAMDirectoryServiceHTTPServer interface {
-	AssignUserToGroup(context.Context, *AssignUserToGroupRequest) (*emptypb.Empty, error)
-	CreateGroup(context.Context, *CreateGroupRequest) (*Group, error)
-	DeleteGroup(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error)
 	GetGroup(context.Context, *GetGroupRequest) (*Group, error)
 	GetOrganization(context.Context, *GetOrganizationRequest) (*Organization, error)
 	GetUser(context.Context, *GetUserRequest) (*User, error)
 	ListGroups(context.Context, *ListGroupsRequest) (*ListGroupsReply, error)
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersReply, error)
-	RemoveUserFromGroup(context.Context, *RemoveUserFromGroupRequest) (*emptypb.Empty, error)
-	UpdateGroup(context.Context, *UpdateGroupRequest) (*Group, error)
 }
 
 func RegisterIAMDirectoryServiceHTTPServer(s *http.Server, srv IAMDirectoryServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("DELETE", "/v1/iam/orgs/{org_id}/groups/{group_id}", _IAMDirectoryService_DeleteGroup0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/orgs/{org_id}/groups", _IAMDirectoryService_ListGroups0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/orgs/{org_id}/users", _IAMDirectoryService_ListUsers0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/orgs/{org_id}", _IAMDirectoryService_GetOrganization0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/orgs/{org_id}/groups/{group_id}", _IAMDirectoryService_GetGroup0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/orgs/{org_id}/users/{user_id}", _IAMDirectoryService_GetUser0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/directory/group-memberships:assign", _IAMDirectoryService_AssignUserToGroup0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/directory/group-memberships:remove", _IAMDirectoryService_RemoveUserFromGroup0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/orgs/{org_id}/groups", _IAMDirectoryService_CreateGroup0_HTTP_Handler(srv))
-	r.Handle("PUT", "/v1/iam/orgs/{org_id}/groups/{group_id}", _IAMDirectoryService_UpdateGroup0_HTTP_Handler(srv))
-}
-
-func _IAMDirectoryService_DeleteGroup0_HTTP_Handler(srv IAMDirectoryServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteGroupRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationIAMDirectoryServiceDeleteGroup)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteGroup(ctx, req.(*DeleteGroupRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
 }
 
 func _IAMDirectoryService_ListGroups0_HTTP_Handler(srv IAMDirectoryServiceHTTPServer) func(ctx http.Context) error {
@@ -310,111 +269,12 @@ func _IAMDirectoryService_GetUser0_HTTP_Handler(srv IAMDirectoryServiceHTTPServe
 	}
 }
 
-func _IAMDirectoryService_AssignUserToGroup0_HTTP_Handler(srv IAMDirectoryServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in AssignUserToGroupRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationIAMDirectoryServiceAssignUserToGroup)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.AssignUserToGroup(ctx, req.(*AssignUserToGroupRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _IAMDirectoryService_RemoveUserFromGroup0_HTTP_Handler(srv IAMDirectoryServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in RemoveUserFromGroupRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationIAMDirectoryServiceRemoveUserFromGroup)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.RemoveUserFromGroup(ctx, req.(*RemoveUserFromGroupRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _IAMDirectoryService_CreateGroup0_HTTP_Handler(srv IAMDirectoryServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in CreateGroupRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationIAMDirectoryServiceCreateGroup)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateGroup(ctx, req.(*CreateGroupRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*Group)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _IAMDirectoryService_UpdateGroup0_HTTP_Handler(srv IAMDirectoryServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in UpdateGroupRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationIAMDirectoryServiceUpdateGroup)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateGroup(ctx, req.(*UpdateGroupRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*Group)
-		return ctx.Result(200, reply)
-	}
-}
-
 type IAMDirectoryServiceHTTPClient interface {
-	AssignUserToGroup(ctx context.Context, req *AssignUserToGroupRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	CreateGroup(ctx context.Context, req *CreateGroupRequest, opts ...http.CallOption) (rsp *Group, err error)
-	DeleteGroup(ctx context.Context, req *DeleteGroupRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	GetGroup(ctx context.Context, req *GetGroupRequest, opts ...http.CallOption) (rsp *Group, err error)
 	GetOrganization(ctx context.Context, req *GetOrganizationRequest, opts ...http.CallOption) (rsp *Organization, err error)
 	GetUser(ctx context.Context, req *GetUserRequest, opts ...http.CallOption) (rsp *User, err error)
 	ListGroups(ctx context.Context, req *ListGroupsRequest, opts ...http.CallOption) (rsp *ListGroupsReply, err error)
 	ListUsers(ctx context.Context, req *ListUsersRequest, opts ...http.CallOption) (rsp *ListUsersReply, err error)
-	RemoveUserFromGroup(ctx context.Context, req *RemoveUserFromGroupRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	UpdateGroup(ctx context.Context, req *UpdateGroupRequest, opts ...http.CallOption) (rsp *Group, err error)
 }
 
 type IAMDirectoryServiceHTTPClientImpl struct {
@@ -423,56 +283,6 @@ type IAMDirectoryServiceHTTPClientImpl struct {
 
 func NewIAMDirectoryServiceHTTPClient(client *http.Client) IAMDirectoryServiceHTTPClient {
 	return &IAMDirectoryServiceHTTPClientImpl{client}
-}
-
-func (c *IAMDirectoryServiceHTTPClientImpl) AssignUserToGroup(ctx context.Context, in *AssignUserToGroupRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/v1/iam/directory/group-memberships:assign"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationIAMDirectoryServiceAssignUserToGroup),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *IAMDirectoryServiceHTTPClientImpl) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...http.CallOption) (*Group, error) {
-	var out Group
-	pattern := "/v1/iam/orgs/{org_id}/groups"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationIAMDirectoryServiceCreateGroup),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *IAMDirectoryServiceHTTPClientImpl) DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/v1/iam/orgs/{org_id}/groups/{group_id}"
-	path := http.BuildPath(pattern, in, http.WithQueryParams())
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.Operation(OperationIAMDirectoryServiceDeleteGroup),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
 }
 
 func (c *IAMDirectoryServiceHTTPClientImpl) GetGroup(ctx context.Context, in *GetGroupRequest, opts ...http.CallOption) (*Group, error) {
@@ -549,40 +359,6 @@ func (c *IAMDirectoryServiceHTTPClientImpl) ListUsers(ctx context.Context, in *L
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *IAMDirectoryServiceHTTPClientImpl) RemoveUserFromGroup(ctx context.Context, in *RemoveUserFromGroupRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/v1/iam/directory/group-memberships:remove"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationIAMDirectoryServiceRemoveUserFromGroup),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *IAMDirectoryServiceHTTPClientImpl) UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...http.CallOption) (*Group, error) {
-	var out Group
-	pattern := "/v1/iam/orgs/{org_id}/groups/{group_id}"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationIAMDirectoryServiceUpdateGroup),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -739,34 +515,28 @@ func (c *IAMDirectoryProjectionServiceHTTPClientImpl) RetryDirectoryProjection(c
 
 const OperationIAMPermissionServiceBatchCheckPermissions = "/iam.v1.IAMPermissionService/BatchCheckPermissions"
 const OperationIAMPermissionServiceCheckPermission = "/iam.v1.IAMPermissionService/CheckPermission"
-const OperationIAMPermissionServiceDeleteRelationship = "/iam.v1.IAMPermissionService/DeleteRelationship"
 const OperationIAMPermissionServiceDeleteRelationships = "/iam.v1.IAMPermissionService/DeleteRelationships"
 const OperationIAMPermissionServiceLookupResources = "/iam.v1.IAMPermissionService/LookupResources"
 const OperationIAMPermissionServiceLookupSubjects = "/iam.v1.IAMPermissionService/LookupSubjects"
 const OperationIAMPermissionServiceReadRelationships = "/iam.v1.IAMPermissionService/ReadRelationships"
-const OperationIAMPermissionServiceWriteRelationship = "/iam.v1.IAMPermissionService/WriteRelationship"
 const OperationIAMPermissionServiceWriteRelationships = "/iam.v1.IAMPermissionService/WriteRelationships"
 
 type IAMPermissionServiceHTTPServer interface {
 	BatchCheckPermissions(context.Context, *BatchCheckPermissionsRequest) (*BatchCheckPermissionsReply, error)
 	CheckPermission(context.Context, *CheckPermissionRequest) (*CheckPermissionReply, error)
-	DeleteRelationship(context.Context, *DeleteRelationshipRequest) (*DeleteRelationshipReply, error)
 	DeleteRelationships(context.Context, *DeleteRelationshipsRequest) (*DeleteRelationshipsReply, error)
 	LookupResources(context.Context, *LookupResourcesRequest) (*LookupResourcesReply, error)
 	LookupSubjects(context.Context, *LookupSubjectsRequest) (*LookupSubjectsReply, error)
 	ReadRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error)
-	WriteRelationship(context.Context, *WriteRelationshipRequest) (*WriteRelationshipReply, error)
 	WriteRelationships(context.Context, *WriteRelationshipsRequest) (*WriteRelationshipsReply, error)
 }
 
 func RegisterIAMPermissionServiceHTTPServer(s *http.Server, srv IAMPermissionServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("POST", "/v1/iam/permissions/check", _IAMPermissionService_CheckPermission0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/relationships/delete", _IAMPermissionService_DeleteRelationship0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/resources/lookup", _IAMPermissionService_LookupResources0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/subjects/lookup", _IAMPermissionService_LookupSubjects0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/permissions:batch-check", _IAMPermissionService_BatchCheckPermissions0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/relationships", _IAMPermissionService_WriteRelationship0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/relationships:delete", _IAMPermissionService_DeleteRelationships0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/relationships:read", _IAMPermissionService_ReadRelationships0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/relationships:write", _IAMPermissionService_WriteRelationships0_HTTP_Handler(srv))
@@ -790,28 +560,6 @@ func _IAMPermissionService_CheckPermission0_HTTP_Handler(srv IAMPermissionServic
 			return err
 		}
 		reply := out.(*CheckPermissionReply)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _IAMPermissionService_DeleteRelationship0_HTTP_Handler(srv IAMPermissionServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteRelationshipRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationIAMPermissionServiceDeleteRelationship)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteRelationship(ctx, req.(*DeleteRelationshipRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*DeleteRelationshipReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -878,28 +626,6 @@ func _IAMPermissionService_BatchCheckPermissions0_HTTP_Handler(srv IAMPermission
 			return err
 		}
 		reply := out.(*BatchCheckPermissionsReply)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _IAMPermissionService_WriteRelationship0_HTTP_Handler(srv IAMPermissionServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in WriteRelationshipRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationIAMPermissionServiceWriteRelationship)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.WriteRelationship(ctx, req.(*WriteRelationshipRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*WriteRelationshipReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -973,12 +699,10 @@ func _IAMPermissionService_WriteRelationships0_HTTP_Handler(srv IAMPermissionSer
 type IAMPermissionServiceHTTPClient interface {
 	BatchCheckPermissions(ctx context.Context, req *BatchCheckPermissionsRequest, opts ...http.CallOption) (rsp *BatchCheckPermissionsReply, err error)
 	CheckPermission(ctx context.Context, req *CheckPermissionRequest, opts ...http.CallOption) (rsp *CheckPermissionReply, err error)
-	DeleteRelationship(ctx context.Context, req *DeleteRelationshipRequest, opts ...http.CallOption) (rsp *DeleteRelationshipReply, err error)
 	DeleteRelationships(ctx context.Context, req *DeleteRelationshipsRequest, opts ...http.CallOption) (rsp *DeleteRelationshipsReply, err error)
 	LookupResources(ctx context.Context, req *LookupResourcesRequest, opts ...http.CallOption) (rsp *LookupResourcesReply, err error)
 	LookupSubjects(ctx context.Context, req *LookupSubjectsRequest, opts ...http.CallOption) (rsp *LookupSubjectsReply, err error)
 	ReadRelationships(ctx context.Context, req *ListRelationshipsRequest, opts ...http.CallOption) (rsp *ListRelationshipsReply, err error)
-	WriteRelationship(ctx context.Context, req *WriteRelationshipRequest, opts ...http.CallOption) (rsp *WriteRelationshipReply, err error)
 	WriteRelationships(ctx context.Context, req *WriteRelationshipsRequest, opts ...http.CallOption) (rsp *WriteRelationshipsReply, err error)
 }
 
@@ -1015,23 +739,6 @@ func (c *IAMPermissionServiceHTTPClientImpl) CheckPermission(ctx context.Context
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationIAMPermissionServiceCheckPermission),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *IAMPermissionServiceHTTPClientImpl) DeleteRelationship(ctx context.Context, in *DeleteRelationshipRequest, opts ...http.CallOption) (*DeleteRelationshipReply, error) {
-	var out DeleteRelationshipReply
-	pattern := "/v1/iam/relationships/delete"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationIAMPermissionServiceDeleteRelationship),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
@@ -1100,23 +807,6 @@ func (c *IAMPermissionServiceHTTPClientImpl) ReadRelationships(ctx context.Conte
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationIAMPermissionServiceReadRelationships),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *IAMPermissionServiceHTTPClientImpl) WriteRelationship(ctx context.Context, in *WriteRelationshipRequest, opts ...http.CallOption) (*WriteRelationshipReply, error) {
-	var out WriteRelationshipReply
-	pattern := "/v1/iam/relationships"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationIAMPermissionServiceWriteRelationship),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)

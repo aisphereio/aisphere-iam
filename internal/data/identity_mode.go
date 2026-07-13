@@ -424,7 +424,7 @@ func (a authzProjectingIdentityAdmin) RemoveUserFromGroup(ctx context.Context, r
 	if err := a.IdentityAdmin.RemoveUserFromGroup(ctx, req); err != nil {
 		return err
 	}
-	return a.projectDelete(ctx, "iam_api", "group_membership", req.GroupID, []authz.RelationshipFilter{{ResourceType: "group", ResourceID: strings.TrimSpace(req.GroupID), Relation: "member", SubjectType: "user", SubjectID: strings.TrimSpace(req.UserID)}}, []authz.Relationship{groupMemberRelationship(qualifiedGroupID(req.OrgID, req.GroupID), req.UserID)})
+	return a.projectDelete(ctx, "iam_api", "group_membership", req.GroupID, []authz.RelationshipFilter{{ResourceType: "group", ResourceID: qualifiedGroupID(req.OrgID, req.GroupID), Relation: "member", SubjectType: "user", SubjectID: strings.TrimSpace(req.UserID)}}, []authz.Relationship{groupMemberRelationship(qualifiedGroupID(req.OrgID, req.GroupID), req.UserID)})
 }
 
 func (a authzProjectingIdentityAdmin) projectWrite(ctx context.Context, source, aggregateType, aggregateID string, rels ...authz.Relationship) error {
