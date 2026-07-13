@@ -474,16 +474,8 @@ func (c *ResourceServiceSecureClient) ListResources(ctx context.Context, in *Lis
 	return c.raw.ListResources(ctx, in, opts...)
 }
 
-func (c *ResourceServiceSecureClient) MoveResource(ctx context.Context, in *MoveResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
-	return c.raw.MoveResource(ctx, in, opts...)
-}
-
 func (c *ResourceServiceSecureClient) ArchiveResource(ctx context.Context, in *ArchiveResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
 	return c.raw.ArchiveResource(ctx, in, opts...)
-}
-
-func (c *ResourceServiceSecureClient) DeleteResource(ctx context.Context, in *DeleteResourceRequest, opts ...grpc.CallOption) (*DeleteResourceReply, error) {
-	return c.raw.DeleteResource(ctx, in, opts...)
 }
 
 func (c *ResourceServiceSecureClient) BindResource(ctx context.Context, in *BindResourceRequest, opts ...grpc.CallOption) (*ResourceBinding, error) {

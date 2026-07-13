@@ -23,6 +23,12 @@ type ListOptions struct {
 	CapabilityID string
 	ResourceType string
 	ResourceID   string
+	TargetType   string
+	TargetID     string
+	Relation     string
+	Provider     string
+	ExternalType string
+	ExternalID   string
 	SubjectType  string
 	SubjectID    string
 	Status       string
@@ -60,8 +66,11 @@ type ControlPlaneRepository interface {
 	ArchiveResource(ctx context.Context, typ, id string) error
 
 	BindResource(ctx context.Context, binding *ResourceBindingModel, outbox ...*OutboxEventModel) error
-	ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error)
+	GetResourceBinding(ctx context.Context, id string) (*ResourceBindingModel, error)
+	UnbindResource(ctx context.Context, id string, outbox ...*OutboxEventModel) error
+	ListResourceBindings(ctx context.Context, opts ListOptions) (*Page[ResourceBindingModel], error)
 	BindExternalResource(ctx context.Context, binding *ExternalResourceBindingModel) error
+	ListExternalResourceBindings(ctx context.Context, opts ListOptions) (*Page[ExternalResourceBindingModel], error)
 
 	UpsertRoleTemplate(ctx context.Context, role *RoleTemplateModel) error
 	ListRoleTemplates(ctx context.Context, resourceType string) ([]RoleTemplateModel, error)
@@ -188,14 +197,39 @@ func (r *DBControlPlaneRepository) BindResource(ctx context.Context, binding *Re
 	})
 }
 
-func (r *DBControlPlaneRepository) ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error) {
+func (r *DBControlPlaneRepository) GetResourceBinding(ctx context.Context, id string) (*ResourceBindingModel, error) {
+	var out ResourceBindingModel
+	if err := r.db.FindOne(ctx, &out, "id = ?", id); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (r *DBControlPlaneRepository) UnbindResource(ctx context.Context, id string, outbox ...*OutboxEventModel) error {
+	return r.db.InTx(ctx, func(tx dbx.Tx) error {
+		if err := tx.Update(ctx, &ResourceBindingModel{}, "id = ?", []any{id}, map[string]any{"status": StatusArchived, "updated_at": time.Now().UTC()}); err != nil {
+			return err
+		}
+		return createOutbox(ctx, tx, outbox...)
+	})
+}
+
+func (r *DBControlPlaneRepository) ListResourceBindings(ctx context.Context, opts ListOptions) (*Page[ResourceBindingModel], error) {
 	var out []ResourceBindingModel
-	query, args := whereBuilder().eq("source_type", opts.ResourceType).eq("source_id", opts.ResourceID).eq("status", opts.Status).build()
-	return out, r.db.FindMany(ctx, &out, query, args...)
+	query, args := whereBuilder().eq("source_type", opts.ResourceType).eq("source_id", opts.ResourceID).eq("target_type", opts.TargetType).eq("target_id", opts.TargetID).eq("relation", opts.Relation).eq("status", opts.Status).build()
+	res, err := r.db.Paginate(ctx, &out, &ResourceBindingModel{}, query, args, opts.Page, opts.Size)
+	return pageFrom(out, res, err)
 }
 
 func (r *DBControlPlaneRepository) BindExternalResource(ctx context.Context, binding *ExternalResourceBindingModel) error {
 	return r.db.SafeUpsert(ctx, binding, []string{"resource_type", "resource_id", "external_path", "external_url", "sync_mode", "sync_status", "last_synced_at", "metadata_json", "updated_at"})
+}
+
+func (r *DBControlPlaneRepository) ListExternalResourceBindings(ctx context.Context, opts ListOptions) (*Page[ExternalResourceBindingModel], error) {
+	var out []ExternalResourceBindingModel
+	query, args := whereBuilder().eq("resource_type", opts.ResourceType).eq("resource_id", opts.ResourceID).eq("provider", opts.Provider).eq("external_type", opts.ExternalType).eq("external_id", opts.ExternalID).eq("sync_status", opts.Status).build()
+	res, err := r.db.Paginate(ctx, &out, &ExternalResourceBindingModel{}, query, args, opts.Page, opts.Size)
+	return pageFrom(out, res, err)
 }
 
 func (r *DBControlPlaneRepository) UpsertRoleTemplate(ctx context.Context, role *RoleTemplateModel) error {

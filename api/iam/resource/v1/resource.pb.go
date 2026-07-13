@@ -1218,66 +1218,6 @@ func (x *ListResourcesReply) GetTotalSize() int64 {
 	return 0
 }
 
-type MoveResourceRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ResourceType  string                 `protobuf:"bytes,1,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
-	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
-	NewParent     *ResourceRef           `protobuf:"bytes,3,opt,name=new_parent,json=newParent,proto3" json:"new_parent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MoveResourceRequest) Reset() {
-	*x = MoveResourceRequest{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MoveResourceRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MoveResourceRequest) ProtoMessage() {}
-
-func (x *MoveResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MoveResourceRequest.ProtoReflect.Descriptor instead.
-func (*MoveResourceRequest) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *MoveResourceRequest) GetResourceType() string {
-	if x != nil {
-		return x.ResourceType
-	}
-	return ""
-}
-
-func (x *MoveResourceRequest) GetResourceId() string {
-	if x != nil {
-		return x.ResourceId
-	}
-	return ""
-}
-
-func (x *MoveResourceRequest) GetNewParent() *ResourceRef {
-	if x != nil {
-		return x.NewParent
-	}
-	return nil
-}
-
 type ArchiveResourceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ResourceType  string                 `protobuf:"bytes,1,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
@@ -1289,7 +1229,7 @@ type ArchiveResourceRequest struct {
 
 func (x *ArchiveResourceRequest) Reset() {
 	*x = ArchiveResourceRequest{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[15]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1301,7 +1241,7 @@ func (x *ArchiveResourceRequest) String() string {
 func (*ArchiveResourceRequest) ProtoMessage() {}
 
 func (x *ArchiveResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[15]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1314,7 +1254,7 @@ func (x *ArchiveResourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveResourceRequest.ProtoReflect.Descriptor instead.
 func (*ArchiveResourceRequest) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{15}
+	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ArchiveResourceRequest) GetResourceType() string {
@@ -1338,126 +1278,6 @@ func (x *ArchiveResourceRequest) GetReason() string {
 	return ""
 }
 
-type DeleteResourceRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ResourceType  string                 `protobuf:"bytes,1,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
-	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
-	HardDelete    bool                   `protobuf:"varint,3,opt,name=hard_delete,json=hardDelete,proto3" json:"hard_delete,omitempty"`
-	Reason        string                 `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteResourceRequest) Reset() {
-	*x = DeleteResourceRequest{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteResourceRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteResourceRequest) ProtoMessage() {}
-
-func (x *DeleteResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteResourceRequest.ProtoReflect.Descriptor instead.
-func (*DeleteResourceRequest) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *DeleteResourceRequest) GetResourceType() string {
-	if x != nil {
-		return x.ResourceType
-	}
-	return ""
-}
-
-func (x *DeleteResourceRequest) GetResourceId() string {
-	if x != nil {
-		return x.ResourceId
-	}
-	return ""
-}
-
-func (x *DeleteResourceRequest) GetHardDelete() bool {
-	if x != nil {
-		return x.HardDelete
-	}
-	return false
-}
-
-func (x *DeleteResourceRequest) GetReason() string {
-	if x != nil {
-		return x.Reason
-	}
-	return ""
-}
-
-type DeleteResourceReply struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ref           *ResourceRef           `protobuf:"bytes,1,opt,name=ref,proto3" json:"ref,omitempty"`
-	Deleted       bool                   `protobuf:"varint,2,opt,name=deleted,proto3" json:"deleted,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteResourceReply) Reset() {
-	*x = DeleteResourceReply{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteResourceReply) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteResourceReply) ProtoMessage() {}
-
-func (x *DeleteResourceReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteResourceReply.ProtoReflect.Descriptor instead.
-func (*DeleteResourceReply) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *DeleteResourceReply) GetRef() *ResourceRef {
-	if x != nil {
-		return x.Ref
-	}
-	return nil
-}
-
-func (x *DeleteResourceReply) GetDeleted() bool {
-	if x != nil {
-		return x.Deleted
-	}
-	return false
-}
-
 type BindResourceRequest struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	Binding                *ResourceBinding       `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
@@ -1468,7 +1288,7 @@ type BindResourceRequest struct {
 
 func (x *BindResourceRequest) Reset() {
 	*x = BindResourceRequest{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[18]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1480,7 +1300,7 @@ func (x *BindResourceRequest) String() string {
 func (*BindResourceRequest) ProtoMessage() {}
 
 func (x *BindResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[18]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1493,7 +1313,7 @@ func (x *BindResourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindResourceRequest.ProtoReflect.Descriptor instead.
 func (*BindResourceRequest) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{18}
+	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *BindResourceRequest) GetBinding() *ResourceBinding {
@@ -1520,7 +1340,7 @@ type UnbindResourceRequest struct {
 
 func (x *UnbindResourceRequest) Reset() {
 	*x = UnbindResourceRequest{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[19]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1532,7 +1352,7 @@ func (x *UnbindResourceRequest) String() string {
 func (*UnbindResourceRequest) ProtoMessage() {}
 
 func (x *UnbindResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[19]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1545,7 +1365,7 @@ func (x *UnbindResourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnbindResourceRequest.ProtoReflect.Descriptor instead.
 func (*UnbindResourceRequest) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{19}
+	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *UnbindResourceRequest) GetBindingId() string {
@@ -1572,7 +1392,7 @@ type UnbindResourceReply struct {
 
 func (x *UnbindResourceReply) Reset() {
 	*x = UnbindResourceReply{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[20]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1584,7 +1404,7 @@ func (x *UnbindResourceReply) String() string {
 func (*UnbindResourceReply) ProtoMessage() {}
 
 func (x *UnbindResourceReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[20]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1597,7 +1417,7 @@ func (x *UnbindResourceReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnbindResourceReply.ProtoReflect.Descriptor instead.
 func (*UnbindResourceReply) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{20}
+	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UnbindResourceReply) GetBindingId() string {
@@ -1628,7 +1448,7 @@ type ListResourceBindingsRequest struct {
 
 func (x *ListResourceBindingsRequest) Reset() {
 	*x = ListResourceBindingsRequest{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[21]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1640,7 +1460,7 @@ func (x *ListResourceBindingsRequest) String() string {
 func (*ListResourceBindingsRequest) ProtoMessage() {}
 
 func (x *ListResourceBindingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[21]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1653,7 +1473,7 @@ func (x *ListResourceBindingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListResourceBindingsRequest.ProtoReflect.Descriptor instead.
 func (*ListResourceBindingsRequest) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{21}
+	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListResourceBindingsRequest) GetSource() *ResourceRef {
@@ -1709,7 +1529,7 @@ type ListResourceBindingsReply struct {
 
 func (x *ListResourceBindingsReply) Reset() {
 	*x = ListResourceBindingsReply{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[22]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1721,7 +1541,7 @@ func (x *ListResourceBindingsReply) String() string {
 func (*ListResourceBindingsReply) ProtoMessage() {}
 
 func (x *ListResourceBindingsReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[22]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1734,7 +1554,7 @@ func (x *ListResourceBindingsReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListResourceBindingsReply.ProtoReflect.Descriptor instead.
 func (*ListResourceBindingsReply) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{22}
+	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListResourceBindingsReply) GetBindings() []*ResourceBinding {
@@ -1767,7 +1587,7 @@ type BindExternalResourceRequest struct {
 
 func (x *BindExternalResourceRequest) Reset() {
 	*x = BindExternalResourceRequest{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[23]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1779,7 +1599,7 @@ func (x *BindExternalResourceRequest) String() string {
 func (*BindExternalResourceRequest) ProtoMessage() {}
 
 func (x *BindExternalResourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[23]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1792,7 +1612,7 @@ func (x *BindExternalResourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindExternalResourceRequest.ProtoReflect.Descriptor instead.
 func (*BindExternalResourceRequest) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{23}
+	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *BindExternalResourceRequest) GetBinding() *ExternalResourceBinding {
@@ -1817,7 +1637,7 @@ type ListExternalResourceBindingsRequest struct {
 
 func (x *ListExternalResourceBindingsRequest) Reset() {
 	*x = ListExternalResourceBindingsRequest{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[24]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1829,7 +1649,7 @@ func (x *ListExternalResourceBindingsRequest) String() string {
 func (*ListExternalResourceBindingsRequest) ProtoMessage() {}
 
 func (x *ListExternalResourceBindingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[24]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1842,7 +1662,7 @@ func (x *ListExternalResourceBindingsRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ListExternalResourceBindingsRequest.ProtoReflect.Descriptor instead.
 func (*ListExternalResourceBindingsRequest) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{24}
+	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ListExternalResourceBindingsRequest) GetResource() *ResourceRef {
@@ -1905,7 +1725,7 @@ type ListExternalResourceBindingsReply struct {
 
 func (x *ListExternalResourceBindingsReply) Reset() {
 	*x = ListExternalResourceBindingsReply{}
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[25]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1917,7 +1737,7 @@ func (x *ListExternalResourceBindingsReply) String() string {
 func (*ListExternalResourceBindingsReply) ProtoMessage() {}
 
 func (x *ListExternalResourceBindingsReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_resource_v1_resource_proto_msgTypes[25]
+	mi := &file_iam_resource_v1_resource_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1930,7 +1750,7 @@ func (x *ListExternalResourceBindingsReply) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListExternalResourceBindingsReply.ProtoReflect.Descriptor instead.
 func (*ListExternalResourceBindingsReply) Descriptor() ([]byte, []int) {
-	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{25}
+	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ListExternalResourceBindingsReply) GetBindings() []*ExternalResourceBinding {
@@ -2104,34 +1924,14 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\tresources\x18\x01 \x03(\v2\x19.iam.resource.v1.ResourceR\tresources\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xb5\x01\n" +
-	"\x13MoveResourceRequest\x12/\n" +
-	"\rresource_type\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
-	"\vresource_id\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
-	"resourceId\x12@\n" +
-	"\n" +
-	"new_parent\x18\x03 \x01(\v2\x1c.iam.resource.v1.ResourceRefB\x03\xe0A\x02R\tnewParent\"\x8e\x01\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x8e\x01\n" +
 	"\x16ArchiveResourceRequest\x12/\n" +
 	"\rresource_type\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
 	"\vresource_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
 	"resourceId\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\"\xae\x01\n" +
-	"\x15DeleteResourceRequest\x12/\n" +
-	"\rresource_type\x18\x01 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
-	"\vresource_id\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
-	"resourceId\x12\x1f\n" +
-	"\vhard_delete\x18\x03 \x01(\bR\n" +
-	"hardDelete\x12\x16\n" +
-	"\x06reason\x18\x04 \x01(\tR\x06reason\"_\n" +
-	"\x13DeleteResourceReply\x12.\n" +
-	"\x03ref\x18\x01 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\x03ref\x12\x18\n" +
-	"\adeleted\x18\x02 \x01(\bR\adeleted\"\x90\x01\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\"\x90\x01\n" +
 	"\x13BindResourceRequest\x12?\n" +
 	"\abinding\x18\x01 \x01(\v2 .iam.resource.v1.ResourceBindingB\x03\xe0A\x02R\abinding\x128\n" +
 	"\x18write_graph_relationship\x18\x02 \x01(\bR\x16writeGraphRelationship\"~\n" +
@@ -2174,7 +1974,7 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\bbindings\x18\x01 \x03(\v2(.iam.resource.v1.ExternalResourceBindingR\bbindings\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize2\xde\x1e\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize2\xed\x19\n" +
 	"\x0fResourceService\x12\xed\x01\n" +
 	"\x14RegisterResourceType\x12,.iam.resource.v1.RegisterResourceTypeRequest\x1a\x1d.iam.resource.v1.ResourceType\"\x87\x01\x92\xf4\x18T\b\x03\x12*\n" +
 	"\x06manage\x12\x11iam:resource_type\x1a\viam-service \x01\x1a$\b\x01\x12\x1aiam.resource_type.register\x1a\x04high\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/control-plane/resource-types\x12\xe6\x01\n" +
@@ -2187,13 +1987,9 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\vGetResource\x12#.iam.resource.v1.GetResourceRequest\x1a\x19.iam.resource.v1.Resource\"\x8b\x01\x92\xf4\x18B\b\x03\x12#\n" +
 	"\x04read\x12\fiam:resource\x1a\viam-service \x01\x1a\x19\b\x01\x12\x10iam.resource.get\x1a\x03low\x82\xd3\xe4\x93\x02?\x12=/v1/iam/control-plane/resources/{resource_type}/{resource_id}\x12\xce\x01\n" +
 	"\rListResources\x12%.iam.resource.v1.ListResourcesRequest\x1a#.iam.resource.v1.ListResourcesReply\"q\x92\xf4\x18F\b\x03\x12#\n" +
-	"\x04list\x12\fiam:resource\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x11iam.resource.list\x1a\x06medium\x82\xd3\xe4\x93\x02!\x12\x1f/v1/iam/control-plane/resources\x12\xaf\x02\n" +
-	"\fMoveResource\x12$.iam.resource.v1.MoveResourceRequest\x1a\x19.iam.resource.v1.Resource\"\xdd\x01\x92\xf4\x18\x8b\x01\b\x04\x12#\n" +
-	"\x04move\x12\fiam:resource\x1a\viam-service \x01\x1a\x1b\b\x01\x12\x11iam.resource.move\x1a\x04high2EResource moves are requested only by trusted resource owner services.\x82\xd3\xe4\x93\x02G:\x01*\"B/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move\x12\xc0\x02\n" +
+	"\x04list\x12\fiam:resource\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x11iam.resource.list\x1a\x06medium\x82\xd3\xe4\x93\x02!\x12\x1f/v1/iam/control-plane/resources\x12\xc0\x02\n" +
 	"\x0fArchiveResource\x12'.iam.resource.v1.ArchiveResourceRequest\x1a\x19.iam.resource.v1.Resource\"\xe8\x01\x92\xf4\x18\x93\x01\b\x04\x12&\n" +
-	"\aarchive\x12\fiam:resource\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x14iam.resource.archive\x1a\x04high2GResource archival is synchronized from trusted resource owner services.\x82\xd3\xe4\x93\x02J:\x01*\"E/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive\x12\xbc\x02\n" +
-	"\x0eDeleteResource\x12&.iam.resource.v1.DeleteResourceRequest\x1a$.iam.resource.v1.DeleteResourceReply\"\xdb\x01\x92\xf4\x18\x91\x01\b\x04\x12%\n" +
-	"\x06delete\x12\fiam:resource\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x13iam.resource.delete\x1a\x04high2GResource deletion is synchronized from trusted resource owner services.\x82\xd3\xe4\x93\x02?*=/v1/iam/control-plane/resources/{resource_type}/{resource_id}\x12\xa3\x02\n" +
+	"\aarchive\x12\fiam:resource\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x14iam.resource.archive\x1a\x04high2GResource archival is synchronized from trusted resource owner services.\x82\xd3\xe4\x93\x02J:\x01*\"E/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive\x12\xa3\x02\n" +
 	"\fBindResource\x12$.iam.resource.v1.BindResourceRequest\x1a .iam.resource.v1.ResourceBinding\"\xca\x01\x92\xf4\x18\x93\x01\b\x04\x12+\n" +
 	"\x04bind\x12\x14iam:resource_binding\x1a\viam-service \x01\x1a#\b\x01\x12\x19iam.resource_binding.bind\x1a\x04high2=Resource bindings are projected by trusted platform services.\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/iam/control-plane/resource-bindings\x12\xd6\x02\n" +
 	"\x0eUnbindResource\x12&.iam.resource.v1.UnbindResourceRequest\x1a$.iam.resource.v1.UnbindResourceReply\"\xf5\x01\x92\xf4\x18\xaa\x01\b\x04\x12:\n" +
@@ -2217,7 +2013,7 @@ func file_iam_resource_v1_resource_proto_rawDescGZIP() []byte {
 	return file_iam_resource_v1_resource_proto_rawDescData
 }
 
-var file_iam_resource_v1_resource_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_iam_resource_v1_resource_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_iam_resource_v1_resource_proto_goTypes = []any{
 	(*ResourceRef)(nil),                         // 0: iam.resource.v1.ResourceRef
 	(*SubjectRef)(nil),                          // 1: iam.resource.v1.SubjectRef
@@ -2233,97 +2029,88 @@ var file_iam_resource_v1_resource_proto_goTypes = []any{
 	(*GetResourceRequest)(nil),                  // 11: iam.resource.v1.GetResourceRequest
 	(*ListResourcesRequest)(nil),                // 12: iam.resource.v1.ListResourcesRequest
 	(*ListResourcesReply)(nil),                  // 13: iam.resource.v1.ListResourcesReply
-	(*MoveResourceRequest)(nil),                 // 14: iam.resource.v1.MoveResourceRequest
-	(*ArchiveResourceRequest)(nil),              // 15: iam.resource.v1.ArchiveResourceRequest
-	(*DeleteResourceRequest)(nil),               // 16: iam.resource.v1.DeleteResourceRequest
-	(*DeleteResourceReply)(nil),                 // 17: iam.resource.v1.DeleteResourceReply
-	(*BindResourceRequest)(nil),                 // 18: iam.resource.v1.BindResourceRequest
-	(*UnbindResourceRequest)(nil),               // 19: iam.resource.v1.UnbindResourceRequest
-	(*UnbindResourceReply)(nil),                 // 20: iam.resource.v1.UnbindResourceReply
-	(*ListResourceBindingsRequest)(nil),         // 21: iam.resource.v1.ListResourceBindingsRequest
-	(*ListResourceBindingsReply)(nil),           // 22: iam.resource.v1.ListResourceBindingsReply
-	(*BindExternalResourceRequest)(nil),         // 23: iam.resource.v1.BindExternalResourceRequest
-	(*ListExternalResourceBindingsRequest)(nil), // 24: iam.resource.v1.ListExternalResourceBindingsRequest
-	(*ListExternalResourceBindingsReply)(nil),   // 25: iam.resource.v1.ListExternalResourceBindingsReply
-	nil,                           // 26: iam.resource.v1.ResourceType.LabelsEntry
-	nil,                           // 27: iam.resource.v1.Resource.LabelsEntry
-	nil,                           // 28: iam.resource.v1.Resource.AnnotationsEntry
-	nil,                           // 29: iam.resource.v1.ListResourcesRequest.LabelsEntry
-	(*structpb.Struct)(nil),       // 30: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil), // 31: google.protobuf.Timestamp
+	(*ArchiveResourceRequest)(nil),              // 14: iam.resource.v1.ArchiveResourceRequest
+	(*BindResourceRequest)(nil),                 // 15: iam.resource.v1.BindResourceRequest
+	(*UnbindResourceRequest)(nil),               // 16: iam.resource.v1.UnbindResourceRequest
+	(*UnbindResourceReply)(nil),                 // 17: iam.resource.v1.UnbindResourceReply
+	(*ListResourceBindingsRequest)(nil),         // 18: iam.resource.v1.ListResourceBindingsRequest
+	(*ListResourceBindingsReply)(nil),           // 19: iam.resource.v1.ListResourceBindingsReply
+	(*BindExternalResourceRequest)(nil),         // 20: iam.resource.v1.BindExternalResourceRequest
+	(*ListExternalResourceBindingsRequest)(nil), // 21: iam.resource.v1.ListExternalResourceBindingsRequest
+	(*ListExternalResourceBindingsReply)(nil),   // 22: iam.resource.v1.ListExternalResourceBindingsReply
+	nil,                           // 23: iam.resource.v1.ResourceType.LabelsEntry
+	nil,                           // 24: iam.resource.v1.Resource.LabelsEntry
+	nil,                           // 25: iam.resource.v1.Resource.AnnotationsEntry
+	nil,                           // 26: iam.resource.v1.ListResourcesRequest.LabelsEntry
+	(*structpb.Struct)(nil),       // 27: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil), // 28: google.protobuf.Timestamp
 }
 var file_iam_resource_v1_resource_proto_depIdxs = []int32{
-	26, // 0: iam.resource.v1.ResourceType.labels:type_name -> iam.resource.v1.ResourceType.LabelsEntry
-	30, // 1: iam.resource.v1.ResourceType.metadata:type_name -> google.protobuf.Struct
-	31, // 2: iam.resource.v1.ResourceType.created_at:type_name -> google.protobuf.Timestamp
-	31, // 3: iam.resource.v1.ResourceType.updated_at:type_name -> google.protobuf.Timestamp
+	23, // 0: iam.resource.v1.ResourceType.labels:type_name -> iam.resource.v1.ResourceType.LabelsEntry
+	27, // 1: iam.resource.v1.ResourceType.metadata:type_name -> google.protobuf.Struct
+	28, // 2: iam.resource.v1.ResourceType.created_at:type_name -> google.protobuf.Timestamp
+	28, // 3: iam.resource.v1.ResourceType.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: iam.resource.v1.Resource.ref:type_name -> iam.resource.v1.ResourceRef
 	0,  // 5: iam.resource.v1.Resource.parent:type_name -> iam.resource.v1.ResourceRef
-	27, // 6: iam.resource.v1.Resource.labels:type_name -> iam.resource.v1.Resource.LabelsEntry
-	28, // 7: iam.resource.v1.Resource.annotations:type_name -> iam.resource.v1.Resource.AnnotationsEntry
-	30, // 8: iam.resource.v1.Resource.metadata:type_name -> google.protobuf.Struct
+	24, // 6: iam.resource.v1.Resource.labels:type_name -> iam.resource.v1.Resource.LabelsEntry
+	25, // 7: iam.resource.v1.Resource.annotations:type_name -> iam.resource.v1.Resource.AnnotationsEntry
+	27, // 8: iam.resource.v1.Resource.metadata:type_name -> google.protobuf.Struct
 	1,  // 9: iam.resource.v1.Resource.created_by:type_name -> iam.resource.v1.SubjectRef
-	31, // 10: iam.resource.v1.Resource.created_at:type_name -> google.protobuf.Timestamp
-	31, // 11: iam.resource.v1.Resource.updated_at:type_name -> google.protobuf.Timestamp
-	31, // 12: iam.resource.v1.Resource.deleted_at:type_name -> google.protobuf.Timestamp
+	28, // 10: iam.resource.v1.Resource.created_at:type_name -> google.protobuf.Timestamp
+	28, // 11: iam.resource.v1.Resource.updated_at:type_name -> google.protobuf.Timestamp
+	28, // 12: iam.resource.v1.Resource.deleted_at:type_name -> google.protobuf.Timestamp
 	0,  // 13: iam.resource.v1.ResourceBinding.source:type_name -> iam.resource.v1.ResourceRef
 	0,  // 14: iam.resource.v1.ResourceBinding.target:type_name -> iam.resource.v1.ResourceRef
-	30, // 15: iam.resource.v1.ResourceBinding.metadata:type_name -> google.protobuf.Struct
+	27, // 15: iam.resource.v1.ResourceBinding.metadata:type_name -> google.protobuf.Struct
 	1,  // 16: iam.resource.v1.ResourceBinding.created_by:type_name -> iam.resource.v1.SubjectRef
-	31, // 17: iam.resource.v1.ResourceBinding.created_at:type_name -> google.protobuf.Timestamp
-	31, // 18: iam.resource.v1.ResourceBinding.updated_at:type_name -> google.protobuf.Timestamp
+	28, // 17: iam.resource.v1.ResourceBinding.created_at:type_name -> google.protobuf.Timestamp
+	28, // 18: iam.resource.v1.ResourceBinding.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 19: iam.resource.v1.ExternalResourceBinding.resource:type_name -> iam.resource.v1.ResourceRef
-	31, // 20: iam.resource.v1.ExternalResourceBinding.last_synced_at:type_name -> google.protobuf.Timestamp
-	30, // 21: iam.resource.v1.ExternalResourceBinding.metadata:type_name -> google.protobuf.Struct
+	28, // 20: iam.resource.v1.ExternalResourceBinding.last_synced_at:type_name -> google.protobuf.Timestamp
+	27, // 21: iam.resource.v1.ExternalResourceBinding.metadata:type_name -> google.protobuf.Struct
 	2,  // 22: iam.resource.v1.RegisterResourceTypeRequest.resource_type:type_name -> iam.resource.v1.ResourceType
 	2,  // 23: iam.resource.v1.ListResourceTypesReply.resource_types:type_name -> iam.resource.v1.ResourceType
 	3,  // 24: iam.resource.v1.UpsertResourceRequest.resource:type_name -> iam.resource.v1.Resource
 	1,  // 25: iam.resource.v1.UpsertResourceRequest.owner:type_name -> iam.resource.v1.SubjectRef
 	0,  // 26: iam.resource.v1.ListResourcesRequest.parent:type_name -> iam.resource.v1.ResourceRef
-	29, // 27: iam.resource.v1.ListResourcesRequest.labels:type_name -> iam.resource.v1.ListResourcesRequest.LabelsEntry
+	26, // 27: iam.resource.v1.ListResourcesRequest.labels:type_name -> iam.resource.v1.ListResourcesRequest.LabelsEntry
 	3,  // 28: iam.resource.v1.ListResourcesReply.resources:type_name -> iam.resource.v1.Resource
-	0,  // 29: iam.resource.v1.MoveResourceRequest.new_parent:type_name -> iam.resource.v1.ResourceRef
-	0,  // 30: iam.resource.v1.DeleteResourceReply.ref:type_name -> iam.resource.v1.ResourceRef
-	4,  // 31: iam.resource.v1.BindResourceRequest.binding:type_name -> iam.resource.v1.ResourceBinding
-	0,  // 32: iam.resource.v1.ListResourceBindingsRequest.source:type_name -> iam.resource.v1.ResourceRef
-	0,  // 33: iam.resource.v1.ListResourceBindingsRequest.target:type_name -> iam.resource.v1.ResourceRef
-	4,  // 34: iam.resource.v1.ListResourceBindingsReply.bindings:type_name -> iam.resource.v1.ResourceBinding
-	5,  // 35: iam.resource.v1.BindExternalResourceRequest.binding:type_name -> iam.resource.v1.ExternalResourceBinding
-	0,  // 36: iam.resource.v1.ListExternalResourceBindingsRequest.resource:type_name -> iam.resource.v1.ResourceRef
-	5,  // 37: iam.resource.v1.ListExternalResourceBindingsReply.bindings:type_name -> iam.resource.v1.ExternalResourceBinding
-	6,  // 38: iam.resource.v1.ResourceService.RegisterResourceType:input_type -> iam.resource.v1.RegisterResourceTypeRequest
-	7,  // 39: iam.resource.v1.ResourceService.GetResourceType:input_type -> iam.resource.v1.GetResourceTypeRequest
-	8,  // 40: iam.resource.v1.ResourceService.ListResourceTypes:input_type -> iam.resource.v1.ListResourceTypesRequest
-	10, // 41: iam.resource.v1.ResourceService.UpsertResource:input_type -> iam.resource.v1.UpsertResourceRequest
-	11, // 42: iam.resource.v1.ResourceService.GetResource:input_type -> iam.resource.v1.GetResourceRequest
-	12, // 43: iam.resource.v1.ResourceService.ListResources:input_type -> iam.resource.v1.ListResourcesRequest
-	14, // 44: iam.resource.v1.ResourceService.MoveResource:input_type -> iam.resource.v1.MoveResourceRequest
-	15, // 45: iam.resource.v1.ResourceService.ArchiveResource:input_type -> iam.resource.v1.ArchiveResourceRequest
-	16, // 46: iam.resource.v1.ResourceService.DeleteResource:input_type -> iam.resource.v1.DeleteResourceRequest
-	18, // 47: iam.resource.v1.ResourceService.BindResource:input_type -> iam.resource.v1.BindResourceRequest
-	19, // 48: iam.resource.v1.ResourceService.UnbindResource:input_type -> iam.resource.v1.UnbindResourceRequest
-	21, // 49: iam.resource.v1.ResourceService.ListResourceBindings:input_type -> iam.resource.v1.ListResourceBindingsRequest
-	23, // 50: iam.resource.v1.ResourceService.BindExternalResource:input_type -> iam.resource.v1.BindExternalResourceRequest
-	24, // 51: iam.resource.v1.ResourceService.ListExternalResourceBindings:input_type -> iam.resource.v1.ListExternalResourceBindingsRequest
-	2,  // 52: iam.resource.v1.ResourceService.RegisterResourceType:output_type -> iam.resource.v1.ResourceType
-	2,  // 53: iam.resource.v1.ResourceService.GetResourceType:output_type -> iam.resource.v1.ResourceType
-	9,  // 54: iam.resource.v1.ResourceService.ListResourceTypes:output_type -> iam.resource.v1.ListResourceTypesReply
-	3,  // 55: iam.resource.v1.ResourceService.UpsertResource:output_type -> iam.resource.v1.Resource
-	3,  // 56: iam.resource.v1.ResourceService.GetResource:output_type -> iam.resource.v1.Resource
-	13, // 57: iam.resource.v1.ResourceService.ListResources:output_type -> iam.resource.v1.ListResourcesReply
-	3,  // 58: iam.resource.v1.ResourceService.MoveResource:output_type -> iam.resource.v1.Resource
-	3,  // 59: iam.resource.v1.ResourceService.ArchiveResource:output_type -> iam.resource.v1.Resource
-	17, // 60: iam.resource.v1.ResourceService.DeleteResource:output_type -> iam.resource.v1.DeleteResourceReply
-	4,  // 61: iam.resource.v1.ResourceService.BindResource:output_type -> iam.resource.v1.ResourceBinding
-	20, // 62: iam.resource.v1.ResourceService.UnbindResource:output_type -> iam.resource.v1.UnbindResourceReply
-	22, // 63: iam.resource.v1.ResourceService.ListResourceBindings:output_type -> iam.resource.v1.ListResourceBindingsReply
-	5,  // 64: iam.resource.v1.ResourceService.BindExternalResource:output_type -> iam.resource.v1.ExternalResourceBinding
-	25, // 65: iam.resource.v1.ResourceService.ListExternalResourceBindings:output_type -> iam.resource.v1.ListExternalResourceBindingsReply
-	52, // [52:66] is the sub-list for method output_type
-	38, // [38:52] is the sub-list for method input_type
-	38, // [38:38] is the sub-list for extension type_name
-	38, // [38:38] is the sub-list for extension extendee
-	0,  // [0:38] is the sub-list for field type_name
+	4,  // 29: iam.resource.v1.BindResourceRequest.binding:type_name -> iam.resource.v1.ResourceBinding
+	0,  // 30: iam.resource.v1.ListResourceBindingsRequest.source:type_name -> iam.resource.v1.ResourceRef
+	0,  // 31: iam.resource.v1.ListResourceBindingsRequest.target:type_name -> iam.resource.v1.ResourceRef
+	4,  // 32: iam.resource.v1.ListResourceBindingsReply.bindings:type_name -> iam.resource.v1.ResourceBinding
+	5,  // 33: iam.resource.v1.BindExternalResourceRequest.binding:type_name -> iam.resource.v1.ExternalResourceBinding
+	0,  // 34: iam.resource.v1.ListExternalResourceBindingsRequest.resource:type_name -> iam.resource.v1.ResourceRef
+	5,  // 35: iam.resource.v1.ListExternalResourceBindingsReply.bindings:type_name -> iam.resource.v1.ExternalResourceBinding
+	6,  // 36: iam.resource.v1.ResourceService.RegisterResourceType:input_type -> iam.resource.v1.RegisterResourceTypeRequest
+	7,  // 37: iam.resource.v1.ResourceService.GetResourceType:input_type -> iam.resource.v1.GetResourceTypeRequest
+	8,  // 38: iam.resource.v1.ResourceService.ListResourceTypes:input_type -> iam.resource.v1.ListResourceTypesRequest
+	10, // 39: iam.resource.v1.ResourceService.UpsertResource:input_type -> iam.resource.v1.UpsertResourceRequest
+	11, // 40: iam.resource.v1.ResourceService.GetResource:input_type -> iam.resource.v1.GetResourceRequest
+	12, // 41: iam.resource.v1.ResourceService.ListResources:input_type -> iam.resource.v1.ListResourcesRequest
+	14, // 42: iam.resource.v1.ResourceService.ArchiveResource:input_type -> iam.resource.v1.ArchiveResourceRequest
+	15, // 43: iam.resource.v1.ResourceService.BindResource:input_type -> iam.resource.v1.BindResourceRequest
+	16, // 44: iam.resource.v1.ResourceService.UnbindResource:input_type -> iam.resource.v1.UnbindResourceRequest
+	18, // 45: iam.resource.v1.ResourceService.ListResourceBindings:input_type -> iam.resource.v1.ListResourceBindingsRequest
+	20, // 46: iam.resource.v1.ResourceService.BindExternalResource:input_type -> iam.resource.v1.BindExternalResourceRequest
+	21, // 47: iam.resource.v1.ResourceService.ListExternalResourceBindings:input_type -> iam.resource.v1.ListExternalResourceBindingsRequest
+	2,  // 48: iam.resource.v1.ResourceService.RegisterResourceType:output_type -> iam.resource.v1.ResourceType
+	2,  // 49: iam.resource.v1.ResourceService.GetResourceType:output_type -> iam.resource.v1.ResourceType
+	9,  // 50: iam.resource.v1.ResourceService.ListResourceTypes:output_type -> iam.resource.v1.ListResourceTypesReply
+	3,  // 51: iam.resource.v1.ResourceService.UpsertResource:output_type -> iam.resource.v1.Resource
+	3,  // 52: iam.resource.v1.ResourceService.GetResource:output_type -> iam.resource.v1.Resource
+	13, // 53: iam.resource.v1.ResourceService.ListResources:output_type -> iam.resource.v1.ListResourcesReply
+	3,  // 54: iam.resource.v1.ResourceService.ArchiveResource:output_type -> iam.resource.v1.Resource
+	4,  // 55: iam.resource.v1.ResourceService.BindResource:output_type -> iam.resource.v1.ResourceBinding
+	17, // 56: iam.resource.v1.ResourceService.UnbindResource:output_type -> iam.resource.v1.UnbindResourceReply
+	19, // 57: iam.resource.v1.ResourceService.ListResourceBindings:output_type -> iam.resource.v1.ListResourceBindingsReply
+	5,  // 58: iam.resource.v1.ResourceService.BindExternalResource:output_type -> iam.resource.v1.ExternalResourceBinding
+	22, // 59: iam.resource.v1.ResourceService.ListExternalResourceBindings:output_type -> iam.resource.v1.ListExternalResourceBindingsReply
+	48, // [48:60] is the sub-list for method output_type
+	36, // [36:48] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_iam_resource_v1_resource_proto_init() }
@@ -2338,7 +2125,7 @@ func file_iam_resource_v1_resource_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_iam_resource_v1_resource_proto_rawDesc), len(file_iam_resource_v1_resource_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   30,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

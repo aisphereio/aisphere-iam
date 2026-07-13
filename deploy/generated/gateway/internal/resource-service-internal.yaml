@@ -42,29 +42,6 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move"
-      filters:
-        - type: RequestHeaderModifier
-          requestHeaderModifier:
-            set:
-              - name: X-Aisphere-Upstream-Operation
-                value: "/iam.resource.v1.ResourceService/MoveResource"
-              - name: X-Aisphere-Route-Exposure
-                value: "INTERNAL"
-              - name: X-Aisphere-Route-Authn-Mode
-                value: "m2m"
-              - name: X-Aisphere-Authz-Action
-                value: "move"
-              - name: X-Aisphere-Authz-Resource
-                value: "iam:resource"
-      backendRefs:
-        - name: "aisphere-iam"
-          namespace: "aisphere"
-          port: 18080
-    - matches:
-        - method: "POST"
-          path:
-            type: PathPrefix
             value: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive"
       filters:
         - type: RequestHeaderModifier
@@ -78,29 +55,6 @@ spec:
                 value: "m2m"
               - name: X-Aisphere-Authz-Action
                 value: "archive"
-              - name: X-Aisphere-Authz-Resource
-                value: "iam:resource"
-      backendRefs:
-        - name: "aisphere-iam"
-          namespace: "aisphere"
-          port: 18080
-    - matches:
-        - method: "DELETE"
-          path:
-            type: PathPrefix
-            value: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}"
-      filters:
-        - type: RequestHeaderModifier
-          requestHeaderModifier:
-            set:
-              - name: X-Aisphere-Upstream-Operation
-                value: "/iam.resource.v1.ResourceService/DeleteResource"
-              - name: X-Aisphere-Route-Exposure
-                value: "INTERNAL"
-              - name: X-Aisphere-Route-Authn-Mode
-                value: "m2m"
-              - name: X-Aisphere-Authz-Action
-                value: "delete"
               - name: X-Aisphere-Authz-Resource
                 value: "iam:resource"
       backendRefs:

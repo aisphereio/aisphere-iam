@@ -15,8 +15,6 @@ import (
 	resourcebiz "github.com/aisphereio/aisphere-iam/internal/biz/resource"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/kernel/authn"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -167,19 +165,11 @@ func (s *ResourceService) ListResources(ctx context.Context, req *resourcev1.Lis
 	return &resourcev1.ListResourcesReply{Resources: out, TotalSize: page.Total, NextPageToken: nextPage(page)}, nil
 }
 
-func (s *ResourceService) MoveResource(context.Context, *resourcev1.MoveResourceRequest) (*resourcev1.Resource, error) {
-	return nil, status.Error(codes.Unimplemented, "MoveResource is not implemented")
-}
-
 func (s *ResourceService) ArchiveResource(ctx context.Context, req *resourcev1.ArchiveResourceRequest) (*resourcev1.Resource, error) {
 	if err := s.repo.ArchiveResource(ctx, req.GetResourceType(), req.GetResourceId()); err != nil {
 		return nil, err
 	}
 	return s.GetResource(ctx, &resourcev1.GetResourceRequest{ResourceType: req.GetResourceType(), ResourceId: req.GetResourceId()})
-}
-
-func (s *ResourceService) DeleteResource(context.Context, *resourcev1.DeleteResourceRequest) (*resourcev1.DeleteResourceReply, error) {
-	return nil, status.Error(codes.Unimplemented, "DeleteResource is not implemented")
 }
 
 func (s *ResourceService) BindResource(ctx context.Context, req *resourcev1.BindResourceRequest) (*resourcev1.ResourceBinding, error) {
@@ -195,23 +185,6 @@ func (s *ResourceService) BindResource(ctx context.Context, req *resourcev1.Bind
 	return resourceBindingModelToProto(model), nil
 }
 
-func (s *ResourceService) UnbindResource(context.Context, *resourcev1.UnbindResourceRequest) (*resourcev1.UnbindResourceReply, error) {
-	return nil, status.Error(codes.Unimplemented, "UnbindResource is not implemented")
-}
-
-func (s *ResourceService) ListResourceBindings(ctx context.Context, req *resourcev1.ListResourceBindingsRequest) (*resourcev1.ListResourceBindingsReply, error) {
-	source := req.GetSource()
-	items, err := s.repo.ListResourceBindings(ctx, data.ListOptions{ResourceType: source.GetType(), ResourceID: source.GetId(), Status: req.GetStatus()})
-	if err != nil {
-		return nil, err
-	}
-	out := make([]*resourcev1.ResourceBinding, 0, len(items))
-	for i := range items {
-		out = append(out, resourceBindingModelToProto(&items[i]))
-	}
-	return &resourcev1.ListResourceBindingsReply{Bindings: out, TotalSize: int64(len(out))}, nil
-}
-
 func (s *ResourceService) BindExternalResource(ctx context.Context, req *resourcev1.BindExternalResourceRequest) (*resourcev1.ExternalResourceBinding, error) {
 	in := req.GetBinding()
 	model, err := s.biz.BindExternalResource(ctx, resourcebiz.BindExternalResourceRequest{ID: in.GetId(), Resource: resourceRef(in.GetResource()), Provider: in.GetProvider(), ExternalType: in.GetExternalType(), ExternalID: in.GetExternalId(), ExternalPath: in.GetExternalPath(), ExternalURL: in.GetExternalUrl(), SyncMode: in.GetSyncMode(), MetadataJSON: structToJSON(in.GetMetadata(), "{}")})
@@ -219,10 +192,6 @@ func (s *ResourceService) BindExternalResource(ctx context.Context, req *resourc
 		return nil, err
 	}
 	return externalBindingModelToProto(model), nil
-}
-
-func (s *ResourceService) ListExternalResourceBindings(context.Context, *resourcev1.ListExternalResourceBindingsRequest) (*resourcev1.ListExternalResourceBindingsReply, error) {
-	return nil, status.Error(codes.Unimplemented, "ListExternalResourceBindings is not implemented")
 }
 
 type GrantService struct {

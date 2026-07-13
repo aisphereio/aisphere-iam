@@ -58,24 +58,10 @@ func ResourceServiceGatewayManifest() gatewayx.Manifest {
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
-				ID:       "resource.move.resource",
-				Method:   "POST",
-				Path:     "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/MoveResource"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
 				ID:       "resource.archive.resource",
 				Method:   "POST",
 				Path:     "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/ArchiveResource"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
-				ID:       "resource.delete.resource",
-				Method:   "DELETE",
-				Path:     "/v1/iam/control-plane/resources/{resource_type}/{resource_id}",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/DeleteResource"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
@@ -192,46 +178,12 @@ func ResourceServiceGatewayBindListResources(req gatewayx.DispatchRequest, match
 	return out, nil
 }
 
-func ResourceServiceGatewayBindMoveResource(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*MoveResourceRequest, error) {
-	out := &MoveResourceRequest{}
-	if v, ok := req.Body.(*MoveResourceRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(MoveResourceRequest); ok {
-		out = &v
-	}
-	if v := match.Params["resource_type"]; v != "" {
-		out.ResourceType = v
-	}
-	if v := match.Params["resource_id"]; v != "" {
-		out.ResourceId = v
-	}
-	return out, nil
-}
-
 func ResourceServiceGatewayBindArchiveResource(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*ArchiveResourceRequest, error) {
 	out := &ArchiveResourceRequest{}
 	if v, ok := req.Body.(*ArchiveResourceRequest); ok && v != nil {
 		out = v
 	}
 	if v, ok := req.Body.(ArchiveResourceRequest); ok {
-		out = &v
-	}
-	if v := match.Params["resource_type"]; v != "" {
-		out.ResourceType = v
-	}
-	if v := match.Params["resource_id"]; v != "" {
-		out.ResourceId = v
-	}
-	return out, nil
-}
-
-func ResourceServiceGatewayBindDeleteResource(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*DeleteResourceRequest, error) {
-	out := &DeleteResourceRequest{}
-	if v, ok := req.Body.(*DeleteResourceRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(DeleteResourceRequest); ok {
 		out = &v
 	}
 	if v := match.Params["resource_type"]; v != "" {
@@ -320,13 +272,7 @@ func RegisterResourceServiceGatewayInvokers(registry *gatewayx.InvokerRegistry, 
 	if err := registry.Register("/iam.resource.v1.ResourceService/ListResources", gatewayx.GRPCUnaryInvoker(ResourceServiceGatewayBindListResources, client.ListResources)); err != nil {
 		return err
 	}
-	if err := registry.Register("/iam.resource.v1.ResourceService/MoveResource", gatewayx.GRPCUnaryInvoker(ResourceServiceGatewayBindMoveResource, client.MoveResource)); err != nil {
-		return err
-	}
 	if err := registry.Register("/iam.resource.v1.ResourceService/ArchiveResource", gatewayx.GRPCUnaryInvoker(ResourceServiceGatewayBindArchiveResource, client.ArchiveResource)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.resource.v1.ResourceService/DeleteResource", gatewayx.GRPCUnaryInvoker(ResourceServiceGatewayBindDeleteResource, client.DeleteResource)); err != nil {
 		return err
 	}
 	if err := registry.Register("/iam.resource.v1.ResourceService/BindResource", gatewayx.GRPCUnaryInvoker(ResourceServiceGatewayBindBindResource, client.BindResource)); err != nil {
