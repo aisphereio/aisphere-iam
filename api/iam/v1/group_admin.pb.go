@@ -7,7 +7,6 @@
 package v1
 
 import (
-	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/aisphereio/kernel/api/aisphere/access/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -28,7 +27,7 @@ var File_iam_v1_group_admin_proto protoreflect.FileDescriptor
 
 const file_iam_v1_group_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x18iam/v1/group_admin.proto\x12\x06iam.v1\x1a\x1faisphere/access/v1/access.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x10iam/v1/iam.proto2\xd6\a\n" +
+	"\x18iam/v1/group_admin.proto\x12\x06iam.v1\x1a\x1faisphere/access/v1/access.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x10iam/v1/iam.proto2\xd6\a\n" +
 	"\x14IAMGroupAdminService\x12\xa4\x01\n" +
 	"\vCreateGroup\x12\x1a.iam.v1.CreateGroupRequest\x1a\r.iam.v1.Group\"j\x92\xf4\x18M\b\x03\x12-\n" +
 	"\rcreate_groups\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.group.create\x1a\x04high\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/iam/groups\x12\xab\x01\n" +

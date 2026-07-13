@@ -3,9 +3,7 @@ syntax = "proto3";
 package iam.v1;
 
 import "aisphere/access/v1/access.proto";
-import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
-import "google/api/field_behavior.proto";
 import "google/protobuf/empty.proto";
 import "iam/v1/iam.proto";
 
