@@ -13,11 +13,20 @@ import (
 
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
+	"github.com/aisphereio/kernel/authn"
+	"github.com/aisphereio/kernel/authz"
 	"github.com/aisphereio/kernel/logx"
 )
 
+func getTestConfigPath() string {
+	if p := os.Getenv("IAM_TEST_CONFIG"); p != "" {
+		return p
+	}
+	return "../../configs/config.test.yaml"
+}
+
 func TestIntegrationConfigLoads(t *testing.T) {
-	cfg, err := conf.LoadConfig("../../configs/config.test.yaml")
+	cfg, err := conf.LoadConfig(getTestConfigPath())
 	if err != nil {
 		t.Fatalf("LoadConfig: %v", err)
 	}
@@ -31,7 +40,7 @@ func TestIntegrationConfigLoads(t *testing.T) {
 }
 
 func TestIntegrationPostgresConnection(t *testing.T) {
-	cfg, err := conf.Load("../../configs/config.test.yaml")
+	cfg, err := conf.LoadConfig(getTestConfigPath())
 	if err != nil {
 		t.Fatalf("LoadConfig: %v", err)
 	}
@@ -53,13 +62,13 @@ func TestIntegrationPostgresConnection(t *testing.T) {
 }
 
 func TestIntegrationCasdoorConnection(t *testing.T) {
-	cfg := conf.LoadConfig("../../configs/config.test.yaml")
+	cfg, err := conf.LoadConfig(getTestConfigPath())
 	if err != nil {
 		t.Fatalf("LoadConfig: %v", err)
 	}
 
 	logger := logx.DefaultLogger()
-	resources, cleanup, err := data.NewResources(cfg, data.ResourceOptions{Logger: logger})
+	resources, cleanup, err := data.NewResources(context.Background(), cfg, data.ResourceOptions{Logger: logger})
 	if err != nil {
 		t.Fatalf("NewResources: %v", err)
 	}
@@ -80,13 +89,13 @@ func TestIntegrationCasdoorConnection(t *testing.T) {
 }
 
 func TestIntegrationSpiceDBConnection(t *testing.T) {
-	cfg, err := conf.LoadConfig("../../configs/config.test.yaml")
+	cfg, err := conf.LoadConfig(getTestConfigPath())
 	if err != nil {
 		t.Fatalf("LoadConfig: %v", err)
 	}
 
 	logger := logx.DefaultLogger()
-	resources, cleanup, err := data.NewResources(cfg, data.ResourceOptions{Logger: logger})
+	resources, cleanup, err := data.NewResources(context.Background(), cfg, data.ResourceOptions{Logger: logger})
 	if err != nil {
 		t.Fatalf("NewResources: %v", err)
 	}
@@ -106,4 +115,68 @@ func TestIntegrationSpiceDBConnection(t *testing.T) {
 		t.Fatalf("SpiceDB Check: %v", err)
 	}
 	t.Logf("SpiceDB check result: allowed=%v, effect=%s", decision.IsAllowed(), decision.Effect)
+}
+
+func TestIntegrationProjectLifecycle(t *testing.T) {
+	cfg, err := conf.LoadConfig(getTestConfigPath())
+	if err != nil {
+		t.Fatalf("LoadConfig: %v", err)
+	}
+
+	logger := logx.DefaultLogger()
+	resources, cleanup, err := data.NewResources(context.Background(), cfg, data.ResourceOptions{Logger: logger})
+	if err != nil {
+		t.Fatalf("NewResources: %v", err)
+	}
+	defer cleanup()
+
+	// Create a project through the full stack
+	projectID := "test-integration-project"
+	project := &data.ProjectModel{
+		ID:          projectID,
+		OrgID:       "aisphere",
+		Slug:        "test-integration",
+		DisplayName: "Test Integration Project",
+		Status:      data.StatusActive,
+	}
+	if err := resources.ControlPlane.CreateProject(context.Background(), project); err != nil {
+		t.Fatalf("CreateProject: %v", err)
+	}
+
+	// Read it back
+	got, err := resources.ControlPlane.GetProject(context.Background(), projectID)
+	if err != nil {
+		t.Fatalf("GetProject: %v", err)
+	}
+	if got.Slug != "test-integration" {
+		t.Fatalf("unexpected slug: %s", got.Slug)
+	}
+
+	// Archive it
+	if err := resources.ControlPlane.ArchiveProject(context.Background(), projectID); err != nil {
+		t.Fatalf("ArchiveProject: %v", err)
+	}
+
+	t.Log("Project lifecycle integration test OK")
+}
+
+func TestIntegrationAuthnPrincipal(t *testing.T) {
+	// Test that we can create a principal from Kernel context
+	principal := authn.Principal{
+		SubjectID:   "test-user",
+		SubjectType: authn.SubjectTypeUser,
+		OrgID:       "aisphere",
+		Provider:    "casdoor",
+	}
+	ctx := authn.ContextWithPrincipal(context.Background(), principal)
+
+	// Verify principal extraction
+	got, ok := authn.PrincipalFromContext(ctx)
+	if !ok {
+		t.Fatal("expected principal from context")
+	}
+	if got.SubjectID != "test-user" {
+		t.Fatalf("unexpected subject: %s", got.SubjectID)
+	}
+	t.Log("Principal context test OK")
 }

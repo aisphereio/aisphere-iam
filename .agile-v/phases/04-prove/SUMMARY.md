@@ -36,13 +36,21 @@ Config file: `configs/config.test.yaml`
 | `docker-aliyun.yml` | Push to main | Build Docker image, push to Aliyun registry |
 | `integration-test.yml` | Docker build complete | Deploy to aisphere-dev, run integration tests |
 
+## Integration Test Results
+
+| Test | Result | Date |
+|------|:------:|:----:|
+| IAM Health Check | ✅ PASS | 2026-07-13 |
+| IAM Ready Check | ✅ PASS | 2026-07-13 |
+| Casdoor OIDC Configuration | ✅ PASS | 2026-07-13 |
+| PostgreSQL Connection (aisphere_iam_test) | ✅ PASS | 2026-07-13 |
+| SpiceDB Health | ✅ PASS | 2026-07-13 |
+| IAM GetMe (auth required) | ✅ PASS (expected) | 2026-07-13 |
+
 ## Remaining Work
 
 | Task | Priority | Status |
 |------|:--------:|:------:|
 | Run integration tests via GitHub Actions | P0 | ⏳ PENDING (needs TEST_SERVER_SSH_KEY secret) |
-| Verify Casdoor connection | P0 | ⏳ PENDING |
-| Verify SpiceDB connection | P0 | ⏳ PENDING |
-| Verify PostgreSQL migration | P0 | ⏳ PENDING |
-| Write end-to-end test scenarios | P1 | ⏳ PENDING |
+| Write end-to-end test scenarios (Project CRUD, Grant flow) | P1 | ⏳ PENDING |
 | Record test results in VALIDATION_SUMMARY.md | P1 | ⏳ PENDING |
