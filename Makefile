@@ -41,7 +41,8 @@ help:
 	@echo "  make spicedb-schema-configmap generate/apply SpiceDB schema ConfigMap from $(SPICEDB_SCHEMA)"
 	@echo "  make deploy-apply            generate and apply app manifests plus generated Gateway API manifests"
 	@echo "  make proto-check             run buf lint and aisphere proto contract checks"
-	@echo "  make verify                  run api, deploy, checks, config, wire, generate, tidy, test, build"
+	@echo "  make traceability-check      validate REQ->ART->TC traceability chain"
+	@echo "  make verify                  run api, deploy, checks, config, wire, generate, tidy, test, build, traceability"
 	@echo ""
 	@echo "Variables: KERNEL_VERSION=$(KERNEL_VERSION) APP_NAME=$(APP_NAME) CONF=$(CONF) KUBE_NAMESPACE=$(KUBE_NAMESPACE)"
 
@@ -202,7 +203,10 @@ docker:
 run:
 	$(GO) run $(APP_CMD) $(RUN_ARGS)
 
-verify: api deploy proto-check config wire generate tidy test build
+traceability-check:
+	$(GO) run ./cmd/traceability-check/ $(if $(STRICT),--strict)
+
+verify: api deploy proto-check config wire generate tidy test build traceability-check
 
 clean:
 ifeq ($(OS),Windows_NT)

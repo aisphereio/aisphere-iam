@@ -155,7 +155,7 @@
 | **FT-CODE** | FT-PLAN |
 | **Evidence** | `kernel/auditx/postgres.go` — `PostgresStore`; `internal/data/data.go` — uses PostgresStore when `audit.store=postgres` |
 | **Expected** | Durable audit records with actor, target, outcome |
-| **Actual** | Audit writes to PostgreSQL `iam_audit_logs` table; survives restart |
+| **Actual** | Audit writes to PostgreSQL `iam_audit_logs` table; survives restart; production config updated to `store: postgres` |
 | **Severity** | — |
 | **Recommendation** | — |
 
@@ -197,14 +197,14 @@
 
 | Field | Value |
 |-------|-------|
-| **TC** | TC-0038 |
-| **Result** | ❌ FAIL |
+| **TC** | TC-0019, TC-0020 |
+| **Result** | ✅ PASS |
 | **FT-CODE** | FT-PLAN |
-| **Evidence** | Grant model has `expires_at`; no executor |
+| **Evidence** | `internal/service/grant_test.go::TestGrantServiceExpireDueGrants`, `TestGrantServiceExpireDueGrants_NoExpiryGrants` |
 | **Expected** | Expired Grant ceases to authorize |
-| **Actual** | No cleanup worker; expired relationships remain in SpiceDB |
-| **Severity** | MAJOR |
-| **Recommendation** | Implement expiry worker in C2 |
+| **Actual** | `ExpireDueGrants` scans due grants, revokes them, sets `revoked_at`; idempotent; skips no-expiry grants |
+| **Severity** | — |
+| **Recommendation** | — |
 
 ### VER-015 | ENG-001~003 | Engineering standards
 
@@ -257,9 +257,7 @@
 |:--------------:|:-----:|------|
 | ✅ UNIT_EVIDENCE | 12 | AUTHN-001, 003, DIR-006, PROJ-001~003, AUTHZ-RT-002, 003, 005, 008, PROJECT-002, 003 |
 | ✅ CI_EVIDENCE | 3 | ENG-001, 002, 003 |
-| ✅ OBSERVED_IMPLEMENTED | 39 | All remaining implemented REQs |
-| ⚠️ CONTRACT_ONLY | 1 | AUTHZ-ADMIN-005 (audit) |
-| ❌ NOT_IMPLEMENTED | 1 | GRANT-006 (expiry executor) |
+| ✅ OBSERVED_IMPLEMENTED | 41 | All remaining implemented REQs |
 | ⚠️ ARCHITECTURE_REQUIRED | 2 | AUTHN-004, ENG-005 |
 
 ## Open FLAG Items
@@ -268,14 +266,12 @@
 |--------|--------|---------|-------|---------------|
 | VER-004 | AUTHN-004 | FT-PLAN | No Gateway E2E test | Add in C2 |
 | VER-007 | DIR-007 | FT-PLAN | No identity mode matrix test | Add in C2 |
-| VER-010 | AUTHZ-ADMIN-005 | FT-PLAN | Audit in memory only | Implement durable sink |
-| VER-014 | GRANT-006 | FT-PLAN | No expiry executor | Implement in C2 |
 | VER-016 | ENG-004~008 | FT-PLAN | Engineering gaps | Address in C2 |
 
 ## EvalGate
 
 ```
-EvalGate: status=NOT_READY | eval_run_id=C1-001 | policy_version_ref=1.0 | eval_results_path=.agile-v/EVAL_RESULTS.md
+EvalGate: status=IMPROVED | eval_run_id=C1-002 | policy_version_ref=1.0 | eval_results_path=.agile-v/EVAL_RESULTS.md
 ```
 
-**Gate 2 blocked** — 1 MAJOR failure (GRANT-006) and 3 FLAG items remain open.
+**Gate 2 progress** — 2 MAJOR items resolved (GRANT-006 expiry executor, AUTHZ-ADMIN-005 audit persistence). 3 FLAG items remain open.

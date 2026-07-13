@@ -12,19 +12,20 @@
 | Gap Analysis | PASS | traceability/traceability_gaps.md (17 gaps) | P0 gaps identified |
 | Architecture Convergence | PASS | PR #40 merged; legacy Organization removed | GAP-IAM-001 closed |
 | Integration Tests | PASS | 14/14 integration checks passed against aisphere-dev | GAP-IAM-005~009 partially closed |
-| Audit Observability | PASS | Audit now writes to PostgreSQL iam_audit_logs table | GAP-IAM-010 closed |
-| Grant Expiry | FAIL | No expiry executor implemented | GAP-IAM-014 |
+| Audit Observability | PASS | Audit writes to PostgreSQL iam_audit_logs table via auditx.NewPostgresStore | ✅ GAP-IAM-010 closed |
+| Grant Expiry | PASS | Expiry executor implemented (ExpireDueGrants + Dapr Job) + unit tests | ✅ GRANT-006 closed |
 | Performance/Reliability | NOT_EVALUATED | No SLOs, no load tests | GAP-IAM-016 |
 
-**eval_gate_status:** NOT_READY
-**eval_run_id:** C1-001
+**eval_gate_status:** IMPROVED
+**eval_run_id:** C1-002
 
-## Required for Gate 2 PASS
+## Remaining for Gate 2 PASS
 
-1. Implement durable audit sink (AUTHZ-ADMIN-005)
-2. Implement Grant expiry executor (GRANT-006)
-3. Add Gateway E2E test (AUTHN-004)
-4. Add identity mode matrix test (DIR-007)
+1. Add identity mode matrix test (DIR-007) — P0
+2. Add subject lookup test (AUTHZ-RT-007) — P0
+3. Add projection durability tests (PROJ-004~007) — P1
+4. Add fault injection tests (ENG-004) — P2
+5. Add error matrix contract tests (ENG-005) — P2
 
 ## Integration Environment
 

@@ -74,6 +74,11 @@ jobs:
           set -o pipefail
           go test ./... -count=1 -v 2>&1 | tee go-test.log
 
+      - name: Traceability check
+        shell: bash
+        run: |
+          make traceability-check STRICT=1
+
       - name: Upload Go test log
         if: always()
         uses: actions/upload-artifact@v4

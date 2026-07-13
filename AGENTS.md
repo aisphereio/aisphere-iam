@@ -46,3 +46,83 @@ make test
 ## 6. 文档门禁
 
 以下变化必须同步 README 或 `docs/*.md`：启动依赖、端口、Casdoor/SpiceDB/etcd 配置、access policy、Gateway route registry、Kernel generator 使用方式。
+
+## 7. Agile V 追溯链规范
+
+本仓库使用 Agile V 框架管理需求→接口→实现→测试的全链路追溯。所有 Agent 必须遵守以下规范。
+
+### 7.1 追溯链结构
+
+```
+REQ (requirements.md) ──→ ART (BUILD_MANIFEST.md) ──→ TC (TEST_SPEC.md)
+需求                     实现路径                     测试用例
+```
+
+### 7.2 变更工作流
+
+每次提交代码必须按以下顺序操作：
+
+```
+Step 1: 写/改需求
+        → 更新 .agile-v/requirements/requirements.md
+        → 每个需求必须有唯一 REQ-IAM-XXXX-NNN 编号
+
+Step 2: 写/改代码
+        → 在 BUILD_MANIFEST.md 中添加 ART 条目
+        → 格式: | ART-NNNN | REQ-IAM-XXXX-NNN | 代码路径 | 说明 |
+        → 如果 REQ 是简写（如 DIR-001），工具会自动补全为 REQ-IAM-DIR-001
+
+Step 3: 写/改测试
+        → 在 TEST_SPEC.md 中添加 TC 条目
+        → 格式: | TC-NNNN | REQ-IAM-XXXX-NNN | 说明 | 类型 | 文件路径 | 状态 |
+        → 状态标记: ✅ 已实现 / ❌ 缺失
+
+Step 4: 验证追溯链
+        → 运行 make traceability-check
+        → 确认输出中无意外 gap
+```
+
+### 7.3 追溯链检查
+
+```bash
+# 检查追溯链完整性（不阻断）
+make traceability-check
+
+# 严格模式（有 gap 就 exit 1，用于 CI）
+make traceability-check STRICT=1
+
+# 全量验证（包含追溯链检查）
+make verify
+```
+
+### 7.4 追溯覆盖率目标
+
+| 指标 | 当前 | 目标 |
+|------|------|------|
+| REQ→ART 覆盖率 | 94% | 100% |
+| REQ→Test 覆盖率 | 70% | 100% |
+| ART 路径存在率 | 100% | 100% |
+
+### 7.5 常见错误
+
+- ❌ 新增代码但没有更新 BUILD_MANIFEST.md → traceability-check 会报 ART 缺失
+- ❌ 新增测试但没有更新 TEST_SPEC.md → traceability-check 会报 TC 缺失
+- ❌ 修改了 REQ 编号但没有同步更新 ART/TC 中的引用 → traceability-check 会报断裂
+- ❌ 删除了代码文件但没有更新 BUILD_MANIFEST.md → traceability-check 会报路径不存在
+
+### 7.6 文件位置
+
+```
+.agile-v/
+├── requirements/
+│   └── requirements.md        # 需求定义（REQ）
+├── BUILD_MANIFEST.md          # 实现清单（ART）
+├── TEST_SPEC.md               # 测试规格（TC）
+├── ATM.md                     # 追溯矩阵摘要
+├── CAPA_LOG.md                # 纠正预防措施
+├── CHANGE_LOG.md              # 变更记录
+├── DECISION_LOG.md            # 决策日志
+├── EVAL_RESULTS.md            # 评估结果
+├── STATE.md                   # 当前状态
+└── CONTROL_MATRIX.yaml        # 控制矩阵
+```

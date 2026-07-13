@@ -32,7 +32,7 @@ data:
     config:
       auto_create_database: false
       driver: postgres
-      dsn: "postgres://postgres:ChangeMe_PostgreSQL_123root@36.137.200.194:30080/aisphere_iam_test?sslmode=disable"
+      dsn: "postgres://postgres:ChangeMe_PostgreSQL_123root@36.137.200.194:30080/aisphere_iam?sslmode=disable"
       max_open_conns: 10
       max_idle_conns: 5
       conn_max_lifetime_ns: 1800000000000
@@ -49,7 +49,7 @@ data:
       dir: migrations
       table: iam_schema_migrations
       mode: apply
-      fail_on_pending: true
+      fail_on_pending: false
       allow_concurrent: false
   cache:
     enabled: false
