@@ -32,20 +32,40 @@ func TestCurrentPrincipalSubjectRejectsMissingPrincipal(t *testing.T) {
 	}
 }
 
-func TestSubjectFallbackDefaultsToKernelPrincipal(t *testing.T) {
+func TestProjectContextComesOnlyFromKernelPrincipal(t *testing.T) {
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{
+		SubjectID:   "user-1",
+		SubjectType: authn.SubjectTypeUser,
+		OrgID:       "casdoor-org-1",
+	})
+
+	orgID, projectActor, err := currentProjectContext(ctx)
+	if err != nil {
+		t.Fatalf("currentProjectContext returned error: %v", err)
+	}
+	if orgID != "casdoor-org-1" {
+		t.Fatalf("project context used unexpected organization: %q", orgID)
+	}
+	if projectActor.Type != authn.SubjectTypeUser || projectActor.ID != "user-1" {
+		t.Fatalf("project context used unexpected actor: %#v", projectActor)
+	}
+}
+
+func TestProjectContextRejectsPrincipalWithoutOrganization(t *testing.T) {
 	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{
 		SubjectID:   "user-1",
 		SubjectType: authn.SubjectTypeUser,
 	})
+	if _, _, err := currentProjectContext(ctx); err == nil {
+		t.Fatal("expected missing principal org_id error")
+	}
+}
 
-	projectActor, err := currentProjectSubject(ctx)
-	if err != nil {
-		t.Fatalf("currentProjectSubject returned error: %v", err)
-	}
-	projectOwner := projectSubjectOr(nil, projectActor)
-	if projectOwner.Type != authn.SubjectTypeUser || projectOwner.ID != "user-1" {
-		t.Fatalf("project fallback did not use actor: %#v", projectOwner)
-	}
+func TestResourceOwnerFallbackDefaultsToKernelPrincipal(t *testing.T) {
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{
+		SubjectID:   "user-1",
+		SubjectType: authn.SubjectTypeUser,
+	})
 
 	resourceActor, err := currentResourceSubject(ctx)
 	if err != nil {

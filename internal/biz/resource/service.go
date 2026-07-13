@@ -373,8 +373,12 @@ func (s *Service) requireResourceExists(ctx context.Context, ref ResourceRef) er
 	case "":
 		return errors.New("resource type is required")
 	case "organization":
-		_, err := s.repo.GetOrganization(ctx, ref.ID)
-		return err
+		return errors.New("resource type organization is removed; use zone")
+	case "zone", "group":
+		if strings.TrimSpace(ref.ID) == "" {
+			return errors.New("resource id is required")
+		}
+		return nil
 	case "project":
 		_, err := s.repo.GetProject(ctx, ref.ID)
 		return err

@@ -40,12 +40,6 @@ type Page[T any] struct {
 }
 
 type ControlPlaneRepository interface {
-	CreateOrganization(ctx context.Context, org *OrganizationModel, outbox ...*OutboxEventModel) error
-	UpsertOrganization(ctx context.Context, org *OrganizationModel) error
-	GetOrganization(ctx context.Context, id string) (*OrganizationModel, error)
-	ListOrganizations(ctx context.Context, opts ListOptions) (*Page[OrganizationModel], error)
-	ArchiveOrganization(ctx context.Context, id string) error
-
 	CreateProject(ctx context.Context, project *ProjectModel, outbox ...*OutboxEventModel) error
 	UpsertProject(ctx context.Context, project *ProjectModel) error
 	GetProject(ctx context.Context, id string) (*ProjectModel, error)
@@ -89,39 +83,6 @@ type DBControlPlaneRepository struct {
 
 func NewControlPlaneRepository(db dbx.DB) *DBControlPlaneRepository {
 	return &DBControlPlaneRepository{db: db}
-}
-
-func (r *DBControlPlaneRepository) CreateOrganization(ctx context.Context, org *OrganizationModel, outbox ...*OutboxEventModel) error {
-	return r.db.InTx(ctx, func(tx dbx.Tx) error {
-		if err := tx.Create(ctx, org); err != nil {
-			return err
-		}
-		return createOutbox(ctx, tx, outbox...)
-	})
-}
-
-func (r *DBControlPlaneRepository) UpsertOrganization(ctx context.Context, org *OrganizationModel) error {
-	return r.db.SafeUpsert(ctx, org, []string{"slug", "display_name", "status", "casdoor_org", "plan", "region", "metadata_json", "updated_at"})
-}
-
-func (r *DBControlPlaneRepository) GetOrganization(ctx context.Context, id string) (*OrganizationModel, error) {
-	var out OrganizationModel
-	if err := r.db.FindOne(ctx, &out, "id = ?", id); err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (r *DBControlPlaneRepository) ListOrganizations(ctx context.Context, opts ListOptions) (*Page[OrganizationModel], error) {
-	var out []OrganizationModel
-	query, args := whereBuilder().eq("status", opts.Status).likeAny([]string{"slug", "display_name"}, opts.Q).build()
-	res, err := r.db.Paginate(ctx, &out, &OrganizationModel{}, query, args, opts.Page, opts.Size)
-	return pageFrom(out, res, err)
-}
-
-func (r *DBControlPlaneRepository) ArchiveOrganization(ctx context.Context, id string) error {
-	now := time.Now().UTC()
-	return r.db.Update(ctx, &OrganizationModel{}, "id = ?", []any{id}, map[string]any{"status": StatusArchived, "updated_at": now})
 }
 
 func (r *DBControlPlaneRepository) CreateProject(ctx context.Context, project *ProjectModel, outbox ...*OutboxEventModel) error {

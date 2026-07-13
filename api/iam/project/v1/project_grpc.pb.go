@@ -19,11 +19,6 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectService_CreateOrganization_FullMethodName       = "/iam.project.v1.ProjectService/CreateOrganization"
-	ProjectService_GetOrganization_FullMethodName          = "/iam.project.v1.ProjectService/GetOrganization"
-	ProjectService_ListOrganizations_FullMethodName        = "/iam.project.v1.ProjectService/ListOrganizations"
-	ProjectService_UpdateOrganization_FullMethodName       = "/iam.project.v1.ProjectService/UpdateOrganization"
-	ProjectService_ArchiveOrganization_FullMethodName      = "/iam.project.v1.ProjectService/ArchiveOrganization"
 	ProjectService_CreateProject_FullMethodName            = "/iam.project.v1.ProjectService/CreateProject"
 	ProjectService_GetProject_FullMethodName               = "/iam.project.v1.ProjectService/GetProject"
 	ProjectService_ListProjects_FullMethodName             = "/iam.project.v1.ProjectService/ListProjects"
@@ -40,15 +35,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// ProjectService manages Aisphere business organizations, projects/workspaces
-// and capability switches. Casdoor organizations remain identity-side
-// projections and are referenced by casdoor_org.
+// ProjectService manages projects/workspaces and capability switches.
+// Casdoor Organization is the single identity-domain root; IAM never creates
+// a second Organization. Every project is scoped to Principal.org_id.
 type ProjectServiceClient interface {
-	CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
-	GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
-	ListOrganizations(ctx context.Context, in *ListOrganizationsRequest, opts ...grpc.CallOption) (*ListOrganizationsReply, error)
-	UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
-	ArchiveOrganization(ctx context.Context, in *ArchiveOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*Project, error)
 	GetProject(ctx context.Context, in *GetProjectRequest, opts ...grpc.CallOption) (*Project, error)
 	ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...grpc.CallOption) (*ListProjectsReply, error)
@@ -67,56 +57,6 @@ type projectServiceClient struct {
 
 func NewProjectServiceClient(cc grpc.ClientConnInterface) ProjectServiceClient {
 	return &projectServiceClient{cc}
-}
-
-func (c *projectServiceClient) CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Organization)
-	err := c.cc.Invoke(ctx, ProjectService_CreateOrganization_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *projectServiceClient) GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*Organization, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Organization)
-	err := c.cc.Invoke(ctx, ProjectService_GetOrganization_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *projectServiceClient) ListOrganizations(ctx context.Context, in *ListOrganizationsRequest, opts ...grpc.CallOption) (*ListOrganizationsReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListOrganizationsReply)
-	err := c.cc.Invoke(ctx, ProjectService_ListOrganizations_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *projectServiceClient) UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Organization)
-	err := c.cc.Invoke(ctx, ProjectService_UpdateOrganization_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *projectServiceClient) ArchiveOrganization(ctx context.Context, in *ArchiveOrganizationRequest, opts ...grpc.CallOption) (*Organization, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Organization)
-	err := c.cc.Invoke(ctx, ProjectService_ArchiveOrganization_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *projectServiceClient) CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*Project, error) {
@@ -223,15 +163,10 @@ func (c *projectServiceClient) ListProjectCapabilities(ctx context.Context, in *
 // All implementations must embed UnimplementedProjectServiceServer
 // for forward compatibility.
 //
-// ProjectService manages Aisphere business organizations, projects/workspaces
-// and capability switches. Casdoor organizations remain identity-side
-// projections and are referenced by casdoor_org.
+// ProjectService manages projects/workspaces and capability switches.
+// Casdoor Organization is the single identity-domain root; IAM never creates
+// a second Organization. Every project is scoped to Principal.org_id.
 type ProjectServiceServer interface {
-	CreateOrganization(context.Context, *CreateOrganizationRequest) (*Organization, error)
-	GetOrganization(context.Context, *GetOrganizationRequest) (*Organization, error)
-	ListOrganizations(context.Context, *ListOrganizationsRequest) (*ListOrganizationsReply, error)
-	UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*Organization, error)
-	ArchiveOrganization(context.Context, *ArchiveOrganizationRequest) (*Organization, error)
 	CreateProject(context.Context, *CreateProjectRequest) (*Project, error)
 	GetProject(context.Context, *GetProjectRequest) (*Project, error)
 	ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsReply, error)
@@ -252,21 +187,6 @@ type ProjectServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedProjectServiceServer struct{}
 
-func (UnimplementedProjectServiceServer) CreateOrganization(context.Context, *CreateOrganizationRequest) (*Organization, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateOrganization not implemented")
-}
-func (UnimplementedProjectServiceServer) GetOrganization(context.Context, *GetOrganizationRequest) (*Organization, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOrganization not implemented")
-}
-func (UnimplementedProjectServiceServer) ListOrganizations(context.Context, *ListOrganizationsRequest) (*ListOrganizationsReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListOrganizations not implemented")
-}
-func (UnimplementedProjectServiceServer) UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*Organization, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrganization not implemented")
-}
-func (UnimplementedProjectServiceServer) ArchiveOrganization(context.Context, *ArchiveOrganizationRequest) (*Organization, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ArchiveOrganization not implemented")
-}
 func (UnimplementedProjectServiceServer) CreateProject(context.Context, *CreateProjectRequest) (*Project, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateProject not implemented")
 }
@@ -316,96 +236,6 @@ func RegisterProjectServiceServer(s grpc.ServiceRegistrar, srv ProjectServiceSer
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ProjectService_ServiceDesc, srv)
-}
-
-func _ProjectService_CreateOrganization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateOrganizationRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProjectServiceServer).CreateOrganization(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProjectService_CreateOrganization_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProjectServiceServer).CreateOrganization(ctx, req.(*CreateOrganizationRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ProjectService_GetOrganization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetOrganizationRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProjectServiceServer).GetOrganization(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProjectService_GetOrganization_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProjectServiceServer).GetOrganization(ctx, req.(*GetOrganizationRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ProjectService_ListOrganizations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListOrganizationsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProjectServiceServer).ListOrganizations(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProjectService_ListOrganizations_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProjectServiceServer).ListOrganizations(ctx, req.(*ListOrganizationsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ProjectService_UpdateOrganization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateOrganizationRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProjectServiceServer).UpdateOrganization(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProjectService_UpdateOrganization_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProjectServiceServer).UpdateOrganization(ctx, req.(*UpdateOrganizationRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ProjectService_ArchiveOrganization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ArchiveOrganizationRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProjectServiceServer).ArchiveOrganization(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProjectService_ArchiveOrganization_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProjectServiceServer).ArchiveOrganization(ctx, req.(*ArchiveOrganizationRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _ProjectService_CreateProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -595,26 +425,6 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "iam.project.v1.ProjectService",
 	HandlerType: (*ProjectServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateOrganization",
-			Handler:    _ProjectService_CreateOrganization_Handler,
-		},
-		{
-			MethodName: "GetOrganization",
-			Handler:    _ProjectService_GetOrganization_Handler,
-		},
-		{
-			MethodName: "ListOrganizations",
-			Handler:    _ProjectService_ListOrganizations_Handler,
-		},
-		{
-			MethodName: "UpdateOrganization",
-			Handler:    _ProjectService_UpdateOrganization_Handler,
-		},
-		{
-			MethodName: "ArchiveOrganization",
-			Handler:    _ProjectService_ArchiveOrganization_Handler,
-		},
 		{
 			MethodName: "CreateProject",
 			Handler:    _ProjectService_CreateProject_Handler,
