@@ -147,7 +147,7 @@ control_plane:
 
 audit:
   enabled: true
-  store: memory
+  store: postgres
 
 metrics:
   enabled: true
