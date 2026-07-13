@@ -12,7 +12,7 @@
 | Phase | Status | Notes |
 |-------|--------|-------|
 | 01-Specify | ✅ COMPLETE | 63 REQs approved with P0/P1/P2; Gate 0 + Gate 1 passed |
-| 02-Constrain | ⏳ PENDING | Ready to start — use logic-gatekeeper |
+| 02-Constrain | ✅ COMPLETE | logic-gatekeeper validation: PASS_WITH_FINDINGS — 9 ambiguous terms, 5 missing metrics, 7 missing edge cases |
 | 03-Orchestrate | ⏳ PENDING | All unimplemented RPCs already built during C1 |
 | 04-Prove | ⏳ PENDING | Integration test suite needed |
 | 05-Evolve | ⏳ PENDING | Decision log maintained |

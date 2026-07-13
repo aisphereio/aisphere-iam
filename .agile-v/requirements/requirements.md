@@ -51,8 +51,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHN-001 — Return the authenticated current Principal
 - **Priority:** P0
-
-- **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** `GetMe` shall return the normalized authenticated Principal restored by Kernel middleware from request Context.
 - **Constraint:** IAM business code shall not reconstruct the current Principal from ordinary request headers or request-body identity fields.
@@ -64,8 +62,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHN-002 — Verify a token only for trusted platform services
 - **Priority:** P0
-
-- **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall expose token verification only as an INTERNAL platform-service operation and delegate verification to the configured token provider.
 - **Constraint:** IAM shall return a dependency/backend failure when the token provider is unavailable and shall not fabricate a Principal.
@@ -74,8 +70,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHN-003 — Derive actors from Kernel Context
 - **Priority:** P0
-
-- **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** every control-plane mutation shall derive `created_by`, `actor` and default owner from the authenticated Kernel Principal.
 - **Constraint:** a client-provided actor or owner shall not override the authenticated caller unless an explicitly approved delegated-administration requirement exists.
@@ -83,8 +77,6 @@ Evidence qualifiers:
 - **Done criteria:** all mutation services use one shared Principal extraction contract and have negative tests.
 
 ## REQ-IAM-AUTHN-004 — Keep browser authentication outside IAM
-- **Priority:** P0
-
 - **Priority:** P0
 - **Status:** `ARCHITECTURE_REQUIRED`
 - **Requirement:** Envoy Gateway shall remain the external OIDC/JWT authentication boundary; IAM shall not own browser Session, authorization-code callback state or refresh-token lifecycle.
@@ -98,16 +90,12 @@ Evidence qualifiers:
 
 ## REQ-IAM-DIR-001 — Read a User only with Zone permission
 - **Priority:** P0
-
-- **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** reading a User from an Organization shall require `zone:<org_id>#view_users` for the current Principal before calling the identity provider.
 - **Verification criteria:** allowed, denied, missing Principal and SpiceDB unavailable scenarios are tested.
 - **Done criteria:** Casdoor + SpiceDB integration tests pass and denial is fail-closed.
 
 ## REQ-IAM-DIR-002 — List Users only with Zone permission
-- **Priority:** P0
-
 - **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** listing Users shall require `zone:<org_id>#view_users` and shall pass supported filters to the identity provider.
@@ -116,7 +104,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-DIR-003 — Read Casdoor Organization metadata as the identity-domain root
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall expose read-only metadata for the selected Casdoor Organization after `zone:<org_id>#view_zone` authorization.
 - **Constraint:** this operation shall not imply that IAM owns a second Organization lifecycle.
@@ -125,7 +112,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-DIR-004 — List Groups only with Zone permission
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** listing the multi-level Group tree shall require `zone:<org_id>#view_groups` and support parent/type/user filtering.
 - **Verification criteria:** root, child, user-membership and unauthorized listing scenarios pass.
@@ -133,7 +119,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-DIR-005 — Manage Groups through one canonical API
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall provide one canonical contract for creating, updating and deleting Casdoor-backed Groups.
 - **Constraint:** the contract shall define Organization-qualified Group identifiers, parent semantics, recursive deletion behavior, idempotency and required permissions.
@@ -143,7 +128,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-DIR-006 — Assign and remove User membership
 - **Priority:** P0
-
 - **Status:** `PARTIAL_IMPLEMENTATION`, `UNIT_EVIDENCE`
 - **Requirement:** an authorized caller shall be able to assign a User to a Group and remove that membership through IAM, without the frontend calling Casdoor directly.
 - **Constraint:** the Group and User must belong to the selected Casdoor Organization; projection to SpiceDB must use the stable User subject identifier.
@@ -152,7 +136,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-DIR-007 — Enforce identity-provider mode boundaries
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** in `casdoor_local` mode IAM may perform configured identity-provider writes; in `external_oidc` mode IAM shall reject upstream User/Organization mutation while preserving approved Aisphere Group and membership operations.
 - **Verification criteria:** every write method is tested in both modes; rejected calls do not reach the upstream provider.
@@ -164,7 +147,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJ-001 — Project Group identity with Organization qualification
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** a Casdoor Group shall be projected as `group:<org_id>/<group_id>` and linked to `zone:<org_id>`.
 - **Verification criteria:** collisions between identical Group IDs in different Organizations cannot occur.
@@ -172,7 +154,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJ-002 — Project the multi-level Group parent relation
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** a child Group shall have a `parent` relationship to its Organization-qualified parent Group.
 - **Verification criteria:** create, move/update, recursive delete and orphan-parent scenarios are covered.
@@ -180,7 +161,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJ-003 — Project User membership as `group#member`
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** User membership shall be projected as `group:<qualified-id>#member@user:<stable-user-id>`.
 - **Verification criteria:** assign and remove operations change effective authorization as expected.
@@ -188,7 +168,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJ-004 — Persist projection work and state
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** when a projection store is configured, IAM shall persist a projection event containing aggregate identity, operation, payload, status, retry count, error and next-run time.
 - **Verification criteria:** pending, submitted, projecting, synced, failed and archived transitions are tested.
@@ -196,7 +175,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJ-005 — Retry failed or pending projection work
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall retry eligible pending, submitted or failed projection events with bounded batch size and observable failure state.
 - **Constraint:** retries must be idempotent and safe under multiple IAM replicas.
@@ -205,7 +183,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJ-006 — Support DTM apply and compensation
 - **Priority:** P1
-
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** when DTM is enabled, IAM shall submit projection work as a Saga with explicit apply and compensate branches and preserve the event state.
 - **Verification criteria:** apply success, apply failure, compensation success, compensation failure and DTM unavailable cases are covered.
@@ -213,7 +190,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJ-007 — Detect and repair directory projection drift
 - **Priority:** P1
-
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** authorized administrators shall be able to detect missing desired relationships, reconcile a selected Organization and retry failed projection events.
 - **Verification criteria:** drift output is deterministic; repair is idempotent; unexpected extra relationships have an explicit policy.
@@ -225,7 +201,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-RT-001 — Check one permission
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** a trusted platform service shall be able to check a subject, resource and permission and receive allow/deny effect, reason and consistency token.
 - **Verification criteria:** direct, inherited, Group-derived, public/read-only, denied and dependency-error decisions are covered.
@@ -233,7 +208,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-RT-002 — Batch permission checks
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** a trusted service shall be able to submit one or more permission checks and receive decisions in the same order.
 - **Verification criteria:** empty input is rejected; mixed allow/deny and partial backend failure semantics are defined and tested.
@@ -241,7 +215,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-RT-003 — Write relationship projections in batches
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** trusted backend services shall be able to write one or more approved authorization relationships through the INTERNAL IAM runtime API.
 - **Constraint:** schema administration is not part of the runtime client.
@@ -250,7 +223,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-RT-004 — Delete relationship projections by filter
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** trusted backend services shall be able to delete projected relationships by an explicit filter and receive count and consistency evidence.
 - **Constraint:** broad filters require an approved safety rule to prevent accidental global deletion.
@@ -259,7 +231,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-RT-005 — Read relationships for trusted services
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** trusted services shall be able to read relationships using resource and subject filters.
 - **Verification criteria:** all filters, empty result and pagination/limit policy are covered.
@@ -267,7 +238,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-RT-006 — Lookup accessible resources
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall return resources of a requested type for which a subject has a requested permission, with cursor and consistency token support.
 - **Verification criteria:** direct, inherited, Group and no-access cases are tested.
@@ -275,7 +245,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-RT-007 — Lookup authorized subjects
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall return subjects of a requested type that have a requested permission on a resource, with cursor and consistency support.
 - **Verification criteria:** User, Group memberset and service subjects are covered.
@@ -283,7 +252,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-RT-008 — Propagate trusted user or service identity over gRPC
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** the IAM runtime client shall propagate the current Kernel Principal; background work shall use an explicitly supplied service Principal.
 - **Constraint:** unauthenticated callers must not be silently promoted to a privileged identity.
@@ -296,7 +264,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-ADMIN-001 — Read the active authorization schema
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** only a Principal with `iam_authz:global#view_schema` shall read the current schema text and version.
 - **Verification criteria:** allowed, denied and provider-unavailable cases are tested.
@@ -304,7 +271,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-ADMIN-002 — Validate and publish a schema
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** only a Principal with `iam_authz:global#publish_schema` shall validate or publish non-empty schema text.
 - **Constraint:** publishing is a critical operation and must be auditable and protected from incompatible schema changes.
@@ -313,7 +279,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-ADMIN-003 — Inspect and repair relationships
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** relationship inspection shall require `view_relationships`; administrative write/delete shall require `repair_relationships`.
 - **Verification criteria:** invalid tuples and overly broad deletion filters are rejected.
@@ -321,7 +286,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-ADMIN-004 — Diagnose authorization decisions
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized administrator shall be able to check, explain and enumerate selected effective permissions for a subject/resource pair.
 - **Constraint:** explanation shall not claim a graph path that the provider did not return; current implementation only provides a summarized diagnostic sequence.
@@ -330,7 +294,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-AUTHZ-ADMIN-005 — Audit all administrative authorization changes
 - **Priority:** P1
-
 - **Status:** `CONTRACT_ONLY`
 - **Requirement:** schema publication, relationship repair/delete and projection repair shall produce durable audit records with actor, target, reason, request ID, trace ID, decision ID and outcome.
 - **Verification criteria:** audit records are queryable and correlated to HTTP/gRPC requests.
@@ -342,7 +305,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJECT-001 — Use Casdoor Organization as the single root
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** IAM shall map one Casdoor Organization to one read-only `zone` root and shall not maintain a second Platform Organization entity.
 - **Implementation:** PR #40 (`0425275`) removed legacy Organization CRUD from proto, deleted `internal/biz/project/service.go`, cleaned up data layer. Grant/Resource services reject `organization` type.
@@ -351,7 +313,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJECT-002 — Derive Project Zone from the authenticated Principal
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** `CreateProject` shall derive the Project `org_id`/Zone from `Principal.org_id`; request bodies and paths shall not override the identity domain.
 - **Implementation:** `internal/service/control_plane.go::currentProjectContext` extracts org_id from `authn.Principal.OrgID`; `CreateProjectRequest.ZoneID` is set by the service, not the request.
@@ -360,7 +321,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJECT-003 — Make the creator the Project owner
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
 - **Requirement:** Project creation shall atomically persist the Project fact and project `project:<id>#owner@<creator>`.
 - **Constraint:** an owner shall not nominate another owner during creation.
@@ -370,7 +330,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJECT-004 — Read and list Projects within the current Zone
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** Project reads and lists shall be authorization-aware and default to the authenticated Principal's Zone.
 - **Constraint:** a list filter shall not expose another Zone without an explicit cross-domain administrative requirement.
@@ -380,7 +339,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJECT-005 — Update a Project
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized Project manager shall be able to update approved mutable Project fields.
 - **Implementation:** `internal/service/control_plane.go::UpdateProject` uses `UpsertProject` to update display_name, description, visibility, labels, annotations. Zone permission checked via `currentProjectContext`.
@@ -389,7 +347,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJECT-006 — Archive a Project
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized manager shall archive a Project without silently deleting its audit/control-plane history.
 - **Implementation:** `internal/service/control_plane.go::ArchiveProject` sets status to ARCHIVED via `ArchiveProject` in repository. Zone permission checked via `currentProjectContext`.
@@ -398,7 +355,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJECT-007 — Register and list Capabilities
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall register Capability metadata and list Capabilities by supported status filters.
 - **Verification criteria:** duplicate ID/name, invalid owner service and schema validation are tested.
@@ -406,7 +362,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-PROJECT-008 — Enable, disable and list Project Capabilities
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized Project manager shall enable or disable a registered Capability with config/quota and list the resulting Project Capability state.
 - **Verification criteria:** unknown Capability, invalid config, repeated enable/disable and archived Project scenarios are covered.
@@ -418,7 +373,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-RESOURCE-001 — Register and discover Resource Types
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall register, get and list Resource Types including capability ownership, parent types, grantability, auditability, SpiceDB type, relations and permissions.
 - **Verification criteria:** invalid relation/permission names, incompatible parent type and duplicate type are rejected.
@@ -426,7 +380,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-RESOURCE-002 — Upsert and read a Resource
 - **Priority:** P0
-
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** an authorized service shall upsert a Resource fact and retrieve it by typed reference.
 - **Constraint:** actor/default owner come from Kernel Context; Organization/Project scope must be validated rather than trusted from input.
@@ -435,7 +388,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-RESOURCE-003 — List Resources with scoped filters
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall list Resources using approved type, Zone, Project, status and pagination filters.
 - **Constraint:** results must be authorization-scoped, not only database-filtered.
@@ -444,7 +396,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-RESOURCE-004 — Archive a Resource
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall archive a Resource and return its updated state.
 - **Verification criteria:** already archived, missing, dependent-child and authorization cases are tested.
@@ -452,7 +403,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-RESOURCE-005 — Move and delete a Resource
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** approved Resource types may support move and delete under explicit lifecycle and dependency rules.
 - **Implementation:** `MoveResource` updates parent relationship via `UpsertResource`. `DeleteResource` sets status=DELETED via `DeleteResource` in repository.
@@ -461,7 +411,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-RESOURCE-006 — Unbind and unbind internal Resources
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall create, list and remove typed Resource bindings.
 - **Implementation:** `UnbindResource` deletes the binding record via `UnbindResource` in repository. Bind and list were already implemented.
@@ -470,7 +419,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-RESOURCE-007 — Bind and list external Resources
 - **Priority:** P0
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall bind an internal Resource to an external provider identity/path/URL and list those bindings.
 - **Implementation:** `ListExternalResourceBindings` queries external bindings by resource, provider, and sync status. Bind was already implemented.
@@ -483,7 +431,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-GRANT-001 — Register and list Role Templates
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall register and list Role Templates that map a product-facing role key to a SpiceDB relation for a Resource Type.
 - **Verification criteria:** unknown Resource Type, unknown relation, duplicate role and disabled role are tested.
@@ -491,7 +438,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-GRANT-002 — Grant access as a high-level control-plane operation
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized actor shall grant a Role Template to a User, Group memberset or Service on a Resource; IAM shall persist the Grant fact and write the corresponding relationship.
 - **Constraint:** ordinary product users shall not construct arbitrary tuples or raw relation keys.
@@ -500,7 +446,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-GRANT-003 — Revoke access and remove its projection
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** an authorized actor shall revoke an active Grant, record actor/reason/time and remove the graph relationship.
 - **Verification criteria:** repeated revoke, missing Grant, projection failure and partial-state recovery are tested.
@@ -508,7 +453,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-GRANT-004 — List Grants
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall list Grants by Resource and/or Subject with stable pagination.
 - **Verification criteria:** active, expired, revoked and no-filter safety behavior are defined.
@@ -516,7 +460,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-GRANT-005 — Explain effective access
 - **Priority:** P1
-
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall explain whether a Subject has a requested permission on a Resource using the authorization provider decision.
 - **Constraint:** the response must distinguish a current decision from a complete historical grant explanation.
@@ -525,7 +468,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-GRANT-006 — Enforce Grant expiry
 - **Priority:** P1
-
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** a Grant with `expires_at` shall cease to provide effective access at the defined time and shall have an observable lifecycle state.
 - **Current evidence:** expiry is represented in the model/API, but Cycle C1 has not found execution evidence that removes or excludes the relationship.
@@ -538,7 +480,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-ENG-001 — Use Proto as the API source of truth
 - **Priority:** P2
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `CI_EVIDENCE`
 - **Requirement:** supported HTTP/gRPC routes, validation metadata, access policy, audit metadata, Kernel registration and Gateway manifests shall be generated from Proto contracts.
 - **Constraint:** hand-written product routes require an explicit exception and equivalent policy/audit coverage.
@@ -547,7 +488,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-ENG-002 — Keep Kernel runtime and generators aligned
 - **Priority:** P2
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `CI_EVIDENCE`
 - **Requirement:** the Kernel runtime module and all Kernel code generators shall use the same released version.
 - **Verification criteria:** CI fails on mismatch.
@@ -555,7 +495,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-ENG-003 — Enforce API and authorization contract checks
 - **Priority:** P2
-
 - **Status:** `OBSERVED_IMPLEMENTED`, `CI_EVIDENCE`
 - **Requirement:** every change to Proto or authorization contracts shall pass Buf lint/build and Aisphere contract checks before merge.
 - **Verification criteria:** intentionally invalid exposure, missing reason, invalid policy or schema/root-model change causes a failing test/check.
@@ -563,7 +502,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-ENG-004 — Fail closed on identity or authorization dependency failure
 - **Priority:** P2
-
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** missing/unavailable identity or authorization providers shall never result in an allow decision or fabricated identity.
 - **Verification criteria:** timeout, unavailable, malformed response and partial outage cases are tested at HTTP and gRPC boundaries.
@@ -571,7 +509,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-ENG-005 — Return stable error classes
 - **Priority:** P2
-
 - **Status:** `ARCHITECTURE_REQUIRED`
 - **Requirement:** APIs shall distinguish invalid input, unauthenticated, permission denied, not found, conflict, dependency failure and projection failure consistently over HTTP and gRPC.
 - **Verification criteria:** a cross-service error matrix proves status/code/body consistency.
@@ -579,7 +516,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-ENG-006 — Produce durable audit evidence
 - **Priority:** P2
-
 - **Status:** `CONTRACT_ONLY`
 - **Requirement:** operations marked for audit shall produce durable records containing actor, action, target, risk, outcome and correlation identifiers.
 - **Verification criteria:** successful and failed critical operations are queryable.
@@ -587,7 +523,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-ENG-007 — Expose health, metrics, logs and traces
 - **Priority:** P2
-
 - **Status:** `PARTIAL_IMPLEMENTATION`
 - **Requirement:** IAM shall expose readiness/health, Prometheus metrics, structured logs and tracing sufficient to diagnose Casdoor, PostgreSQL, SpiceDB and projection failures.
 - **Verification criteria:** dependency failure changes readiness/metrics according to the approved policy and preserves request/trace/decision correlation.
@@ -595,7 +530,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-ENG-008 — Require evidence before release
 - **Priority:** P2
-
 - **Status:** `ARCHITECTURE_REQUIRED`
 - **Requirement:** an IAM release shall not be marked ready solely because generation, unit tests and compilation pass.
 - **Required evidence:**
@@ -617,7 +551,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-DEPRECATED-001 — Remove the second Platform Organization control plane
 - **Priority:** P0
-
 - **Status:** `DEPRECATED`
 - **Behavior to remove:** Organization CRUD/archive under `ProjectService`, Organization persistence/repository state and `organization:*` authorization resources.
 - **Reason:** conflicts with the accepted single-root architecture.
@@ -625,7 +558,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-DECISION-001 — Decide the singular relationship mutation surface
 - **Priority:** P0
-
 - **Status:** `DECIDED`
 - **Decision:** `WriteRelationship` and `DeleteRelationship` changed from `AUTHORIZED` to `INTERNAL`. GrantAccess/RevokeAccess remain the only product-facing access control operations.
 - **Implementation:** `api/iam/v1/iam.proto` exposure changed; `reason` field added explaining restriction.
@@ -634,7 +566,6 @@ Evidence qualifiers:
 
 ## REQ-IAM-DECISION-002 — Decide the canonical Group mutation surface
 - **Priority:** P0
-
 - **Status:** `DECIDED`
 - **Decision:** Group writes consolidated into `IAMGroupAdminService` (`api/iam/v1/group_admin.proto`). Routes: `/v1/iam/groups/...`. Permissions: `zone:*` for create, `group:*` for manage. Group writes removed from `IAMDirectoryService` and `IAMIdentityAdminService`.
 - **Implementation:** `internal/service/group_admin.go` created; `internal/server/modules.go` and `wiring.go` updated; `internal/server/access.go` `isManualGroupManagementOperation` hack removed.
