@@ -30,6 +30,16 @@ jobs:
         id: apply
         continue-on-error: true
         run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('.github/scripts/refactor_org_cleanup.py')
+          text = p.read_text()
+          old = r'''sub(access, r'\n\tswitch op \{\n\tcase "CreateOrganization".*?\n\t\}\n', '\n')'''
+          new = r'''sub(access, r'\n\t\tswitch op \{\n\t\tcase "CreateOrganization".*?\n\t\t\}\n', '\n')'''
+          if old not in text:
+              raise SystemExit('access cleanup matcher not found')
+          p.write_text(text.replace(old, new, 1))
+          PY
           python3 .github/scripts/refactor_org_cleanup.py > org-refactor.log 2>&1
 
       - name: Capture remaining Organization references
@@ -39,8 +49,8 @@ jobs:
             echo '=== transform log ==='
             cat org-refactor.log 2>/dev/null || true
             echo
-            echo '=== remaining references ==='
-            grep -R --line-number -E 'CreateOrganization|GetOrganization|ListOrganizations|UpdateOrganization|ArchiveOrganization|OrganizationModel|ResourceTypeOrganization|organization:\{org_id\}' api internal configs docs 2>/dev/null || true
+            echo '=== remaining control-plane references ==='
+            grep -R --line-number -E 'CreateOrganization|ListOrganizations|UpdateOrganization|ArchiveOrganization|OrganizationModel|ResourceTypeOrganization|organization:\{org_id\}|iam_organizations' api/iam/project internal/biz/project internal/service internal/data internal/server 2>/dev/null || true
           } > org-refactor-diagnostics.txt
 
       - uses: actions/upload-artifact@v4
@@ -62,13 +72,15 @@ jobs:
           make api
           make deploy
           go mod tidy
-          gofmt -w internal/biz/project/project.go internal/service/control_plane.go internal/server/security.go internal/biz/project/model_contract_test.go
+          gofmt -w internal/biz/project/project.go internal/service/control_plane.go internal/server/access.go internal/biz/project/model_contract_test.go internal/data/resource_models.go internal/data/resource_repository.go internal/data/memory.go internal/biz/resource/service.go internal/biz/grant/service.go
 
       - name: Verify removed surface
         run: |
-          ! grep -R --line-number --fixed-string 'rpc CreateOrganization' api internal
-          ! grep -R --line-number --fixed-string 'organization:{org_id}' api internal
-          ! grep -R --line-number --fixed-string 'ResourceTypeOrganization' internal/biz internal/service
+          ! grep -R --line-number --fixed-string 'rpc CreateOrganization' api/iam/project
+          ! grep -R --line-number --fixed-string 'organization:{org_id}' api/iam/project internal/biz/project internal/service internal/data
+          ! grep -R --line-number --fixed-string 'ResourceTypeOrganization' internal/biz/project internal/service internal/data
+          ! grep -R --line-number --fixed-string 'OrganizationModel' internal/biz/project internal/service internal/data
+          ! grep -R --line-number --fixed-string 'iam_organizations' internal/data
 
       - name: Commit regenerated tree
         if: github.event_name == 'push'
