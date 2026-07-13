@@ -3,7 +3,7 @@ BUF ?= buf
 KUBECTL ?= kubectl
 
 KERNEL_MODULE ?= github.com/aisphereio/kernel
-KERNEL_VERSION ?= v0.4.2
+KERNEL_VERSION ?= v0.4.3
 KERNEL_LOCAL ?= ../kernel
 
 APP_NAME ?= aisphere-iam
@@ -190,19 +190,14 @@ tidy:
 	$(GO) mod tidy
 
 test:
-	$(GO) test ./...
+	$(GO) test ./... -coverprofile=$(COVERPROFILE)
 
 build:
-ifeq ($(OS),Windows_NT)
-	@cmd /c "if not exist bin mkdir bin"
-	$(GO) build -ldflags "-X main.Name=$(APP_NAME) -X main.Version=$(VERSION)" -o bin\$(APP_NAME).exe $(APP_CMD)
-else
-	@mkdir -p bin
-	$(GO) build -ldflags "-X main.Name=$(APP_NAME) -X main.Version=$(VERSION)" -o bin/$(APP_NAME) $(APP_CMD)
-endif
+	@mkdir -p $(BIN_DIR)
+	$(GO) build -trimpath -ldflags "-s -w -X main.Name=$(APP_NAME) -X main.Version=$(VERSION)" -o $(BIN_DIR)/$(APP_NAME) $(APP_CMD)
 
 docker:
-	docker build --build-arg VERSION=$(VERSION) -t $(APP_NAME):$(VERSION) -t $(APP_NAME):latest .
+	docker build --build-arg VERSION=$(VERSION) -t $(APP_NAME):$(VERSION) .
 
 run:
 	$(GO) run $(APP_CMD) $(RUN_ARGS)
@@ -213,11 +208,8 @@ clean:
 ifeq ($(OS),Windows_NT)
 	@cmd /c "if exist .bin rmdir /s /q .bin"
 	@cmd /c "if exist bin rmdir /s /q bin"
-	@cmd /c "if exist $(COVERPROFILE) del /f /q $(COVERPROFILE)"
-	@cmd /c "if exist coverage.html del /f /q coverage.html"
+	@cmd /c "if exist $(GENERATED_DEPLOY_DIR) rmdir /s /q $(GENERATED_DEPLOY_DIR)"
+	@cmd /c "if exist $(COVERPROFILE) del /q $(COVERPROFILE)"
 else
-	rm -rf $(LOCAL_BIN)
-	rm -rf $(BIN_DIR)
-	rm -rf $(GENERATED_DEPLOY_DIR)
-	rm -f $(COVERPROFILE) coverage.html
+	rm -rf $(LOCAL_BIN) $(BIN_DIR) $(GENERATED_DEPLOY_DIR) $(COVERPROFILE)
 endif
