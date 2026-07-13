@@ -16,6 +16,16 @@ spec:
       labels:
         app: aisphere-iam
         service: iam
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "aisphere-iam"
+        dapr.io/app-port: "19081"
+        dapr.io/app-protocol: "grpc"
+        dapr.io/log-as-json: "true"
+        dapr.io/enable-app-health-check: "true"
+        dapr.io/app-health-check-path: "/healthz"
+        dapr.io/app-health-probe-interval: "5"
+        dapr.io/app-health-threshold: "2"
     spec:
       serviceAccountName: aisphere-iam
       imagePullSecrets:
@@ -48,6 +58,8 @@ spec:
               name: http
             - containerPort: 19080
               name: grpc
+            - containerPort: 19081
+              name: dapr-callback
             - containerPort: 19180
               name: metrics
           env:

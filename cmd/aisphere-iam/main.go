@@ -118,9 +118,10 @@ httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metric
 			panic(err)
 		}
 
-		// Schedule the job after the app starts, so Dapr sidecar is fully ready.
-		// The Schedule call connects to the Dapr sidecar gRPC endpoint, which
-		// may not be available until the sidecar has finished initializing.
+		// Schedule the job after the app starts, with exponential backoff retry.
+		// The ScheduleJobAlpha1 call connects to the Dapr sidecar gRPC endpoint,
+		// which may not be available until the sidecar has fully initialized and
+		// connected to the Scheduler control plane.
 		maxRetries := uint32(5)
 		jobSpec := taskx.ManagedJob{
 			Name:      "grant-expiration-reconciler",
@@ -134,22 +135,9 @@ httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metric
 				Interval:   5 * time.Second,
 			},
 		}
-		// Use kernel.AfterStart to schedule the job after all servers (including
-		// the Dapr callback server on :19081) are running. This ensures the Dapr
-		// sidecar has completed its initialization and is ready to accept gRPC
-		// calls from the application.
-		scheduleOnce := sync.Once{}
 		afterStart := func(ctx context.Context) error {
-			var scheduleErr error
-			scheduleOnce.Do(func() {
-				if err := taskRuntime.Schedule(ctx, jobSpec); err != nil {
-					logger.Error("failed to schedule grant expiration job", logx.Any("error", err))
-					scheduleErr = err
-				} else {
-					logger.Info("grant expiration reconciler scheduled")
-				}
-			})
-			return scheduleErr
+			go ensureGrantExpirationJob(ctx, taskRuntime, jobSpec, logger)
+			return nil
 		}
 
 		options := []kernel.Option{
@@ -209,6 +197,47 @@ func newDTMManager(bc conf.Bootstrap, logger logx.Logger, metrics metricsx.Manag
 	cfg.Metrics = metrics
 	cfg.MetricsEnabled = cfg.MetricsEnabled && bc.Metrics.Enabled
 	return dtmx.New(cfg)
+}
+
+// ensureGrantExpirationJob retries ScheduleJobAlpha1 with exponential backoff
+// until success or context cancellation. This handles the case where the Dapr
+// sidecar or Scheduler is not yet ready during initial boot.
+func ensureGrantExpirationJob(ctx context.Context, runtime *taskxdapr.Runtime, spec taskx.ManagedJob, logger logx.Logger) {
+	backoff := time.Second
+	const maxBackoff = 30 * time.Second
+
+	for attempt := 1; ; attempt++ {
+		callCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		err := runtime.Schedule(callCtx, spec)
+		cancel()
+
+		if err == nil {
+			logger.Info("grant expiration reconciler scheduled",
+				logx.Int("attempt", attempt),
+			)
+			return
+		}
+
+		logger.Warn("failed to schedule grant expiration reconciler; retrying",
+			logx.Int("attempt", attempt),
+			logx.Duration("retry_after", backoff),
+			logx.Any("error", err),
+		)
+
+		timer := time.NewTimer(backoff)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			logger.Error("grant expiration reconciler scheduling cancelled", logx.Any("error", ctx.Err()))
+			return
+		case <-timer.C:
+		}
+
+		backoff *= 2
+		if backoff > maxBackoff {
+			backoff = maxBackoff
+		}
+	}
 }
 
 func normalizeAddrPort(addr string) string {
