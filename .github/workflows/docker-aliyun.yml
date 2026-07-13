@@ -1,14 +1,8 @@
-name: Docker image
+name: Docker image (manual legacy)
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*'
-  pull_request:
-    branches:
-      - main
+  # Automated image builds are owned by docker-acr.yml. Keep this legacy
+  # publisher manual-only so pushes and pull requests build exactly once.
   workflow_dispatch:
     inputs:
       image_tag:
