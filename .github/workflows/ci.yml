@@ -3,56 +3,56 @@ name: CI
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: iam-authzgrpc-runtime-final
+  group: iam-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  KERNEL_VERSION: v0.4.3
+
 jobs:
-  final:
+  verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+
     steps:
-      - name: Checkout final branch
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: fix/authzgrpc-runtime-final
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up patched Go
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.25.12'
           cache: true
 
-      - name: Apply validated IAM source changes
+      - name: Verify Kernel version alignment
+        shell: bash
         run: |
-          git checkout origin/fix/authzgrpc-kernel-contract -- \
-            api/iam/resource/v1/resource.proto \
-            api/iam/v1/iam.proto \
-            api/iam/v1/identity_admin.proto \
-            client/authzgrpc/client.go \
-            client/authzgrpc/client_test.go \
-            internal/data/identity_mode.go \
-            internal/data/identity_mode_test.go \
-            internal/service/iam.go
-          sed -i 's/^ARG GO_VERSION=.*/ARG GO_VERSION=1.25.12/' Dockerfile
-          gofmt -w client/authzgrpc/client.go client/authzgrpc/client_test.go internal/data/identity_mode.go internal/data/identity_mode_test.go internal/service/iam.go
+          set -euo pipefail
+          runtime_version="$(go list -m -f '{{.Version}}' github.com/aisphereio/kernel)"
+          test "$runtime_version" = "$KERNEL_VERSION" || {
+            echo "Kernel runtime is $runtime_version, expected $KERNEL_VERSION"
+            exit 1
+          }
+
+      - name: Install code generators
+        run: make KERNEL_VERSION=${KERNEL_VERSION} tools
 
       - name: Generate API and deploy manifests
         run: |
-          make tools
-          make api
-          make deploy
-
-      - name: Normalize module graph
-        run: go mod tidy
+          make KERNEL_VERSION=${KERNEL_VERSION} api
+          make KERNEL_VERSION=${KERNEL_VERSION} deploy
 
       - name: Contract checks
-        run: make proto-check
+        run: make KERNEL_VERSION=${KERNEL_VERSION} proto-check
 
       - name: Test
         run: go test ./... -count=1
@@ -60,19 +60,20 @@ jobs:
       - name: Build binary
         run: make build
 
-      - name: Build container image
-        run: docker build --build-arg VERSION=${{ github.sha }} -t aisphere-iam:${{ github.sha }} .
-
-      - name: Commit validated IAM product changes
+      - name: Check generated files are committed
         shell: bash
         run: |
-          set -euxo pipefail
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add -A
-          git status --short
-          git diff --cached --stat
-          if ! git diff --cached --quiet; then
-            git commit -m "fix: expose IAM runtime authorization gRPC API"
+          set -euo pipefail
+          if ! git diff --quiet --exit-code; then
+            echo "Generated files are stale. Run: make tools api deploy"
+            git status --short
+            git diff --stat
+            exit 1
           fi
-          git push origin HEAD:fix/authzgrpc-runtime-final
+
+      - name: Build container image
+        run: |
+          docker build \
+            --build-arg VERSION=${{ github.sha }} \
+            --build-arg KERNEL_VERSION=${KERNEL_VERSION} \
+            -t aisphere-iam:${{ github.sha }} .
