@@ -15,69 +15,59 @@ func TestAuthorizationModelHasSingleOrganizationRoot(t *testing.T) {
 	defaults := mustReadContractFile(t, filepath.Join(root, "configs", "resource", "defaults.yaml"))
 	projectSource := mustReadContractFile(t, filepath.Join(root, "internal", "biz", "project", "project.go"))
 
-	forbiddenSchema := []string{
+	for _, token := range []string{
 		"definition organization",
 		"relation parent: organization",
 		"organization:",
-	}
-	for _, token := range forbiddenSchema {
+	} {
 		if strings.Contains(schema, token) {
 			t.Fatalf("SpiceDB schema contains removed platform-organization model %q", token)
 		}
 	}
 
-	requiredSchema := []string{
+	for _, token := range []string{
 		"definition zone",
 		"definition group",
 		"definition project",
 		"relation zone: zone",
-	}
-	for _, token := range requiredSchema {
+	} {
 		if !strings.Contains(schema, token) {
 			t.Fatalf("SpiceDB schema is missing required model contract %q", token)
 		}
 	}
 
-	forbiddenDefaults := []string{
+	for _, token := range []string{
 		"type: organization",
 		"resource_type: organization",
 		"parent_types: [organization]",
-	}
-	for _, token := range forbiddenDefaults {
+	} {
 		if strings.Contains(defaults, token) {
 			t.Fatalf("resource defaults contain removed platform-organization contract %q", token)
 		}
 	}
 
-	requiredDefaults := []string{
+	for _, token := range []string{
 		"- type: zone",
 		"- type: group",
 		"- type: project",
 		"parent_types: [zone]",
 		"relations: [zone, owner, admin, developer, operator, viewer]",
-	}
-	for _, token := range requiredDefaults {
+	} {
 		if !strings.Contains(defaults, token) {
 			t.Fatalf("resource defaults are missing required project/zone contract %q", token)
 		}
 	}
 
-	forbiddenProjectSource := []string{
-		"Relation: RelationParent,\n\t\tSubject:  graph.Subject(ResourceTypeOrganization",
-	}
-	for _, token := range forbiddenProjectSource {
-		if strings.Contains(projectSource, token) {
-			t.Fatalf("project creation still projects the legacy organization relationship %q", token)
-		}
+	if strings.Contains(projectSource, "graph.Subject(ResourceTypeOrganization") {
+		t.Fatal("project creation still projects a legacy organization relationship")
 	}
 
-	requiredProjectSource := []string{
-		"ResourceTypeZone         = \"zone\"",
-		"RelationZone   = \"zone\"",
+	for _, token := range []string{
+		"ResourceTypeZone    = \"zone\"",
+		"RelationZone  = \"zone\"",
 		"Relation: RelationZone",
 		"graph.Subject(ResourceTypeZone, zoneID, \"\")",
-	}
-	for _, token := range requiredProjectSource {
+	} {
 		if !strings.Contains(projectSource, token) {
 			t.Fatalf("project creation is missing required zone projection contract %q", token)
 		}
