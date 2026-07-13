@@ -43,6 +43,27 @@
 | C3 | Zone member 继承到 Project read | ✅ 通过 |
 | D1 | 无权限用户被拒绝 | ✅ 通过 |
 | D2 | 错误权限（member 不能 manage_users） | ✅ 通过 |
+| E1 | Group 权限生命周期（无权限→赋权→创建→撤销→不能创建） | ✅ 通过 |
+| E2 | Grant 授权生命周期（写 owner→删 owner） | ✅ 通过 |
+| E3 | 成员管理权限生命周期（无权限→赋权→分配→撤销→不能分配） | ✅ 通过 |
+
+## Gateway E2E Tests (新增)
+
+| 测试 | 结果 |
+|------|:----:|
+| IAM Health | ✅ |
+| IAM Ready | ✅ |
+| Get Schema | ✅ |
+| Check Permission | ✅ |
+| Write Relationship | ✅ |
+| Verify grant | ✅ |
+| Delete Relationship | ✅ |
+| Deny after revoke | ✅ |
+| List users | ✅ |
+| List groups | ✅ |
+| List role templates | ✅ |
+| List capabilities | ✅ |
+| No-auth denied | ✅ |
 
 ## Integration Environment
 
