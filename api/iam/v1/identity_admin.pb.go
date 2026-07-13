@@ -283,19 +283,19 @@ const file_iam_v1_identity_admin_proto_rawDesc = "" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12#\n" +
 	"\auser_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x06userId\x12\x12\n" +
-	"\x04hard\x18\x03 \x01(\bR\x04hard2\xeb\x0e\n" +
-	"\x17IAMIdentityAdminService\x12\xb0\x01\n" +
+	"\x04hard\x18\x03 \x01(\bR\x04hard2\xc1\x0e\n" +
+	"\x17IAMIdentityAdminService\x12\xac\x01\n" +
 	"\n" +
-	"CreateUser\x12\x19.iam.v1.CreateUserRequest\x1a\f.iam.v1.User\"y\x92\xf4\x18O\b\x03\x120\n" +
-	"\x06create\x12\x17iam:org:{org_id}:user:*\x1a\viam-service \x01\x1a\x19\b\x01\x12\x0fiam.user.create\x1a\x04high\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/iam/orgs/{org_id}/users\x12\xc3\x01\n" +
+	"CreateUser\x12\x19.iam.v1.CreateUserRequest\x1a\f.iam.v1.User\"u\x92\xf4\x18K\b\x03\x12,\n" +
+	"\fmanage_users\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x19\b\x01\x12\x0fiam.user.create\x1a\x04high\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/iam/orgs/{org_id}/users\x12\xb6\x01\n" +
 	"\n" +
-	"UpdateUser\x12\x19.iam.v1.UpdateUserRequest\x1a\f.iam.v1.User\"\x8b\x01\x92\xf4\x18W\b\x03\x128\n" +
-	"\x06update\x12\x1fiam:org:{org_id}:user:{user_id}\x1a\viam-service \x01\x1a\x19\b\x01\x12\x0fiam.user.update\x1a\x04high\x82\xd3\xe4\x93\x02*:\x01*\x1a%/v1/iam/orgs/{org_id}/users/{user_id}\x12\xd9\x01\n" +
-	"\vDisableUser\x12\x1a.iam.v1.DisableUserRequest\x1a\x16.google.protobuf.Empty\"\x95\x01\x92\xf4\x18Y\b\x03\x129\n" +
-	"\adisable\x12\x1fiam:org:{org_id}:user:{user_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.user.disable\x1a\x04high\x82\xd3\xe4\x93\x022:\x01*\"-/v1/iam/orgs/{org_id}/users/{user_id}:disable\x12\xce\x01\n" +
+	"UpdateUser\x12\x19.iam.v1.UpdateUserRequest\x1a\f.iam.v1.User\"\x7f\x92\xf4\x18K\b\x03\x12,\n" +
+	"\fmanage_users\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x19\b\x01\x12\x0fiam.user.update\x1a\x04high\x82\xd3\xe4\x93\x02*:\x01*\x1a%/v1/iam/orgs/{org_id}/users/{user_id}\x12\xcc\x01\n" +
+	"\vDisableUser\x12\x1a.iam.v1.DisableUserRequest\x1a\x16.google.protobuf.Empty\"\x88\x01\x92\xf4\x18L\b\x03\x12,\n" +
+	"\fmanage_users\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.user.disable\x1a\x04high\x82\xd3\xe4\x93\x022:\x01*\"-/v1/iam/orgs/{org_id}/users/{user_id}:disable\x12\xc2\x01\n" +
 	"\n" +
-	"DeleteUser\x12\x19.iam.v1.DeleteUserRequest\x1a\x16.google.protobuf.Empty\"\x8c\x01\x92\xf4\x18[\b\x03\x128\n" +
-	"\x06delete\x12\x1fiam:org:{org_id}:user:{user_id}\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x0fiam.user.delete\x1a\bcritical\x82\xd3\xe4\x93\x02'*%/v1/iam/orgs/{org_id}/users/{user_id}\x12\xb2\x01\n" +
+	"DeleteUser\x12\x19.iam.v1.DeleteUserRequest\x1a\x16.google.protobuf.Empty\"\x80\x01\x92\xf4\x18O\b\x03\x12,\n" +
+	"\fmanage_users\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x0fiam.user.delete\x1a\bcritical\x82\xd3\xe4\x93\x02'*%/v1/iam/orgs/{org_id}/users/{user_id}\x12\xb2\x01\n" +
 	"\vCreateGroup\x12\x1a.iam.v1.CreateGroupRequest\x1a\r.iam.v1.Group\"x\x92\xf4\x18M\b\x03\x12-\n" +
 	"\rcreate_groups\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.group.create\x1a\x04high\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/orgs/{org_id}/groups\x12\xc3\x01\n" +
 	"\vUpdateGroup\x12\x1a.iam.v1.UpdateGroupRequest\x1a\r.iam.v1.Group\"\x88\x01\x92\xf4\x18R\b\x03\x122\n" +

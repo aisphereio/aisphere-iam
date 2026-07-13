@@ -164,22 +164,80 @@ func (s *IAMPermissionService) CheckPermission(ctx context.Context, req *v1.Chec
 	if s.deps.Authz == nil {
 		return nil, authz.ErrBackendFailed("authz provider is not configured", nil)
 	}
-	decision, err := s.deps.Authz.Check(ctx, authz.CheckRequest{
-		Subject:    subjectFromProto(req.GetSubject()),
-		Resource:   objectFromProto(req.GetResource()),
-		Permission: req.GetPermission(),
-		OrgID:      req.GetOrgId(),
-		ProjectID:  req.GetProjectId(),
+	decision, err := s.deps.Authz.Check(ctx, permissionCheckFromProto(req))
+	if err != nil {
+		return nil, err
+	}
+	return permissionDecisionToProto(decision), nil
+}
+
+func (s *IAMPermissionService) BatchCheckPermissions(ctx context.Context, req *v1.BatchCheckPermissionsRequest) (*v1.BatchCheckPermissionsReply, error) {
+	if s.deps.Authz == nil {
+		return nil, authz.ErrBackendFailed("authz provider is not configured", nil)
+	}
+	inputs := req.GetChecks()
+	checks := make([]authz.CheckRequest, 0, len(inputs))
+	for _, input := range inputs {
+		checks = append(checks, permissionCheckFromProto(input))
+	}
+	result, err := s.deps.Authz.BatchCheck(ctx, authz.BatchCheckRequest{Checks: checks})
+	if err != nil {
+		return nil, err
+	}
+	decisions := make([]*v1.CheckPermissionReply, 0, len(result.Decisions))
+	for _, decision := range result.Decisions {
+		decisions = append(decisions, permissionDecisionToProto(decision))
+	}
+	return &v1.BatchCheckPermissionsReply{Decisions: decisions}, nil
+}
+
+func (s *IAMPermissionService) WriteRelationships(ctx context.Context, req *v1.WriteRelationshipsRequest) (*v1.WriteRelationshipsReply, error) {
+	if s.deps.Authz == nil {
+		return nil, authz.ErrBackendFailed("authz provider is not configured", nil)
+	}
+	inputs := req.GetRelationships()
+	rels := make([]authz.Relationship, 0, len(inputs))
+	for _, input := range inputs {
+		rels = append(rels, relationshipFromProto(input))
+	}
+	result, err := s.deps.Authz.WriteRelationships(ctx, rels...)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.WriteRelationshipsReply{Written: int32(result.Written), ConsistencyToken: result.ConsistencyToken}, nil
+}
+
+func (s *IAMPermissionService) DeleteRelationships(ctx context.Context, req *v1.DeleteRelationshipsRequest) (*v1.DeleteRelationshipsReply, error) {
+	if s.deps.Authz == nil {
+		return nil, authz.ErrBackendFailed("authz provider is not configured", nil)
+	}
+	result, err := s.deps.Authz.DeleteRelationships(ctx, relationshipFilterFromProto(req.GetFilter()))
+	if err != nil {
+		return nil, err
+	}
+	return &v1.DeleteRelationshipsReply{Deleted: int32(result.Deleted), ConsistencyToken: result.ConsistencyToken}, nil
+}
+
+func (s *IAMPermissionService) ReadRelationships(ctx context.Context, req *v1.ListRelationshipsRequest) (*v1.ListRelationshipsReply, error) {
+	if s.deps.Authz == nil {
+		return nil, authz.ErrBackendFailed("authz provider is not configured", nil)
+	}
+	rels, err := s.deps.Authz.ReadRelationships(ctx, authz.RelationshipFilter{
+		ResourceType: req.GetResourceType(),
+		ResourceID:   req.GetResourceId(),
+		Relation:     req.GetRelation(),
+		SubjectType:  req.GetSubjectType(),
+		SubjectID:    req.GetSubjectId(),
+		SubjectRel:   req.GetSubjectRelation(),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &v1.CheckPermissionReply{
-		Allowed:          decision.IsAllowed(),
-		Effect:           string(decision.Effect),
-		Reason:           decision.Reason,
-		ConsistencyToken: decision.ConsistencyToken,
-	}, nil
+	out := make([]*v1.Relationship, 0, len(rels))
+	for _, rel := range rels {
+		out = append(out, relationshipToProto(rel))
+	}
+	return &v1.ListRelationshipsReply{Relationships: out}, nil
 }
 
 func (s *IAMPermissionService) WriteRelationship(ctx context.Context, req *v1.WriteRelationshipRequest) (*v1.WriteRelationshipReply, error) {
@@ -244,6 +302,25 @@ func (s *IAMPermissionService) LookupSubjects(ctx context.Context, req *v1.Looku
 		NextCursor:       result.NextCursor,
 		ConsistencyToken: result.ConsistencyToken,
 	}, nil
+}
+
+func permissionCheckFromProto(req *v1.CheckPermissionRequest) authz.CheckRequest {
+	return authz.CheckRequest{
+		Subject:    subjectFromProto(req.GetSubject()),
+		Resource:   objectFromProto(req.GetResource()),
+		Permission: req.GetPermission(),
+		OrgID:      req.GetOrgId(),
+		ProjectID:  req.GetProjectId(),
+	}
+}
+
+func permissionDecisionToProto(decision authz.Decision) *v1.CheckPermissionReply {
+	return &v1.CheckPermissionReply{
+		Allowed:          decision.IsAllowed(),
+		Effect:           string(decision.Effect),
+		Reason:           decision.Reason,
+		ConsistencyToken: decision.ConsistencyToken,
+	}
 }
 
 func tokenSetToProto(in authn.TokenSet) *v1.TokenSet {

@@ -2174,7 +2174,7 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\bbindings\x18\x01 \x03(\v2(.iam.resource.v1.ExternalResourceBindingR\bbindings\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize2\xb0\x1b\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize2\xde\x1e\n" +
 	"\x0fResourceService\x12\xed\x01\n" +
 	"\x14RegisterResourceType\x12,.iam.resource.v1.RegisterResourceTypeRequest\x1a\x1d.iam.resource.v1.ResourceType\"\x87\x01\x92\xf4\x18T\b\x03\x12*\n" +
 	"\x06manage\x12\x11iam:resource_type\x1a\viam-service \x01\x1a$\b\x01\x12\x1aiam.resource_type.register\x1a\x04high\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/control-plane/resource-types\x12\xe6\x01\n" +
@@ -2187,21 +2187,21 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\vGetResource\x12#.iam.resource.v1.GetResourceRequest\x1a\x19.iam.resource.v1.Resource\"\x8b\x01\x92\xf4\x18B\b\x03\x12#\n" +
 	"\x04read\x12\fiam:resource\x1a\viam-service \x01\x1a\x19\b\x01\x12\x10iam.resource.get\x1a\x03low\x82\xd3\xe4\x93\x02?\x12=/v1/iam/control-plane/resources/{resource_type}/{resource_id}\x12\xce\x01\n" +
 	"\rListResources\x12%.iam.resource.v1.ListResourcesRequest\x1a#.iam.resource.v1.ListResourcesReply\"q\x92\xf4\x18F\b\x03\x12#\n" +
-	"\x04list\x12\fiam:resource\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x11iam.resource.list\x1a\x06medium\x82\xd3\xe4\x93\x02!\x12\x1f/v1/iam/control-plane/resources\x12\xe7\x01\n" +
-	"\fMoveResource\x12$.iam.resource.v1.MoveResourceRequest\x1a\x19.iam.resource.v1.Resource\"\x95\x01\x92\xf4\x18D\b\x04\x12#\n" +
-	"\x04move\x12\fiam:resource\x1a\viam-service \x01\x1a\x1b\b\x01\x12\x11iam.resource.move\x1a\x04high\x82\xd3\xe4\x93\x02G:\x01*\"B/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move\x12\xf6\x01\n" +
-	"\x0fArchiveResource\x12'.iam.resource.v1.ArchiveResourceRequest\x1a\x19.iam.resource.v1.Resource\"\x9e\x01\x92\xf4\x18J\b\x04\x12&\n" +
-	"\aarchive\x12\fiam:resource\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x14iam.resource.archive\x1a\x04high\x82\xd3\xe4\x93\x02J:\x01*\"E/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive\x12\xf2\x01\n" +
-	"\x0eDeleteResource\x12&.iam.resource.v1.DeleteResourceRequest\x1a$.iam.resource.v1.DeleteResourceReply\"\x91\x01\x92\xf4\x18H\b\x04\x12%\n" +
-	"\x06delete\x12\fiam:resource\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x13iam.resource.delete\x1a\x04high\x82\xd3\xe4\x93\x02?*=/v1/iam/control-plane/resources/{resource_type}/{resource_id}\x12\xe3\x01\n" +
-	"\fBindResource\x12$.iam.resource.v1.BindResourceRequest\x1a .iam.resource.v1.ResourceBinding\"\x8a\x01\x92\xf4\x18T\b\x04\x12+\n" +
-	"\x04bind\x12\x14iam:resource_binding\x1a\viam-service \x01\x1a#\b\x01\x12\x19iam.resource_binding.bind\x1a\x04high\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/iam/control-plane/resource-bindings\x12\x90\x02\n" +
-	"\x0eUnbindResource\x12&.iam.resource.v1.UnbindResourceRequest\x1a$.iam.resource.v1.UnbindResourceReply\"\xaf\x01\x92\xf4\x18e\b\x04\x12:\n" +
-	"\x06unbind\x12!iam:resource_binding:{binding_id}\x1a\viam-service \x01\x1a%\b\x01\x12\x1biam.resource_binding.unbind\x1a\x04high\x82\xd3\xe4\x93\x02@:\x01*\";/v1/iam/control-plane/resource-bindings/{binding_id}/unbind\x12\xfc\x01\n" +
+	"\x04list\x12\fiam:resource\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x11iam.resource.list\x1a\x06medium\x82\xd3\xe4\x93\x02!\x12\x1f/v1/iam/control-plane/resources\x12\xaf\x02\n" +
+	"\fMoveResource\x12$.iam.resource.v1.MoveResourceRequest\x1a\x19.iam.resource.v1.Resource\"\xdd\x01\x92\xf4\x18\x8b\x01\b\x04\x12#\n" +
+	"\x04move\x12\fiam:resource\x1a\viam-service \x01\x1a\x1b\b\x01\x12\x11iam.resource.move\x1a\x04high2EResource moves are requested only by trusted resource owner services.\x82\xd3\xe4\x93\x02G:\x01*\"B/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move\x12\xc0\x02\n" +
+	"\x0fArchiveResource\x12'.iam.resource.v1.ArchiveResourceRequest\x1a\x19.iam.resource.v1.Resource\"\xe8\x01\x92\xf4\x18\x93\x01\b\x04\x12&\n" +
+	"\aarchive\x12\fiam:resource\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x14iam.resource.archive\x1a\x04high2GResource archival is synchronized from trusted resource owner services.\x82\xd3\xe4\x93\x02J:\x01*\"E/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive\x12\xbc\x02\n" +
+	"\x0eDeleteResource\x12&.iam.resource.v1.DeleteResourceRequest\x1a$.iam.resource.v1.DeleteResourceReply\"\xdb\x01\x92\xf4\x18\x91\x01\b\x04\x12%\n" +
+	"\x06delete\x12\fiam:resource\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x13iam.resource.delete\x1a\x04high2GResource deletion is synchronized from trusted resource owner services.\x82\xd3\xe4\x93\x02?*=/v1/iam/control-plane/resources/{resource_type}/{resource_id}\x12\xa3\x02\n" +
+	"\fBindResource\x12$.iam.resource.v1.BindResourceRequest\x1a .iam.resource.v1.ResourceBinding\"\xca\x01\x92\xf4\x18\x93\x01\b\x04\x12+\n" +
+	"\x04bind\x12\x14iam:resource_binding\x1a\viam-service \x01\x1a#\b\x01\x12\x19iam.resource_binding.bind\x1a\x04high2=Resource bindings are projected by trusted platform services.\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/iam/control-plane/resource-bindings\x12\xd6\x02\n" +
+	"\x0eUnbindResource\x12&.iam.resource.v1.UnbindResourceRequest\x1a$.iam.resource.v1.UnbindResourceReply\"\xf5\x01\x92\xf4\x18\xaa\x01\b\x04\x12:\n" +
+	"\x06unbind\x12!iam:resource_binding:{binding_id}\x1a\viam-service \x01\x1a%\b\x01\x12\x1biam.resource_binding.unbind\x1a\x04high2CResource binding removal is projected by trusted platform services.\x82\xd3\xe4\x93\x02@:\x01*\";/v1/iam/control-plane/resource-bindings/{binding_id}/unbind\x12\xfc\x01\n" +
 	"\x14ListResourceBindings\x12,.iam.resource.v1.ListResourceBindingsRequest\x1a*.iam.resource.v1.ListResourceBindingsReply\"\x89\x01\x92\xf4\x18V\b\x03\x12+\n" +
-	"\x04list\x12\x14iam:resource_binding\x1a\viam-service \x01\x1a%\b\x01\x12\x19iam.resource_binding.list\x1a\x06medium\x82\xd3\xe4\x93\x02)\x12'/v1/iam/control-plane/resource-bindings\x12\x96\x02\n" +
-	"\x14BindExternalResource\x12,.iam.resource.v1.BindExternalResourceRequest\x1a(.iam.resource.v1.ExternalResourceBinding\"\xa5\x01\x92\xf4\x18f\b\x04\x124\n" +
-	"\x04bind\x12\x1diam:external_resource_binding\x1a\viam-service \x01\x1a,\b\x01\x12\"iam.external_resource_binding.bind\x1a\x04high\x82\xd3\xe4\x93\x025:\x01*\"0/v1/iam/control-plane/external-resource-bindings\x12\xaf\x02\n" +
+	"\x04list\x12\x14iam:resource_binding\x1a\viam-service \x01\x1a%\b\x01\x12\x19iam.resource_binding.list\x1a\x06medium\x82\xd3\xe4\x93\x02)\x12'/v1/iam/control-plane/resource-bindings\x12\xe2\x02\n" +
+	"\x14BindExternalResource\x12,.iam.resource.v1.BindExternalResourceRequest\x1a(.iam.resource.v1.ExternalResourceBinding\"\xf1\x01\x92\xf4\x18\xb1\x01\b\x04\x124\n" +
+	"\x04bind\x12\x1diam:external_resource_binding\x1a\viam-service \x01\x1a,\b\x01\x12\"iam.external_resource_binding.bind\x1a\x04high2IExternal resource mappings are projected by trusted integration services.\x82\xd3\xe4\x93\x025:\x01*\"0/v1/iam/control-plane/external-resource-bindings\x12\xaf\x02\n" +
 	"\x1cListExternalResourceBindings\x124.iam.resource.v1.ListExternalResourceBindingsRequest\x1a2.iam.resource.v1.ListExternalResourceBindingsReply\"\xa4\x01\x92\xf4\x18h\b\x03\x124\n" +
 	"\x04list\x12\x1diam:external_resource_binding\x1a\viam-service \x01\x1a.\b\x01\x12\"iam.external_resource_binding.list\x1a\x06medium\x82\xd3\xe4\x93\x022\x120/v1/iam/control-plane/external-resource-bindingsBCZAgithub.com/aisphereio/aisphere-iam/api/iam/resource/v1;resourcev1b\x06proto3"
 
