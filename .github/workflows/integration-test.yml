@@ -1,0 +1,104 @@
+name: Integration Test
+
+on:
+  workflow_run:
+    workflows: ["Docker image"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Image tag to deploy and test
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-test-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: registry.cn-beijing.aliyuncs.com
+  IMAGE_NAMESPACE: ainfracn
+  IMAGE_NAME: aisphere-iam
+  TEST_HOST: 36.137.200.194
+  TEST_NAMESPACE: aisphere
+  TEST_DEPLOYMENT: aisphere-iam
+
+jobs:
+  deploy-and-test:
+    name: Deploy & Integration Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Determine image tag
+        id: image
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "tag=${{ inputs.image_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=sha-${{ github.sha_short }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy to test server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ env.TEST_HOST }}
+          username: root
+          key: ${{ secrets.TEST_SERVER_SSH_KEY }}
+          script: |
+            set -e
+            FULL_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ steps.image.outputs.tag }}"
+            echo "=== Deploying: $FULL_IMAGE ==="
+            kubectl set image deployment/${{ env.TEST_DEPLOYMENT }} -n ${{ env.TEST_NAMESPACE }} \
+              ${{ env.TEST_DEPLOYMENT }}=$FULL_IMAGE
+            kubectl rollout status deployment/${{ env.TEST_DEPLOYMENT }} -n ${{ env.TEST_NAMESPACE }} \
+              --timeout=180s
+            echo "=== Deployment complete ==="
+
+      - name: Wait for service ready
+        run: |
+          echo "Waiting for IAM service to be ready..."
+          for i in $(seq 1 30); do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ env.TEST_HOST }}:18080/healthz 2>/dev/null || echo "000")
+            if [[ "$HTTP_CODE" == "200" ]]; then
+              echo "IAM service is ready (attempt $i)"
+              break
+            fi
+            if [[ "$i" == "30" ]]; then
+              echo "Timeout waiting for IAM service"
+              exit 1
+            fi
+            echo "Attempt $i: HTTP $HTTP_CODE, waiting..."
+            sleep 5
+          done
+
+      - name: Run integration tests
+        run: |
+          echo "=== Running integration tests ==="
+          go test -tags=integration ./internal/service/... -run TestIntegration -v \
+            -timeout 120s 2>&1 | tee integration-test.log
+
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-log
+          path: integration-test.log
+          retention-days: 7
+
+      - name: Check test result
+        if: always()
+        run: |
+          if grep -q "FAIL" integration-test.log 2>/dev/null; then
+            echo "❌ Integration tests failed"
+            exit 1
+          else
+            echo "✅ Integration tests passed"
+          fi
