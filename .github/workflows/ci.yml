@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  KERNEL_VERSION: v0.4.8
+  KERNEL_VERSION: v0.4.9
 
 jobs:
   verify:
@@ -96,10 +96,3 @@ jobs:
             git diff --stat
             exit 1
           fi
-
-      - name: Build container image
-        run: |
-          docker build \
-            --build-arg VERSION=${{ github.sha }} \
-            --build-arg KERNEL_VERSION=${KERNEL_VERSION} \
-            -t aisphere-iam:${{ github.sha }} .
