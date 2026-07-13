@@ -35,6 +35,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
+          sed -i 's#google/protobuf/field_behavior.proto#google/api/field_behavior.proto#g' .github/scripts/c3_project_lifecycle.py
           python3 .github/scripts/c3_project_lifecycle.py 2>&1 | tee c3-transform.log
 
       - name: Upload transform diagnostics
