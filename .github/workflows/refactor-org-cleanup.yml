@@ -27,7 +27,34 @@ jobs:
           cache: true
 
       - name: Apply single-root refactor
-        run: python3 .github/scripts/refactor_org_cleanup.py
+        id: apply
+        continue-on-error: true
+        run: |
+          python3 .github/scripts/refactor_org_cleanup.py > org-refactor.log 2>&1
+
+      - name: Capture remaining Organization references
+        if: always()
+        run: |
+          {
+            echo '=== transform log ==='
+            cat org-refactor.log 2>/dev/null || true
+            echo
+            echo '=== remaining references ==='
+            grep -R --line-number -E 'CreateOrganization|GetOrganization|ListOrganizations|UpdateOrganization|ArchiveOrganization|OrganizationModel|ResourceTypeOrganization|organization:\{org_id\}' api internal configs docs 2>/dev/null || true
+          } > org-refactor-diagnostics.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: org-refactor-diagnostics
+          path: org-refactor-diagnostics.txt
+          retention-days: 7
+
+      - name: Stop when transform failed
+        if: steps.apply.outcome == 'failure'
+        run: |
+          cat org-refactor-diagnostics.txt
+          exit 1
 
       - name: Regenerate API and Gateway artifacts
         run: |
