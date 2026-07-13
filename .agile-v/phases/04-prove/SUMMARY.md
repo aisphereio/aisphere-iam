@@ -38,19 +38,29 @@ Config file: `configs/config.test.yaml`
 
 ## Integration Test Results
 
-| Test | Result | Date |
-|------|:------:|:----:|
-| IAM Health Check | ✅ PASS | 2026-07-13 |
-| IAM Ready Check | ✅ PASS | 2026-07-13 |
-| Casdoor OIDC Configuration | ✅ PASS | 2026-07-13 |
-| PostgreSQL Connection (aisphere_iam_test) | ✅ PASS | 2026-07-13 |
-| SpiceDB Health | ✅ PASS | 2026-07-13 |
-| IAM GetMe (auth required) | ✅ PASS (expected) | 2026-07-13 |
+| # | Test | Result | Date |
+|:-:|------|:------:|:----:|
+| 1 | IAM Health endpoint | ✅ PASS | 2026-07-13 |
+| 2 | IAM Ready endpoint | ✅ PASS | 2026-07-13 |
+| 3 | IAM database exists | ✅ PASS | 2026-07-13 |
+| 4 | Schema migrations applied | ✅ PASS | 2026-07-13 |
+| 5 | Projects table exists | ✅ PASS | 2026-07-13 |
+| 6 | Grants table exists | ✅ PASS | 2026-07-13 |
+| 7 | Resources table exists | ✅ PASS | 2026-07-13 |
+| 8 | Casdoor OIDC configuration | ✅ PASS | 2026-07-13 |
+| 9 | SpiceDB serving | ✅ PASS | 2026-07-13 |
+| 10 | GetMe rejects unauthenticated | ✅ PASS | 2026-07-13 |
+| 11 | IAM can reach Casdoor API | ✅ PASS | 2026-07-13 |
+| 12 | DTM available | ✅ PASS | 2026-07-13 |
+| 13 | Resource types loaded | ✅ PASS | 2026-07-13 |
+| 14 | Role templates loaded | ✅ PASS | 2026-07-13 |
+
+**14/14 tests passed** ✅
 
 ## Remaining Work
 
 | Task | Priority | Status |
 |------|:--------:|:------:|
-| Run integration tests via GitHub Actions | P0 | ⏳ PENDING (needs TEST_SERVER_SSH_KEY secret) |
-| Write end-to-end test scenarios (Project CRUD, Grant flow) | P1 | ⏳ PENDING |
+| Run integration tests via GitHub Actions | P0 | ⏳ PENDING |
+| Write end-to-end business flow tests (Project CRUD, Grant flow) | P1 | ⏳ PENDING |
 | Record test results in VALIDATION_SUMMARY.md | P1 | ⏳ PENDING |
