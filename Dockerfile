@@ -10,9 +10,10 @@ RUN go mod download
 
 COPY . .
 ARG VERSION=dev
-RUN make tools \
-    && make api \
-    && make deploy \
+ARG KERNEL_VERSION=v0.4.3
+RUN make KERNEL_VERSION=${KERNEL_VERSION} tools \
+    && make KERNEL_VERSION=${KERNEL_VERSION} api \
+    && make KERNEL_VERSION=${KERNEL_VERSION} deploy \
     && go mod tidy \
     && go mod download \
     && CGO_ENABLED=0 GOOS=linux go build \
