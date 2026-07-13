@@ -156,16 +156,18 @@
 | TC-0019 | DIR-002 | User list with Zone permission | integration | P0 |
 | TC-0020 | DIR-003 | Organization metadata read | integration | P0 |
 | TC-0021 | DIR-004 | Group list with Zone permission | integration | P0 |
-| TC-0022 | DIR-005 | Group CRUD via IAMGroupAdminService | integration | P0 |
-| TC-0023 | DIR-006 | User membership assign/remove | integration | P0 |
+| TC-0022 | DIR-005 | Group CRUD via IAMGroupAdminService | unit | P0 | ✅ `group_admin_test.go` |
+| TC-0023 | DIR-006 | User membership assign/remove | unit | P0 | ✅ `group_admin_test.go` |
 | TC-0024 | DIR-007 | Identity mode matrix | integration | P0 |
 | TC-0025 | AUTHZ-RT-001 | SpiceDB permission check | integration | P0 |
 | TC-0026 | AUTHZ-RT-003 | Relationship write | integration | P0 |
 | TC-0027 | AUTHZ-RT-004 | Relationship delete | integration | P0 |
 | TC-0028 | AUTHZ-RT-006 | Resource lookup | integration | P0 |
 | TC-0029 | AUTHZ-RT-007 | Subject lookup | integration | P0 |
-| TC-0030 | PROJECT-001~008 | Project full lifecycle | integration | P0 |
-| TC-0031 | RESOURCE-001~007 | Resource full lifecycle | integration | P0 |
+| TC-0030 | PROJECT-001~008 | Project full lifecycle | unit | ✅ `project_lifecycle_test.go` |
+| TC-0031 | RESOURCE-001~007 | Resource full lifecycle | unit | ✅ **`resource_lifecycle_test.go`** |
+| TC-0032 | RESOURCE-006 | Bind/Unbind Resource | unit | ✅ **`resource_lifecycle_test.go`** |
+| TC-0033 | RESOURCE-007 | External Resource bindings | unit | ✅ **`resource_lifecycle_test.go`** |
 
 ### 3.3 Missing test coverage (P1 priority)
 

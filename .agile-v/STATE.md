@@ -13,7 +13,7 @@
 |-------|--------|-------|
 | 01-Specify | ✅ COMPLETE | 63 REQs approved with P0/P1/P2; Gate 0 + Gate 1 passed; threat model generated |
 | 02-Constrain | ✅ COMPLETE | logic-gatekeeper validation: PASS_WITH_FINDINGS; threat model reviewed |
-| 03-Orchestrate | ✅ COMPLETE | Build Manifest (62 ART); 0 code-without-REQ; 15 existing tests, 27 missing tests; compliance audit complete |
+| 03-Orchestrate | ✅ COMPLETE | Build Manifest (62 ART); 0 code-without-REQ; 18 existing tests (3 new: group_admin, resource_lifecycle), 24 missing tests; compliance audit complete |
 | 04-Prove | ⏳ PENDING | Integration test suite needed |
 | 05-Evolve | ⏳ PENDING | Decision log maintained |
 | 06-Verify | ⏳ PENDING | Red Team verification pending |
