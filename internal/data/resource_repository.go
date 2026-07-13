@@ -95,7 +95,7 @@ func (r *DBControlPlaneRepository) CreateProject(ctx context.Context, project *P
 }
 
 func (r *DBControlPlaneRepository) UpsertProject(ctx context.Context, project *ProjectModel) error {
-	return r.db.SafeUpsert(ctx, project, []string{"display_name", "description", "status", "visibility", "labels_json", "annotations_json", "updated_at"})
+	return r.db.SafeUpsert(ctx, project, []string{"display_name", "description", "status", "visibility", "labels_json", "annotations_json", "metadata_json", "updated_at"})
 }
 
 func (r *DBControlPlaneRepository) GetProject(ctx context.Context, id string) (*ProjectModel, error) {

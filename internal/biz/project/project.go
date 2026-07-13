@@ -46,6 +46,7 @@ type CreateProjectRequest struct {
 	Visibility      string
 	LabelsJSON      string
 	AnnotationsJSON string
+	MetadataJSON    string
 	CreatedBy       SubjectRef
 	Owner           SubjectRef
 }
@@ -59,6 +60,7 @@ type RegisterCapabilityRequest struct {
 }
 
 type SetProjectCapabilityRequest struct {
+	ZoneID       string
 	ProjectID    string
 	CapabilityID string
 	Enabled      bool
@@ -114,6 +116,7 @@ func (s *Service) CreateProject(ctx context.Context, req CreateProjectRequest) (
 		Visibility:      nonEmpty(req.Visibility, "private"),
 		LabelsJSON:      jsonOrEmptyObject(req.LabelsJSON),
 		AnnotationsJSON: jsonOrEmptyObject(req.AnnotationsJSON),
+		MetadataJSON:    jsonOrEmptyObject(req.MetadataJSON),
 		CreatedBy:       subjectString(req.CreatedBy),
 		CreatedAt:       now,
 		UpdatedAt:       now,
@@ -177,10 +180,18 @@ func (s *Service) SetProjectCapability(ctx context.Context, req SetProjectCapabi
 	if s.repo == nil {
 		return nil, errors.New("project service repository is nil")
 	}
+	req.ZoneID = strings.TrimSpace(req.ZoneID)
 	req.ProjectID = strings.TrimSpace(req.ProjectID)
 	req.CapabilityID = strings.TrimSpace(req.CapabilityID)
-	if req.ProjectID == "" || req.CapabilityID == "" {
-		return nil, errors.New("project_id and capability_id are required")
+	if req.ZoneID == "" || req.ProjectID == "" || req.CapabilityID == "" {
+		return nil, errors.New("zone_id, project_id and capability_id are required")
+	}
+	project, err := s.loadProjectInZone(ctx, req.ProjectID, req.ZoneID)
+	if err != nil {
+		return nil, err
+	}
+	if project.Status != data.StatusActive {
+		return nil, errors.New("project is not active")
 	}
 	now := s.now()
 	pc := &data.ProjectCapabilityModel{

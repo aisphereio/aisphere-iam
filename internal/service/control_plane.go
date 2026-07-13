@@ -39,17 +39,9 @@ func (s *ProjectService) CreateProject(ctx context.Context, req *projectv1.Creat
 	}
 	project, _, err := s.biz.CreateProject(ctx, projectbiz.CreateProjectRequest{
 		ZoneID: orgID, Slug: req.GetSlug(), DisplayName: req.GetDisplayName(), Description: req.GetDescription(),
-		Visibility: visibilityToStatus(req.GetVisibility()), LabelsJSON: mapStringToJSON(req.GetLabels()), AnnotationsJSON: mapStringToJSON(req.GetAnnotations()),
+		Visibility: visibilityToStatus(req.GetVisibility()), LabelsJSON: mapStringToJSON(req.GetLabels()), AnnotationsJSON: mapStringToJSON(req.GetAnnotations()), MetadataJSON: structToJSON(req.GetMetadata(), "{}"),
 		CreatedBy: actor, Owner: actor,
 	})
-	if err != nil {
-		return nil, err
-	}
-	return projectModelToProto(project), nil
-}
-
-func (s *ProjectService) GetProject(ctx context.Context, req *projectv1.GetProjectRequest) (*projectv1.Project, error) {
-	project, err := s.repo.GetProject(ctx, req.GetProjectId())
 	if err != nil {
 		return nil, err
 	}
@@ -72,14 +64,6 @@ func (s *ProjectService) ListProjects(ctx context.Context, req *projectv1.ListPr
 	return &projectv1.ListProjectsReply{Projects: out, TotalSize: page.Total, NextPageToken: nextPage(page)}, nil
 }
 
-func (s *ProjectService) UpdateProject(context.Context, *projectv1.UpdateProjectRequest) (*projectv1.Project, error) {
-	return nil, status.Error(codes.Unimplemented, "UpdateProject is not implemented")
-}
-
-func (s *ProjectService) ArchiveProject(context.Context, *projectv1.ArchiveProjectRequest) (*projectv1.Project, error) {
-	return nil, status.Error(codes.Unimplemented, "ArchiveProject is not implemented")
-}
-
 func (s *ProjectService) RegisterCapability(ctx context.Context, req *projectv1.RegisterCapabilityRequest) (*projectv1.Capability, error) {
 	in := req.GetCapability()
 	capability, err := s.biz.RegisterCapability(ctx, projectbiz.RegisterCapabilityRequest{ID: in.GetId(), Name: in.GetName(), DisplayName: in.GetDisplayName(), OwnerService: in.GetOwnerService(), ConfigSchema: structToJSON(in.GetConfigSchema(), "{}")})
@@ -99,34 +83,6 @@ func (s *ProjectService) ListCapabilities(ctx context.Context, req *projectv1.Li
 		out = append(out, capabilityModelToProto(&items[i]))
 	}
 	return &projectv1.ListCapabilitiesReply{Capabilities: out}, nil
-}
-
-func (s *ProjectService) EnableProjectCapability(ctx context.Context, req *projectv1.EnableProjectCapabilityRequest) (*projectv1.ProjectCapability, error) {
-	pc, err := s.biz.SetProjectCapability(ctx, projectbiz.SetProjectCapabilityRequest{ProjectID: req.GetProjectId(), CapabilityID: req.GetCapabilityId(), Enabled: true, ConfigJSON: structToJSON(req.GetConfig(), "{}"), QuotaJSON: structToJSON(req.GetQuota(), "{}")})
-	if err != nil {
-		return nil, err
-	}
-	return projectCapabilityModelToProto(pc), nil
-}
-
-func (s *ProjectService) DisableProjectCapability(ctx context.Context, req *projectv1.DisableProjectCapabilityRequest) (*projectv1.ProjectCapability, error) {
-	pc, err := s.biz.SetProjectCapability(ctx, projectbiz.SetProjectCapabilityRequest{ProjectID: req.GetProjectId(), CapabilityID: req.GetCapabilityId(), Enabled: false})
-	if err != nil {
-		return nil, err
-	}
-	return projectCapabilityModelToProto(pc), nil
-}
-
-func (s *ProjectService) ListProjectCapabilities(ctx context.Context, req *projectv1.ListProjectCapabilitiesRequest) (*projectv1.ListProjectCapabilitiesReply, error) {
-	items, err := s.repo.ListProjectCapabilities(ctx, req.GetProjectId())
-	if err != nil {
-		return nil, err
-	}
-	out := make([]*projectv1.ProjectCapability, 0, len(items))
-	for i := range items {
-		out = append(out, projectCapabilityModelToProto(&items[i]))
-	}
-	return &projectv1.ListProjectCapabilitiesReply{Capabilities: out}, nil
 }
 
 type ResourceService struct {
@@ -354,7 +310,7 @@ func projectModelToProto(in *data.ProjectModel) *projectv1.Project {
 	if in == nil {
 		return nil
 	}
-	return &projectv1.Project{Id: in.ID, OrgId: in.OrgID, Slug: in.Slug, DisplayName: in.DisplayName, Description: in.Description, Status: statusToLifecycle(in.Status), Visibility: statusToVisibility(in.Visibility), Labels: jsonToStringMap(in.LabelsJSON), Annotations: jsonToStringMap(in.AnnotationsJSON), CreatedAt: ts(in.CreatedAt), UpdatedAt: ts(in.UpdatedAt)}
+	return &projectv1.Project{Id: in.ID, OrgId: in.OrgID, Slug: in.Slug, DisplayName: in.DisplayName, Description: in.Description, Status: statusToLifecycle(in.Status), Visibility: statusToVisibility(in.Visibility), Labels: jsonToStringMap(in.LabelsJSON), Annotations: jsonToStringMap(in.AnnotationsJSON), Metadata: jsonToStruct(in.MetadataJSON), CreatedBy: projectSubjectStringToProto(in.CreatedBy), CreatedAt: ts(in.CreatedAt), UpdatedAt: ts(in.UpdatedAt)}
 }
 
 func capabilityModelToProto(in *data.CapabilityModel) *projectv1.Capability {
