@@ -117,10 +117,11 @@ httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metric
 			panic(err)
 		}
 
-		// Schedule the job: run every 5 minutes, overwrite on each boot so all
-		// replicas share the same definition.
+		// Schedule the job after the app starts, so Dapr sidecar is fully ready.
+		// The Schedule call connects to the Dapr sidecar gRPC endpoint, which
+		// may not be available until the sidecar has finished initializing.
 		maxRetries := uint32(5)
-		if err := taskRuntime.Schedule(context.Background(), taskx.ManagedJob{
+		jobSpec := taskx.ManagedJob{
 			Name:      "grant-expiration-reconciler",
 			Schedule:  "@every 5m",
 			Overwrite: true,
@@ -131,9 +132,17 @@ httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metric
 				MaxRetries: &maxRetries,
 				Interval:   5 * time.Second,
 			},
-		}); err != nil {
-			panic(err)
 		}
+		// Defer scheduling to after kernel.Run() starts the servers, so the
+		// Dapr sidecar has time to connect to the scheduler control plane.
+		go func() {
+			time.Sleep(5 * time.Second)
+			if err := taskRuntime.Schedule(context.Background(), jobSpec); err != nil {
+				logger.Error("failed to schedule grant expiration job", logx.Any("error", err))
+			} else {
+				logger.Info("grant expiration reconciler scheduled")
+			}
+		}()
 
 		options := []kernel.Option{
 			kernel.Name(bc.Service.Name),
