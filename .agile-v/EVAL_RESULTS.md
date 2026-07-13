@@ -27,6 +27,23 @@
 4. Add fault injection tests (ENG-004) — P2
 5. Add error matrix contract tests (ENG-005) — P2
 
+## Permission Semantic Tests (新增)
+
+| 场景 | 测试内容 | 状态 |
+|------|---------|------|
+| A1 | Zone 权限授予与撤销（grant → allow → revoke → deny） | ✅ 通过 |
+| A2 | Group member 继承 view 权限 | ✅ 通过 |
+| A3 | Project viewer 继承 read 权限 | ✅ 通过 |
+| A4 | Grant 授权与撤销（owner → edit） | ✅ 通过 |
+| B1 | 用户加入组获得 view 权限 | ✅ 通过 |
+| B2 | 用户移出组失去 view 权限 | ✅ 通过 |
+| B3 | 子组通过 parent 继承父组 view | ✅ 通过 |
+| C1 | Project viewer 继承到 SkillSpace view | ✅ 通过 |
+| C2 | SkillSpace editor 继承到 Skill edit | ✅ 通过 |
+| C3 | Zone member 继承到 Project read | ✅ 通过 |
+| D1 | 无权限用户被拒绝 | ✅ 通过 |
+| D2 | 错误权限（member 不能 manage_users） | ✅ 通过 |
+
 ## Integration Environment
 
 - **Environment:** aisphere-dev (36.137.200.194) K8s cluster
