@@ -47,19 +47,39 @@ func TestIAMP0APIBoundaries(t *testing.T) {
 		}
 	}
 
-	identityAdmin := protoServiceBlock(t, identityProto, "IAMIdentityAdminService")
-	for _, required := range []string{
-		"rpc CreateGroup(",
-		"rpc UpdateGroup(",
-		"rpc DeleteGroup(",
-		"rpc AssignUserToGroup(",
-		"rpc RemoveUserFromGroup(",
-		`resource: "group:{org_id}/{group_id}"`,
-	} {
-		if !strings.Contains(identityAdmin, required) {
-			t.Fatalf("identity admin is missing canonical group write contract %q", required)
+groupAdmin := protoServiceBlock(t, readFile(t, filepath.Join(root, "api", "iam", "v1", "group_admin.proto")), "IAMGroupAdminService")
+		for _, required := range []string{
+			"rpc CreateGroup(",
+			"rpc UpdateGroup(",
+			"rpc DeleteGroup(",
+			"rpc AssignUserToGroup(",
+			"rpc RemoveUserFromGroup(",
+		} {
+			if !strings.Contains(groupAdmin, required) {
+				t.Fatalf("group admin service is missing canonical group write contract %q", required)
+			}
 		}
+		identityAdmin := protoServiceBlock(t, identityProto, "IAMIdentityAdminService")
+		for _, forbidden := range []string{
+			"rpc CreateGroup(",
+			"rpc UpdateGroup(",
+			"rpc DeleteGroup(",
+			"rpc AssignUserToGroup(",
+			"rpc RemoveUserFromGroup(",
+		} {
+			if strings.Contains(identityAdmin, forbidden) {
+				t.Fatalf("identity admin service still contains group write RPC %q", forbidden)
+			}
+		}
+}
+
+func readFile(t *testing.T, path string) string {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s: %v", path, err)
 	}
+	return string(data)
 }
 
 func readAPISurfaceContract(t *testing.T, path string) string {
