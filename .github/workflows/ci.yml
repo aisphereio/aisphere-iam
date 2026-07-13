@@ -51,6 +51,20 @@ jobs:
           make KERNEL_VERSION=${KERNEL_VERSION} api
           make KERNEL_VERSION=${KERNEL_VERSION} deploy
 
+      - name: Normalize module graph
+        run: go mod tidy
+
+      - name: Upload normalized module files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iam-module-files
+          path: |
+            go.mod
+            go.sum
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Contract checks
         run: make KERNEL_VERSION=${KERNEL_VERSION} proto-check
 
@@ -72,12 +86,12 @@ jobs:
       - name: Build binary
         run: make build
 
-      - name: Check generated files are committed
+      - name: Check generated and module files are committed
         shell: bash
         run: |
           set -euo pipefail
           if ! git diff --quiet --exit-code; then
-            echo "Generated files are stale. Run: make tools api deploy"
+            echo "Generated or module files are stale. Run: make tools api deploy && go mod tidy"
             git status --short
             git diff --stat
             exit 1
