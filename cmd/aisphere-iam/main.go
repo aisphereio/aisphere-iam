@@ -80,75 +80,75 @@ func main() {
 	resourceUsecase := resourcebiz.NewService(resources.ControlPlane, resources.AuthzAdmin, projectionManager)
 	grantUsecase := grantbiz.NewService(resources.ControlPlane, resources.Authz, resources.AuthzAdmin, projectionManager)
 	if bc.ControlPlane.Defaults.Enabled {
-		if _, err := defaults.ReconcileFile(context.Background(), bc.ControlPlane.Defaults.Path, defaults.Services{Projects: projectUsecase, Resources: resourceUsecase, Grants: grantUsecase}); err != nil {
+		if _, err := defaults.Reconcile(context.Background(), resources.PermissionManifest, defaults.Services{Projects: projectUsecase, Resources: resourceUsecase, Grants: grantUsecase}); err != nil {
 			panic(err)
 		}
 	}
 
 	service.ConfigureExternalAuthInternalCall(bc.Security.InternalCall)
 	deps := service.IAMDeps{Tokens: resources.Tokens, Identity: resources.Identity, Authz: resources.AuthzAdmin}
-authService := service.NewIAMAuthService(deps)
-		directoryService := service.NewIAMDirectoryService(deps)
-		groupService := service.NewIAMGroupAdminService(deps)
-		permissionService := service.NewIAMPermissionService(deps)
-		authzAdminService := service.NewIAMAuthorizationAdminService(deps)
-		projectService := service.NewProjectService(projectUsecase, resources.ControlPlane)
-		resourceService := service.NewResourceService(resourceUsecase, resources.ControlPlane)
-		grantService := service.NewGrantService(grantUsecase, resources.ControlPlane)
+	authService := service.NewIAMAuthService(deps)
+	directoryService := service.NewIAMDirectoryService(deps)
+	groupService := service.NewIAMGroupAdminService(deps)
+	permissionService := service.NewIAMPermissionService(deps)
+	authzAdminService := service.NewIAMAuthorizationAdminService(deps)
+	projectService := service.NewProjectService(projectUsecase, resources.ControlPlane)
+	resourceService := service.NewResourceService(resourceUsecase, resources.ControlPlane)
+	grantService := service.NewGrantService(grantUsecase, resources.ControlPlane)
 
-httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
-			grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
+	httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
+	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
 
-		// ── taskx / Dapr Jobs ──────────────────────────────────────────────
-		// Dapr callback server on a dedicated port so sidecar callbacks bypass
-		// the IAM gRPC authn/authz middleware.
-		taskRuntime, taskCallback, err := taskxdapr.NewStandalone(":19081")
-		if err != nil {
-			panic(err)
-		}
-		defer taskRuntime.Close()
+	// ── taskx / Dapr Jobs ──────────────────────────────────────────────
+	// Dapr callback server on a dedicated port so sidecar callbacks bypass
+	// the IAM gRPC authn/authz middleware.
+	taskRuntime, taskCallback, err := taskxdapr.NewStandalone(":19081")
+	if err != nil {
+		panic(err)
+	}
+	defer taskRuntime.Close()
 
-		// Register the grant expiration reconciler handler.
-		if err := taskRuntime.RegisterHandler("grant-expiration-reconciler",
-			func(ctx context.Context, event taskx.TriggerEvent) error {
-				return grantUsecase.ExpireDueGrants(ctx)
-			},
-		); err != nil {
-			panic(err)
-		}
+	// Register the grant expiration reconciler handler.
+	if err := taskRuntime.RegisterHandler("grant-expiration-reconciler",
+		func(ctx context.Context, event taskx.TriggerEvent) error {
+			return grantUsecase.ExpireDueGrants(ctx)
+		},
+	); err != nil {
+		panic(err)
+	}
 
-		// Schedule the job after the app starts, with exponential backoff retry.
-		// The ScheduleJobAlpha1 call connects to the Dapr sidecar gRPC endpoint,
-		// which may not be available until the sidecar has fully initialized and
-		// connected to the Scheduler control plane.
-		maxRetries := uint32(5)
-		jobSpec := taskx.ManagedJob{
-			Name:      "grant-expiration-reconciler",
-			Schedule:  "@every 5m",
-			Overwrite: true,
-			Data:      []byte(`{"batch_size":100}`),
-			DataTypeURL: "application/json",
-			FailurePolicy: &taskx.DeliveryFailurePolicy{
-				Mode:       taskx.DeliveryFailureConstant,
-				MaxRetries: &maxRetries,
-				Interval:   5 * time.Second,
-			},
-		}
-		afterStart := func(ctx context.Context) error {
-			go ensureGrantExpirationJob(ctx, taskRuntime, jobSpec, logger)
-			return nil
-		}
+	// Schedule the job after the app starts, with exponential backoff retry.
+	// The ScheduleJobAlpha1 call connects to the Dapr sidecar gRPC endpoint,
+	// which may not be available until the sidecar has fully initialized and
+	// connected to the Scheduler control plane.
+	maxRetries := uint32(5)
+	jobSpec := taskx.ManagedJob{
+		Name:        "grant-expiration-reconciler",
+		Schedule:    "@every 5m",
+		Overwrite:   true,
+		Data:        []byte(`{"batch_size":100}`),
+		DataTypeURL: "application/json",
+		FailurePolicy: &taskx.DeliveryFailurePolicy{
+			Mode:       taskx.DeliveryFailureConstant,
+			MaxRetries: &maxRetries,
+			Interval:   5 * time.Second,
+		},
+	}
+	afterStart := func(ctx context.Context) error {
+		go ensureGrantExpirationJob(ctx, taskRuntime, jobSpec, logger)
+		return nil
+	}
 
-		options := []kernel.Option{
-			kernel.Name(bc.Service.Name),
-			kernel.Version(bc.Service.Version),
-			kernel.LogxLogger(logger),
-			kernel.Metrics(metrics),
-			kernel.DTM(dtmManager),
-			kernel.Server(httpServer, grpcServer, taskCallback),
-			kernel.AfterStart(afterStart),
-			kernel.StopTimeout(10 * time.Second),
-		}
+	options := []kernel.Option{
+		kernel.Name(bc.Service.Name),
+		kernel.Version(bc.Service.Version),
+		kernel.LogxLogger(logger),
+		kernel.Metrics(metrics),
+		kernel.DTM(dtmManager),
+		kernel.Server(httpServer, grpcServer, taskCallback),
+		kernel.AfterStart(afterStart),
+		kernel.StopTimeout(10 * time.Second),
+	}
 	if bc.Metrics.Enabled && bc.Metrics.Addr != "" {
 		options = append(options, kernel.PrometheusMetrics(bc.Metrics.Addr), kernel.MetricsPath(bc.Metrics.Path), kernel.MetricsPprof(bc.Metrics.Pprof))
 	}

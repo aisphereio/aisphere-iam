@@ -78,14 +78,18 @@ func (m *Manifest) ResolveBootstrapRole(role string) (BootstrapRole, string, boo
 	if m == nil {
 		return BootstrapRole{}, "", false
 	}
+	return m.Bootstrap.ResolveRole(role)
+}
+
+func (p BootstrapPolicy) ResolveRole(role string) (BootstrapRole, string, bool) {
 	role = strings.TrimSpace(role)
 	if role == "" {
-		role = strings.TrimSpace(m.Bootstrap.DefaultRole)
+		role = strings.TrimSpace(p.DefaultRole)
 	}
-	if policy, ok := m.Bootstrap.Roles[role]; ok {
+	if policy, ok := p.Roles[role]; ok {
 		return policy, role, true
 	}
-	for canonical, policy := range m.Bootstrap.Roles {
+	for canonical, policy := range p.Roles {
 		for _, alias := range policy.Aliases {
 			if strings.TrimSpace(alias) == role {
 				return policy, canonical, true

@@ -7,50 +7,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 
 	grantbiz "github.com/aisphereio/aisphere-iam/internal/biz/grant"
 	projectbiz "github.com/aisphereio/aisphere-iam/internal/biz/project"
 	resourcebiz "github.com/aisphereio/aisphere-iam/internal/biz/resource"
-	"gopkg.in/yaml.v3"
+	"github.com/aisphereio/aisphere-iam/internal/permissionmanifest"
 )
 
-type File struct {
-	Capabilities  []Capability   `yaml:"capabilities"`
-	ResourceTypes []ResourceType `yaml:"resource_types"`
-	RoleTemplates []RoleTemplate `yaml:"role_templates"`
-}
-
-type Capability struct {
-	ID           string `yaml:"id"`
-	Name         string `yaml:"name"`
-	DisplayName  string `yaml:"display_name"`
-	OwnerService string `yaml:"owner_service"`
-	Status       string `yaml:"status"`
-}
-
-type ResourceType struct {
-	Type         string   `yaml:"type"`
-	CapabilityID string   `yaml:"capability_id"`
-	OwnerService string   `yaml:"owner_service"`
-	ParentTypes  []string `yaml:"parent_types"`
-	Grantable    bool     `yaml:"grantable"`
-	Auditable    bool     `yaml:"auditable"`
-	SpiceDBType  string   `yaml:"spicedb_type"`
-	Relations    []string `yaml:"relations"`
-	Permissions  []string `yaml:"permissions"`
-	Status       string   `yaml:"status"`
-}
-
-type RoleTemplate struct {
-	ResourceType string `yaml:"resource_type"`
-	RoleKey      string `yaml:"role_key"`
-	DisplayName  string `yaml:"display_name"`
-	Relation     string `yaml:"relation"`
-	BuiltIn      bool   `yaml:"built_in"`
-	Enabled      bool   `yaml:"enabled"`
-	SortOrder    int    `yaml:"sort_order"`
-}
+type File = permissionmanifest.Manifest
+type Capability = permissionmanifest.Capability
+type ResourceType = permissionmanifest.ResourceType
+type RoleTemplate = permissionmanifest.RoleTemplate
 
 type Services struct {
 	Projects  *projectbiz.Service
@@ -65,15 +32,7 @@ type Result struct {
 }
 
 func LoadFile(path string) (*File, error) {
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	var out File
-	if err := yaml.Unmarshal(b, &out); err != nil {
-		return nil, err
-	}
-	return &out, nil
+	return permissionmanifest.Load(path)
 }
 
 func ReconcileFile(ctx context.Context, path string, services Services) (Result, error) {

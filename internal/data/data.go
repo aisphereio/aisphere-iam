@@ -3,6 +3,8 @@ package data
 import (
 	"context"
 	"errors"
+	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -24,6 +26,7 @@ import (
 	_ "github.com/aisphereio/kernel/objectstorex/minio"
 
 	"github.com/aisphereio/aisphere-iam/internal/conf"
+	"github.com/aisphereio/aisphere-iam/internal/permissionmanifest"
 )
 
 type ResourceOptions struct {
@@ -46,6 +49,7 @@ type Resources struct {
 	Access             accessx.Guard
 	DTM                dtmx.Manager
 	IdentityProjection *IdentityProjectionDispatcher
+	PermissionManifest *permissionmanifest.Manifest
 
 	closers []func() error
 }
@@ -65,6 +69,11 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 		Authz: authz.DenyAll(),
 		DTM:   dtmx.FromContextOr(ctx, opts.DTM),
 	}
+	manifest, err := loadPermissionManifest(cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+	r.PermissionManifest = manifest
 	if !cfg.Audit.Enabled {
 		r.Audit = auditx.Noop()
 	} else {
@@ -161,7 +170,11 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 				return nil, nil, err
 			}
 		}
-		if err := bootstrapControlPlaneAdmins(ctx, cfg.ControlPlane.BootstrapAdmins, provider, r.Identity, logger); err != nil {
+		bootstrapPolicy := permissionmanifest.BootstrapPolicy{}
+		if r.PermissionManifest != nil {
+			bootstrapPolicy = r.PermissionManifest.Bootstrap
+		}
+		if err := bootstrapControlPlaneAdmins(ctx, cfg.ControlPlane.BootstrapAdmins, bootstrapPolicy, provider, r.Identity, logger); err != nil {
 			r.Close()
 			return nil, nil, err
 		}
@@ -234,14 +247,44 @@ func newAuthorizer(cfg conf.AuthzConfig, logger logx.Logger, metrics metricsx.Ma
 	}
 }
 
-func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBootstrapAdminsConfig, writer authz.RelationshipWriter, directory authn.UserDirectory, logger logx.Logger) error {
+func loadPermissionManifest(cfg conf.Bootstrap) (*permissionmanifest.Manifest, error) {
+	if !cfg.ControlPlane.Defaults.Enabled && !cfg.ControlPlane.BootstrapAdmins.Enabled {
+		return nil, nil
+	}
+	path := strings.TrimSpace(cfg.ControlPlane.Defaults.Path)
+	if path == "" {
+		return nil, fmt.Errorf("control_plane.defaults.path is required for permission bootstrap")
+	}
+	manifest, err := permissionmanifest.Load(path)
+	if err != nil {
+		return nil, fmt.Errorf("load permission manifest %s: %w", path, err)
+	}
+	if !cfg.Security.Authz.InstallDefaultSchema {
+		return manifest, nil
+	}
+	schemaPath := strings.TrimSpace(cfg.Security.Authz.SchemaPath)
+	if schemaPath == "" {
+		return nil, fmt.Errorf("security.authz.schema_path is required for permission manifest validation")
+	}
+	body, err := os.ReadFile(schemaPath)
+	if err != nil {
+		return nil, fmt.Errorf("read authz schema %s: %w", schemaPath, err)
+	}
+	schema, err := permissionmanifest.ParseSchema(string(body))
+	if err != nil {
+		return nil, fmt.Errorf("parse authz schema %s: %w", schemaPath, err)
+	}
+	if err := permissionmanifest.Validate(manifest, schema); err != nil {
+		return nil, fmt.Errorf("validate permission manifest: %w", err)
+	}
+	return manifest, nil
+}
+
+func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBootstrapAdminsConfig, policy permissionmanifest.BootstrapPolicy, writer authz.RelationshipWriter, directory authn.UserDirectory, logger logx.Logger) error {
 	if !cfg.Enabled || writer == nil || len(cfg.Subjects) == 0 {
 		return nil
 	}
-	resources := cfg.Resources
-	if len(resources) == 0 {
-		resources = defaultControlPlaneAdminResources()
-	}
+	resources := policy.AdminResources
 	rels := make([]authz.Relationship, 0, len(resources)*len(cfg.Subjects)+len(cfg.Subjects)*6)
 	for _, subject := range cfg.Subjects {
 		legacySubject, hasLegacy := legacyBootstrapSubject(subject)
@@ -268,15 +311,19 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 		if zoneID == "" || !hasZoneSubject {
 			continue
 		}
+		rolePolicy, _, ok := policy.ResolveRole(subject.Role)
+		if !ok {
+			return fmt.Errorf("unknown bootstrap role %s", strings.TrimSpace(subject.Role))
+		}
 		zoneSubject = stripSubjectRelation(zoneSubject)
-		for _, relation := range bootstrapZoneRelations(subject.Role) {
+		for _, relation := range rolePolicy.ZoneRelations {
 			rels = append(rels, authz.Relationship{
 				Resource: authz.ObjectRef{Type: "zone", ID: zoneID},
 				Relation: relation,
 				Subject:  zoneSubject,
 			})
 		}
-		if !hasLegacy && bootstrapRoleGrantsControlPlaneAdmin(subject.Role) {
+		if !hasLegacy && rolePolicy.ControlPlaneAdmin {
 			for _, resource := range resources {
 				resource.Type = strings.TrimSpace(resource.Type)
 				resource.ID = strings.TrimSpace(resource.ID)
@@ -346,64 +393,9 @@ func resolveBootstrapZoneSubject(ctx context.Context, subject conf.ControlPlaneA
 	return authz.SubjectRef{}, false, authn.ErrIdentityBackendFailed("bootstrap admin user not found: "+orgID+"/"+username, nil)
 }
 
-func bootstrapRoleToRelation(role string) string {
-	switch strings.TrimSpace(role) {
-	case "zone_admin", "admin":
-		return "admin"
-	case "user_viewer":
-		return "user_viewer"
-	case "user_manager":
-		return "user_manager"
-	case "group_viewer":
-		return "group_viewer"
-	case "group_manager":
-		return "group_manager"
-	case "permission_admin":
-		return "permission_admin"
-	case "zone_owner", "owner", "":
-		return "owner"
-	default:
-		return strings.TrimSpace(role)
-	}
-}
-
-func bootstrapZoneRelations(role string) []string {
-	relation := bootstrapRoleToRelation(role)
-	switch relation {
-	case "owner":
-		return []string{"owner", "admin", "user_manager", "group_manager", "permission_admin"}
-	case "admin":
-		return []string{"admin", "user_manager", "group_manager", "permission_admin"}
-	default:
-		if relation == "" {
-			return nil
-		}
-		return []string{relation}
-	}
-}
-
-func bootstrapRoleGrantsControlPlaneAdmin(role string) bool {
-	relation := bootstrapRoleToRelation(role)
-	return relation == "owner" || relation == "admin"
-}
-
 func stripSubjectRelation(subject authz.SubjectRef) authz.SubjectRef {
 	subject.Relation = ""
 	return subject
-}
-
-func defaultControlPlaneAdminResources() []conf.ControlPlaneAdminResource {
-	return []conf.ControlPlaneAdminResource{
-		{Type: "iam", ID: "organization"},
-		{Type: "iam", ID: "capability"},
-		{Type: "iam", ID: "resource_type"},
-		{Type: "iam", ID: "resource"},
-		{Type: "iam", ID: "resource_binding"},
-		{Type: "iam", ID: "external_resource_binding"},
-		{Type: "iam", ID: "role_template"},
-		{Type: "iam", ID: "grant"},
-		{Type: "iam_authz", ID: "global"},
-	}
 }
 
 func dataFirstNonEmpty(values ...string) string {

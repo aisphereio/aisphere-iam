@@ -113,9 +113,8 @@ type ControlPlaneDefaultsConfig struct {
 }
 
 type ControlPlaneBootstrapAdminsConfig struct {
-	Enabled   bool                        `json:"enabled" yaml:"enabled"`
-	Subjects  []ControlPlaneAdminSubject  `json:"subjects" yaml:"subjects"`
-	Resources []ControlPlaneAdminResource `json:"resources" yaml:"resources"`
+	Enabled  bool                       `json:"enabled" yaml:"enabled"`
+	Subjects []ControlPlaneAdminSubject `json:"subjects" yaml:"subjects"`
 }
 
 type ControlPlaneAdminSubject struct {
@@ -134,11 +133,6 @@ type ControlPlaneAdminSubject struct {
 	Username        string `json:"username" yaml:"username"`
 	Source          string `json:"source" yaml:"source"`
 	Reason          string `json:"reason" yaml:"reason"`
-}
-
-type ControlPlaneAdminResource struct {
-	Type string `json:"type" yaml:"type"`
-	ID   string `json:"id" yaml:"id"`
 }
 
 type AuditConfig struct {
