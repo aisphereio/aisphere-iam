@@ -123,21 +123,18 @@ At startup, IAM uses the configured Casdoor M2M admin client to resolve `aispher
 zone:aisphere#owner@user:<admin_uuid>
 ```
 
-For zone owner/admin bootstrap subjects, IAM also writes control-plane admin relationships for default IAM resources, including:
+Bootstrap now writes one personnel relationship at the scope the administrator owns. Platform administrators are explicit:
 
 ```text
-iam:organization#admin@user:<admin_uuid>
-iam:capability#admin@user:<admin_uuid>
-iam:resource_type#admin@user:<admin_uuid>
-iam:resource#admin@user:<admin_uuid>
-iam:resource_binding#admin@user:<admin_uuid>
-iam:external_resource_binding#admin@user:<admin_uuid>
-iam:role_template#admin@user:<admin_uuid>
-iam:grant#admin@user:<admin_uuid>
-iam_authz:global#admin@user:<admin_uuid>
+platform:global#owner@user:<admin_uuid>
+platform:global#admin@user:<admin_uuid>
 ```
 
-The role expansion and resource list are not hard-coded in Go. They are loaded from the `bootstrap` section of `configs/resource/defaults.yaml`. Bootstrap subjects remain in environment-specific service configuration, while permission policy remains in the shared manifest.
+Use `platform_owner` or `platform_admin` only when the subject truly administers every zone. The compatibility aliases `owner` and `admin` remain zone-scoped, so an existing `zone_owner` bootstrap cannot silently become a platform administrator.
+
+Structural links connect `platform:global` to each zone and global IAM resource. Organization administrators keep one direct `zone:<id>#owner|admin` relationship and inherit group management through the zone hierarchy; IAM does not copy them into every child group as a direct manager.
+
+The scoped roles and structural resource list are loaded from the `bootstrap` section of `configs/resource/defaults.yaml`. Bootstrap subjects remain in environment-specific service configuration, while permission policy remains in the shared manifest.
 
 Before startup writes relationships, IAM validates the manifest against `configs/spicedb/aisphere.schema.zed`. The same check is available offline:
 
@@ -145,7 +142,7 @@ Before startup writes relationships, IAM validates the manifest against `configs
 make permission-manifest-check
 ```
 
-Schema bootstrap automatically publishes only missing definitions, relations, or permissions. An existing declaration with a changed expression, or an active declaration removed from the repository schema, fails closed and must be handled through an explicit authorization schema migration.
+Schema bootstrap automatically publishes missing definitions, relations, and permissions. Existing permission expressions change only when `security.authz.allow_permission_migrations` is explicitly enabled. Removed active declarations still fail closed.
 
 ## 5. Permission Console resource
 
@@ -230,10 +227,21 @@ iam_authz:global#view_relationships
 iam_authz:global#repair_relationships
 ```
 
-## 8. Next implementation slices
+## 8. Role-first grants
 
-1. Run `make api` and commit generated files.
-2. Run `make deploy` and commit or publish generated Gateway API manifests according to the repo release policy.
-3. Replace first-slice UI direct relationship writes with a higher-level Grant Wizard.
-4. Add audit events for schema publish, grant, revoke, and repair.
-5. Add integration tests for admin bootstrap, user-list authorization, schema validation, and relationship explorer.
+Built-in roles continue to map to native resource relations. Custom roles store an ordered permission set in PostgreSQL and project capabilities to `custom_role` objects. A custom grant creates a stable `role_binding` between one role, one user or `group#member`, and one concrete resource.
+
+This supports fine-grained sharing such as “share `skill:skill-a` with `user:alice` as reviewer” without inventing a global RBAC role or duplicating a relationship for every capability. Updating a custom role is version-checked, audited, impact-previewed, and projected through the outbox.
+
+## 9. Safe rollout and rollback
+
+Use this order for an existing environment:
+
+1. Deploy the additive schema containing `platform`, hierarchy links, `custom_role`, and `role_binding`.
+2. For the reviewed schema rollout only, set `security.authz.allow_permission_migrations: true`; start IAM and verify representative platform, zone, group, and resource checks.
+3. Return `allow_permission_migrations` to `false` immediately after the schema is installed.
+4. Keep `control_plane.bootstrap_admins.cleanup_legacy_expansions: false` while confirming each administrator has the expected single platform or zone relationship.
+5. Enable `cleanup_legacy_expansions: true` for one controlled restart. Review planned/deleted relationship counts and representative access checks, then return it to `false`.
+6. Deploy the role-first frontend only after the new GrantService API is reachable.
+
+Rollback the service and bootstrap configuration while leaving additive schema definitions in place. Do not remove `custom_role`, `role_binding`, `custom_binding`, or their permission branches while custom roles or grants exist. Leaving unused additive schema in place is safe; deleting types that still have bindings is not.
