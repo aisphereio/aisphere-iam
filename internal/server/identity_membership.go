@@ -1,7 +1,7 @@
 package server
 
 import (
-	"encoding/json"
+	"context"
 	"net/http"
 	"strings"
 
@@ -18,61 +18,60 @@ type identityGroupMembershipRequest struct {
 }
 
 func registerIdentityMembershipRoutes(srv *khttp.Server, resources *data.Resources) {
-	srv.HandleFunc("/v1/iam/directory/group-memberships:assign", func(w http.ResponseWriter, r *http.Request) {
-		handleIdentityGroupMembership(w, r, resources, true)
-	})
-	srv.HandleFunc("/v1/iam/directory/group-memberships:remove", func(w http.ResponseWriter, r *http.Request) {
-		handleIdentityGroupMembership(w, r, resources, false)
-	})
+	if srv == nil || resources == nil || resources.Identity == nil {
+		return
+	}
+	r := srv.Route("")
+	r.POST("/v1/iam/directory/group-memberships:assign", assignIdentityGroupMembershipHandler(resources))
+	r.POST("/v1/iam/directory/group-memberships:remove", removeIdentityGroupMembershipHandler(resources))
 }
 
-func handleIdentityGroupMembership(w http.ResponseWriter, r *http.Request, resources *data.Resources, assign bool) {
-	if r.Method != http.MethodPost {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
-		return
-	}
-	if resources == nil || resources.Identity == nil {
-		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "identity provider is not configured"})
-		return
-	}
-
-	var req identityGroupMembershipRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
-		return
-	}
-	req.OrgID = strings.TrimSpace(req.OrgID)
-	req.GroupID = strings.TrimSpace(req.GroupID)
-	req.UserID = strings.TrimSpace(req.UserID)
-	if req.OrgID == "" || req.GroupID == "" || req.UserID == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "org_id, group_id and user_id are required"})
-		return
-	}
-
-	if err := requireIdentityGroupMembershipPermission(r, resources, req.OrgID); err != nil {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": err.Error()})
-		return
-	}
-
-	input := authn.AssignUserToGroupRequest{OrgID: req.OrgID, GroupID: req.GroupID, UserID: req.UserID}
-	var err error
-	if assign {
-		err = resources.Identity.AssignUserToGroup(r.Context(), input)
-	} else {
-		err = resources.Identity.RemoveUserFromGroup(r.Context(), input)
-	}
-	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
-		return
-	}
-	writeJSON(w, http.StatusOK, map[string]any{"success": true, "assigned": assign})
+func assignIdentityGroupMembershipHandler(resources *data.Resources) khttp.HandlerFunc {
+	return handleIdentityGroupMembership(resources, true)
 }
 
-func requireIdentityGroupMembershipPermission(r *http.Request, resources *data.Resources, orgID string) error {
-	principal, ok := authn.PrincipalFromContext(r.Context())
-	if !ok || !principal.IsAuthenticated() {
-		return authn.ErrMissingCredential("gateway principal is required")
+func removeIdentityGroupMembershipHandler(resources *data.Resources) khttp.HandlerFunc {
+	return handleIdentityGroupMembership(resources, false)
+}
+
+func handleIdentityGroupMembership(resources *data.Resources, assign bool) khttp.HandlerFunc {
+	return func(c khttp.Context) error {
+		var req identityGroupMembershipRequest
+		if err := c.Bind(&req); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		}
+		req.OrgID = strings.TrimSpace(req.OrgID)
+		req.GroupID = strings.TrimSpace(req.GroupID)
+		req.UserID = strings.TrimSpace(req.UserID)
+		if req.OrgID == "" || req.GroupID == "" || req.UserID == "" {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "org_id, group_id and user_id are required"})
+		}
+
+		result, err := runWithGatewayPrincipal(c, func(ctx context.Context, principal authn.Principal) (any, error) {
+			if err := requireIdentityGroupMembershipPermission(ctx, resources, principal, req.OrgID); err != nil {
+				return nil, err
+			}
+
+			input := authn.AssignUserToGroupRequest{OrgID: req.OrgID, GroupID: req.GroupID, UserID: req.UserID}
+			if assign {
+				if err := resources.Identity.AssignUserToGroup(ctx, input); err != nil {
+					return nil, err
+				}
+			} else {
+				if err := resources.Identity.RemoveUserFromGroup(ctx, input); err != nil {
+					return nil, err
+				}
+			}
+			return map[string]any{"success": true, "assigned": assign}, nil
+		})
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, result)
 	}
+}
+
+func requireIdentityGroupMembershipPermission(ctx context.Context, resources *data.Resources, principal authn.Principal, orgID string) error {
 	if resources == nil || resources.Authz == nil {
 		return authz.ErrBackendFailed("authz provider is not configured", nil)
 	}
@@ -80,7 +79,7 @@ func requireIdentityGroupMembershipPermission(r *http.Request, resources *data.R
 	if subjectType == "" {
 		subjectType = authz.SubjectTypeUser
 	}
-	decision, err := resources.Authz.Check(r.Context(), authz.CheckRequest{
+	decision, err := resources.Authz.Check(ctx, authz.CheckRequest{
 		Subject:    authz.SubjectRef{Type: subjectType, ID: principal.SubjectID},
 		Resource:   authz.ObjectRef{Type: "zone", ID: orgID},
 		Permission: "manage_groups",
