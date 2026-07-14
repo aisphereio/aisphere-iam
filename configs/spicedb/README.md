@@ -30,7 +30,9 @@ security:
     schema_path: /app/configs/spicedb/aisphere.schema.zed
 ```
 
-Startup is idempotent: IAM first reads the active SpiceDB schema and skips bootstrap when the required IAM directory definitions already exist.
+Startup is idempotent and additive-only. IAM parses the active and desired schemas by definition, relation, and permission. Identical declarations are skipped; missing declarations are validated and published. Changed declarations or active declarations absent from the repository schema stop startup and require an explicit migration.
+
+`configs/resource/defaults.yaml` is the initialization manifest for resource catalogs, role templates, bootstrap role expansion, and control-plane admin resources. Run `make permission-manifest-check` to verify that its relation and permission lists match this executable `.zed` schema.
 
 ## Kubernetes deployment
 
@@ -66,13 +68,9 @@ Use this rule of thumb:
 
 - Additive changes are usually safe: new definitions, new relations, new permissions.
 - Destructive changes require a migration plan: rename/remove definitions, rename/remove relations, or change allowed subject types.
-- For schema upgrades after initial bootstrap, prefer the IAM authorization admin publish API or a controlled operator job instead of automatic restart-time overwrite.
+- Strict additions are applied by IAM startup after manifest and SpiceDB validation.
+- Changed or removed declarations must use the IAM authorization admin publish API or a controlled operator migration; startup refuses them.
 
 ## Future improvements
 
-Planned production hardening:
-
-- schema version metadata
-- schema diff / preflight check
-- relationship compatibility checks before publish
-- separate schema migration jobs for destructive changes
+Further production hardening can add schema version metadata, relationship compatibility reports, and dedicated jobs for destructive migrations.

@@ -137,6 +137,16 @@ iam:grant#admin@user:<admin_uuid>
 iam_authz:global#admin@user:<admin_uuid>
 ```
 
+The role expansion and resource list are not hard-coded in Go. They are loaded from the `bootstrap` section of `configs/resource/defaults.yaml`. Bootstrap subjects remain in environment-specific service configuration, while permission policy remains in the shared manifest.
+
+Before startup writes relationships, IAM validates the manifest against `configs/spicedb/aisphere.schema.zed`. The same check is available offline:
+
+```text
+make permission-manifest-check
+```
+
+Schema bootstrap automatically publishes only missing definitions, relations, or permissions. An existing declaration with a changed expression, or an active declaration removed from the repository schema, fails closed and must be handled through an explicit authorization schema migration.
+
 ## 5. Permission Console resource
 
 The SpiceDB schema now includes a global IAM authorization-control resource:

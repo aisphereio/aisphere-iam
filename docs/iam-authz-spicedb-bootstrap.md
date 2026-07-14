@@ -85,6 +85,10 @@ zone:aisphere#owner@user:<casdoor-local-operator-sub>
 
 For compatibility with current generated IAM control-plane metadata, zone owner/admin bootstrap subjects are also written to built-in `iam:*#admin` relationships.
 
+The exact zone relations and built-in admin resources come from the `bootstrap` section of `configs/resource/defaults.yaml`; IAM no longer maintains a second Go constant list. The configured subject is environment-specific, but its role semantics are shared and validated.
+
+`make permission-manifest-check` compares the manifest's resource relations, permissions, and role templates with `configs/spicedb/aisphere.schema.zed`. IAM startup performs the same validation and applies only strict schema additions. Changes and removals are rejected so they can be executed as reviewed schema migrations.
+
 ## 5. External users
 
 External users may sign in through Casdoor federated identity providers. They are not administrators by default.
