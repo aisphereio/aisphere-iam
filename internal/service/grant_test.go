@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -57,6 +58,147 @@ func TestGrantServiceRegisterRoleTemplate(t *testing.T) {
 	if rt.GetRoleKey() != "owner" {
 		t.Fatalf("unexpected role key: %s", rt.GetRoleKey())
 	}
+}
+
+func TestGrantServiceRegisterCustomRoleUsesPermissionsInsteadOfRelation(t *testing.T) {
+	repo := data.NewMemoryControlPlaneRepository()
+	store := authz.NewMemoryRelationshipStore()
+	biz := grantbiz.NewService(repo, memoryAuthorizer{MemoryRelationshipStore: store}, store)
+	svc := NewGrantService(biz, repo)
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{SubjectID: "admin", SubjectType: "user"})
+	if err := repo.UpsertResourceType(ctx, &data.ResourceTypeModel{
+		Type: "test_skill", SpiceDBType: "test_skill", Grantable: true,
+		RelationsJSON: `["owner","custom_binding"]`, PermissionsJSON: `["view","review"]`,
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	role, err := svc.RegisterRoleTemplate(ctx, &grantv1.RegisterRoleTemplateRequest{RoleTemplate: &grantv1.RoleTemplate{
+		ResourceType: "test_skill", RoleKey: "reviewer", DisplayName: "Reviewer",
+		Permissions: []string{"review", "view"},
+	}})
+	if err != nil {
+		t.Fatalf("RegisterRoleTemplate: %v", err)
+	}
+	if role.GetRelation() != "custom_binding" || role.GetVersion() != 1 {
+		t.Fatalf("role = %#v", role)
+	}
+	if got := role.GetPermissions(); len(got) != 2 || got[0] != "review" || got[1] != "view" {
+		t.Fatalf("permissions = %v", got)
+	}
+}
+
+func TestGrantServiceUpdatesCustomRoleWithImpactPreviewAndVersionCheck(t *testing.T) {
+	repo := data.NewMemoryControlPlaneRepository()
+	store := authz.NewMemoryRelationshipStore()
+	biz := grantbiz.NewService(repo, memoryAuthorizer{MemoryRelationshipStore: store}, store)
+	svc := NewGrantService(biz, repo)
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{SubjectID: "admin", SubjectType: "user"})
+	if err := repo.UpsertResourceType(ctx, &data.ResourceTypeModel{
+		Type: "test_skill", SpiceDBType: "test_skill", Grantable: true,
+		RelationsJSON: `["custom_binding"]`, PermissionsJSON: `["view","review","edit"]`,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	created, err := svc.RegisterRoleTemplate(ctx, &grantv1.RegisterRoleTemplateRequest{RoleTemplate: &grantv1.RoleTemplate{
+		ResourceType: "test_skill", RoleKey: "reviewer", DisplayName: "Reviewer", Permissions: []string{"view", "review"},
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	impact, err := svc.PreviewRoleTemplateImpact(ctx, &grantv1.PreviewRoleTemplateImpactRequest{Id: created.GetId(), Permissions: []string{"view", "edit"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if impact.GetActiveGrantCount() != 0 || len(impact.GetAddedPermissions()) != 1 || impact.GetAddedPermissions()[0] != "edit" || len(impact.GetRemovedPermissions()) != 1 || impact.GetRemovedPermissions()[0] != "review" {
+		t.Fatalf("impact = %#v", impact)
+	}
+
+	updated, err := svc.UpdateRoleTemplate(ctx, &grantv1.UpdateRoleTemplateRequest{
+		Id: created.GetId(), DisplayName: "Skill reviewer", Permissions: []string{"view", "edit"}, ExpectedVersion: 1,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if updated.GetVersion() != 2 || updated.GetDisplayName() != "Skill reviewer" {
+		t.Fatalf("updated = %#v", updated)
+	}
+	if _, err := svc.UpdateRoleTemplate(ctx, &grantv1.UpdateRoleTemplateRequest{Id: created.GetId(), Permissions: []string{"view"}, ExpectedVersion: 1}); err == nil || !strings.Contains(err.Error(), "version conflict") {
+		t.Fatalf("error = %v, want version conflict", err)
+	}
+}
+
+func TestGrantServiceCustomRoleGrantUsesRoleBindingAndRevokesAllBindingEdges(t *testing.T) {
+	repo := data.NewMemoryControlPlaneRepository()
+	store := authz.NewMemoryRelationshipStore()
+	biz := grantbiz.NewService(repo, memoryAuthorizer{MemoryRelationshipStore: store}, store)
+	svc := NewGrantService(biz, repo)
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{SubjectID: "admin", SubjectType: "user"})
+	if err := repo.UpsertResourceType(ctx, &data.ResourceTypeModel{
+		Type: "test_skill", SpiceDBType: "test_skill", Grantable: true,
+		RelationsJSON: `["custom_binding"]`, PermissionsJSON: `["view","review"]`,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := repo.UpsertResource(ctx, &data.ResourceModel{Type: "test_skill", ID: "skill-1", OrgID: "org-a", OwnerService: "test", OwnerResourceID: "skill-1"}); err != nil {
+		t.Fatal(err)
+	}
+	role, err := svc.RegisterRoleTemplate(ctx, &grantv1.RegisterRoleTemplateRequest{RoleTemplate: &grantv1.RoleTemplate{
+		ResourceType: "test_skill", RoleKey: "reviewer", DisplayName: "Reviewer", Permissions: []string{"view", "review"},
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	grant, err := svc.GrantAccess(ctx, &grantv1.GrantAccessRequest{
+		Resource: &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"}, RoleKey: "reviewer",
+		Subject: &resourcev1.SubjectRef{Type: "user", Id: "alice"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []authz.Relationship{
+		{Resource: authz.ObjectRef{Type: "role_binding", ID: grant.GetId()}, Relation: "role", Subject: authz.SubjectRef{Type: "custom_role", ID: "test_skill:reviewer"}},
+		{Resource: authz.ObjectRef{Type: "role_binding", ID: grant.GetId()}, Relation: "grantee", Subject: authz.SubjectRef{Type: "user", ID: "alice"}},
+		{Resource: authz.ObjectRef{Type: "test_skill", ID: "skill-1"}, Relation: "custom_binding", Subject: authz.SubjectRef{Type: "role_binding", ID: grant.GetId()}},
+	}
+	rels, err := store.ReadRelationships(ctx, authz.RelationshipFilter{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, relationship := range want {
+		if !grantTestContainsRelationship(rels, relationship) {
+			t.Fatalf("missing relationship %#v in %#v", relationship, rels)
+		}
+	}
+	list, err := svc.ListRoleTemplates(ctx, &grantv1.ListRoleTemplatesRequest{ResourceType: "test_skill"})
+	if err != nil || len(list.GetRoleTemplates()) != 1 || list.GetRoleTemplates()[0].GetActiveGrantCount() != 1 {
+		t.Fatalf("roles = %#v, err = %v", list, err)
+	}
+	if _, err := svc.DisableRoleTemplate(ctx, &grantv1.DisableRoleTemplateRequest{Id: role.GetId(), ExpectedVersion: 1}); err == nil || !strings.Contains(err.Error(), "active grants") {
+		t.Fatalf("error = %v, want active grant confirmation", err)
+	}
+	if _, err := svc.RevokeAccess(ctx, &grantv1.RevokeAccessRequest{GrantId: grant.GetId()}); err != nil {
+		t.Fatal(err)
+	}
+	rels, err = store.ReadRelationships(ctx, authz.RelationshipFilter{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, relationship := range want {
+		if grantTestContainsRelationship(rels, relationship) {
+			t.Fatalf("binding relationship remains after revoke: %#v", relationship)
+		}
+	}
+}
+
+func grantTestContainsRelationship(rels []authz.Relationship, want authz.Relationship) bool {
+	for _, rel := range rels {
+		if rel.Resource == want.Resource && rel.Relation == want.Relation && rel.Subject == want.Subject {
+			return true
+		}
+	}
+	return false
 }
 
 func TestGrantServiceListRoleTemplates(t *testing.T) {

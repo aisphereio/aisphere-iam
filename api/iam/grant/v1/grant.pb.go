@@ -28,21 +28,24 @@ const (
 )
 
 type RoleTemplate struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ResourceType  string                 `protobuf:"bytes,2,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
-	RoleKey       string                 `protobuf:"bytes,3,opt,name=role_key,json=roleKey,proto3" json:"role_key,omitempty"`
-	DisplayName   string                 `protobuf:"bytes,4,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	Description   string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	Relation      string                 `protobuf:"bytes,6,opt,name=relation,proto3" json:"relation,omitempty"`
-	BuiltIn       bool                   `protobuf:"varint,7,opt,name=built_in,json=builtIn,proto3" json:"built_in,omitempty"`
-	Enabled       bool                   `protobuf:"varint,8,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	SortOrder     int32                  `protobuf:"varint,9,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
-	Metadata      *structpb.Struct       `protobuf:"bytes,10,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ResourceType     string                 `protobuf:"bytes,2,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
+	RoleKey          string                 `protobuf:"bytes,3,opt,name=role_key,json=roleKey,proto3" json:"role_key,omitempty"`
+	DisplayName      string                 `protobuf:"bytes,4,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	Description      string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
+	Relation         string                 `protobuf:"bytes,6,opt,name=relation,proto3" json:"relation,omitempty"`
+	BuiltIn          bool                   `protobuf:"varint,7,opt,name=built_in,json=builtIn,proto3" json:"built_in,omitempty"`
+	Enabled          bool                   `protobuf:"varint,8,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	SortOrder        int32                  `protobuf:"varint,9,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	Metadata         *structpb.Struct       `protobuf:"bytes,10,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt        *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Permissions      []string               `protobuf:"bytes,14,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	ActiveGrantCount int64                  `protobuf:"varint,15,opt,name=active_grant_count,json=activeGrantCount,proto3" json:"active_grant_count,omitempty"`
+	Version          int64                  `protobuf:"varint,16,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *RoleTemplate) Reset() {
@@ -157,6 +160,27 @@ func (x *RoleTemplate) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *RoleTemplate) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+func (x *RoleTemplate) GetActiveGrantCount() int64 {
+	if x != nil {
+		return x.ActiveGrantCount
+	}
+	return 0
+}
+
+func (x *RoleTemplate) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
 }
 
 type Grant struct {
@@ -343,6 +367,254 @@ func (x *RegisterRoleTemplateRequest) GetRoleTemplate() *RoleTemplate {
 	return nil
 }
 
+type UpdateRoleTemplateRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	DisplayName     string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	Description     string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Permissions     []string               `protobuf:"bytes,4,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	ExpectedVersion int64                  `protobuf:"varint,5,opt,name=expected_version,json=expectedVersion,proto3" json:"expected_version,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *UpdateRoleTemplateRequest) Reset() {
+	*x = UpdateRoleTemplateRequest{}
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateRoleTemplateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateRoleTemplateRequest) ProtoMessage() {}
+
+func (x *UpdateRoleTemplateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateRoleTemplateRequest.ProtoReflect.Descriptor instead.
+func (*UpdateRoleTemplateRequest) Descriptor() ([]byte, []int) {
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UpdateRoleTemplateRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateRoleTemplateRequest) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *UpdateRoleTemplateRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *UpdateRoleTemplateRequest) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+func (x *UpdateRoleTemplateRequest) GetExpectedVersion() int64 {
+	if x != nil {
+		return x.ExpectedVersion
+	}
+	return 0
+}
+
+type DisableRoleTemplateRequest struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Id                  string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ExpectedVersion     int64                  `protobuf:"varint,2,opt,name=expected_version,json=expectedVersion,proto3" json:"expected_version,omitempty"`
+	ConfirmActiveGrants bool                   `protobuf:"varint,3,opt,name=confirm_active_grants,json=confirmActiveGrants,proto3" json:"confirm_active_grants,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *DisableRoleTemplateRequest) Reset() {
+	*x = DisableRoleTemplateRequest{}
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DisableRoleTemplateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DisableRoleTemplateRequest) ProtoMessage() {}
+
+func (x *DisableRoleTemplateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DisableRoleTemplateRequest.ProtoReflect.Descriptor instead.
+func (*DisableRoleTemplateRequest) Descriptor() ([]byte, []int) {
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DisableRoleTemplateRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *DisableRoleTemplateRequest) GetExpectedVersion() int64 {
+	if x != nil {
+		return x.ExpectedVersion
+	}
+	return 0
+}
+
+func (x *DisableRoleTemplateRequest) GetConfirmActiveGrants() bool {
+	if x != nil {
+		return x.ConfirmActiveGrants
+	}
+	return false
+}
+
+type PreviewRoleTemplateImpactRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Permissions   []string               `protobuf:"bytes,2,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PreviewRoleTemplateImpactRequest) Reset() {
+	*x = PreviewRoleTemplateImpactRequest{}
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PreviewRoleTemplateImpactRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PreviewRoleTemplateImpactRequest) ProtoMessage() {}
+
+func (x *PreviewRoleTemplateImpactRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PreviewRoleTemplateImpactRequest.ProtoReflect.Descriptor instead.
+func (*PreviewRoleTemplateImpactRequest) Descriptor() ([]byte, []int) {
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *PreviewRoleTemplateImpactRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *PreviewRoleTemplateImpactRequest) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+type PreviewRoleTemplateImpactReply struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	ActiveGrantCount   int64                  `protobuf:"varint,1,opt,name=active_grant_count,json=activeGrantCount,proto3" json:"active_grant_count,omitempty"`
+	AddedPermissions   []string               `protobuf:"bytes,2,rep,name=added_permissions,json=addedPermissions,proto3" json:"added_permissions,omitempty"`
+	RemovedPermissions []string               `protobuf:"bytes,3,rep,name=removed_permissions,json=removedPermissions,proto3" json:"removed_permissions,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *PreviewRoleTemplateImpactReply) Reset() {
+	*x = PreviewRoleTemplateImpactReply{}
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PreviewRoleTemplateImpactReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PreviewRoleTemplateImpactReply) ProtoMessage() {}
+
+func (x *PreviewRoleTemplateImpactReply) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PreviewRoleTemplateImpactReply.ProtoReflect.Descriptor instead.
+func (*PreviewRoleTemplateImpactReply) Descriptor() ([]byte, []int) {
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *PreviewRoleTemplateImpactReply) GetActiveGrantCount() int64 {
+	if x != nil {
+		return x.ActiveGrantCount
+	}
+	return 0
+}
+
+func (x *PreviewRoleTemplateImpactReply) GetAddedPermissions() []string {
+	if x != nil {
+		return x.AddedPermissions
+	}
+	return nil
+}
+
+func (x *PreviewRoleTemplateImpactReply) GetRemovedPermissions() []string {
+	if x != nil {
+		return x.RemovedPermissions
+	}
+	return nil
+}
+
 type ListRoleTemplatesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ResourceType  string                 `protobuf:"bytes,1,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
@@ -354,7 +626,7 @@ type ListRoleTemplatesRequest struct {
 
 func (x *ListRoleTemplatesRequest) Reset() {
 	*x = ListRoleTemplatesRequest{}
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[3]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -366,7 +638,7 @@ func (x *ListRoleTemplatesRequest) String() string {
 func (*ListRoleTemplatesRequest) ProtoMessage() {}
 
 func (x *ListRoleTemplatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[3]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -379,7 +651,7 @@ func (x *ListRoleTemplatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRoleTemplatesRequest.ProtoReflect.Descriptor instead.
 func (*ListRoleTemplatesRequest) Descriptor() ([]byte, []int) {
-	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{3}
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListRoleTemplatesRequest) GetResourceType() string {
@@ -412,7 +684,7 @@ type ListRoleTemplatesReply struct {
 
 func (x *ListRoleTemplatesReply) Reset() {
 	*x = ListRoleTemplatesReply{}
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[4]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -424,7 +696,7 @@ func (x *ListRoleTemplatesReply) String() string {
 func (*ListRoleTemplatesReply) ProtoMessage() {}
 
 func (x *ListRoleTemplatesReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[4]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -437,7 +709,7 @@ func (x *ListRoleTemplatesReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRoleTemplatesReply.ProtoReflect.Descriptor instead.
 func (*ListRoleTemplatesReply) Descriptor() ([]byte, []int) {
-	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{4}
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListRoleTemplatesReply) GetRoleTemplates() []*RoleTemplate {
@@ -462,7 +734,7 @@ type GrantAccessRequest struct {
 
 func (x *GrantAccessRequest) Reset() {
 	*x = GrantAccessRequest{}
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[5]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -474,7 +746,7 @@ func (x *GrantAccessRequest) String() string {
 func (*GrantAccessRequest) ProtoMessage() {}
 
 func (x *GrantAccessRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[5]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -487,7 +759,7 @@ func (x *GrantAccessRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrantAccessRequest.ProtoReflect.Descriptor instead.
 func (*GrantAccessRequest) Descriptor() ([]byte, []int) {
-	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{5}
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GrantAccessRequest) GetResource() *v1.ResourceRef {
@@ -550,7 +822,7 @@ type RevokeAccessRequest struct {
 
 func (x *RevokeAccessRequest) Reset() {
 	*x = RevokeAccessRequest{}
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[6]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -562,7 +834,7 @@ func (x *RevokeAccessRequest) String() string {
 func (*RevokeAccessRequest) ProtoMessage() {}
 
 func (x *RevokeAccessRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[6]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -575,7 +847,7 @@ func (x *RevokeAccessRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeAccessRequest.ProtoReflect.Descriptor instead.
 func (*RevokeAccessRequest) Descriptor() ([]byte, []int) {
-	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{6}
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *RevokeAccessRequest) GetGrantId() string {
@@ -610,7 +882,7 @@ type RevokeAccessReply struct {
 
 func (x *RevokeAccessReply) Reset() {
 	*x = RevokeAccessReply{}
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[7]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -622,7 +894,7 @@ func (x *RevokeAccessReply) String() string {
 func (*RevokeAccessReply) ProtoMessage() {}
 
 func (x *RevokeAccessReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[7]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -635,7 +907,7 @@ func (x *RevokeAccessReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeAccessReply.ProtoReflect.Descriptor instead.
 func (*RevokeAccessReply) Descriptor() ([]byte, []int) {
-	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{7}
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RevokeAccessReply) GetGrantId() string {
@@ -675,7 +947,7 @@ type ListGrantsRequest struct {
 
 func (x *ListGrantsRequest) Reset() {
 	*x = ListGrantsRequest{}
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[8]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -687,7 +959,7 @@ func (x *ListGrantsRequest) String() string {
 func (*ListGrantsRequest) ProtoMessage() {}
 
 func (x *ListGrantsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[8]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -700,7 +972,7 @@ func (x *ListGrantsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGrantsRequest.ProtoReflect.Descriptor instead.
 func (*ListGrantsRequest) Descriptor() ([]byte, []int) {
-	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{8}
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListGrantsRequest) GetResource() *v1.ResourceRef {
@@ -770,7 +1042,7 @@ type ListGrantsReply struct {
 
 func (x *ListGrantsReply) Reset() {
 	*x = ListGrantsReply{}
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[9]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -782,7 +1054,7 @@ func (x *ListGrantsReply) String() string {
 func (*ListGrantsReply) ProtoMessage() {}
 
 func (x *ListGrantsReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[9]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -795,7 +1067,7 @@ func (x *ListGrantsReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGrantsReply.ProtoReflect.Descriptor instead.
 func (*ListGrantsReply) Descriptor() ([]byte, []int) {
-	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{9}
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListGrantsReply) GetGrants() []*Grant {
@@ -830,7 +1102,7 @@ type ExplainAccessRequest struct {
 
 func (x *ExplainAccessRequest) Reset() {
 	*x = ExplainAccessRequest{}
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[10]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -842,7 +1114,7 @@ func (x *ExplainAccessRequest) String() string {
 func (*ExplainAccessRequest) ProtoMessage() {}
 
 func (x *ExplainAccessRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[10]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -855,7 +1127,7 @@ func (x *ExplainAccessRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExplainAccessRequest.ProtoReflect.Descriptor instead.
 func (*ExplainAccessRequest) Descriptor() ([]byte, []int) {
-	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{10}
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ExplainAccessRequest) GetResource() *v1.ResourceRef {
@@ -892,7 +1164,7 @@ type ExplainStep struct {
 
 func (x *ExplainStep) Reset() {
 	*x = ExplainStep{}
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[11]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -904,7 +1176,7 @@ func (x *ExplainStep) String() string {
 func (*ExplainStep) ProtoMessage() {}
 
 func (x *ExplainStep) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[11]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -917,7 +1189,7 @@ func (x *ExplainStep) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExplainStep.ProtoReflect.Descriptor instead.
 func (*ExplainStep) Descriptor() ([]byte, []int) {
-	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{11}
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ExplainStep) GetSource() string {
@@ -968,7 +1240,7 @@ type ExplainAccessReply struct {
 
 func (x *ExplainAccessReply) Reset() {
 	*x = ExplainAccessReply{}
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[12]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -980,7 +1252,7 @@ func (x *ExplainAccessReply) String() string {
 func (*ExplainAccessReply) ProtoMessage() {}
 
 func (x *ExplainAccessReply) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_grant_v1_grant_proto_msgTypes[12]
+	mi := &file_iam_grant_v1_grant_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -993,7 +1265,7 @@ func (x *ExplainAccessReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExplainAccessReply.ProtoReflect.Descriptor instead.
 func (*ExplainAccessReply) Descriptor() ([]byte, []int) {
-	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{12}
+	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ExplainAccessReply) GetAllowed() bool {
@@ -1035,7 +1307,7 @@ var File_iam_grant_v1_grant_proto protoreflect.FileDescriptor
 
 const file_iam_grant_v1_grant_proto_rawDesc = "" +
 	"\n" +
-	"\x18iam/grant/v1/grant.proto\x12\fiam.grant.v1\x1a\x1faisphere/access/v1/access.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1eiam/resource/v1/resource.proto\"\xbe\x03\n" +
+	"\x18iam/grant/v1/grant.proto\x12\fiam.grant.v1\x1a\x1faisphere/access/v1/access.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1eiam/resource/v1/resource.proto\"\xa8\x04\n" +
 	"\fRoleTemplate\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12#\n" +
 	"\rresource_type\x18\x02 \x01(\tR\fresourceType\x12\x19\n" +
@@ -1052,7 +1324,10 @@ const file_iam_grant_v1_grant_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xbe\x04\n" +
+	"updated_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12 \n" +
+	"\vpermissions\x18\x0e \x03(\tR\vpermissions\x12,\n" +
+	"\x12active_grant_count\x18\x0f \x01(\x03R\x10activeGrantCount\x12\x18\n" +
+	"\aversion\x18\x10 \x01(\x03R\aversion\"\xbe\x04\n" +
 	"\x05Grant\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x128\n" +
 	"\bresource\x18\x02 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\bresource\x12\x19\n" +
@@ -1073,7 +1348,27 @@ const file_iam_grant_v1_grant_proto_rawDesc = "" +
 	"\x11consistency_token\x18\f \x01(\tR\x10consistencyToken\x123\n" +
 	"\bmetadata\x18\r \x01(\v2\x17.google.protobuf.StructR\bmetadata\"c\n" +
 	"\x1bRegisterRoleTemplateRequest\x12D\n" +
-	"\rrole_template\x18\x01 \x01(\v2\x1a.iam.grant.v1.RoleTemplateB\x03\xe0A\x02R\froleTemplate\"\x85\x01\n" +
+	"\rrole_template\x18\x01 \x01(\v2\x1a.iam.grant.v1.RoleTemplateB\x03\xe0A\x02R\froleTemplate\"\xd2\x01\n" +
+	"\x19UpdateRoleTemplateRequest\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12!\n" +
+	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12 \n" +
+	"\vpermissions\x18\x04 \x03(\tR\vpermissions\x122\n" +
+	"\x10expected_version\x18\x05 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\x0fexpectedVersion\"\xa0\x01\n" +
+	"\x1aDisableRoleTemplateRequest\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x122\n" +
+	"\x10expected_version\x18\x02 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\x0fexpectedVersion\x122\n" +
+	"\x15confirm_active_grants\x18\x03 \x01(\bR\x13confirmActiveGrants\"`\n" +
+	" PreviewRoleTemplateImpactRequest\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x02id\x12 \n" +
+	"\vpermissions\x18\x02 \x03(\tR\vpermissions\"\xac\x01\n" +
+	"\x1ePreviewRoleTemplateImpactReply\x12,\n" +
+	"\x12active_grant_count\x18\x01 \x01(\x03R\x10activeGrantCount\x12+\n" +
+	"\x11added_permissions\x18\x02 \x03(\tR\x10addedPermissions\x12/\n" +
+	"\x13removed_permissions\x18\x03 \x03(\tR\x12removedPermissions\"\x85\x01\n" +
 	"\x18ListRoleTemplatesRequest\x12#\n" +
 	"\rresource_type\x18\x01 \x01(\tR\fresourceType\x12\x19\n" +
 	"\brole_key\x18\x02 \x01(\tR\aroleKey\x12\x1d\n" +
@@ -1135,11 +1430,16 @@ const file_iam_grant_v1_grant_proto_rawDesc = "" +
 	"\x06effect\x18\x02 \x01(\tR\x06effect\x12\x16\n" +
 	"\x06reason\x18\x03 \x01(\tR\x06reason\x12/\n" +
 	"\x05steps\x18\x04 \x03(\v2\x19.iam.grant.v1.ExplainStepR\x05steps\x12+\n" +
-	"\x11consistency_token\x18\x05 \x01(\tR\x10consistencyToken2\x83\n" +
-	"\n" +
+	"\x11consistency_token\x18\x05 \x01(\tR\x10consistencyToken2\x8f\x10\n" +
 	"\fGrantService\x12\xe7\x01\n" +
 	"\x14RegisterRoleTemplate\x12).iam.grant.v1.RegisterRoleTemplateRequest\x1a\x1a.iam.grant.v1.RoleTemplate\"\x87\x01\x92\xf4\x18T\b\x03\x12*\n" +
-	"\x06manage\x12\x11iam:role_template\x1a\viam-service \x01\x1a$\b\x01\x12\x1aiam.role_template.register\x1a\x04high\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/control-plane/role-templates\x12\xe4\x01\n" +
+	"\x06manage\x12\x11iam:role_template\x1a\viam-service \x01\x1a$\b\x01\x12\x1aiam.role_template.register\x1a\x04high\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/control-plane/role-templates\x12\xeb\x01\n" +
+	"\x12UpdateRoleTemplate\x12'.iam.grant.v1.UpdateRoleTemplateRequest\x1a\x1a.iam.grant.v1.RoleTemplate\"\x8f\x01\x92\xf4\x18W\b\x03\x12/\n" +
+	"\x06manage\x12\x16iam:role_template:{id}\x1a\viam-service \x01\x1a\"\b\x01\x12\x18iam.role_template.update\x1a\x04high\x82\xd3\xe4\x93\x02.:\x01*2)/v1/iam/control-plane/role-templates/{id}\x12\xf6\x01\n" +
+	"\x13DisableRoleTemplate\x12(.iam.grant.v1.DisableRoleTemplateRequest\x1a\x1a.iam.grant.v1.RoleTemplate\"\x98\x01\x92\xf4\x18X\b\x03\x12/\n" +
+	"\x06manage\x12\x16iam:role_template:{id}\x1a\viam-service \x01\x1a#\b\x01\x12\x19iam.role_template.disable\x1a\x04high\x82\xd3\xe4\x93\x026:\x01*\"1/v1/iam/control-plane/role-templates/{id}:disable\x12\xa2\x02\n" +
+	"\x19PreviewRoleTemplateImpact\x12..iam.grant.v1.PreviewRoleTemplateImpactRequest\x1a,.iam.grant.v1.PreviewRoleTemplateImpactReply\"\xa6\x01\x92\xf4\x18_\b\x03\x12-\n" +
+	"\x04read\x12\x16iam:role_template:{id}\x1a\viam-service \x01\x1a,\b\x01\x12 iam.role_template.preview_impact\x1a\x06medium\x82\xd3\xe4\x93\x02=:\x01*\"8/v1/iam/control-plane/role-templates/{id}:preview-impact\x12\xe4\x01\n" +
 	"\x11ListRoleTemplates\x12&.iam.grant.v1.ListRoleTemplatesRequest\x1a$.iam.grant.v1.ListRoleTemplatesReply\"\x80\x01\x92\xf4\x18P\b\x03\x12(\n" +
 	"\x04list\x12\x11iam:role_template\x1a\viam-service \x01\x1a\"\b\x01\x12\x16iam.role_template.list\x1a\x06medium\x82\xd3\xe4\x93\x02&\x12$/v1/iam/control-plane/role-templates\x12\xb2\x01\n" +
 	"\vGrantAccess\x12 .iam.grant.v1.GrantAccessRequest\x1a\x13.iam.grant.v1.Grant\"l\x92\xf4\x18A\b\x03\x12!\n" +
@@ -1164,65 +1464,75 @@ func file_iam_grant_v1_grant_proto_rawDescGZIP() []byte {
 	return file_iam_grant_v1_grant_proto_rawDescData
 }
 
-var file_iam_grant_v1_grant_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_iam_grant_v1_grant_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_iam_grant_v1_grant_proto_goTypes = []any{
-	(*RoleTemplate)(nil),                // 0: iam.grant.v1.RoleTemplate
-	(*Grant)(nil),                       // 1: iam.grant.v1.Grant
-	(*RegisterRoleTemplateRequest)(nil), // 2: iam.grant.v1.RegisterRoleTemplateRequest
-	(*ListRoleTemplatesRequest)(nil),    // 3: iam.grant.v1.ListRoleTemplatesRequest
-	(*ListRoleTemplatesReply)(nil),      // 4: iam.grant.v1.ListRoleTemplatesReply
-	(*GrantAccessRequest)(nil),          // 5: iam.grant.v1.GrantAccessRequest
-	(*RevokeAccessRequest)(nil),         // 6: iam.grant.v1.RevokeAccessRequest
-	(*RevokeAccessReply)(nil),           // 7: iam.grant.v1.RevokeAccessReply
-	(*ListGrantsRequest)(nil),           // 8: iam.grant.v1.ListGrantsRequest
-	(*ListGrantsReply)(nil),             // 9: iam.grant.v1.ListGrantsReply
-	(*ExplainAccessRequest)(nil),        // 10: iam.grant.v1.ExplainAccessRequest
-	(*ExplainStep)(nil),                 // 11: iam.grant.v1.ExplainStep
-	(*ExplainAccessReply)(nil),          // 12: iam.grant.v1.ExplainAccessReply
-	(*structpb.Struct)(nil),             // 13: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),       // 14: google.protobuf.Timestamp
-	(*v1.ResourceRef)(nil),              // 15: iam.resource.v1.ResourceRef
-	(*v1.SubjectRef)(nil),               // 16: iam.resource.v1.SubjectRef
+	(*RoleTemplate)(nil),                     // 0: iam.grant.v1.RoleTemplate
+	(*Grant)(nil),                            // 1: iam.grant.v1.Grant
+	(*RegisterRoleTemplateRequest)(nil),      // 2: iam.grant.v1.RegisterRoleTemplateRequest
+	(*UpdateRoleTemplateRequest)(nil),        // 3: iam.grant.v1.UpdateRoleTemplateRequest
+	(*DisableRoleTemplateRequest)(nil),       // 4: iam.grant.v1.DisableRoleTemplateRequest
+	(*PreviewRoleTemplateImpactRequest)(nil), // 5: iam.grant.v1.PreviewRoleTemplateImpactRequest
+	(*PreviewRoleTemplateImpactReply)(nil),   // 6: iam.grant.v1.PreviewRoleTemplateImpactReply
+	(*ListRoleTemplatesRequest)(nil),         // 7: iam.grant.v1.ListRoleTemplatesRequest
+	(*ListRoleTemplatesReply)(nil),           // 8: iam.grant.v1.ListRoleTemplatesReply
+	(*GrantAccessRequest)(nil),               // 9: iam.grant.v1.GrantAccessRequest
+	(*RevokeAccessRequest)(nil),              // 10: iam.grant.v1.RevokeAccessRequest
+	(*RevokeAccessReply)(nil),                // 11: iam.grant.v1.RevokeAccessReply
+	(*ListGrantsRequest)(nil),                // 12: iam.grant.v1.ListGrantsRequest
+	(*ListGrantsReply)(nil),                  // 13: iam.grant.v1.ListGrantsReply
+	(*ExplainAccessRequest)(nil),             // 14: iam.grant.v1.ExplainAccessRequest
+	(*ExplainStep)(nil),                      // 15: iam.grant.v1.ExplainStep
+	(*ExplainAccessReply)(nil),               // 16: iam.grant.v1.ExplainAccessReply
+	(*structpb.Struct)(nil),                  // 17: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),            // 18: google.protobuf.Timestamp
+	(*v1.ResourceRef)(nil),                   // 19: iam.resource.v1.ResourceRef
+	(*v1.SubjectRef)(nil),                    // 20: iam.resource.v1.SubjectRef
 }
 var file_iam_grant_v1_grant_proto_depIdxs = []int32{
-	13, // 0: iam.grant.v1.RoleTemplate.metadata:type_name -> google.protobuf.Struct
-	14, // 1: iam.grant.v1.RoleTemplate.created_at:type_name -> google.protobuf.Timestamp
-	14, // 2: iam.grant.v1.RoleTemplate.updated_at:type_name -> google.protobuf.Timestamp
-	15, // 3: iam.grant.v1.Grant.resource:type_name -> iam.resource.v1.ResourceRef
-	16, // 4: iam.grant.v1.Grant.subject:type_name -> iam.resource.v1.SubjectRef
-	14, // 5: iam.grant.v1.Grant.expires_at:type_name -> google.protobuf.Timestamp
-	16, // 6: iam.grant.v1.Grant.created_by:type_name -> iam.resource.v1.SubjectRef
-	14, // 7: iam.grant.v1.Grant.created_at:type_name -> google.protobuf.Timestamp
-	14, // 8: iam.grant.v1.Grant.revoked_at:type_name -> google.protobuf.Timestamp
-	13, // 9: iam.grant.v1.Grant.metadata:type_name -> google.protobuf.Struct
+	17, // 0: iam.grant.v1.RoleTemplate.metadata:type_name -> google.protobuf.Struct
+	18, // 1: iam.grant.v1.RoleTemplate.created_at:type_name -> google.protobuf.Timestamp
+	18, // 2: iam.grant.v1.RoleTemplate.updated_at:type_name -> google.protobuf.Timestamp
+	19, // 3: iam.grant.v1.Grant.resource:type_name -> iam.resource.v1.ResourceRef
+	20, // 4: iam.grant.v1.Grant.subject:type_name -> iam.resource.v1.SubjectRef
+	18, // 5: iam.grant.v1.Grant.expires_at:type_name -> google.protobuf.Timestamp
+	20, // 6: iam.grant.v1.Grant.created_by:type_name -> iam.resource.v1.SubjectRef
+	18, // 7: iam.grant.v1.Grant.created_at:type_name -> google.protobuf.Timestamp
+	18, // 8: iam.grant.v1.Grant.revoked_at:type_name -> google.protobuf.Timestamp
+	17, // 9: iam.grant.v1.Grant.metadata:type_name -> google.protobuf.Struct
 	0,  // 10: iam.grant.v1.RegisterRoleTemplateRequest.role_template:type_name -> iam.grant.v1.RoleTemplate
 	0,  // 11: iam.grant.v1.ListRoleTemplatesReply.role_templates:type_name -> iam.grant.v1.RoleTemplate
-	15, // 12: iam.grant.v1.GrantAccessRequest.resource:type_name -> iam.resource.v1.ResourceRef
-	16, // 13: iam.grant.v1.GrantAccessRequest.subject:type_name -> iam.resource.v1.SubjectRef
-	14, // 14: iam.grant.v1.GrantAccessRequest.expires_at:type_name -> google.protobuf.Timestamp
-	13, // 15: iam.grant.v1.GrantAccessRequest.metadata:type_name -> google.protobuf.Struct
-	15, // 16: iam.grant.v1.ListGrantsRequest.resource:type_name -> iam.resource.v1.ResourceRef
-	16, // 17: iam.grant.v1.ListGrantsRequest.subject:type_name -> iam.resource.v1.SubjectRef
+	19, // 12: iam.grant.v1.GrantAccessRequest.resource:type_name -> iam.resource.v1.ResourceRef
+	20, // 13: iam.grant.v1.GrantAccessRequest.subject:type_name -> iam.resource.v1.SubjectRef
+	18, // 14: iam.grant.v1.GrantAccessRequest.expires_at:type_name -> google.protobuf.Timestamp
+	17, // 15: iam.grant.v1.GrantAccessRequest.metadata:type_name -> google.protobuf.Struct
+	19, // 16: iam.grant.v1.ListGrantsRequest.resource:type_name -> iam.resource.v1.ResourceRef
+	20, // 17: iam.grant.v1.ListGrantsRequest.subject:type_name -> iam.resource.v1.SubjectRef
 	1,  // 18: iam.grant.v1.ListGrantsReply.grants:type_name -> iam.grant.v1.Grant
-	15, // 19: iam.grant.v1.ExplainAccessRequest.resource:type_name -> iam.resource.v1.ResourceRef
-	16, // 20: iam.grant.v1.ExplainAccessRequest.subject:type_name -> iam.resource.v1.SubjectRef
-	15, // 21: iam.grant.v1.ExplainStep.resource:type_name -> iam.resource.v1.ResourceRef
-	16, // 22: iam.grant.v1.ExplainStep.subject:type_name -> iam.resource.v1.SubjectRef
-	11, // 23: iam.grant.v1.ExplainAccessReply.steps:type_name -> iam.grant.v1.ExplainStep
+	19, // 19: iam.grant.v1.ExplainAccessRequest.resource:type_name -> iam.resource.v1.ResourceRef
+	20, // 20: iam.grant.v1.ExplainAccessRequest.subject:type_name -> iam.resource.v1.SubjectRef
+	19, // 21: iam.grant.v1.ExplainStep.resource:type_name -> iam.resource.v1.ResourceRef
+	20, // 22: iam.grant.v1.ExplainStep.subject:type_name -> iam.resource.v1.SubjectRef
+	15, // 23: iam.grant.v1.ExplainAccessReply.steps:type_name -> iam.grant.v1.ExplainStep
 	2,  // 24: iam.grant.v1.GrantService.RegisterRoleTemplate:input_type -> iam.grant.v1.RegisterRoleTemplateRequest
-	3,  // 25: iam.grant.v1.GrantService.ListRoleTemplates:input_type -> iam.grant.v1.ListRoleTemplatesRequest
-	5,  // 26: iam.grant.v1.GrantService.GrantAccess:input_type -> iam.grant.v1.GrantAccessRequest
-	6,  // 27: iam.grant.v1.GrantService.RevokeAccess:input_type -> iam.grant.v1.RevokeAccessRequest
-	8,  // 28: iam.grant.v1.GrantService.ListGrants:input_type -> iam.grant.v1.ListGrantsRequest
-	10, // 29: iam.grant.v1.GrantService.ExplainAccess:input_type -> iam.grant.v1.ExplainAccessRequest
-	0,  // 30: iam.grant.v1.GrantService.RegisterRoleTemplate:output_type -> iam.grant.v1.RoleTemplate
-	4,  // 31: iam.grant.v1.GrantService.ListRoleTemplates:output_type -> iam.grant.v1.ListRoleTemplatesReply
-	1,  // 32: iam.grant.v1.GrantService.GrantAccess:output_type -> iam.grant.v1.Grant
-	7,  // 33: iam.grant.v1.GrantService.RevokeAccess:output_type -> iam.grant.v1.RevokeAccessReply
-	9,  // 34: iam.grant.v1.GrantService.ListGrants:output_type -> iam.grant.v1.ListGrantsReply
-	12, // 35: iam.grant.v1.GrantService.ExplainAccess:output_type -> iam.grant.v1.ExplainAccessReply
-	30, // [30:36] is the sub-list for method output_type
-	24, // [24:30] is the sub-list for method input_type
+	3,  // 25: iam.grant.v1.GrantService.UpdateRoleTemplate:input_type -> iam.grant.v1.UpdateRoleTemplateRequest
+	4,  // 26: iam.grant.v1.GrantService.DisableRoleTemplate:input_type -> iam.grant.v1.DisableRoleTemplateRequest
+	5,  // 27: iam.grant.v1.GrantService.PreviewRoleTemplateImpact:input_type -> iam.grant.v1.PreviewRoleTemplateImpactRequest
+	7,  // 28: iam.grant.v1.GrantService.ListRoleTemplates:input_type -> iam.grant.v1.ListRoleTemplatesRequest
+	9,  // 29: iam.grant.v1.GrantService.GrantAccess:input_type -> iam.grant.v1.GrantAccessRequest
+	10, // 30: iam.grant.v1.GrantService.RevokeAccess:input_type -> iam.grant.v1.RevokeAccessRequest
+	12, // 31: iam.grant.v1.GrantService.ListGrants:input_type -> iam.grant.v1.ListGrantsRequest
+	14, // 32: iam.grant.v1.GrantService.ExplainAccess:input_type -> iam.grant.v1.ExplainAccessRequest
+	0,  // 33: iam.grant.v1.GrantService.RegisterRoleTemplate:output_type -> iam.grant.v1.RoleTemplate
+	0,  // 34: iam.grant.v1.GrantService.UpdateRoleTemplate:output_type -> iam.grant.v1.RoleTemplate
+	0,  // 35: iam.grant.v1.GrantService.DisableRoleTemplate:output_type -> iam.grant.v1.RoleTemplate
+	6,  // 36: iam.grant.v1.GrantService.PreviewRoleTemplateImpact:output_type -> iam.grant.v1.PreviewRoleTemplateImpactReply
+	8,  // 37: iam.grant.v1.GrantService.ListRoleTemplates:output_type -> iam.grant.v1.ListRoleTemplatesReply
+	1,  // 38: iam.grant.v1.GrantService.GrantAccess:output_type -> iam.grant.v1.Grant
+	11, // 39: iam.grant.v1.GrantService.RevokeAccess:output_type -> iam.grant.v1.RevokeAccessReply
+	13, // 40: iam.grant.v1.GrantService.ListGrants:output_type -> iam.grant.v1.ListGrantsReply
+	16, // 41: iam.grant.v1.GrantService.ExplainAccess:output_type -> iam.grant.v1.ExplainAccessReply
+	33, // [33:42] is the sub-list for method output_type
+	24, // [24:33] is the sub-list for method input_type
 	24, // [24:24] is the sub-list for extension type_name
 	24, // [24:24] is the sub-list for extension extendee
 	0,  // [0:24] is the sub-list for field type_name
@@ -1233,15 +1543,15 @@ func file_iam_grant_v1_grant_proto_init() {
 	if File_iam_grant_v1_grant_proto != nil {
 		return
 	}
-	file_iam_grant_v1_grant_proto_msgTypes[3].OneofWrappers = []any{}
-	file_iam_grant_v1_grant_proto_msgTypes[8].OneofWrappers = []any{}
+	file_iam_grant_v1_grant_proto_msgTypes[7].OneofWrappers = []any{}
+	file_iam_grant_v1_grant_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_iam_grant_v1_grant_proto_rawDesc), len(file_iam_grant_v1_grant_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

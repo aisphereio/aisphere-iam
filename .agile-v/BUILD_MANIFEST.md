@@ -107,6 +107,11 @@
 | ART-0054 | GRANT-006 | Grant expiry executor | `internal/biz/grant/service.go::ExpireDueGrants` + `cmd/aisphere-iam/main.go` (Dapr Job) |
 | ART-0066 | GRANT-007 | Scoped administrator schema and manifest policy | `configs/spicedb/aisphere.schema.zed`, `configs/resource/defaults.yaml`, `internal/permissionmanifest` |
 | ART-0067 | GRANT-007 | Convergent administrator and organization-root projection | `internal/data/data.go`, `internal/data/identity_mode.go` |
+| ART-0068 | GRANT-007 | Custom role lifecycle Proto and generated transport contract | `api/iam/grant/v1/grant.proto`, `api/iam/grant/v1/grant*.pb.go` |
+| ART-0069 | GRANT-007 | Versioned role capability persistence and active-grant counts | `internal/data/resource_models.go`, `internal/data/resource_repository.go`, `internal/data/memory.go` |
+| ART-0070 | GRANT-007 | Idempotent batch-delete and capability replacement projection | `internal/biz/projection/manager.go` |
+| ART-0071 | GRANT-007 | Custom role validation, role binding grants and service handlers | `internal/biz/grant/service.go`, `internal/service/control_plane.go`, `configs/spicedb/aisphere.schema.zed` |
+| ART-0072 | GRANT-007 | Explicit non-destructive permission-expression schema migration gate | `internal/data/authz_bootstrap.go`, `internal/conf/conf.go` |
 
 ### Engineering and Release (P2)
 

@@ -23,6 +23,27 @@ func GrantServiceGatewayManifest() gatewayx.Manifest {
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
+				ID:       "grant.update.role.template",
+				Method:   "PATCH",
+				Path:     "/v1/iam/control-plane/role-templates/{id}",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.grant.v1.GrantService/UpdateRoleTemplate"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
+			},
+			{
+				ID:       "grant.disable.role.template",
+				Method:   "POST",
+				Path:     "/v1/iam/control-plane/role-templates/{id}:disable",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.grant.v1.GrantService/DisableRoleTemplate"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
+			},
+			{
+				ID:       "grant.preview.role.template.impact",
+				Method:   "POST",
+				Path:     "/v1/iam/control-plane/role-templates/{id}:preview-impact",
+				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact"},
+				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
+			},
+			{
 				ID:       "grant.list.role.templates",
 				Method:   "GET",
 				Path:     "/v1/iam/control-plane/role-templates",
@@ -68,6 +89,48 @@ func GrantServiceGatewayBindRegisterRoleTemplate(req gatewayx.DispatchRequest, m
 	}
 	if v, ok := req.Body.(RegisterRoleTemplateRequest); ok {
 		out = &v
+	}
+	return out, nil
+}
+
+func GrantServiceGatewayBindUpdateRoleTemplate(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*UpdateRoleTemplateRequest, error) {
+	out := &UpdateRoleTemplateRequest{}
+	if v, ok := req.Body.(*UpdateRoleTemplateRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(UpdateRoleTemplateRequest); ok {
+		out = &v
+	}
+	if v := match.Params["id"]; v != "" {
+		out.Id = v
+	}
+	return out, nil
+}
+
+func GrantServiceGatewayBindDisableRoleTemplate(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*DisableRoleTemplateRequest, error) {
+	out := &DisableRoleTemplateRequest{}
+	if v, ok := req.Body.(*DisableRoleTemplateRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(DisableRoleTemplateRequest); ok {
+		out = &v
+	}
+	if v := match.Params["id"]; v != "" {
+		out.Id = v
+	}
+	return out, nil
+}
+
+func GrantServiceGatewayBindPreviewRoleTemplateImpact(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*PreviewRoleTemplateImpactRequest, error) {
+	out := &PreviewRoleTemplateImpactRequest{}
+	if v, ok := req.Body.(*PreviewRoleTemplateImpactRequest); ok && v != nil {
+		out = v
+	}
+	if v, ok := req.Body.(PreviewRoleTemplateImpactRequest); ok {
+		out = &v
+	}
+	if v := match.Params["id"]; v != "" {
+		out.Id = v
 	}
 	return out, nil
 }
@@ -132,6 +195,15 @@ func GrantServiceGatewayBindExplainAccess(req gatewayx.DispatchRequest, match ga
 
 func RegisterGrantServiceGatewayInvokers(registry *gatewayx.InvokerRegistry, client GrantServiceClient) error {
 	if err := registry.Register("/iam.grant.v1.GrantService/RegisterRoleTemplate", gatewayx.GRPCUnaryInvoker(GrantServiceGatewayBindRegisterRoleTemplate, client.RegisterRoleTemplate)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.grant.v1.GrantService/UpdateRoleTemplate", gatewayx.GRPCUnaryInvoker(GrantServiceGatewayBindUpdateRoleTemplate, client.UpdateRoleTemplate)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.grant.v1.GrantService/DisableRoleTemplate", gatewayx.GRPCUnaryInvoker(GrantServiceGatewayBindDisableRoleTemplate, client.DisableRoleTemplate)); err != nil {
+		return err
+	}
+	if err := registry.Register("/iam.grant.v1.GrantService/PreviewRoleTemplateImpact", gatewayx.GRPCUnaryInvoker(GrantServiceGatewayBindPreviewRoleTemplateImpact, client.PreviewRoleTemplateImpact)); err != nil {
 		return err
 	}
 	if err := registry.Register("/iam.grant.v1.GrantService/ListRoleTemplates", gatewayx.GRPCUnaryInvoker(GrantServiceGatewayBindListRoleTemplates, client.ListRoleTemplates)); err != nil {

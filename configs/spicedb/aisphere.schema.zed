@@ -15,6 +15,84 @@ definition platform {
   permission manage_permissions = owner + admin
 }
 
+definition custom_role {
+  // Capability bundles are managed by IAM. user:* represents every concrete
+  // user; the role_binding intersection narrows it to the assigned grantee.
+  relation admin: user:*
+  relation create_child_groups: user:*
+  relation create_groups: user:*
+  relation deploy: user:*
+  relation edit: user:*
+  relation execute: user:*
+  relation list: user:*
+  relation manage: user:*
+  relation manage_groups: user:*
+  relation manage_members: user:*
+  relation manage_permissions: user:*
+  relation manage_users: user:*
+  relation operate: user:*
+  relation publish: user:*
+  relation read: user:*
+  relation review: user:*
+  relation view: user:*
+  relation view_groups: user:*
+  relation view_permissions: user:*
+  relation view_users: user:*
+  relation view_zone: user:*
+  relation write: user:*
+
+  permission can_admin = admin
+  permission can_create_child_groups = create_child_groups
+  permission can_create_groups = create_groups
+  permission can_deploy = deploy
+  permission can_edit = edit
+  permission can_execute = execute
+  permission can_list = list
+  permission can_manage = manage
+  permission can_manage_groups = manage_groups
+  permission can_manage_members = manage_members
+  permission can_manage_permissions = manage_permissions
+  permission can_manage_users = manage_users
+  permission can_operate = operate
+  permission can_publish = publish
+  permission can_read = read
+  permission can_review = review
+  permission can_view = view
+  permission can_view_groups = view_groups
+  permission can_view_permissions = view_permissions
+  permission can_view_users = view_users
+  permission can_view_zone = view_zone
+  permission can_write = write
+}
+
+definition role_binding {
+  relation role: custom_role
+  relation grantee: user | group#member
+
+  permission admin = role->can_admin & grantee
+  permission create_child_groups = role->can_create_child_groups & grantee
+  permission create_groups = role->can_create_groups & grantee
+  permission deploy = role->can_deploy & grantee
+  permission edit = role->can_edit & grantee
+  permission execute = role->can_execute & grantee
+  permission list = role->can_list & grantee
+  permission manage = role->can_manage & grantee
+  permission manage_groups = role->can_manage_groups & grantee
+  permission manage_members = role->can_manage_members & grantee
+  permission manage_permissions = role->can_manage_permissions & grantee
+  permission manage_users = role->can_manage_users & grantee
+  permission operate = role->can_operate & grantee
+  permission publish = role->can_publish & grantee
+  permission read = role->can_read & grantee
+  permission review = role->can_review & grantee
+  permission view = role->can_view & grantee
+  permission view_groups = role->can_view_groups & grantee
+  permission view_permissions = role->can_view_permissions & grantee
+  permission view_users = role->can_view_users & grantee
+  permission view_zone = role->can_view_zone & grantee
+  permission write = role->can_write & grantee
+}
+
 definition group {
   // Casdoor Group mapped into an Aisphere availability zone.
   // A group is both a manageable resource and an authorization subject via #member.
@@ -26,13 +104,14 @@ definition group {
   relation manager: user | service | service_account | group#member
   relation viewer: user | service | service_account | group#member
   relation permission_admin: user | service | service_account | group#member
+  relation custom_binding: role_binding
 
-  permission view = member + viewer + manager + owner + zone->view_groups + parent->view
-  permission manage = owner + manager + zone->manage_groups + parent->manage
-  permission create_child_groups = owner + manager + zone->create_groups + parent->create_child_groups
-  permission manage_members = owner + manager + zone->manage_users + parent->manage_members
-  permission view_permissions = owner + permission_admin + zone->view_permissions + parent->view_permissions
-  permission manage_permissions = owner + permission_admin + zone->manage_permissions + parent->manage_permissions
+  permission view = member + viewer + manager + owner + zone->view_groups + parent->view + custom_binding->view
+  permission manage = owner + manager + zone->manage_groups + parent->manage + custom_binding->manage
+  permission create_child_groups = owner + manager + zone->create_groups + parent->create_child_groups + custom_binding->create_child_groups
+  permission manage_members = owner + manager + zone->manage_users + parent->manage_members + custom_binding->manage_members
+  permission view_permissions = owner + permission_admin + zone->view_permissions + parent->view_permissions + custom_binding->view_permissions
+  permission manage_permissions = owner + permission_admin + zone->manage_permissions + parent->manage_permissions + custom_binding->manage_permissions
 }
 
 definition zone {
@@ -50,18 +129,19 @@ definition zone {
   relation group_manager: user | service | service_account | group#member
 
   relation permission_admin: user | service | service_account | group#member
+  relation custom_binding: role_binding
 
-  permission view_zone = member + owner + admin + platform->manage_identity
+  permission view_zone = member + owner + admin + platform->manage_identity + custom_binding->view_zone
 
-  permission view_users = owner + admin + user_viewer + user_manager + platform->manage_identity
-  permission manage_users = owner + admin + user_manager + platform->manage_identity
+  permission view_users = owner + admin + user_viewer + user_manager + platform->manage_identity + custom_binding->view_users
+  permission manage_users = owner + admin + user_manager + platform->manage_identity + custom_binding->manage_users
 
-  permission view_groups = owner + admin + group_viewer + group_manager + platform->manage_identity
-  permission create_groups = owner + admin + group_manager + platform->manage_identity
-  permission manage_groups = owner + admin + group_manager + platform->manage_identity
+  permission view_groups = owner + admin + group_viewer + group_manager + platform->manage_identity + custom_binding->view_groups
+  permission create_groups = owner + admin + group_manager + platform->manage_identity + custom_binding->create_groups
+  permission manage_groups = owner + admin + group_manager + platform->manage_identity + custom_binding->manage_groups
 
-  permission view_permissions = owner + admin + permission_admin + platform->manage_permissions
-  permission manage_permissions = owner + admin + permission_admin + platform->manage_permissions
+  permission view_permissions = owner + admin + permission_admin + platform->manage_permissions + custom_binding->view_permissions
+  permission manage_permissions = owner + admin + permission_admin + platform->manage_permissions + custom_binding->manage_permissions
 }
 
 definition iam_authz {
@@ -100,6 +180,7 @@ definition iam {
 
 definition project {
   relation zone: zone
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation admin: user | group#member
@@ -107,80 +188,86 @@ definition project {
   relation operator: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + admin + zone->manage_permissions
-  permission write = manage + developer
-  permission operate = manage + operator
-  permission read = write + operate + viewer + zone->view_zone
-  permission list = read
+  permission manage = owner + admin + zone->manage_permissions + custom_binding->manage
+  permission write = manage + developer + custom_binding->write
+  permission operate = manage + operator + custom_binding->operate
+  permission read = write + operate + viewer + zone->view_zone + custom_binding->read
+  permission list = read + custom_binding->list
 }
 
 definition skill_space {
   relation parent: project
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation editor: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission edit = manage + editor + parent->write
-  permission view = edit + viewer + parent->read
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission edit = manage + editor + parent->write + custom_binding->edit
+  permission view = edit + viewer + parent->read + custom_binding->view
 }
 
 definition skill {
   relation parent: skill_space
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation editor: user | group#member
   relation reviewer: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission edit = manage + editor + parent->edit
-  permission review = manage + reviewer
-  permission publish = manage + reviewer
-  permission view = edit + viewer + parent->view
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission edit = manage + editor + parent->edit + custom_binding->edit
+  permission review = manage + reviewer + custom_binding->review
+  permission publish = manage + reviewer + custom_binding->publish
+  permission view = edit + viewer + parent->view + custom_binding->view
 }
 
 definition git_namespace {
   relation parent: project
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation developer: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission write = manage + developer + parent->write
-  permission read = write + viewer + parent->read
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission write = manage + developer + parent->write + custom_binding->write
+  permission read = write + viewer + parent->read + custom_binding->read
 }
 
 definition git_repository {
   relation parent: git_namespace
   relation backing_skill: skill
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation maintainer: user | group#member
   relation writer: user | group#member
   relation reader: user | group#member
 
-  permission admin = owner + maintainer + parent->manage
-  permission write = admin + writer + parent->write + backing_skill->edit
-  permission read = write + reader + parent->read + backing_skill->view
+  permission admin = owner + maintainer + parent->manage + custom_binding->admin
+  permission write = admin + writer + parent->write + backing_skill->edit + custom_binding->write
+  permission read = write + reader + parent->read + backing_skill->view + custom_binding->read
 }
 
 definition agent_space {
   relation parent: project
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation editor: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission edit = manage + editor + parent->write
-  permission view = edit + viewer + parent->read
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission edit = manage + editor + parent->write + custom_binding->edit
+  permission view = edit + viewer + parent->read + custom_binding->view
 }
 
 definition agent {
   relation parent: agent_space
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation editor: user | group#member
@@ -188,86 +275,92 @@ definition agent {
   relation executor: user | group#member | service_account
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission edit = manage + editor + parent->edit
-  permission operate = manage + operator
-  permission execute = manage + executor
-  permission view = edit + operate + viewer + parent->view
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission edit = manage + editor + parent->edit + custom_binding->edit
+  permission operate = manage + operator + custom_binding->operate
+  permission execute = manage + executor + custom_binding->execute
+  permission view = edit + operate + viewer + parent->view + custom_binding->view
 }
 
 definition tool_space {
   relation parent: project
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation editor: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission edit = manage + editor + parent->write
-  permission view = edit + viewer + parent->read
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission edit = manage + editor + parent->write + custom_binding->edit
+  permission view = edit + viewer + parent->read + custom_binding->view
 }
 
 definition tool {
   relation parent: tool_space
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation editor: user | group#member
   relation executor: user | group#member | service_account | agent
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission edit = manage + editor + parent->edit
-  permission execute = manage + executor
-  permission view = edit + viewer + parent->view
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission edit = manage + editor + parent->edit + custom_binding->edit
+  permission execute = manage + executor + custom_binding->execute
+  permission view = edit + viewer + parent->view + custom_binding->view
 }
 
 definition sandbox_space {
   relation parent: project
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation operator: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission operate = manage + operator + parent->write
-  permission view = operate + viewer + parent->read
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission operate = manage + operator + parent->write + custom_binding->operate
+  permission view = operate + viewer + parent->read + custom_binding->view
 }
 
 definition sandbox {
   relation parent: sandbox_space
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation operator: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission operate = manage + operator + parent->write
-  permission view = operate + viewer + parent->view
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission operate = manage + operator + parent->write + custom_binding->operate
+  permission view = operate + viewer + parent->view + custom_binding->view
 }
 
 definition runtime_environment {
   relation parent: project
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation deployer: user | group#member | service_account
   relation operator: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission deploy = manage + deployer + parent->write
-  permission operate = manage + operator
-  permission view = deploy + operate + viewer + parent->read
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission deploy = manage + deployer + parent->write + custom_binding->deploy
+  permission operate = manage + operator + custom_binding->operate
+  permission view = deploy + operate + viewer + parent->read + custom_binding->view
 }
 
 definition deployment {
   relation parent: runtime_environment
   relation runs_agent: agent
+  relation custom_binding: role_binding
 
   relation owner: user | group#member
   relation operator: user | group#member
   relation viewer: user | group#member
 
-  permission manage = owner + parent->manage
-  permission operate = manage + operator + parent->operate
-  permission view = operate + viewer + parent->view + runs_agent->view
+  permission manage = owner + parent->manage + custom_binding->manage
+  permission operate = manage + operator + parent->operate + custom_binding->operate
+  permission view = operate + viewer + parent->view + runs_agent->view + custom_binding->view
 }

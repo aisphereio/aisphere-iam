@@ -19,12 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GrantService_RegisterRoleTemplate_FullMethodName = "/iam.grant.v1.GrantService/RegisterRoleTemplate"
-	GrantService_ListRoleTemplates_FullMethodName    = "/iam.grant.v1.GrantService/ListRoleTemplates"
-	GrantService_GrantAccess_FullMethodName          = "/iam.grant.v1.GrantService/GrantAccess"
-	GrantService_RevokeAccess_FullMethodName         = "/iam.grant.v1.GrantService/RevokeAccess"
-	GrantService_ListGrants_FullMethodName           = "/iam.grant.v1.GrantService/ListGrants"
-	GrantService_ExplainAccess_FullMethodName        = "/iam.grant.v1.GrantService/ExplainAccess"
+	GrantService_RegisterRoleTemplate_FullMethodName      = "/iam.grant.v1.GrantService/RegisterRoleTemplate"
+	GrantService_UpdateRoleTemplate_FullMethodName        = "/iam.grant.v1.GrantService/UpdateRoleTemplate"
+	GrantService_DisableRoleTemplate_FullMethodName       = "/iam.grant.v1.GrantService/DisableRoleTemplate"
+	GrantService_PreviewRoleTemplateImpact_FullMethodName = "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact"
+	GrantService_ListRoleTemplates_FullMethodName         = "/iam.grant.v1.GrantService/ListRoleTemplates"
+	GrantService_GrantAccess_FullMethodName               = "/iam.grant.v1.GrantService/GrantAccess"
+	GrantService_RevokeAccess_FullMethodName              = "/iam.grant.v1.GrantService/RevokeAccess"
+	GrantService_ListGrants_FullMethodName                = "/iam.grant.v1.GrantService/ListGrants"
+	GrantService_ExplainAccess_FullMethodName             = "/iam.grant.v1.GrantService/ExplainAccess"
 )
 
 // GrantServiceClient is the client API for GrantService service.
@@ -35,6 +38,9 @@ const (
 // by IAM and projected to SpiceDB as a ReBAC relationship.
 type GrantServiceClient interface {
 	RegisterRoleTemplate(ctx context.Context, in *RegisterRoleTemplateRequest, opts ...grpc.CallOption) (*RoleTemplate, error)
+	UpdateRoleTemplate(ctx context.Context, in *UpdateRoleTemplateRequest, opts ...grpc.CallOption) (*RoleTemplate, error)
+	DisableRoleTemplate(ctx context.Context, in *DisableRoleTemplateRequest, opts ...grpc.CallOption) (*RoleTemplate, error)
+	PreviewRoleTemplateImpact(ctx context.Context, in *PreviewRoleTemplateImpactRequest, opts ...grpc.CallOption) (*PreviewRoleTemplateImpactReply, error)
 	ListRoleTemplates(ctx context.Context, in *ListRoleTemplatesRequest, opts ...grpc.CallOption) (*ListRoleTemplatesReply, error)
 	GrantAccess(ctx context.Context, in *GrantAccessRequest, opts ...grpc.CallOption) (*Grant, error)
 	RevokeAccess(ctx context.Context, in *RevokeAccessRequest, opts ...grpc.CallOption) (*RevokeAccessReply, error)
@@ -54,6 +60,36 @@ func (c *grantServiceClient) RegisterRoleTemplate(ctx context.Context, in *Regis
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RoleTemplate)
 	err := c.cc.Invoke(ctx, GrantService_RegisterRoleTemplate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *grantServiceClient) UpdateRoleTemplate(ctx context.Context, in *UpdateRoleTemplateRequest, opts ...grpc.CallOption) (*RoleTemplate, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RoleTemplate)
+	err := c.cc.Invoke(ctx, GrantService_UpdateRoleTemplate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *grantServiceClient) DisableRoleTemplate(ctx context.Context, in *DisableRoleTemplateRequest, opts ...grpc.CallOption) (*RoleTemplate, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RoleTemplate)
+	err := c.cc.Invoke(ctx, GrantService_DisableRoleTemplate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *grantServiceClient) PreviewRoleTemplateImpact(ctx context.Context, in *PreviewRoleTemplateImpactRequest, opts ...grpc.CallOption) (*PreviewRoleTemplateImpactReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PreviewRoleTemplateImpactReply)
+	err := c.cc.Invoke(ctx, GrantService_PreviewRoleTemplateImpact_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,6 +154,9 @@ func (c *grantServiceClient) ExplainAccess(ctx context.Context, in *ExplainAcces
 // by IAM and projected to SpiceDB as a ReBAC relationship.
 type GrantServiceServer interface {
 	RegisterRoleTemplate(context.Context, *RegisterRoleTemplateRequest) (*RoleTemplate, error)
+	UpdateRoleTemplate(context.Context, *UpdateRoleTemplateRequest) (*RoleTemplate, error)
+	DisableRoleTemplate(context.Context, *DisableRoleTemplateRequest) (*RoleTemplate, error)
+	PreviewRoleTemplateImpact(context.Context, *PreviewRoleTemplateImpactRequest) (*PreviewRoleTemplateImpactReply, error)
 	ListRoleTemplates(context.Context, *ListRoleTemplatesRequest) (*ListRoleTemplatesReply, error)
 	GrantAccess(context.Context, *GrantAccessRequest) (*Grant, error)
 	RevokeAccess(context.Context, *RevokeAccessRequest) (*RevokeAccessReply, error)
@@ -135,6 +174,15 @@ type UnimplementedGrantServiceServer struct{}
 
 func (UnimplementedGrantServiceServer) RegisterRoleTemplate(context.Context, *RegisterRoleTemplateRequest) (*RoleTemplate, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterRoleTemplate not implemented")
+}
+func (UnimplementedGrantServiceServer) UpdateRoleTemplate(context.Context, *UpdateRoleTemplateRequest) (*RoleTemplate, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRoleTemplate not implemented")
+}
+func (UnimplementedGrantServiceServer) DisableRoleTemplate(context.Context, *DisableRoleTemplateRequest) (*RoleTemplate, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DisableRoleTemplate not implemented")
+}
+func (UnimplementedGrantServiceServer) PreviewRoleTemplateImpact(context.Context, *PreviewRoleTemplateImpactRequest) (*PreviewRoleTemplateImpactReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PreviewRoleTemplateImpact not implemented")
 }
 func (UnimplementedGrantServiceServer) ListRoleTemplates(context.Context, *ListRoleTemplatesRequest) (*ListRoleTemplatesReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRoleTemplates not implemented")
@@ -186,6 +234,60 @@ func _GrantService_RegisterRoleTemplate_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GrantServiceServer).RegisterRoleTemplate(ctx, req.(*RegisterRoleTemplateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GrantService_UpdateRoleTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRoleTemplateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GrantServiceServer).UpdateRoleTemplate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GrantService_UpdateRoleTemplate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GrantServiceServer).UpdateRoleTemplate(ctx, req.(*UpdateRoleTemplateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GrantService_DisableRoleTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DisableRoleTemplateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GrantServiceServer).DisableRoleTemplate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GrantService_DisableRoleTemplate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GrantServiceServer).DisableRoleTemplate(ctx, req.(*DisableRoleTemplateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GrantService_PreviewRoleTemplateImpact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PreviewRoleTemplateImpactRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GrantServiceServer).PreviewRoleTemplateImpact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GrantService_PreviewRoleTemplateImpact_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GrantServiceServer).PreviewRoleTemplateImpact(ctx, req.(*PreviewRoleTemplateImpactRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -290,6 +392,18 @@ var GrantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RegisterRoleTemplate",
 			Handler:    _GrantService_RegisterRoleTemplate_Handler,
+		},
+		{
+			MethodName: "UpdateRoleTemplate",
+			Handler:    _GrantService_UpdateRoleTemplate_Handler,
+		},
+		{
+			MethodName: "DisableRoleTemplate",
+			Handler:    _GrantService_DisableRoleTemplate_Handler,
+		},
+		{
+			MethodName: "PreviewRoleTemplateImpact",
+			Handler:    _GrantService_PreviewRoleTemplateImpact_Handler,
 		},
 		{
 			MethodName: "ListRoleTemplates",

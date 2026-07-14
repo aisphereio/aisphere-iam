@@ -63,6 +63,39 @@ var GrantServiceKernelAuthzRules = authz.Rules{
 		AuditEvent: "iam.role_template.register",
 		AuditRisk:  "high",
 	},
+	"/iam.grant.v1.GrantService/UpdateRoleTemplate": {
+		Service:    "iam.grant.v1.GrantService",
+		Method:     "UpdateRoleTemplate",
+		FullMethod: "/iam.grant.v1.GrantService/UpdateRoleTemplate",
+		Action:     "manage",
+		Resource:   "iam:role_template:{id}",
+		Audience:   "iam-service",
+		Mode:       authz.RuleMode("CHECK_ONLY"),
+		AuditEvent: "iam.role_template.update",
+		AuditRisk:  "high",
+	},
+	"/iam.grant.v1.GrantService/DisableRoleTemplate": {
+		Service:    "iam.grant.v1.GrantService",
+		Method:     "DisableRoleTemplate",
+		FullMethod: "/iam.grant.v1.GrantService/DisableRoleTemplate",
+		Action:     "manage",
+		Resource:   "iam:role_template:{id}",
+		Audience:   "iam-service",
+		Mode:       authz.RuleMode("CHECK_ONLY"),
+		AuditEvent: "iam.role_template.disable",
+		AuditRisk:  "high",
+	},
+	"/iam.grant.v1.GrantService/PreviewRoleTemplateImpact": {
+		Service:    "iam.grant.v1.GrantService",
+		Method:     "PreviewRoleTemplateImpact",
+		FullMethod: "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact",
+		Action:     "read",
+		Resource:   "iam:role_template:{id}",
+		Audience:   "iam-service",
+		Mode:       authz.RuleMode("CHECK_ONLY"),
+		AuditEvent: "iam.role_template.preview_impact",
+		AuditRisk:  "medium",
+	},
 	"/iam.grant.v1.GrantService/ListRoleTemplates": {
 		Service:    "iam.grant.v1.GrantService",
 		Method:     "ListRoleTemplates",
@@ -139,6 +172,51 @@ func GrantServiceKernelRequestInfoResolver(ctx context.Context, operation string
 		info.Labels["authz_mode"] = "CHECK_ONLY"
 		info.Labels["audit_event"] = "iam.role_template.register"
 		info.Labels["audit_risk"] = "high"
+		return info.Normalize(), true, nil
+	case "/iam.grant.v1.GrantService/UpdateRoleTemplate":
+		info := requestx.Info{
+			Service:       "iam.grant.v1.GrantService",
+			Method:        "UpdateRoleTemplate",
+			Operation:     "/iam.grant.v1.GrantService/UpdateRoleTemplate",
+			Exposure:      v1.Exposure_AUTHORIZED,
+			Action:        "manage",
+			Resource:      "iam:role_template:{id}",
+			TargetService: "iam-service",
+			Labels:        map[string]string{},
+		}
+		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["audit_event"] = "iam.role_template.update"
+		info.Labels["audit_risk"] = "high"
+		return info.Normalize(), true, nil
+	case "/iam.grant.v1.GrantService/DisableRoleTemplate":
+		info := requestx.Info{
+			Service:       "iam.grant.v1.GrantService",
+			Method:        "DisableRoleTemplate",
+			Operation:     "/iam.grant.v1.GrantService/DisableRoleTemplate",
+			Exposure:      v1.Exposure_AUTHORIZED,
+			Action:        "manage",
+			Resource:      "iam:role_template:{id}",
+			TargetService: "iam-service",
+			Labels:        map[string]string{},
+		}
+		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["audit_event"] = "iam.role_template.disable"
+		info.Labels["audit_risk"] = "high"
+		return info.Normalize(), true, nil
+	case "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact":
+		info := requestx.Info{
+			Service:       "iam.grant.v1.GrantService",
+			Method:        "PreviewRoleTemplateImpact",
+			Operation:     "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact",
+			Exposure:      v1.Exposure_AUTHORIZED,
+			Action:        "read",
+			Resource:      "iam:role_template:{id}",
+			TargetService: "iam-service",
+			Labels:        map[string]string{},
+		}
+		info.Labels["authz_mode"] = "CHECK_ONLY"
+		info.Labels["audit_event"] = "iam.role_template.preview_impact"
+		info.Labels["audit_risk"] = "medium"
 		return info.Normalize(), true, nil
 	case "/iam.grant.v1.GrantService/ListRoleTemplates":
 		info := requestx.Info{
@@ -247,6 +325,12 @@ func _GrantServiceKernelNormalizeOperation(operation string) string {
 	switch operation {
 	case "RegisterRoleTemplate", "iam.grant.v1.GrantService/RegisterRoleTemplate":
 		return "/iam.grant.v1.GrantService/RegisterRoleTemplate"
+	case "UpdateRoleTemplate", "iam.grant.v1.GrantService/UpdateRoleTemplate":
+		return "/iam.grant.v1.GrantService/UpdateRoleTemplate"
+	case "DisableRoleTemplate", "iam.grant.v1.GrantService/DisableRoleTemplate":
+		return "/iam.grant.v1.GrantService/DisableRoleTemplate"
+	case "PreviewRoleTemplateImpact", "iam.grant.v1.GrantService/PreviewRoleTemplateImpact":
+		return "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact"
 	case "ListRoleTemplates", "iam.grant.v1.GrantService/ListRoleTemplates":
 		return "/iam.grant.v1.GrantService/ListRoleTemplates"
 	case "GrantAccess", "iam.grant.v1.GrantService/GrantAccess":

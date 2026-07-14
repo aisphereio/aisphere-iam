@@ -41,6 +41,10 @@
 | TC-0056 | ENG-009 | Schema bootstrap applies additions and rejects changes/removals | unit | `internal/data/authz_bootstrap_test.go` | ✅ |
 | TC-0057 | GRANT-007 | Scoped bootstrap aliases, manifest validation and schema alignment | unit | `internal/permissionmanifest/manifest_test.go` | ✅ |
 | TC-0058 | GRANT-007 | Administrator relationship cardinality, migration cleanup and organization root projection | unit | `internal/data/bootstrap_admin_test.go`, `internal/data/identity_mode_test.go` | ✅ |
+| TC-0059 | GRANT-007 | Batch grant deletion and custom role capability replacement | unit | `internal/biz/projection/manager_test.go` | ✅ |
+| TC-0060 | GRANT-007 | Custom role registration, versioned update, impact preview, binding grant and revoke | unit | `internal/service/grant_test.go` | ✅ |
+| TC-0061 | GRANT-007 | Every grantable schema resource exposes dynamic role bindings | unit | `internal/permissionmanifest/manifest_test.go` | ✅ |
+| TC-0062 | GRANT-007 | Permission-expression migration requires an explicit flag and still rejects removals | unit | `internal/data/authz_bootstrap_test.go` | ✅ |
 
 ## 2. Missing Test Coverage (P0 Priority)
 

@@ -141,17 +141,45 @@ type RoleTemplateModel struct {
 	Enabled      bool      `gorm:"column:enabled;not null;default:true" json:"enabled"`
 	SortOrder    int       `gorm:"column:sort_order" json:"sort_order"`
 	MetadataJSON string    `gorm:"column:metadata_json;type:jsonb;default:'{}'" json:"metadata_json"`
+	Version      int64     `gorm:"column:version;not null;default:1" json:"version"`
 	CreatedAt    time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt    time.Time `gorm:"column:updated_at;autoUpdateTime" json:"updated_at"`
+
+	Permissions      []string `gorm:"-" json:"permissions"`
+	ActiveGrantCount int64    `gorm:"-" json:"active_grant_count"`
 }
 
 func (RoleTemplateModel) TableName() string { return "iam_role_templates" }
+
+type RoleTemplatePermissionModel struct {
+	ID             string `gorm:"column:id;primaryKey" json:"id"`
+	RoleTemplateID string `gorm:"column:role_template_id;not null;uniqueIndex:idx_iam_role_permission" json:"role_template_id"`
+	Permission     string `gorm:"column:permission;not null;uniqueIndex:idx_iam_role_permission" json:"permission"`
+	SortOrder      int    `gorm:"column:sort_order;not null;default:0" json:"sort_order"`
+}
+
+func (RoleTemplatePermissionModel) TableName() string { return "iam_role_template_permissions" }
+
+type RoleTemplateAuditModel struct {
+	ID             string    `gorm:"column:id;primaryKey" json:"id"`
+	RoleTemplateID string    `gorm:"column:role_template_id;not null;index" json:"role_template_id"`
+	Version        int64     `gorm:"column:version;not null" json:"version"`
+	Action         string    `gorm:"column:action;not null;index" json:"action"`
+	ActorType      string    `gorm:"column:actor_type" json:"actor_type"`
+	ActorID        string    `gorm:"column:actor_id" json:"actor_id"`
+	BeforeJSON     string    `gorm:"column:before_json;type:jsonb;default:'{}'" json:"before_json"`
+	AfterJSON      string    `gorm:"column:after_json;type:jsonb;default:'{}'" json:"after_json"`
+	CreatedAt      time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+}
+
+func (RoleTemplateAuditModel) TableName() string { return "iam_role_template_audits" }
 
 type GrantModel struct {
 	ID              string     `gorm:"column:id;primaryKey" json:"id"`
 	ResourceType    string     `gorm:"column:resource_type;not null;index:idx_iam_grant_resource" json:"resource_type"`
 	ResourceID      string     `gorm:"column:resource_id;not null;index:idx_iam_grant_resource" json:"resource_id"`
 	RoleKey         string     `gorm:"column:role_key;not null" json:"role_key"`
+	RoleTemplateID  string     `gorm:"column:role_template_id;index" json:"role_template_id"`
 	Relation        string     `gorm:"column:relation;not null" json:"relation"`
 	SubjectType     string     `gorm:"column:subject_type;not null;index:idx_iam_grant_subject" json:"subject_type"`
 	SubjectID       string     `gorm:"column:subject_id;not null;index:idx_iam_grant_subject" json:"subject_id"`
@@ -230,6 +258,8 @@ func ControlPlaneModels() []any {
 		&ResourceBindingModel{},
 		&ExternalResourceBindingModel{},
 		&RoleTemplateModel{},
+		&RoleTemplatePermissionModel{},
+		&RoleTemplateAuditModel{},
 		&GrantModel{},
 		&GrantAuditModel{},
 		&OutboxEventModel{},

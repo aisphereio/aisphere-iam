@@ -97,6 +97,7 @@ security:
     provider: spicedb
     dev_allow_all: false
     install_default_schema: true
+    allow_permission_migrations: false
     schema_path: configs/spicedb/aisphere.schema.zed
     spicedb:
       endpoint: 36.137.200.194:30084

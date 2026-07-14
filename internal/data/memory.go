@@ -22,6 +22,7 @@ type MemoryControlPlaneRepository struct {
 	bindings         map[string]*ResourceBindingModel
 	externalBindings map[string]*ExternalResourceBindingModel
 	roles            map[string]*RoleTemplateModel
+	roleAudits       map[string]*RoleTemplateAuditModel
 	grants           map[string]*GrantModel
 	audits           map[string]*GrantAuditModel
 	events           map[string]*OutboxEventModel
@@ -32,7 +33,7 @@ func NewMemoryControlPlaneRepository() *MemoryControlPlaneRepository {
 	return &MemoryControlPlaneRepository{
 		projects: map[string]*ProjectModel{}, caps: map[string]*CapabilityModel{}, projectCaps: map[string]*ProjectCapabilityModel{},
 		resourceTypes: map[string]*ResourceTypeModel{}, resources: map[string]*ResourceModel{}, bindings: map[string]*ResourceBindingModel{}, externalBindings: map[string]*ExternalResourceBindingModel{},
-		roles: map[string]*RoleTemplateModel{}, grants: map[string]*GrantModel{}, audits: map[string]*GrantAuditModel{}, events: map[string]*OutboxEventModel{}, localUsers: map[string]*LocalUserModel{},
+		roles: map[string]*RoleTemplateModel{}, roleAudits: map[string]*RoleTemplateAuditModel{}, grants: map[string]*GrantModel{}, audits: map[string]*GrantAuditModel{}, events: map[string]*OutboxEventModel{}, localUsers: map[string]*LocalUserModel{},
 	}
 }
 
@@ -332,8 +333,86 @@ func (r *MemoryControlPlaneRepository) UpsertRoleTemplate(ctx context.Context, r
 	v := clone(role)
 	v.CreatedAt = nowIfZero(v.CreatedAt)
 	v.UpdatedAt = nowIfZero(v.UpdatedAt)
+	if v.Version == 0 {
+		v.Version = 1
+	}
+	v.Permissions = append([]string(nil), role.Permissions...)
 	r.roles[key(v.ResourceType, v.RoleKey)] = v
 	return nil
+}
+
+func (r *MemoryControlPlaneRepository) SaveRoleTemplate(ctx context.Context, role *RoleTemplateModel, audit *RoleTemplateAuditModel, events ...*OutboxEventModel) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	v := clone(role)
+	v.CreatedAt = nowIfZero(v.CreatedAt)
+	v.UpdatedAt = nowIfZero(v.UpdatedAt)
+	if v.Version == 0 {
+		v.Version = 1
+	}
+	v.Permissions = append([]string(nil), role.Permissions...)
+	r.roles[key(v.ResourceType, v.RoleKey)] = v
+	if audit != nil {
+		r.roleAudits[audit.ID] = clone(audit)
+	}
+	for _, event := range events {
+		r.saveEvent(event)
+	}
+	return nil
+}
+
+func (r *MemoryControlPlaneRepository) GetRoleTemplate(ctx context.Context, id string) (*RoleTemplateModel, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	for _, role := range r.roles {
+		if role.ID == id {
+			out := clone(role)
+			out.Permissions = append([]string(nil), role.Permissions...)
+			for _, grant := range r.grants {
+				if grant.RoleTemplateID == id && grant.RevokedAt == nil && (grant.ExpiresAt == nil || grant.ExpiresAt.After(time.Now().UTC())) {
+					out.ActiveGrantCount++
+				}
+			}
+			return out, nil
+		}
+	}
+	return nil, fmt.Errorf("%w: role template %s", ErrNotFound, id)
+}
+
+func (r *MemoryControlPlaneRepository) UpdateRoleTemplate(ctx context.Context, role *RoleTemplateModel, expectedVersion int64, audit *RoleTemplateAuditModel, events ...*OutboxEventModel) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	stored := r.roles[key(role.ResourceType, role.RoleKey)]
+	if stored == nil || stored.ID != role.ID {
+		return fmt.Errorf("%w: role template %s", ErrNotFound, role.ID)
+	}
+	if stored.Version != expectedVersion {
+		return ErrRoleVersionConflict
+	}
+	v := clone(role)
+	v.Version = expectedVersion + 1
+	v.Permissions = append([]string(nil), role.Permissions...)
+	r.roles[key(v.ResourceType, v.RoleKey)] = v
+	role.Version = v.Version
+	if audit != nil {
+		r.roleAudits[audit.ID] = clone(audit)
+	}
+	for _, event := range events {
+		r.saveEvent(event)
+	}
+	return nil
+}
+
+func (r *MemoryControlPlaneRepository) CountActiveGrantsByRole(ctx context.Context, roleTemplateID string, at time.Time) (int64, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	var count int64
+	for _, grant := range r.grants {
+		if grant.RoleTemplateID == roleTemplateID && grant.RevokedAt == nil && (grant.ExpiresAt == nil || grant.ExpiresAt.After(at)) {
+			count++
+		}
+	}
+	return count, nil
 }
 func (r *MemoryControlPlaneRepository) ListRoleTemplates(ctx context.Context, resourceType string) ([]RoleTemplateModel, error) {
 	r.mu.RLock()
@@ -341,7 +420,14 @@ func (r *MemoryControlPlaneRepository) ListRoleTemplates(ctx context.Context, re
 	var out []RoleTemplateModel
 	for _, v := range r.roles {
 		if resourceType == "" || v.ResourceType == resourceType {
-			out = append(out, *clone(v))
+			item := clone(v)
+			item.Permissions = append([]string(nil), v.Permissions...)
+			for _, grant := range r.grants {
+				if grant.RoleTemplateID == v.ID && grant.RevokedAt == nil && (grant.ExpiresAt == nil || grant.ExpiresAt.After(time.Now().UTC())) {
+					item.ActiveGrantCount++
+				}
+			}
+			out = append(out, *item)
 		}
 	}
 	return out, nil

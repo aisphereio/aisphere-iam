@@ -17,30 +17,39 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
+const OperationGrantServiceDisableRoleTemplate = "/iam.grant.v1.GrantService/DisableRoleTemplate"
 const OperationGrantServiceExplainAccess = "/iam.grant.v1.GrantService/ExplainAccess"
 const OperationGrantServiceGrantAccess = "/iam.grant.v1.GrantService/GrantAccess"
 const OperationGrantServiceListGrants = "/iam.grant.v1.GrantService/ListGrants"
 const OperationGrantServiceListRoleTemplates = "/iam.grant.v1.GrantService/ListRoleTemplates"
+const OperationGrantServicePreviewRoleTemplateImpact = "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact"
 const OperationGrantServiceRegisterRoleTemplate = "/iam.grant.v1.GrantService/RegisterRoleTemplate"
 const OperationGrantServiceRevokeAccess = "/iam.grant.v1.GrantService/RevokeAccess"
+const OperationGrantServiceUpdateRoleTemplate = "/iam.grant.v1.GrantService/UpdateRoleTemplate"
 
 type GrantServiceHTTPServer interface {
+	DisableRoleTemplate(context.Context, *DisableRoleTemplateRequest) (*RoleTemplate, error)
 	ExplainAccess(context.Context, *ExplainAccessRequest) (*ExplainAccessReply, error)
 	GrantAccess(context.Context, *GrantAccessRequest) (*Grant, error)
 	ListGrants(context.Context, *ListGrantsRequest) (*ListGrantsReply, error)
 	ListRoleTemplates(context.Context, *ListRoleTemplatesRequest) (*ListRoleTemplatesReply, error)
+	PreviewRoleTemplateImpact(context.Context, *PreviewRoleTemplateImpactRequest) (*PreviewRoleTemplateImpactReply, error)
 	RegisterRoleTemplate(context.Context, *RegisterRoleTemplateRequest) (*RoleTemplate, error)
 	RevokeAccess(context.Context, *RevokeAccessRequest) (*RevokeAccessReply, error)
+	UpdateRoleTemplate(context.Context, *UpdateRoleTemplateRequest) (*RoleTemplate, error)
 }
 
 func RegisterGrantServiceHTTPServer(s *http.Server, srv GrantServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/v1/iam/control-plane/grants", _GrantService_ListGrants0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/control-plane/role-templates", _GrantService_ListRoleTemplates0_HTTP_Handler(srv))
+	r.Handle("PATCH", "/v1/iam/control-plane/role-templates/{id}", _GrantService_UpdateRoleTemplate0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/access:explain", _GrantService_ExplainAccess0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/grants", _GrantService_GrantAccess0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/role-templates", _GrantService_RegisterRoleTemplate0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/grants/{grant_id}/revoke", _GrantService_RevokeAccess0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/control-plane/role-templates/{id}:disable", _GrantService_DisableRoleTemplate0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/control-plane/role-templates/{id}:preview-impact", _GrantService_PreviewRoleTemplateImpact0_HTTP_Handler(srv))
 }
 
 func _GrantService_ListGrants0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
@@ -83,6 +92,31 @@ func _GrantService_ListRoleTemplates0_HTTP_Handler(srv GrantServiceHTTPServer) f
 			return err
 		}
 		reply := out.(*ListRoleTemplatesReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _GrantService_UpdateRoleTemplate0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdateRoleTemplateRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGrantServiceUpdateRoleTemplate)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateRoleTemplate(ctx, req.(*UpdateRoleTemplateRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RoleTemplate)
 		return ctx.Result(200, reply)
 	}
 }
@@ -178,13 +212,66 @@ func _GrantService_RevokeAccess0_HTTP_Handler(srv GrantServiceHTTPServer) func(c
 	}
 }
 
+func _GrantService_DisableRoleTemplate0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DisableRoleTemplateRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGrantServiceDisableRoleTemplate)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DisableRoleTemplate(ctx, req.(*DisableRoleTemplateRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RoleTemplate)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _GrantService_PreviewRoleTemplateImpact0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PreviewRoleTemplateImpactRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGrantServicePreviewRoleTemplateImpact)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PreviewRoleTemplateImpact(ctx, req.(*PreviewRoleTemplateImpactRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PreviewRoleTemplateImpactReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GrantServiceHTTPClient interface {
+	DisableRoleTemplate(ctx context.Context, req *DisableRoleTemplateRequest, opts ...http.CallOption) (rsp *RoleTemplate, err error)
 	ExplainAccess(ctx context.Context, req *ExplainAccessRequest, opts ...http.CallOption) (rsp *ExplainAccessReply, err error)
 	GrantAccess(ctx context.Context, req *GrantAccessRequest, opts ...http.CallOption) (rsp *Grant, err error)
 	ListGrants(ctx context.Context, req *ListGrantsRequest, opts ...http.CallOption) (rsp *ListGrantsReply, err error)
 	ListRoleTemplates(ctx context.Context, req *ListRoleTemplatesRequest, opts ...http.CallOption) (rsp *ListRoleTemplatesReply, err error)
+	PreviewRoleTemplateImpact(ctx context.Context, req *PreviewRoleTemplateImpactRequest, opts ...http.CallOption) (rsp *PreviewRoleTemplateImpactReply, err error)
 	RegisterRoleTemplate(ctx context.Context, req *RegisterRoleTemplateRequest, opts ...http.CallOption) (rsp *RoleTemplate, err error)
 	RevokeAccess(ctx context.Context, req *RevokeAccessRequest, opts ...http.CallOption) (rsp *RevokeAccessReply, err error)
+	UpdateRoleTemplate(ctx context.Context, req *UpdateRoleTemplateRequest, opts ...http.CallOption) (rsp *RoleTemplate, err error)
 }
 
 type GrantServiceHTTPClientImpl struct {
@@ -193,6 +280,23 @@ type GrantServiceHTTPClientImpl struct {
 
 func NewGrantServiceHTTPClient(client *http.Client) GrantServiceHTTPClient {
 	return &GrantServiceHTTPClientImpl{client}
+}
+
+func (c *GrantServiceHTTPClientImpl) DisableRoleTemplate(ctx context.Context, in *DisableRoleTemplateRequest, opts ...http.CallOption) (*RoleTemplate, error) {
+	var out RoleTemplate
+	pattern := "/v1/iam/control-plane/role-templates/{id}:disable"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationGrantServiceDisableRoleTemplate),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *GrantServiceHTTPClientImpl) ExplainAccess(ctx context.Context, in *ExplainAccessRequest, opts ...http.CallOption) (*ExplainAccessReply, error) {
@@ -261,6 +365,23 @@ func (c *GrantServiceHTTPClientImpl) ListRoleTemplates(ctx context.Context, in *
 	return &out, nil
 }
 
+func (c *GrantServiceHTTPClientImpl) PreviewRoleTemplateImpact(ctx context.Context, in *PreviewRoleTemplateImpactRequest, opts ...http.CallOption) (*PreviewRoleTemplateImpactReply, error) {
+	var out PreviewRoleTemplateImpactReply
+	pattern := "/v1/iam/control-plane/role-templates/{id}:preview-impact"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationGrantServicePreviewRoleTemplateImpact),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *GrantServiceHTTPClientImpl) RegisterRoleTemplate(ctx context.Context, in *RegisterRoleTemplateRequest, opts ...http.CallOption) (*RoleTemplate, error) {
 	var out RoleTemplate
 	pattern := "/v1/iam/control-plane/role-templates"
@@ -289,6 +410,23 @@ func (c *GrantServiceHTTPClientImpl) RevokeAccess(ctx context.Context, in *Revok
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *GrantServiceHTTPClientImpl) UpdateRoleTemplate(ctx context.Context, in *UpdateRoleTemplateRequest, opts ...http.CallOption) (*RoleTemplate, error) {
+	var out RoleTemplate
+	pattern := "/v1/iam/control-plane/role-templates/{id}"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationGrantServiceUpdateRoleTemplate),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "PATCH", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

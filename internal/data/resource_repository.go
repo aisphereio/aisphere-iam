@@ -2,11 +2,15 @@ package data
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/aisphereio/kernel/dbx"
 )
+
+var ErrRoleVersionConflict = errors.New("iam data: role template version conflict")
 
 const (
 	StatusActive   = "active"
@@ -58,23 +62,27 @@ type ControlPlaneRepository interface {
 	UpsertResource(ctx context.Context, resource *ResourceModel, outbox ...*OutboxEventModel) error
 	GetResource(ctx context.Context, typ, id string) (*ResourceModel, error)
 	ListResources(ctx context.Context, opts ListOptions) (*Page[ResourceModel], error)
-ArchiveResource(ctx context.Context, typ, id string) error
-		DeleteResource(ctx context.Context, typ, id string) error
+	ArchiveResource(ctx context.Context, typ, id string) error
+	DeleteResource(ctx context.Context, typ, id string) error
 
-		BindResource(ctx context.Context, binding *ResourceBindingModel, outbox ...*OutboxEventModel) error
-		ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error)
-		UnbindResource(ctx context.Context, bindingID string) error
-		BindExternalResource(ctx context.Context, binding *ExternalResourceBindingModel) error
-		ListExternalResourceBindings(ctx context.Context, opts ListOptions) ([]ExternalResourceBindingModel, error)
+	BindResource(ctx context.Context, binding *ResourceBindingModel, outbox ...*OutboxEventModel) error
+	ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error)
+	UnbindResource(ctx context.Context, bindingID string) error
+	BindExternalResource(ctx context.Context, binding *ExternalResourceBindingModel) error
+	ListExternalResourceBindings(ctx context.Context, opts ListOptions) ([]ExternalResourceBindingModel, error)
 
 	UpsertRoleTemplate(ctx context.Context, role *RoleTemplateModel) error
+	SaveRoleTemplate(ctx context.Context, role *RoleTemplateModel, audit *RoleTemplateAuditModel, outbox ...*OutboxEventModel) error
+	GetRoleTemplate(ctx context.Context, id string) (*RoleTemplateModel, error)
+	UpdateRoleTemplate(ctx context.Context, role *RoleTemplateModel, expectedVersion int64, audit *RoleTemplateAuditModel, outbox ...*OutboxEventModel) error
+	CountActiveGrantsByRole(ctx context.Context, roleTemplateID string, at time.Time) (int64, error)
 	ListRoleTemplates(ctx context.Context, resourceType string) ([]RoleTemplateModel, error)
 
-CreateGrant(ctx context.Context, grant *GrantModel, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
-		GetGrant(ctx context.Context, id string) (*GrantModel, error)
-		RevokeGrant(ctx context.Context, id string, revokedAt time.Time, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
-		ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error)
-		ListDueExpiringGrants(ctx context.Context, limit int) ([]GrantModel, error)
+	CreateGrant(ctx context.Context, grant *GrantModel, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
+	GetGrant(ctx context.Context, id string) (*GrantModel, error)
+	RevokeGrant(ctx context.Context, id string, revokedAt time.Time, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
+	ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error)
+	ListDueExpiringGrants(ctx context.Context, limit int) ([]GrantModel, error)
 
 	CreateOutboxEvents(ctx context.Context, events ...*OutboxEventModel) error
 	GetOutboxEvent(ctx context.Context, id string) (*OutboxEventModel, error)
@@ -224,13 +232,117 @@ func (r *DBControlPlaneRepository) ListExternalResourceBindings(ctx context.Cont
 }
 
 func (r *DBControlPlaneRepository) UpsertRoleTemplate(ctx context.Context, role *RoleTemplateModel) error {
-	return r.db.SafeUpsert(ctx, role, []string{"display_name", "description", "relation", "built_in", "enabled", "sort_order", "metadata_json", "updated_at"})
+	return r.db.SafeUpsert(ctx, role, []string{"display_name", "description", "relation", "built_in", "enabled", "sort_order", "metadata_json", "version", "updated_at"})
+}
+
+func (r *DBControlPlaneRepository) SaveRoleTemplate(ctx context.Context, role *RoleTemplateModel, audit *RoleTemplateAuditModel, outbox ...*OutboxEventModel) error {
+	return r.db.InTx(ctx, func(tx dbx.Tx) error {
+		if err := tx.SafeUpsert(ctx, role, []string{"display_name", "description", "relation", "built_in", "enabled", "sort_order", "metadata_json", "version", "updated_at"}); err != nil {
+			return err
+		}
+		if err := replaceRolePermissions(ctx, tx, role); err != nil {
+			return err
+		}
+		if audit != nil {
+			if err := tx.Create(ctx, audit); err != nil {
+				return err
+			}
+		}
+		return createOutbox(ctx, tx, outbox...)
+	})
+}
+
+func (r *DBControlPlaneRepository) GetRoleTemplate(ctx context.Context, id string) (*RoleTemplateModel, error) {
+	var out RoleTemplateModel
+	if err := r.db.FindOne(ctx, &out, "id = ?", id); err != nil {
+		return nil, err
+	}
+	if err := loadRolePermissions(ctx, r.db, &out); err != nil {
+		return nil, err
+	}
+	count, err := r.CountActiveGrantsByRole(ctx, out.ID, time.Now().UTC())
+	if err != nil {
+		return nil, err
+	}
+	out.ActiveGrantCount = count
+	return &out, nil
+}
+
+func (r *DBControlPlaneRepository) UpdateRoleTemplate(ctx context.Context, role *RoleTemplateModel, expectedVersion int64, audit *RoleTemplateAuditModel, outbox ...*OutboxEventModel) error {
+	return r.db.InTx(ctx, func(tx dbx.Tx) error {
+		role.Version = expectedVersion + 1
+		result := tx.GORM(ctx).Model(&RoleTemplateModel{}).Where("id = ? AND version = ?", role.ID, expectedVersion).Updates(map[string]any{
+			"display_name": role.DisplayName, "description": role.Description, "enabled": role.Enabled,
+			"version": role.Version, "updated_at": role.UpdatedAt,
+		})
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected != 1 {
+			return ErrRoleVersionConflict
+		}
+		if err := replaceRolePermissions(ctx, tx, role); err != nil {
+			return err
+		}
+		if audit != nil {
+			if err := tx.Create(ctx, audit); err != nil {
+				return err
+			}
+		}
+		return createOutbox(ctx, tx, outbox...)
+	})
 }
 
 func (r *DBControlPlaneRepository) ListRoleTemplates(ctx context.Context, resourceType string) ([]RoleTemplateModel, error) {
 	var out []RoleTemplateModel
-	query, args := whereBuilder().eq("resource_type", resourceType).eq("enabled", true).build()
-	return out, r.db.FindMany(ctx, &out, query, args...)
+	query, args := whereBuilder().eq("resource_type", resourceType).build()
+	if err := r.db.FindMany(ctx, &out, query, args...); err != nil {
+		return nil, err
+	}
+	for i := range out {
+		if err := loadRolePermissions(ctx, r.db, &out[i]); err != nil {
+			return nil, err
+		}
+		count, err := r.CountActiveGrantsByRole(ctx, out[i].ID, time.Now().UTC())
+		if err != nil {
+			return nil, err
+		}
+		out[i].ActiveGrantCount = count
+	}
+	return out, nil
+}
+
+func (r *DBControlPlaneRepository) CountActiveGrantsByRole(ctx context.Context, roleTemplateID string, at time.Time) (int64, error) {
+	return r.db.Count(ctx, &GrantModel{}, "role_template_id = ? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > ?)", roleTemplateID, at)
+}
+
+type rolePermissionStore interface {
+	FindMany(ctx context.Context, dest any, query any, args ...any) error
+}
+
+func loadRolePermissions(ctx context.Context, store rolePermissionStore, role *RoleTemplateModel) error {
+	var rows []RoleTemplatePermissionModel
+	if err := store.FindMany(ctx, &rows, "role_template_id = ? ORDER BY sort_order ASC, permission ASC", role.ID); err != nil {
+		return err
+	}
+	role.Permissions = make([]string, 0, len(rows))
+	for _, row := range rows {
+		role.Permissions = append(role.Permissions, row.Permission)
+	}
+	return nil
+}
+
+func replaceRolePermissions(ctx context.Context, tx dbx.Tx, role *RoleTemplateModel) error {
+	if err := tx.Delete(ctx, &RoleTemplatePermissionModel{}, "role_template_id = ?", role.ID); err != nil {
+		return err
+	}
+	for index, permission := range role.Permissions {
+		row := &RoleTemplatePermissionModel{ID: fmt.Sprintf("%s:%s", role.ID, permission), RoleTemplateID: role.ID, Permission: permission, SortOrder: index}
+		if err := tx.Create(ctx, row); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (r *DBControlPlaneRepository) CreateGrant(ctx context.Context, grant *GrantModel, audit *GrantAuditModel, outbox ...*OutboxEventModel) error {

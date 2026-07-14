@@ -24,6 +24,33 @@ service GrantService {
     };
   }
 
+  rpc UpdateRoleTemplate(UpdateRoleTemplateRequest) returns (RoleTemplate) {
+    option (google.api.http) = { patch: "/v1/iam/control-plane/role-templates/{id}" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage" resource: "iam:role_template:{id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.role_template.update" risk: "high" }
+    };
+  }
+
+  rpc DisableRoleTemplate(DisableRoleTemplateRequest) returns (RoleTemplate) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/role-templates/{id}:disable" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "manage" resource: "iam:role_template:{id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.role_template.disable" risk: "high" }
+    };
+  }
+
+  rpc PreviewRoleTemplateImpact(PreviewRoleTemplateImpactRequest) returns (PreviewRoleTemplateImpactReply) {
+    option (google.api.http) = { post: "/v1/iam/control-plane/role-templates/{id}:preview-impact" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "read" resource: "iam:role_template:{id}" audience: "iam-service" mode: CHECK_ONLY }
+      audit: { enabled: true event: "iam.role_template.preview_impact" risk: "medium" }
+    };
+  }
+
   rpc ListRoleTemplates(ListRoleTemplatesRequest) returns (ListRoleTemplatesReply) {
     option (google.api.http) = { get: "/v1/iam/control-plane/role-templates" };
     option (aisphere.access.v1.policy) = {
@@ -83,6 +110,9 @@ message RoleTemplate {
   google.protobuf.Struct metadata = 10;
   google.protobuf.Timestamp created_at = 11;
   google.protobuf.Timestamp updated_at = 12;
+  repeated string permissions = 14;
+  int64 active_grant_count = 15;
+  int64 version = 16;
 }
 
 message Grant {
@@ -103,6 +133,40 @@ message Grant {
 
 message RegisterRoleTemplateRequest {
   RoleTemplate role_template = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateRoleTemplateRequest {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  string display_name = 2;
+  string description = 3;
+  repeated string permissions = 4;
+  int64 expected_version = 5 [(buf.validate.field).int64.gte = 1];
+}
+
+message DisableRoleTemplateRequest {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  int64 expected_version = 2 [(buf.validate.field).int64.gte = 1];
+  bool confirm_active_grants = 3;
+}
+
+message PreviewRoleTemplateImpactRequest {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+  repeated string permissions = 2;
+}
+
+message PreviewRoleTemplateImpactReply {
+  int64 active_grant_count = 1;
+  repeated string added_permissions = 2;
+  repeated string removed_permissions = 3;
 }
 
 message ListRoleTemplatesRequest {

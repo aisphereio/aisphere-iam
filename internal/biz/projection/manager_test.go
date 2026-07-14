@@ -84,6 +84,82 @@ func TestManagerApplyDelete(t *testing.T) {
 	}
 }
 
+func TestManagerApplyBatchDelete(t *testing.T) {
+	ctx := context.Background()
+	store := authz.NewMemoryRelationshipStore()
+	rels := []authz.Relationship{
+		{Resource: authz.ObjectRef{Type: "role_binding", ID: "g1"}, Relation: "role", Subject: authz.SubjectRef{Type: "custom_role", ID: "skill:reviewer"}},
+		{Resource: authz.ObjectRef{Type: "role_binding", ID: "g1"}, Relation: "grantee", Subject: authz.SubjectRef{Type: "user", ID: "u1"}},
+		{Resource: authz.ObjectRef{Type: "skill", ID: "s1"}, Relation: "custom_binding", Subject: authz.SubjectRef{Type: "role_binding", ID: "g1"}},
+	}
+	if _, err := store.WriteRelationships(ctx, rels...); err != nil {
+		t.Fatal(err)
+	}
+	repo := newProjectionRepo()
+	manager := NewManager(repo, store, nil)
+	filters := make([]authz.RelationshipFilter, 0, len(rels))
+	for _, rel := range rels {
+		filters = append(filters, exactFilter(rel))
+	}
+	event, err := manager.NewBatchDeleteEvent("grant", "g1", filters, rels...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo.events[event.ID] = event
+	if _, err := manager.ApplyEvent(ctx, event.ID); err != nil {
+		t.Fatal(err)
+	}
+	got, err := store.ReadRelationships(ctx, authz.RelationshipFilter{})
+	if err != nil || len(got) != 0 {
+		t.Fatalf("relationships = %#v, err = %v", got, err)
+	}
+}
+
+func TestManagerReplaceAndCompensateRoleCapabilities(t *testing.T) {
+	ctx := context.Background()
+	store := authz.NewMemoryRelationshipStore()
+	oldRels := []authz.Relationship{
+		{Resource: authz.ObjectRef{Type: "custom_role", ID: "skill:reviewer"}, Relation: "view", Subject: authz.SubjectRef{Type: "user", ID: "*"}},
+		{Resource: authz.ObjectRef{Type: "custom_role", ID: "skill:reviewer"}, Relation: "review", Subject: authz.SubjectRef{Type: "user", ID: "*"}},
+	}
+	newRels := []authz.Relationship{
+		oldRels[0],
+		{Resource: authz.ObjectRef{Type: "custom_role", ID: "skill:reviewer"}, Relation: "edit", Subject: authz.SubjectRef{Type: "user", ID: "*"}},
+	}
+	if _, err := store.WriteRelationships(ctx, oldRels...); err != nil {
+		t.Fatal(err)
+	}
+	repo := newProjectionRepo()
+	manager := NewManager(repo, store, nil)
+	event, err := manager.NewReplaceEvent("role_template", "reviewer", oldRels, newRels)
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo.events[event.ID] = event
+	if _, err := manager.ApplyEvent(ctx, event.ID); err != nil {
+		t.Fatal(err)
+	}
+	assertRelationshipCount(t, ctx, store, "review", 0)
+	assertRelationshipCount(t, ctx, store, "edit", 1)
+	if _, err := manager.CompensateEvent(ctx, event.ID); err != nil {
+		t.Fatal(err)
+	}
+	assertRelationshipCount(t, ctx, store, "review", 1)
+	assertRelationshipCount(t, ctx, store, "edit", 0)
+}
+
+func exactFilter(rel authz.Relationship) authz.RelationshipFilter {
+	return authz.RelationshipFilter{ResourceType: rel.Resource.Type, ResourceID: rel.Resource.ID, Relation: rel.Relation, SubjectType: rel.Subject.Type, SubjectID: rel.Subject.ID, SubjectRel: rel.Subject.Relation}
+}
+
+func assertRelationshipCount(t *testing.T, ctx context.Context, store *authz.MemoryRelationshipStore, relation string, want int) {
+	t.Helper()
+	rels, err := store.ReadRelationships(ctx, authz.RelationshipFilter{ResourceType: "custom_role", ResourceID: "skill:reviewer", Relation: relation})
+	if err != nil || len(rels) != want {
+		t.Fatalf("relation %s count = %d, want %d, err = %v", relation, len(rels), want, err)
+	}
+}
+
 type projectionRepo struct {
 	events map[string]*data.OutboxEventModel
 }

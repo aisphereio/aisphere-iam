@@ -30,6 +30,39 @@ var GrantServiceAuthzRules = authz.Rules{
 		AuditEvent: "iam.role_template.register",
 		AuditRisk:  "high",
 	},
+	"/iam.grant.v1.GrantService/UpdateRoleTemplate": {
+		Service:    "iam.grant.v1.GrantService",
+		Method:     "UpdateRoleTemplate",
+		FullMethod: "/iam.grant.v1.GrantService/UpdateRoleTemplate",
+		Action:     "manage",
+		Resource:   "iam:role_template:{id}",
+		Audience:   "iam-service",
+		Mode:       authz.RuleMode("CHECK_ONLY"),
+		AuditEvent: "iam.role_template.update",
+		AuditRisk:  "high",
+	},
+	"/iam.grant.v1.GrantService/DisableRoleTemplate": {
+		Service:    "iam.grant.v1.GrantService",
+		Method:     "DisableRoleTemplate",
+		FullMethod: "/iam.grant.v1.GrantService/DisableRoleTemplate",
+		Action:     "manage",
+		Resource:   "iam:role_template:{id}",
+		Audience:   "iam-service",
+		Mode:       authz.RuleMode("CHECK_ONLY"),
+		AuditEvent: "iam.role_template.disable",
+		AuditRisk:  "high",
+	},
+	"/iam.grant.v1.GrantService/PreviewRoleTemplateImpact": {
+		Service:    "iam.grant.v1.GrantService",
+		Method:     "PreviewRoleTemplateImpact",
+		FullMethod: "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact",
+		Action:     "read",
+		Resource:   "iam:role_template:{id}",
+		Audience:   "iam-service",
+		Mode:       authz.RuleMode("CHECK_ONLY"),
+		AuditEvent: "iam.role_template.preview_impact",
+		AuditRisk:  "medium",
+	},
 	"/iam.grant.v1.GrantService/ListRoleTemplates": {
 		Service:    "iam.grant.v1.GrantService",
 		Method:     "ListRoleTemplates",
@@ -99,6 +132,39 @@ const GrantServiceAuthzManifestJSON = `{
       "mode": "CHECK_ONLY",
       "audit_event": "iam.role_template.register",
       "audit_risk": "high"
+    },
+    {
+      "service": "iam.grant.v1.GrantService",
+      "method": "UpdateRoleTemplate",
+      "full_method": "/iam.grant.v1.GrantService/UpdateRoleTemplate",
+      "action": "manage",
+      "resource": "iam:role_template:{id}",
+      "audience": "iam-service",
+      "mode": "CHECK_ONLY",
+      "audit_event": "iam.role_template.update",
+      "audit_risk": "high"
+    },
+    {
+      "service": "iam.grant.v1.GrantService",
+      "method": "DisableRoleTemplate",
+      "full_method": "/iam.grant.v1.GrantService/DisableRoleTemplate",
+      "action": "manage",
+      "resource": "iam:role_template:{id}",
+      "audience": "iam-service",
+      "mode": "CHECK_ONLY",
+      "audit_event": "iam.role_template.disable",
+      "audit_risk": "high"
+    },
+    {
+      "service": "iam.grant.v1.GrantService",
+      "method": "PreviewRoleTemplateImpact",
+      "full_method": "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact",
+      "action": "read",
+      "resource": "iam:role_template:{id}",
+      "audience": "iam-service",
+      "mode": "CHECK_ONLY",
+      "audit_event": "iam.role_template.preview_impact",
+      "audit_risk": "medium"
     },
     {
       "service": "iam.grant.v1.GrantService",
@@ -224,6 +290,12 @@ func _GrantServiceNormalizeOperation(operation string) string {
 	switch operation {
 	case "RegisterRoleTemplate", "iam.grant.v1.GrantService/RegisterRoleTemplate":
 		return "/iam.grant.v1.GrantService/RegisterRoleTemplate"
+	case "UpdateRoleTemplate", "iam.grant.v1.GrantService/UpdateRoleTemplate":
+		return "/iam.grant.v1.GrantService/UpdateRoleTemplate"
+	case "DisableRoleTemplate", "iam.grant.v1.GrantService/DisableRoleTemplate":
+		return "/iam.grant.v1.GrantService/DisableRoleTemplate"
+	case "PreviewRoleTemplateImpact", "iam.grant.v1.GrantService/PreviewRoleTemplateImpact":
+		return "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact"
 	case "ListRoleTemplates", "iam.grant.v1.GrantService/ListRoleTemplates":
 		return "/iam.grant.v1.GrantService/ListRoleTemplates"
 	case "GrantAccess", "iam.grant.v1.GrantService/GrantAccess":
@@ -288,6 +360,123 @@ func (c *GrantServiceSecureClient) RegisterRoleTemplate(ctx context.Context, in 
 		}
 	}
 	return c.raw.RegisterRoleTemplate(ctx, in, opts...)
+}
+
+func (c *GrantServiceSecureClient) UpdateRoleTemplate(ctx context.Context, in *UpdateRoleTemplateRequest, opts ...grpc.CallOption) (*RoleTemplate, error) {
+	if c != nil && c.guard != nil {
+		rule := GrantServiceAuthzRules["/iam.grant.v1.GrantService/UpdateRoleTemplate"]
+		resource, err := c.resolver.ResolveResource(rule, in)
+		if err != nil {
+			return nil, err
+		}
+		subject := _GrantServiceAuthzSubjectFromContext(ctx)
+		switch rule.Mode {
+		case authz.RuleModeScopedToken:
+			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
+			if err != nil {
+				return nil, err
+			}
+			if decision.ConsistencyToken != "" {
+				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
+			}
+			if token != "" {
+				ctx = contextx.WithScopedToken(ctx, token)
+			}
+		case authz.RuleModeCheckOnly:
+			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
+			if err != nil {
+				return nil, err
+			}
+			if decision.ConsistencyToken != "" {
+				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
+			}
+		case authz.RuleModeSelfCheck:
+		// SELF_CHECK means the target resource service performs the final check.
+		case authz.RuleModeUnspecified:
+			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
+		default:
+			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
+		}
+	}
+	return c.raw.UpdateRoleTemplate(ctx, in, opts...)
+}
+
+func (c *GrantServiceSecureClient) DisableRoleTemplate(ctx context.Context, in *DisableRoleTemplateRequest, opts ...grpc.CallOption) (*RoleTemplate, error) {
+	if c != nil && c.guard != nil {
+		rule := GrantServiceAuthzRules["/iam.grant.v1.GrantService/DisableRoleTemplate"]
+		resource, err := c.resolver.ResolveResource(rule, in)
+		if err != nil {
+			return nil, err
+		}
+		subject := _GrantServiceAuthzSubjectFromContext(ctx)
+		switch rule.Mode {
+		case authz.RuleModeScopedToken:
+			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
+			if err != nil {
+				return nil, err
+			}
+			if decision.ConsistencyToken != "" {
+				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
+			}
+			if token != "" {
+				ctx = contextx.WithScopedToken(ctx, token)
+			}
+		case authz.RuleModeCheckOnly:
+			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
+			if err != nil {
+				return nil, err
+			}
+			if decision.ConsistencyToken != "" {
+				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
+			}
+		case authz.RuleModeSelfCheck:
+		// SELF_CHECK means the target resource service performs the final check.
+		case authz.RuleModeUnspecified:
+			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
+		default:
+			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
+		}
+	}
+	return c.raw.DisableRoleTemplate(ctx, in, opts...)
+}
+
+func (c *GrantServiceSecureClient) PreviewRoleTemplateImpact(ctx context.Context, in *PreviewRoleTemplateImpactRequest, opts ...grpc.CallOption) (*PreviewRoleTemplateImpactReply, error) {
+	if c != nil && c.guard != nil {
+		rule := GrantServiceAuthzRules["/iam.grant.v1.GrantService/PreviewRoleTemplateImpact"]
+		resource, err := c.resolver.ResolveResource(rule, in)
+		if err != nil {
+			return nil, err
+		}
+		subject := _GrantServiceAuthzSubjectFromContext(ctx)
+		switch rule.Mode {
+		case authz.RuleModeScopedToken:
+			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
+			if err != nil {
+				return nil, err
+			}
+			if decision.ConsistencyToken != "" {
+				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
+			}
+			if token != "" {
+				ctx = contextx.WithScopedToken(ctx, token)
+			}
+		case authz.RuleModeCheckOnly:
+			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
+			if err != nil {
+				return nil, err
+			}
+			if decision.ConsistencyToken != "" {
+				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
+			}
+		case authz.RuleModeSelfCheck:
+		// SELF_CHECK means the target resource service performs the final check.
+		case authz.RuleModeUnspecified:
+			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
+		default:
+			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
+		}
+	}
+	return c.raw.PreviewRoleTemplateImpact(ctx, in, opts...)
 }
 
 func (c *GrantServiceSecureClient) ListRoleTemplates(ctx context.Context, in *ListRoleTemplatesRequest, opts ...grpc.CallOption) (*ListRoleTemplatesReply, error) {

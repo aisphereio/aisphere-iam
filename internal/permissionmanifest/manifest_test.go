@@ -60,6 +60,30 @@ func TestCommittedManifestMatchesSpiceDBSchema(t *testing.T) {
 	}
 }
 
+func TestGrantableResourcesExposeCustomRoleBindings(t *testing.T) {
+	manifest, schema := loadCommittedManifestAndSchema(t)
+	for _, resourceType := range manifest.ResourceTypes {
+		if !resourceType.Grantable {
+			continue
+		}
+		definition := schema.Definitions[resourceType.SpiceDBType]
+		if _, ok := definition.Relations["custom_binding"]; !ok {
+			t.Fatalf("grantable resource %s has no custom_binding relation", resourceType.Type)
+		}
+		for _, permission := range resourceType.Permissions {
+			if !strings.Contains(definition.Permissions[permission], "custom_binding->"+permission) {
+				t.Fatalf("permission %s#%s does not include its custom binding", resourceType.SpiceDBType, permission)
+			}
+		}
+	}
+	if _, ok := schema.Definitions["custom_role"]; !ok {
+		t.Fatal("custom_role definition is missing")
+	}
+	if _, ok := schema.Definitions["role_binding"]; !ok {
+		t.Fatal("role_binding definition is missing")
+	}
+}
+
 func TestValidateRejectsPermissionCatalogDrift(t *testing.T) {
 	manifest, schema := loadCommittedManifestAndSchema(t)
 	for i := range manifest.ResourceTypes {

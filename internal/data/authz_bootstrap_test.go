@@ -58,12 +58,43 @@ func TestBootstrapAuthzSchemaRejectsChangedPermission(t *testing.T) {
 	}
 }
 
+func TestBootstrapAuthzSchemaPublishesChangedPermissionWhenExplicitlyEnabled(t *testing.T) {
+	current := "definition user {}\ndefinition zone {\n  relation owner: user\n  permission view = owner\n}"
+	desired := "definition user {}\ndefinition zone {\n  relation owner: user\n  relation viewer: user\n  permission view = owner + viewer\n}"
+	manager := &fakeSchemaManager{current: authz.Schema{Text: current}}
+	cfg := schemaConfig(t, desired)
+	cfg.AllowPermissionMigrations = true
+
+	if err := BootstrapAuthzSchema(context.Background(), cfg, manager, logx.Noop()); err != nil {
+		t.Fatal(err)
+	}
+	if manager.validateCalls != 1 || manager.writeCalls != 1 || manager.written.Text != desired {
+		t.Fatalf("validate=%d write=%d schema=%q", manager.validateCalls, manager.writeCalls, manager.written.Text)
+	}
+}
+
 func TestBootstrapAuthzSchemaRejectsActiveOnlyDefinition(t *testing.T) {
 	current := "definition user {}\ndefinition legacy {}"
 	desired := "definition user {}"
 	manager := &fakeSchemaManager{current: authz.Schema{Text: current}}
 
 	err := BootstrapAuthzSchema(context.Background(), schemaConfig(t, desired), manager, logx.Noop())
+	if err == nil || !strings.Contains(err.Error(), "definition legacy exists only in active schema") {
+		t.Fatalf("error = %v", err)
+	}
+	if manager.writeCalls != 0 {
+		t.Fatalf("write calls = %d", manager.writeCalls)
+	}
+}
+
+func TestBootstrapAuthzSchemaStillRejectsRemovedDefinitionDuringPermissionMigration(t *testing.T) {
+	current := "definition user {}\ndefinition legacy {}"
+	desired := "definition user {}"
+	manager := &fakeSchemaManager{current: authz.Schema{Text: current}}
+	cfg := schemaConfig(t, desired)
+	cfg.AllowPermissionMigrations = true
+
+	err := BootstrapAuthzSchema(context.Background(), cfg, manager, logx.Noop())
 	if err == nil || !strings.Contains(err.Error(), "definition legacy exists only in active schema") {
 		t.Fatalf("error = %v", err)
 	}

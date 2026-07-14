@@ -66,7 +66,9 @@ func BootstrapAuthzSchema(ctx context.Context, cfg conf.AuthzConfig, manager aut
 	}
 	diff := permissionmanifest.CompareSchemas(active, desired)
 	if len(diff.Conflicts) > 0 {
-		return authz.ErrBackendFailed("authz schema drift requires explicit migration: "+strings.Join(diff.Conflicts, "; "), nil)
+		if !cfg.AllowPermissionMigrations || !onlyChangedSchemaExpressions(diff.Conflicts) {
+			return authz.ErrBackendFailed("authz schema drift requires explicit migration: "+strings.Join(diff.Conflicts, "; "), nil)
+		}
 	}
 	if diff.Identical() {
 		log.WithContext(ctx).Info("authz schema already installed; skipping bootstrap", logx.Int("size", len(activeSchema.Text)))
@@ -81,6 +83,18 @@ func BootstrapAuthzSchema(ctx context.Context, cfg conf.AuthzConfig, manager aut
 		log.WithContext(ctx).Error("authz schema bootstrap failed", logx.Err(err), logx.String("schema_path", path))
 		return err
 	}
-	log.WithContext(ctx).Info("authz schema additions bootstrapped", logx.Int("additions", len(diff.Additions)), logx.String("schema_path", path))
+	log.WithContext(ctx).Info("authz schema applied", logx.Int("additions", len(diff.Additions)), logx.Int("permission_migrations", len(diff.Conflicts)), logx.String("schema_path", path))
 	return nil
+}
+
+func onlyChangedSchemaExpressions(conflicts []string) bool {
+	if len(conflicts) == 0 {
+		return false
+	}
+	for _, conflict := range conflicts {
+		if !strings.HasSuffix(strings.TrimSpace(conflict), " changed") {
+			return false
+		}
+	}
+	return true
 }

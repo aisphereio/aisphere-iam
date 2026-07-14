@@ -18,8 +18,9 @@ import (
 const (
 	TopicAuthzProjection = "iam.authz.projection"
 
-	OperationWrite  = "write"
-	OperationDelete = "delete"
+	OperationWrite   = "write"
+	OperationDelete  = "delete"
+	OperationReplace = "replace"
 
 	StatusProjecting = "projecting"
 	StatusFailed     = "failed"
@@ -31,9 +32,11 @@ type outboxRepo interface {
 }
 
 type Payload struct {
-	Operation     string                   `json:"operation"`
-	Relationships []authz.Relationship     `json:"relationships,omitempty"`
-	Filter        authz.RelationshipFilter `json:"filter,omitempty"`
+	Operation             string                     `json:"operation"`
+	Relationships         []authz.Relationship       `json:"relationships,omitempty"`
+	PreviousRelationships []authz.Relationship       `json:"previous_relationships,omitempty"`
+	Filters               []authz.RelationshipFilter `json:"filters,omitempty"`
+	Filter                authz.RelationshipFilter   `json:"filter,omitempty"`
 }
 
 type BranchPayload struct {
@@ -60,6 +63,14 @@ func (m *Manager) NewWriteEvent(aggregateType, aggregateID string, rels ...authz
 
 func (m *Manager) NewDeleteEvent(aggregateType, aggregateID string, filter authz.RelationshipFilter, rels ...authz.Relationship) (*data.OutboxEventModel, error) {
 	return m.newEvent(aggregateType, aggregateID, Payload{Operation: OperationDelete, Filter: filter, Relationships: rels})
+}
+
+func (m *Manager) NewBatchDeleteEvent(aggregateType, aggregateID string, filters []authz.RelationshipFilter, rels ...authz.Relationship) (*data.OutboxEventModel, error) {
+	return m.newEvent(aggregateType, aggregateID, Payload{Operation: OperationDelete, Filters: filters, Relationships: rels})
+}
+
+func (m *Manager) NewReplaceEvent(aggregateType, aggregateID string, previous, desired []authz.Relationship) (*data.OutboxEventModel, error) {
+	return m.newEvent(aggregateType, aggregateID, Payload{Operation: OperationReplace, PreviousRelationships: previous, Relationships: desired})
 }
 
 func (m *Manager) Dispatch(ctx context.Context, event *data.OutboxEventModel) (authz.WriteResult, error) {
@@ -107,7 +118,21 @@ func (m *Manager) ApplyEvent(ctx context.Context, eventID string) (authz.WriteRe
 	case OperationWrite:
 		wr, err = m.writer.WriteRelationships(ctx, payload.Relationships...)
 	case OperationDelete:
-		wr, err = m.writer.DeleteRelationships(ctx, payload.Filter)
+		filters := payload.Filters
+		if len(filters) == 0 {
+			filters = []authz.RelationshipFilter{payload.Filter}
+		}
+		wr, err = deleteRelationships(ctx, m.writer, filters)
+	case OperationReplace:
+		wr, err = deleteRelationships(ctx, m.writer, relationshipFilters(payload.PreviousRelationships))
+		if err == nil && len(payload.Relationships) > 0 {
+			part, writeErr := m.writer.WriteRelationships(ctx, payload.Relationships...)
+			wr.Written += part.Written
+			if part.ConsistencyToken != "" {
+				wr.ConsistencyToken = part.ConsistencyToken
+			}
+			err = writeErr
+		}
 	default:
 		err = errors.New("unsupported projection operation: " + payload.Operation)
 	}
@@ -159,9 +184,54 @@ func (m *Manager) CompensateEvent(ctx context.Context, eventID string) (authz.Wr
 			_ = m.markFailed(ctx, eventID, err)
 		}
 		return wr, err
+	case OperationReplace:
+		wr, err := deleteRelationships(ctx, m.writer, relationshipFilters(payload.Relationships))
+		if err != nil {
+			_ = m.markFailed(ctx, eventID, err)
+			return wr, err
+		}
+		if len(payload.PreviousRelationships) > 0 {
+			part, writeErr := m.writer.WriteRelationships(ctx, payload.PreviousRelationships...)
+			wr.Written += part.Written
+			if part.ConsistencyToken != "" {
+				wr.ConsistencyToken = part.ConsistencyToken
+			}
+			if writeErr != nil {
+				_ = m.markFailed(ctx, eventID, writeErr)
+				return wr, writeErr
+			}
+		}
+		_ = m.repo.UpdateOutboxEvent(ctx, eventID, map[string]any{"status": data.StatusArchived})
+		return wr, nil
 	default:
 		return authz.WriteResult{}, errors.New("unsupported projection operation: " + payload.Operation)
 	}
+}
+
+func relationshipFilters(rels []authz.Relationship) []authz.RelationshipFilter {
+	filters := make([]authz.RelationshipFilter, 0, len(rels))
+	for _, rel := range rels {
+		filters = append(filters, authz.RelationshipFilter{
+			ResourceType: rel.Resource.Type, ResourceID: rel.Resource.ID, Relation: rel.Relation,
+			SubjectType: rel.Subject.Type, SubjectID: rel.Subject.ID, SubjectRel: rel.Subject.Relation,
+		})
+	}
+	return filters
+}
+
+func deleteRelationships(ctx context.Context, writer authz.RelationshipWriter, filters []authz.RelationshipFilter) (authz.WriteResult, error) {
+	var out authz.WriteResult
+	for _, filter := range filters {
+		part, err := writer.DeleteRelationships(ctx, filter)
+		out.Deleted += part.Deleted
+		if part.ConsistencyToken != "" {
+			out.ConsistencyToken = part.ConsistencyToken
+		}
+		if err != nil {
+			return out, err
+		}
+	}
+	return out, nil
 }
 
 func (m *Manager) newEvent(aggregateType, aggregateID string, payload Payload) (*data.OutboxEventModel, error) {

@@ -46,7 +46,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: zone
-    relations: [platform, owner, admin, user_viewer, user_manager, group_viewer, group_manager, permission_admin, member]
+    relations: [platform, owner, admin, user_viewer, user_manager, group_viewer, group_manager, permission_admin, member, custom_binding]
     permissions: [view_zone, view_users, manage_users, view_groups, create_groups, manage_groups, view_permissions, manage_permissions]
     status: active
   - type: group
@@ -56,7 +56,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: group
-    relations: [zone, parent, member, owner, manager, viewer, permission_admin]
+    relations: [zone, parent, member, owner, manager, viewer, permission_admin, custom_binding]
     permissions: [view, manage, create_child_groups, manage_members, view_permissions, manage_permissions]
     status: active
   - type: project
@@ -66,7 +66,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: project
-    relations: [zone, owner, admin, developer, operator, viewer]
+    relations: [zone, owner, admin, developer, operator, viewer, custom_binding]
     permissions: [manage, write, operate, read, list]
     status: active
   - type: skill_space
@@ -76,7 +76,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: skill_space
-    relations: [parent, owner, editor, viewer]
+    relations: [parent, owner, editor, viewer, custom_binding]
     permissions: [manage, edit, view]
     status: active
   - type: skill
@@ -86,7 +86,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: skill
-    relations: [parent, owner, editor, reviewer, viewer]
+    relations: [parent, owner, editor, reviewer, viewer, custom_binding]
     permissions: [manage, edit, review, publish, view]
     status: active
   - type: git_namespace
@@ -96,7 +96,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: git_namespace
-    relations: [parent, owner, developer, viewer]
+    relations: [parent, owner, developer, viewer, custom_binding]
     permissions: [manage, write, read]
     status: active
   - type: git_repository
@@ -106,7 +106,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: git_repository
-    relations: [parent, owner, maintainer, writer, reader, backing_skill]
+    relations: [parent, owner, maintainer, writer, reader, backing_skill, custom_binding]
     permissions: [admin, write, read]
     status: active
   - type: agent_space
@@ -116,7 +116,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: agent_space
-    relations: [parent, owner, editor, viewer]
+    relations: [parent, owner, editor, viewer, custom_binding]
     permissions: [manage, edit, view]
     status: active
   - type: agent
@@ -126,7 +126,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: agent
-    relations: [parent, owner, editor, operator, executor, viewer]
+    relations: [parent, owner, editor, operator, executor, viewer, custom_binding]
     permissions: [manage, edit, operate, execute, view]
     status: active
   - type: tool_space
@@ -136,7 +136,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: tool_space
-    relations: [parent, owner, editor, viewer]
+    relations: [parent, owner, editor, viewer, custom_binding]
     permissions: [manage, edit, view]
     status: active
   - type: tool
@@ -146,7 +146,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: tool
-    relations: [parent, owner, editor, executor, viewer]
+    relations: [parent, owner, editor, executor, viewer, custom_binding]
     permissions: [manage, edit, execute, view]
     status: active
   - type: sandbox_space
@@ -156,7 +156,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: sandbox_space
-    relations: [parent, owner, operator, viewer]
+    relations: [parent, owner, operator, viewer, custom_binding]
     permissions: [manage, operate, view]
     status: active
   - type: sandbox
@@ -166,7 +166,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: sandbox
-    relations: [parent, owner, operator, viewer]
+    relations: [parent, owner, operator, viewer, custom_binding]
     permissions: [manage, operate, view]
     status: active
   - type: runtime_environment
@@ -176,7 +176,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: runtime_environment
-    relations: [parent, owner, deployer, operator, viewer]
+    relations: [parent, owner, deployer, operator, viewer, custom_binding]
     permissions: [manage, deploy, operate, view]
     status: active
   - type: deployment
@@ -186,7 +186,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: deployment
-    relations: [parent, owner, operator, viewer, runs_agent]
+    relations: [parent, owner, operator, viewer, runs_agent, custom_binding]
     permissions: [manage, operate, view]
     status: active
 

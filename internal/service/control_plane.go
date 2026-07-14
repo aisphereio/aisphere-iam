@@ -14,8 +14,8 @@ import (
 	projectbiz "github.com/aisphereio/aisphere-iam/internal/biz/project"
 	resourcebiz "github.com/aisphereio/aisphere-iam/internal/biz/resource"
 	"github.com/aisphereio/aisphere-iam/internal/data"
-"github.com/aisphereio/kernel/authn"
-		"google.golang.org/protobuf/encoding/protojson"
+	"github.com/aisphereio/kernel/authn"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -262,11 +262,43 @@ func NewGrantService(biz *grantbiz.Service, repo data.ControlPlaneRepository) *G
 
 func (s *GrantService) RegisterRoleTemplate(ctx context.Context, req *grantv1.RegisterRoleTemplateRequest) (*grantv1.RoleTemplate, error) {
 	in := req.GetRoleTemplate()
-	role, err := s.biz.RegisterRoleTemplate(ctx, grantbiz.RegisterRoleTemplateRequest{ID: in.GetId(), ResourceType: in.GetResourceType(), RoleKey: in.GetRoleKey(), DisplayName: in.GetDisplayName(), Description: in.GetDescription(), Relation: in.GetRelation(), BuiltIn: in.GetBuiltIn(), Enabled: in.GetEnabled(), SortOrder: int(in.GetSortOrder()), MetadataJSON: structToJSON(in.GetMetadata(), "{}")})
+	actor, _ := currentGrantSubject(ctx)
+	role, err := s.biz.RegisterRoleTemplate(ctx, grantbiz.RegisterRoleTemplateRequest{ID: in.GetId(), ResourceType: in.GetResourceType(), RoleKey: in.GetRoleKey(), DisplayName: in.GetDisplayName(), Description: in.GetDescription(), Relation: in.GetRelation(), BuiltIn: in.GetBuiltIn(), Enabled: in.GetEnabled(), SortOrder: int(in.GetSortOrder()), MetadataJSON: structToJSON(in.GetMetadata(), "{}"), Permissions: in.GetPermissions(), Actor: actor})
 	if err != nil {
 		return nil, err
 	}
 	return roleTemplateModelToProto(role), nil
+}
+
+func (s *GrantService) UpdateRoleTemplate(ctx context.Context, req *grantv1.UpdateRoleTemplateRequest) (*grantv1.RoleTemplate, error) {
+	actor, _ := currentGrantSubject(ctx)
+	role, err := s.biz.UpdateRoleTemplate(ctx, grantbiz.UpdateRoleTemplateRequest{
+		ID: req.GetId(), DisplayName: req.GetDisplayName(), Description: req.GetDescription(),
+		Permissions: req.GetPermissions(), ExpectedVersion: req.GetExpectedVersion(), Actor: actor,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return roleTemplateModelToProto(role), nil
+}
+
+func (s *GrantService) DisableRoleTemplate(ctx context.Context, req *grantv1.DisableRoleTemplateRequest) (*grantv1.RoleTemplate, error) {
+	actor, _ := currentGrantSubject(ctx)
+	role, err := s.biz.DisableRoleTemplate(ctx, grantbiz.DisableRoleTemplateRequest{
+		ID: req.GetId(), ExpectedVersion: req.GetExpectedVersion(), ConfirmActiveGrants: req.GetConfirmActiveGrants(), Actor: actor,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return roleTemplateModelToProto(role), nil
+}
+
+func (s *GrantService) PreviewRoleTemplateImpact(ctx context.Context, req *grantv1.PreviewRoleTemplateImpactRequest) (*grantv1.PreviewRoleTemplateImpactReply, error) {
+	impact, err := s.biz.PreviewRoleTemplateImpact(ctx, req.GetId(), req.GetPermissions())
+	if err != nil {
+		return nil, err
+	}
+	return &grantv1.PreviewRoleTemplateImpactReply{ActiveGrantCount: impact.ActiveGrantCount, AddedPermissions: impact.AddedPermissions, RemovedPermissions: impact.RemovedPermissions}, nil
 }
 
 func (s *GrantService) ListRoleTemplates(ctx context.Context, req *grantv1.ListRoleTemplatesRequest) (*grantv1.ListRoleTemplatesReply, error) {
@@ -276,7 +308,7 @@ func (s *GrantService) ListRoleTemplates(ctx context.Context, req *grantv1.ListR
 	}
 	out := make([]*grantv1.RoleTemplate, 0, len(items))
 	for i := range items {
-		if req.GetRoleKey() == "" || items[i].RoleKey == req.GetRoleKey() {
+		if (req.GetRoleKey() == "" || items[i].RoleKey == req.GetRoleKey()) && (req.Enabled == nil || items[i].Enabled == req.GetEnabled()) {
 			out = append(out, roleTemplateModelToProto(&items[i]))
 		}
 	}
@@ -384,7 +416,7 @@ func roleTemplateModelToProto(in *data.RoleTemplateModel) *grantv1.RoleTemplate 
 	if in == nil {
 		return nil
 	}
-	return &grantv1.RoleTemplate{Id: in.ID, ResourceType: in.ResourceType, RoleKey: in.RoleKey, DisplayName: in.DisplayName, Description: in.Description, Relation: in.Relation, BuiltIn: in.BuiltIn, Enabled: in.Enabled, SortOrder: int32(in.SortOrder), Metadata: jsonToStruct(in.MetadataJSON), CreatedAt: ts(in.CreatedAt), UpdatedAt: ts(in.UpdatedAt)}
+	return &grantv1.RoleTemplate{Id: in.ID, ResourceType: in.ResourceType, RoleKey: in.RoleKey, DisplayName: in.DisplayName, Description: in.Description, Relation: in.Relation, BuiltIn: in.BuiltIn, Enabled: in.Enabled, SortOrder: int32(in.SortOrder), Metadata: jsonToStruct(in.MetadataJSON), CreatedAt: ts(in.CreatedAt), UpdatedAt: ts(in.UpdatedAt), Permissions: append([]string(nil), in.Permissions...), ActiveGrantCount: in.ActiveGrantCount, Version: in.Version}
 }
 
 func grantModelToProto(in *data.GrantModel) *grantv1.Grant {
