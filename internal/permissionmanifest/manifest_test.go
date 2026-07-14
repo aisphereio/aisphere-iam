@@ -1,8 +1,10 @@
 package permissionmanifest
 
 import (
+	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -37,4 +39,65 @@ func TestResolveBootstrapRoleUsesConfiguredDefault(t *testing.T) {
 	if !ok || canonical != "zone_owner" {
 		t.Fatalf("canonical = %q, ok = %v", canonical, ok)
 	}
+}
+
+func TestCommittedManifestMatchesSpiceDBSchema(t *testing.T) {
+	manifest, schema := loadCommittedManifestAndSchema(t)
+	if err := Validate(manifest, schema); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestValidateRejectsPermissionCatalogDrift(t *testing.T) {
+	manifest, schema := loadCommittedManifestAndSchema(t)
+	for i := range manifest.ResourceTypes {
+		if manifest.ResourceTypes[i].Type == "zone" {
+			manifest.ResourceTypes[i].Permissions = manifest.ResourceTypes[i].Permissions[1:]
+		}
+	}
+
+	err := Validate(manifest, schema)
+	if err == nil || !strings.Contains(err.Error(), "resource type zone permissions") {
+		t.Fatalf("error = %v", err)
+	}
+}
+
+func TestValidateRejectsDuplicateBootstrapAlias(t *testing.T) {
+	manifest, schema := loadCommittedManifestAndSchema(t)
+	role := manifest.Bootstrap.Roles["zone_admin"]
+	role.Aliases = append(role.Aliases, "owner")
+	manifest.Bootstrap.Roles["zone_admin"] = role
+
+	err := Validate(manifest, schema)
+	if err == nil || !strings.Contains(err.Error(), "duplicate bootstrap role name or alias owner") {
+		t.Fatalf("error = %v", err)
+	}
+}
+
+func TestValidateRejectsUnknownBootstrapResource(t *testing.T) {
+	manifest, schema := loadCommittedManifestAndSchema(t)
+	manifest.Bootstrap.AdminResources = append(manifest.Bootstrap.AdminResources, AdminResource{Type: "missing", ID: "global"})
+
+	err := Validate(manifest, schema)
+	if err == nil || !strings.Contains(err.Error(), "bootstrap admin resource type missing") {
+		t.Fatalf("error = %v", err)
+	}
+}
+
+func loadCommittedManifestAndSchema(t *testing.T) (*Manifest, Schema) {
+	t.Helper()
+	root := filepath.Join("..", "..")
+	manifest, err := Load(filepath.Join(root, "configs", "resource", "defaults.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, err := os.ReadFile(filepath.Join(root, "configs", "spicedb", "aisphere.schema.zed"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	schema, err := ParseSchema(string(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return manifest, schema
 }
