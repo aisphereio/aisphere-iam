@@ -39,6 +39,75 @@ spec:
           namespace: "aisphere"
           port: 18080
     - matches:
+        - method: "PATCH"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/control-plane/role-templates/{id}"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.grant.v1.GrantService/UpdateRoleTemplate"
+              - name: X-Aisphere-Route-Exposure
+                value: "AUTHORIZED"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "verify_jwt"
+              - name: X-Aisphere-Authz-Action
+                value: "manage"
+              - name: X-Aisphere-Authz-Resource
+                value: "iam:role_template:{id}"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 18080
+    - matches:
+        - method: "POST"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/control-plane/role-templates/{id}:disable"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.grant.v1.GrantService/DisableRoleTemplate"
+              - name: X-Aisphere-Route-Exposure
+                value: "AUTHORIZED"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "verify_jwt"
+              - name: X-Aisphere-Authz-Action
+                value: "manage"
+              - name: X-Aisphere-Authz-Resource
+                value: "iam:role_template:{id}"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 18080
+    - matches:
+        - method: "POST"
+          path:
+            type: PathPrefix
+            value: "/v1/iam/control-plane/role-templates/{id}:preview-impact"
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Aisphere-Upstream-Operation
+                value: "/iam.grant.v1.GrantService/PreviewRoleTemplateImpact"
+              - name: X-Aisphere-Route-Exposure
+                value: "AUTHORIZED"
+              - name: X-Aisphere-Route-Authn-Mode
+                value: "verify_jwt"
+              - name: X-Aisphere-Authz-Action
+                value: "read"
+              - name: X-Aisphere-Authz-Resource
+                value: "iam:role_template:{id}"
+      backendRefs:
+        - name: "aisphere-iam"
+          namespace: "aisphere"
+          port: 18080
+    - matches:
         - method: "GET"
           path:
             type: PathPrefix
