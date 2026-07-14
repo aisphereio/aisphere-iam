@@ -573,6 +573,14 @@ Evidence qualifiers:
   10. deployment and rollback validation.
 - **Done criteria:** Gate 2 evidence summary has no unaccepted P0/P1 findings.
 
+## REQ-IAM-ENG-009 — Keep permission bootstrap deterministic and additive-only
+- **Priority:** P1
+- **Status:** `IMPLEMENTED`, `UNIT_EVIDENCE`, `CI_EVIDENCE`
+- **Requirement:** IAM shall keep its permission manifest aligned with the SpiceDB schema, load bootstrap role policy from that manifest, and automatically publish only missing schema declarations.
+- **Constraint:** changed or removed active relations and permissions shall fail closed and require an explicit schema migration.
+- **Verification criteria:** committed manifest/schema drift fails CI; identical schema skips writes; strict additions publish; changed or active-only declarations are rejected.
+- **Done criteria:** manifest validation, bootstrap regression tests, Make/CI gate, and operator documentation are present.
+
 ---
 
 # 13. Explicitly deprecated or unresolved surfaces

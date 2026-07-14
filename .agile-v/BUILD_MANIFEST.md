@@ -6,8 +6,8 @@
 
 | Dimension | Count |
 |-----------|:-----:|
-| Total REQs | 63 |
-| Total ART entries | 62 |
+| Total REQs | 64 |
+| Total ART entries | 65 |
 | Code without REQ | **0** ✅ |
 
 ## Artifact Index
@@ -118,3 +118,6 @@
 | ART-0060 | ENG-006 | Audit evidence | `internal/data/data.go::auditx.NewPostgresStore` (PostgreSQL durable sink) |
 | ART-0061 | ENG-007 | Observability | `internal/server/http.go::NewHTTPServer`, `internal/server/grpc.go::NewGRPCServer` |
 | ART-0062 | ENG-008 | Release evidence | CI workflow, `.agile-v/EVAL_RESULTS.md` |
+| ART-0063 | ENG-009 | Shared permission manifest and consistency model | `internal/permissionmanifest` |
+| ART-0064 | ENG-009 | Additive-only SpiceDB startup convergence | `internal/data/authz_bootstrap.go` |
+| ART-0065 | ENG-009 | Required permission manifest repository gate | `cmd/permission-manifest-check`, `Makefile`, `.github/workflows/ci.yml` |

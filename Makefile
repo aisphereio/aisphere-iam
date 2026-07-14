@@ -19,6 +19,7 @@ GENERATED_DEPLOY_DIR ?= $(DEPLOY_DIR)/generated
 KUBE_NAMESPACE ?= aisphere
 SPICEDB_SCHEMA ?= ./configs/spicedb/aisphere.schema.zed
 SPICEDB_SCHEMA_CONFIGMAP ?= aisphere-iam-spicedb-schema
+PERMISSION_MANIFEST ?= ./configs/resource/defaults.yaml
 
 ifeq ($(OS),Windows_NT)
 LOCAL_BIN := $(CURDIR)\.bin
@@ -30,7 +31,7 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 export PATH := $(LOCAL_BIN):$(PATH)
 endif
 
-.PHONY: help init tools tools-local check-tools api deploy spicedb-schema-configmap deploy-apply proto-check config wire generate build docker run test tidy verify clean
+.PHONY: help init tools tools-local check-tools api deploy spicedb-schema-configmap deploy-apply proto-check permission-manifest-check config wire generate build docker run test tidy verify clean
 
 help:
 	@echo "Aisphere IAM targets:"
@@ -41,6 +42,7 @@ help:
 	@echo "  make spicedb-schema-configmap generate/apply SpiceDB schema ConfigMap from $(SPICEDB_SCHEMA)"
 	@echo "  make deploy-apply            generate and apply app manifests plus generated Gateway API manifests"
 	@echo "  make proto-check             run buf lint and aisphere proto contract checks"
+	@echo "  make permission-manifest-check validate IAM permission manifest against SpiceDB schema"
 	@echo "  make traceability-check      validate REQ->ART->TC traceability chain"
 	@echo "  make verify                  run api, deploy, checks, config, wire, generate, tidy, test, build, traceability"
 	@echo ""
@@ -174,6 +176,9 @@ else
 	@PATH="$(LOCAL_BIN):$$PATH" $(LOCAL_BIN)/buf build -o - | $(LOCAL_BIN)/buf-check-aisphere
 endif
 
+permission-manifest-check:
+	$(GO) run ./cmd/permission-manifest-check --manifest $(PERMISSION_MANIFEST) --schema $(SPICEDB_SCHEMA)
+
 config: check-tools
 ifeq ($(OS),Windows_NT)
 	@cmd /c "set PATH=$(LOCAL_BIN);%PATH%&& if exist buf.gen.config.yaml (.bin\buf.exe generate --template buf.gen.config.yaml) else (echo buf.gen.config.yaml not found; skip config)"
@@ -206,7 +211,7 @@ run:
 traceability-check:
 	$(GO) run ./cmd/traceability-check/ $(if $(STRICT),--strict)
 
-verify: api deploy proto-check config wire generate tidy test build traceability-check
+verify: api deploy proto-check permission-manifest-check config wire generate tidy test build traceability-check
 
 clean:
 ifeq ($(OS),Windows_NT)

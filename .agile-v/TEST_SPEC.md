@@ -37,6 +37,8 @@
 | TC-0029 | AUTHZ-ADMIN-003 | Check permission | unit | `authz_admin_test.go` | ✅ |
 | TC-0030 | AUTHZ-ADMIN-004 | Explain authorization | unit | `authz_admin_test.go` | ✅ |
 | TC-0031 | AUTHZ-ADMIN-004 | Get effective permissions | unit | `authz_admin_test.go` | ✅ |
+| TC-0055 | ENG-009 | Committed permission manifest matches SpiceDB schema | unit | `internal/permissionmanifest/manifest_test.go` | ✅ |
+| TC-0056 | ENG-009 | Schema bootstrap applies additions and rejects changes/removals | unit | `internal/data/authz_bootstrap_test.go` | ✅ |
 
 ## 2. Missing Test Coverage (P0 Priority)
 
@@ -80,7 +82,7 @@
 
 | Dimension | Count |
 |-----------|:-----:|
-| Existing test cases | 31 (unit) + 14 (integration) |
+| Existing test cases | 33 (unit) + 14 (integration) |
 | Missing test cases (P0) | 2 (DIR-007, AUTHZ-RT-007) |
 | Missing test cases (P1) | 4 (PROJ-004~007) |
 | Missing test cases (P2) | 5 (ENG-004~008) |
