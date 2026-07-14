@@ -51,7 +51,7 @@ func TestAuthorizationModelHasSingleOrganizationRoot(t *testing.T) {
 		"- type: group",
 		"- type: project",
 		"parent_types: [zone]",
-		"relations: [zone, owner, admin, developer, operator, viewer]",
+		"relations: [zone, owner, admin, developer, operator, viewer, custom_binding]",
 	} {
 		if !strings.Contains(defaults, token) {
 			t.Fatalf("resource defaults are missing required project/zone contract %q", token)
