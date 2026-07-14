@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/aisphereio/kernel/accessx"
-"github.com/aisphereio/kernel/auditx"
-		"github.com/aisphereio/kernel/authn"
+	"github.com/aisphereio/kernel/auditx"
+	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authn/casdoor"
 	"github.com/aisphereio/kernel/authz"
 	"github.com/aisphereio/kernel/authz/spicedb"
@@ -61,42 +61,42 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 	}
 	metrics := metricsx.Ensure(opts.Metrics)
 
-r := &Resources{
-			Authz: authz.DenyAll(),
-			DTM:   dtmx.FromContextOr(ctx, opts.DTM),
-		}
-		if !cfg.Audit.Enabled {
-			r.Audit = auditx.Noop()
-		} else {
-			r.Audit = auditx.NewMemoryStore()
-		}
+	r := &Resources{
+		Authz: authz.DenyAll(),
+		DTM:   dtmx.FromContextOr(ctx, opts.DTM),
+	}
+	if !cfg.Audit.Enabled {
+		r.Audit = auditx.Noop()
+	} else {
+		r.Audit = auditx.NewMemoryStore()
+	}
 	if cfg.Security.Authz.DevAllowAll {
 		r.Authz = authz.AllowAllForDevOnly()
 	}
 
-if cfg.Data.Database.Enabled {
-			dbCfg := cfg.Data.Database.Config
-			dbCfg.Logger = logger.Named("data.dbx")
-			dbCfg.Metrics = metrics
-			dbCfg.MetricsEnabled = dbCfg.MetricsEnabled && cfg.Metrics.Enabled
-			db, err := dbx.New(dbCfg)
-			if err != nil {
-				return nil, nil, err
-			}
-			r.DB = db
-			r.ControlPlane = NewControlPlaneRepository(db)
-			r.closers = append(r.closers, db.Close)
+	if cfg.Data.Database.Enabled {
+		dbCfg := cfg.Data.Database.Config
+		dbCfg.Logger = logger.Named("data.dbx")
+		dbCfg.Metrics = metrics
+		dbCfg.MetricsEnabled = dbCfg.MetricsEnabled && cfg.Metrics.Enabled
+		db, err := dbx.New(dbCfg)
+		if err != nil {
+			return nil, nil, err
+		}
+		r.DB = db
+		r.ControlPlane = NewControlPlaneRepository(db)
+		r.closers = append(r.closers, db.Close)
 
-			// Use PostgreSQL audit store when database is available
-			if cfg.Audit.Enabled && cfg.Audit.Store == "postgres" {
-				auditStore := auditx.NewPostgresStore(db)
-				if err := auditStore.EnsureTable(ctx); err != nil {
-					logger.Warn("failed to ensure audit table, falling back to memory", logx.Any("error", err))
-				} else {
-					r.Audit = auditStore
-					logger.Info("audit store set to postgres")
-				}
+		// Use PostgreSQL audit store when database is available
+		if cfg.Audit.Enabled && cfg.Audit.Store == "postgres" {
+			auditStore := auditx.NewPostgresStore(db)
+			if err := auditStore.EnsureTable(ctx); err != nil {
+				logger.Warn("failed to ensure audit table, falling back to memory", logx.Any("error", err))
+			} else {
+				r.Audit = auditStore
+				logger.Info("audit store set to postgres")
 			}
+		}
 
 		if cfg.Data.Migration.Enabled {
 			migCfg := cfg.Data.Migration.Config
@@ -143,8 +143,8 @@ if cfg.Data.Database.Enabled {
 			r.Close()
 			return nil, nil, err
 		}
-r.Authn = provider
-			r.Tokens = provider
+		r.Authn = provider
+		r.Tokens = provider
 		r.Identity = identity
 	}
 	if cfg.Security.Authz.Enabled && !cfg.Security.Authz.DevAllowAll {
@@ -156,7 +156,7 @@ r.Authn = provider
 		r.Authz = provider
 		r.AuthzAdmin = provider
 		if cfg.Security.Authz.InstallDefaultSchema {
-			if err := BootstrapAuthzSchema(ctx, cfg.Security.Authz, r, logger); err != nil {
+			if err := BootstrapAuthzSchema(ctx, cfg.Security.Authz, provider, logger); err != nil {
 				r.Close()
 				return nil, nil, err
 			}

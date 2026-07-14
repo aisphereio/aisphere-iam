@@ -1,9 +1,7 @@
 // Package data authz_bootstrap.go — startup-time SpiceDB schema loader.
 //
-// NewResources owns the only schema-bootstrap call path. Startup reads the
-// existing SpiceDB schema first and skips writes when the required IAM/zone
-// definitions are already present. This prevents restart-time schema churn and
-// avoids wrapping IdentityAdmin twice.
+// NewResources owns the only schema-bootstrap call path. Startup compares the
+// active and desired schemas and publishes only strict structural additions.
 //
 // SpiceDB schema is intentionally file-backed. Do not hard-code .zed schema text
 // in Go code: schema changes are operational/configuration changes and should be
@@ -20,18 +18,18 @@ import (
 	"github.com/aisphereio/kernel/logx"
 
 	"github.com/aisphereio/aisphere-iam/internal/conf"
+	"github.com/aisphereio/aisphere-iam/internal/permissionmanifest"
 )
 
-// BootstrapAuthzSchema is restart-safe: it writes only when the current schema is
-// empty or missing the required IAM directory/authz definitions. It never wraps
-// identity providers and therefore has no runtime mutation side effects.
+// BootstrapAuthzSchema is restart-safe: it skips identical schemas, publishes
+// strict additions, and rejects changed or removed declarations.
 //
 // When security.authz.install_default_schema is enabled, security.authz.schema_path
 // is required. The schema file is validated before WriteSchema. WriteSchema
 // replaces the active SpiceDB schema, so incompatible schema evolution must still
 // be handled through an explicit migration/review process.
-func BootstrapAuthzSchema(ctx context.Context, cfg conf.AuthzConfig, resources *Resources, log logx.Logger) error {
-	if resources == nil || resources.AuthzAdmin == nil {
+func BootstrapAuthzSchema(ctx context.Context, cfg conf.AuthzConfig, manager authz.SchemaManager, log logx.Logger) error {
+	if manager == nil {
 		if log != nil {
 			log.WithContext(ctx).Info("authz schema bootstrap skipped: authz not configured")
 		}
@@ -42,14 +40,6 @@ func BootstrapAuthzSchema(ctx context.Context, cfg conf.AuthzConfig, resources *
 	}
 	log = log.Named("authz.bootstrap")
 
-	schema, err := resources.AuthzAdmin.ReadSchema(ctx)
-	if err != nil {
-		log.WithContext(ctx).Warn("read schema failed; will attempt bootstrap", logx.Err(err))
-	} else if schemaReady(schema.Text) {
-		log.WithContext(ctx).Info("authz schema already installed; skipping bootstrap", logx.Int("size", len(schema.Text)))
-		return nil
-	}
-
 	path := strings.TrimSpace(cfg.SchemaPath)
 	if path == "" {
 		return authz.ErrBackendFailed("security.authz.schema_path is required when install_default_schema is enabled", nil)
@@ -58,25 +48,39 @@ func BootstrapAuthzSchema(ctx context.Context, cfg conf.AuthzConfig, resources *
 	if err != nil {
 		return authz.ErrBackendFailed("read authz schema file failed: "+path, err)
 	}
-	body := string(data)
-	if strings.TrimSpace(body) == "" {
+	desiredText := string(data)
+	if strings.TrimSpace(desiredText) == "" {
 		return authz.ErrBackendFailed("authz schema file is empty: "+path, nil)
 	}
-	if err := resources.AuthzAdmin.ValidateSchema(ctx, authz.Schema{Text: body}); err != nil {
+	desired, err := permissionmanifest.ParseSchema(desiredText)
+	if err != nil {
+		return authz.ErrBackendFailed("parse desired authz schema failed", err)
+	}
+	activeSchema, err := manager.ReadSchema(ctx)
+	if err != nil {
+		return authz.ErrBackendFailed("read active authz schema failed", err)
+	}
+	active, err := permissionmanifest.ParseSchema(activeSchema.Text)
+	if err != nil {
+		return authz.ErrBackendFailed("parse active authz schema failed", err)
+	}
+	diff := permissionmanifest.CompareSchemas(active, desired)
+	if len(diff.Conflicts) > 0 {
+		return authz.ErrBackendFailed("authz schema drift requires explicit migration: "+strings.Join(diff.Conflicts, "; "), nil)
+	}
+	if diff.Identical() {
+		log.WithContext(ctx).Info("authz schema already installed; skipping bootstrap", logx.Int("size", len(activeSchema.Text)))
+		return nil
+	}
+
+	desiredSchema := authz.Schema{Text: desiredText}
+	if err := manager.ValidateSchema(ctx, desiredSchema); err != nil {
 		return err
 	}
-	if err := resources.AuthzAdmin.WriteSchema(ctx, authz.Schema{Text: body}); err != nil {
+	if err := manager.WriteSchema(ctx, desiredSchema); err != nil {
 		log.WithContext(ctx).Error("authz schema bootstrap failed", logx.Err(err), logx.String("schema_path", path))
 		return err
 	}
-	log.WithContext(ctx).Info("authz schema bootstrapped", logx.Int("size", len(body)), logx.String("schema_path", path))
+	log.WithContext(ctx).Info("authz schema additions bootstrapped", logx.Int("additions", len(diff.Additions)), logx.String("schema_path", path))
 	return nil
-}
-
-func schemaReady(schema string) bool {
-	normalized := strings.ToLower(schema)
-	return strings.Contains(normalized, "definition iam ") &&
-		strings.Contains(normalized, "definition iam_authz ") &&
-		strings.Contains(normalized, "definition zone ") &&
-		strings.Contains(normalized, "definition group ")
 }
