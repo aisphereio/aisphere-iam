@@ -4,6 +4,17 @@ definition service {}
 
 definition service_account {}
 
+definition platform {
+  // Stable control-plane root. Administrators are assigned here once and
+  // inherit into organizations and IAM control-plane resources.
+  relation owner: user | service | service_account | group#member
+  relation admin: user | service | service_account | group#member
+
+  permission manage_identity = owner + admin
+  permission manage_control_plane = owner + admin
+  permission manage_permissions = owner + admin
+}
+
 definition group {
   // Casdoor Group mapped into an Aisphere availability zone.
   // A group is both a manageable resource and an authorization subject via #member.
@@ -25,8 +36,8 @@ definition group {
 }
 
 definition zone {
-  // One Casdoor Organization maps to exactly one read-only platform root.
-  // Groups and projects live directly under this root; there is no second platform-organization model.
+  // One Casdoor Organization maps to one zone below the stable platform root.
+  relation platform: platform
   relation member: user | service | service_account | group#member
 
   relation owner: user | service | service_account | group#member
@@ -40,49 +51,51 @@ definition zone {
 
   relation permission_admin: user | service | service_account | group#member
 
-  permission view_zone = member + owner + admin
+  permission view_zone = member + owner + admin + platform->manage_identity
 
-  permission view_users = owner + admin + user_viewer + user_manager
-  permission manage_users = owner + admin + user_manager
+  permission view_users = owner + admin + user_viewer + user_manager + platform->manage_identity
+  permission manage_users = owner + admin + user_manager + platform->manage_identity
 
-  permission view_groups = owner + admin + group_viewer + group_manager
-  permission create_groups = owner + admin + group_manager
-  permission manage_groups = owner + admin + group_manager
+  permission view_groups = owner + admin + group_viewer + group_manager + platform->manage_identity
+  permission create_groups = owner + admin + group_manager + platform->manage_identity
+  permission manage_groups = owner + admin + group_manager + platform->manage_identity
 
-  permission view_permissions = owner + admin + permission_admin
-  permission manage_permissions = owner + admin + permission_admin
+  permission view_permissions = owner + admin + permission_admin + platform->manage_permissions
+  permission manage_permissions = owner + admin + permission_admin + platform->manage_permissions
 }
 
 definition iam_authz {
+  relation platform: platform
   relation owner: user | service | service_account | group#member
   relation admin: user | service | service_account | group#member
   relation schema_admin: user | service | service_account | group#member
   relation auditor: user | service | service_account | group#member
 
-  permission view_schema = owner + admin + schema_admin + auditor
-  permission publish_schema = owner + admin + schema_admin
-  permission view_relationships = owner + admin + schema_admin + auditor
-  permission repair_relationships = owner + admin + schema_admin
-  permission manage = owner + admin + schema_admin
+  permission view_schema = owner + admin + schema_admin + auditor + platform->manage_permissions
+  permission publish_schema = owner + admin + schema_admin + platform->manage_permissions
+  permission view_relationships = owner + admin + schema_admin + auditor + platform->manage_permissions
+  permission repair_relationships = owner + admin + schema_admin + platform->manage_permissions
+  permission manage = owner + admin + schema_admin + platform->manage_permissions
 }
 
 definition iam {
+  relation platform: platform
   relation admin: user | group#member | service | service_account
 
-  permission create = admin
-  permission read = admin
-  permission list = admin
-  permission manage = admin
-  permission create_project = admin
-  permission upsert = admin
-  permission bind = admin
-  permission unbind = admin
-  permission move = admin
-  permission archive = admin
-  permission delete = admin
-  permission grant = admin
-  permission revoke = admin
-  permission explain = admin
+  permission create = admin + platform->manage_control_plane
+  permission read = admin + platform->manage_control_plane
+  permission list = admin + platform->manage_control_plane
+  permission manage = admin + platform->manage_control_plane
+  permission create_project = admin + platform->manage_control_plane
+  permission upsert = admin + platform->manage_control_plane
+  permission bind = admin + platform->manage_control_plane
+  permission unbind = admin + platform->manage_control_plane
+  permission move = admin + platform->manage_control_plane
+  permission archive = admin + platform->manage_control_plane
+  permission delete = admin + platform->manage_control_plane
+  permission grant = admin + platform->manage_control_plane
+  permission revoke = admin + platform->manage_control_plane
+  permission explain = admin + platform->manage_control_plane
 }
 
 definition project {

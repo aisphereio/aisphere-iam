@@ -29,6 +29,8 @@ const (
 	IdentityProjectionStatusSynced     = "synced"
 	IdentityProjectionStatusFailed     = "failed"
 	IdentityProjectionStatusArchived   = "archived"
+
+	defaultPlatformID = "global"
 )
 
 func identityMode(mode string) (string, error) {
@@ -377,6 +379,18 @@ type authzProjectingIdentityAdmin struct {
 	projection *IdentityProjectionDispatcher
 }
 
+func (a authzProjectingIdentityAdmin) CreateOrganization(ctx context.Context, req authn.CreateOrganizationRequest) (authn.Organization, error) {
+	organization, err := a.IdentityAdmin.CreateOrganization(ctx, req)
+	if err != nil {
+		return authn.Organization{}, err
+	}
+	orgID := firstNonEmpty(organization.ID, req.Organization.ID)
+	if err := a.projectWrite(ctx, "iam_api", "zone", orgID, platformZoneRelationship(orgID)); err != nil {
+		return authn.Organization{}, err
+	}
+	return organization, nil
+}
+
 func (a authzProjectingIdentityAdmin) CreateGroup(ctx context.Context, req authn.CreateGroupRequest) (authn.Group, error) {
 	group, err := a.IdentityAdmin.CreateGroup(ctx, req)
 	if err != nil {
@@ -498,7 +512,8 @@ func BuildDirectoryProjectionRelationships(ctx context.Context, identity authn.I
 	if err != nil {
 		return nil, err
 	}
-	rels := make([]authz.Relationship, 0, len(groups)*3+len(users)*2)
+	rels := make([]authz.Relationship, 0, len(groups)*3+len(users)*2+1)
+	rels = append(rels, platformZoneRelationship(orgID))
 	for _, user := range users {
 		if strings.TrimSpace(user.ID) == "" {
 			continue
@@ -515,6 +530,14 @@ func BuildDirectoryProjectionRelationships(ctx context.Context, identity authn.I
 		}
 	}
 	return dedupeRelationships(rels), nil
+}
+
+func platformZoneRelationship(orgID string) authz.Relationship {
+	return authz.Relationship{
+		Resource: authz.ObjectRef{Type: "zone", ID: strings.TrimSpace(orgID)},
+		Relation: "platform",
+		Subject:  authz.SubjectRef{Type: "platform", ID: defaultPlatformID},
+	}
 }
 func DetectDirectoryProjectionDrift(ctx context.Context, reader authz.RelationshipReader, desired []authz.Relationship) (missing []authz.Relationship, err error) {
 	if reader == nil {

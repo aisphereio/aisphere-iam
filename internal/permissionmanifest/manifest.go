@@ -46,15 +46,16 @@ type RoleTemplate struct {
 }
 
 type BootstrapPolicy struct {
-	DefaultRole    string                   `yaml:"default_role"`
-	Roles          map[string]BootstrapRole `yaml:"roles"`
-	AdminResources []AdminResource          `yaml:"admin_resources"`
+	DefaultRole       string                   `yaml:"default_role"`
+	PlatformID        string                   `yaml:"platform_id"`
+	Roles             map[string]BootstrapRole `yaml:"roles"`
+	PlatformResources []AdminResource          `yaml:"platform_resources"`
 }
 
 type BootstrapRole struct {
-	Aliases           []string `yaml:"aliases"`
-	ZoneRelations     []string `yaml:"zone_relations"`
-	ControlPlaneAdmin bool     `yaml:"control_plane_admin"`
+	Aliases  []string `yaml:"aliases"`
+	Scope    string   `yaml:"scope"`
+	Relation string   `yaml:"relation"`
 }
 
 type AdminResource struct {

@@ -51,9 +51,13 @@ func Validate(manifest *Manifest, schema Schema) error {
 }
 
 func validateBootstrap(manifest *Manifest, schema Schema) error {
-	zone, ok := schema.Definitions["zone"]
-	if !ok {
-		return fmt.Errorf("bootstrap requires schema definition zone")
+	if strings.TrimSpace(manifest.Bootstrap.PlatformID) == "" {
+		return fmt.Errorf("bootstrap platform_id is required")
+	}
+	for _, scope := range []string{"platform", "zone"} {
+		if _, ok := schema.Definitions[scope]; !ok {
+			return fmt.Errorf("bootstrap requires schema definition %s", scope)
+		}
 	}
 	roleNames := make([]string, 0, len(manifest.Bootstrap.Roles))
 	for name := range manifest.Bootstrap.Roles {
@@ -73,23 +77,32 @@ func validateBootstrap(manifest *Manifest, schema Schema) error {
 			}
 			seen[candidate] = struct{}{}
 		}
-		for _, relation := range role.ZoneRelations {
-			relation = strings.TrimSpace(relation)
-			if _, ok := zone.Relations[relation]; !ok {
-				return fmt.Errorf("bootstrap role %s references missing zone relation %s", name, relation)
-			}
+		scope := strings.TrimSpace(role.Scope)
+		if scope != "platform" && scope != "zone" {
+			return fmt.Errorf("bootstrap role %s has unsupported scope %s", name, scope)
+		}
+		relation := strings.TrimSpace(role.Relation)
+		if relation == "" {
+			return fmt.Errorf("bootstrap role %s relation is required", name)
+		}
+		if _, ok := schema.Definitions[scope].Relations[relation]; !ok {
+			return fmt.Errorf("bootstrap role %s references missing %s relation %s", name, scope, relation)
 		}
 	}
 	if _, _, ok := manifest.ResolveBootstrapRole(manifest.Bootstrap.DefaultRole); !ok {
 		return fmt.Errorf("bootstrap default role %s does not resolve", manifest.Bootstrap.DefaultRole)
 	}
-	for _, resource := range manifest.Bootstrap.AdminResources {
+	for _, resource := range manifest.Bootstrap.PlatformResources {
 		resourceType := strings.TrimSpace(resource.Type)
-		if _, ok := schema.Definitions[resourceType]; !ok {
-			return fmt.Errorf("bootstrap admin resource type %s is not defined in schema", resourceType)
+		definition, ok := schema.Definitions[resourceType]
+		if !ok {
+			return fmt.Errorf("bootstrap platform resource type %s is not defined in schema", resourceType)
 		}
 		if strings.TrimSpace(resource.ID) == "" {
-			return fmt.Errorf("bootstrap admin resource %s has empty id", resourceType)
+			return fmt.Errorf("bootstrap platform resource %s has empty id", resourceType)
+		}
+		if _, ok := definition.Relations["platform"]; !ok {
+			return fmt.Errorf("bootstrap platform resource %s requires relation platform", resourceType)
 		}
 	}
 	return nil

@@ -105,6 +105,8 @@
 | ART-0052 | GRANT-004 | ListGrants | `internal/service/control_plane.go::ListGrants` |
 | ART-0053 | GRANT-005 | ExplainAccess | `internal/service/control_plane.go::ExplainAccess` |
 | ART-0054 | GRANT-006 | Grant expiry executor | `internal/biz/grant/service.go::ExpireDueGrants` + `cmd/aisphere-iam/main.go` (Dapr Job) |
+| ART-0066 | GRANT-007 | Scoped administrator schema and manifest policy | `configs/spicedb/aisphere.schema.zed`, `configs/resource/defaults.yaml`, `internal/permissionmanifest` |
+| ART-0067 | GRANT-007 | Convergent administrator and organization-root projection | `internal/data/data.go`, `internal/data/identity_mode.go` |
 
 ### Engineering and Release (P2)
 

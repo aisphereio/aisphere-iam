@@ -1,6 +1,6 @@
 # Built-in Aisphere resource-control-plane defaults.
-# Casdoor Organization is the single platform root and maps to resource type `zone`.
-# IAM does not maintain a second platform `organization` entity.
+# Casdoor Organization maps to resource type `zone` beneath the stable platform root.
+# Administrator assignments live on the narrowest scope and inherit through SpiceDB.
 capabilities:
   - id: iam
     name: iam
@@ -46,7 +46,7 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: zone
-    relations: [owner, admin, user_viewer, user_manager, group_viewer, group_manager, permission_admin, member]
+    relations: [platform, owner, admin, user_viewer, user_manager, group_viewer, group_manager, permission_admin, member]
     permissions: [view_zone, view_users, manage_users, view_groups, create_groups, manage_groups, view_permissions, manage_permissions]
     status: active
   - type: group
@@ -362,26 +362,38 @@ role_templates:
 
 bootstrap:
   default_role: zone_owner
+  platform_id: global
   roles:
+    platform_owner:
+      scope: platform
+      relation: owner
+    platform_admin:
+      scope: platform
+      relation: admin
     zone_owner:
       aliases: [owner]
-      zone_relations: [owner, admin, user_manager, group_manager, permission_admin]
-      control_plane_admin: true
+      scope: zone
+      relation: owner
     zone_admin:
       aliases: [admin]
-      zone_relations: [admin, user_manager, group_manager, permission_admin]
-      control_plane_admin: true
+      scope: zone
+      relation: admin
     user_viewer:
-      zone_relations: [user_viewer]
+      scope: zone
+      relation: user_viewer
     user_manager:
-      zone_relations: [user_manager]
+      scope: zone
+      relation: user_manager
     group_viewer:
-      zone_relations: [group_viewer]
+      scope: zone
+      relation: group_viewer
     group_manager:
-      zone_relations: [group_manager]
+      scope: zone
+      relation: group_manager
     permission_admin:
-      zone_relations: [permission_admin]
-  admin_resources:
+      scope: zone
+      relation: permission_admin
+  platform_resources:
     - {type: iam, id: organization}
     - {type: iam, id: capability}
     - {type: iam, id: resource_type}

@@ -59,6 +59,46 @@ func TestAuthzProjectingIdentityAdminWritesZoneQualifiedGroupEdges(t *testing.T)
 	}
 }
 
+func TestAuthzProjectingIdentityAdminLinksOrganizationToPlatform(t *testing.T) {
+	ctx := context.Background()
+	store := authz.NewMemoryRelationshipStore()
+	admin := authzProjectingIdentityAdmin{
+		IdentityAdmin: fakeIdentityAdmin{organization: authn.Organization{ID: "org-a", Name: "org-a"}},
+		projection:    NewIdentityProjectionDispatcher(store, nil, nil),
+	}
+
+	if _, err := admin.CreateOrganization(ctx, authn.CreateOrganizationRequest{Organization: authn.Organization{ID: "org-a", Name: "org-a"}}); err != nil {
+		t.Fatalf("CreateOrganization returned error: %v", err)
+	}
+	rels, err := store.ReadRelationships(ctx, authz.RelationshipFilter{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := authz.Relationship{
+		Resource: authz.ObjectRef{Type: "zone", ID: "org-a"},
+		Relation: "platform",
+		Subject:  authz.SubjectRef{Type: "platform", ID: "global"},
+	}
+	if !containsRelationship(rels, want) {
+		t.Fatalf("missing relationship %#v; got %#v", want, rels)
+	}
+}
+
+func TestBuildDirectoryProjectionRelationshipsIncludesPlatformLink(t *testing.T) {
+	rels, err := BuildDirectoryProjectionRelationships(context.Background(), fakeIdentityAdmin{}, "org-a")
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := authz.Relationship{
+		Resource: authz.ObjectRef{Type: "zone", ID: "org-a"},
+		Relation: "platform",
+		Subject:  authz.SubjectRef{Type: "platform", ID: "global"},
+	}
+	if !containsRelationship(rels, want) {
+		t.Fatalf("missing relationship %#v; got %#v", want, rels)
+	}
+}
+
 func containsRelationship(rels []authz.Relationship, want authz.Relationship) bool {
 	for _, rel := range rels {
 		if rel.Resource == want.Resource && rel.Relation == want.Relation && rel.Subject == want.Subject {
@@ -70,7 +110,20 @@ func containsRelationship(rels []authz.Relationship, want authz.Relationship) bo
 
 type fakeIdentityAdmin struct {
 	authn.IdentityAdmin
-	group authn.Group
+	group        authn.Group
+	organization authn.Organization
+}
+
+func (f fakeIdentityAdmin) CreateOrganization(context.Context, authn.CreateOrganizationRequest) (authn.Organization, error) {
+	return f.organization, nil
+}
+
+func (f fakeIdentityAdmin) ListGroups(context.Context, authn.GroupFilter) ([]authn.Group, error) {
+	return nil, nil
+}
+
+func (f fakeIdentityAdmin) FindUsers(context.Context, authn.UserFilter) ([]authn.User, error) {
+	return nil, nil
 }
 
 func (f fakeIdentityAdmin) CreateGroup(context.Context, authn.CreateGroupRequest) (authn.Group, error) {

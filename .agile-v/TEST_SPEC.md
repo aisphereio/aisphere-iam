@@ -39,6 +39,8 @@
 | TC-0031 | AUTHZ-ADMIN-004 | Get effective permissions | unit | `authz_admin_test.go` | ✅ |
 | TC-0055 | ENG-009 | Committed permission manifest matches SpiceDB schema | unit | `internal/permissionmanifest/manifest_test.go` | ✅ |
 | TC-0056 | ENG-009 | Schema bootstrap applies additions and rejects changes/removals | unit | `internal/data/authz_bootstrap_test.go` | ✅ |
+| TC-0057 | GRANT-007 | Scoped bootstrap aliases, manifest validation and schema alignment | unit | `internal/permissionmanifest/manifest_test.go` | ✅ |
+| TC-0058 | GRANT-007 | Administrator relationship cardinality, migration cleanup and organization root projection | unit | `internal/data/bootstrap_admin_test.go`, `internal/data/identity_mode_test.go` | ✅ |
 
 ## 2. Missing Test Coverage (P0 Priority)
 

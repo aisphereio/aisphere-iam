@@ -3,7 +3,6 @@ package permissionmanifest
 import (
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"testing"
 )
@@ -15,29 +14,42 @@ func TestLoadResolvesBootstrapRoleAliases(t *testing.T) {
 	}
 
 	role, canonical, ok := manifest.ResolveBootstrapRole("owner")
-	if !ok || canonical != "zone_owner" || !role.ControlPlaneAdmin {
+	if !ok || canonical != "zone_owner" {
 		t.Fatalf("resolved = %#v, %q, %v", role, canonical, ok)
 	}
-	want := []string{"owner", "admin", "user_manager", "group_manager", "permission_admin"}
-	if !slices.Equal(want, role.ZoneRelations) {
-		t.Fatalf("zone relations = %v, want %v", role.ZoneRelations, want)
+	if role.Scope != "zone" || role.Relation != "owner" {
+		t.Fatalf("role = %#v, want zone owner", role)
 	}
-	if len(manifest.Bootstrap.AdminResources) != 9 {
-		t.Fatalf("admin resources = %d, want 9", len(manifest.Bootstrap.AdminResources))
+	if manifest.Bootstrap.PlatformID != "global" {
+		t.Fatalf("platform id = %q, want global", manifest.Bootstrap.PlatformID)
+	}
+	if len(manifest.Bootstrap.PlatformResources) != 9 {
+		t.Fatalf("platform resources = %d, want 9", len(manifest.Bootstrap.PlatformResources))
 	}
 }
 
 func TestResolveBootstrapRoleUsesConfiguredDefault(t *testing.T) {
 	manifest := Manifest{Bootstrap: BootstrapPolicy{
-		DefaultRole: "zone_owner",
+		DefaultRole: "platform_owner",
 		Roles: map[string]BootstrapRole{
-			"zone_owner": {ZoneRelations: []string{"owner"}},
+			"platform_owner": {Scope: "platform", Relation: "owner"},
 		},
 	}}
 
 	_, canonical, ok := manifest.ResolveBootstrapRole("")
-	if !ok || canonical != "zone_owner" {
+	if !ok || canonical != "platform_owner" {
 		t.Fatalf("canonical = %q, ok = %v", canonical, ok)
+	}
+}
+
+func TestLoadRequiresExplicitPlatformAdministratorRole(t *testing.T) {
+	manifest, err := Load(filepath.Join("..", "..", "configs", "resource", "defaults.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	role, canonical, ok := manifest.ResolveBootstrapRole("platform_admin")
+	if !ok || canonical != "platform_admin" || role.Scope != "platform" || role.Relation != "admin" {
+		t.Fatalf("resolved = %#v, %q, %v", role, canonical, ok)
 	}
 }
 
@@ -76,10 +88,34 @@ func TestValidateRejectsDuplicateBootstrapAlias(t *testing.T) {
 
 func TestValidateRejectsUnknownBootstrapResource(t *testing.T) {
 	manifest, schema := loadCommittedManifestAndSchema(t)
-	manifest.Bootstrap.AdminResources = append(manifest.Bootstrap.AdminResources, AdminResource{Type: "missing", ID: "global"})
+	manifest.Bootstrap.PlatformResources = append(manifest.Bootstrap.PlatformResources, AdminResource{Type: "missing", ID: "global"})
 
 	err := Validate(manifest, schema)
-	if err == nil || !strings.Contains(err.Error(), "bootstrap admin resource type missing") {
+	if err == nil || !strings.Contains(err.Error(), "bootstrap platform resource type missing") {
+		t.Fatalf("error = %v", err)
+	}
+}
+
+func TestValidateRejectsUnknownBootstrapScope(t *testing.T) {
+	manifest, schema := loadCommittedManifestAndSchema(t)
+	role := manifest.Bootstrap.Roles["zone_admin"]
+	role.Scope = "group"
+	manifest.Bootstrap.Roles["zone_admin"] = role
+
+	err := Validate(manifest, schema)
+	if err == nil || !strings.Contains(err.Error(), "bootstrap role zone_admin has unsupported scope group") {
+		t.Fatalf("error = %v", err)
+	}
+}
+
+func TestValidateRejectsPlatformResourceWithoutPlatformRelation(t *testing.T) {
+	manifest, schema := loadCommittedManifestAndSchema(t)
+	definition := schema.Definitions["iam"]
+	delete(definition.Relations, "platform")
+	schema.Definitions["iam"] = definition
+
+	err := Validate(manifest, schema)
+	if err == nil || !strings.Contains(err.Error(), "bootstrap platform resource iam requires relation platform") {
 		t.Fatalf("error = %v", err)
 	}
 }

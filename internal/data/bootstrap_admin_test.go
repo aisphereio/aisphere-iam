@@ -18,14 +18,13 @@ func TestBootstrapControlPlaneAdminsUsesManifestPolicy(t *testing.T) {
 	ctx := context.Background()
 	store := authz.NewMemoryRelationshipStore()
 	policy := permissionmanifest.BootstrapPolicy{
-		DefaultRole: "zone_owner",
+		DefaultRole: "platform_owner",
+		PlatformID:  "global",
 		Roles: map[string]permissionmanifest.BootstrapRole{
-			"zone_owner": {
-				ZoneRelations:     []string{"owner", "permission_admin"},
-				ControlPlaneAdmin: true,
-			},
+			"platform_owner": {Scope: "platform", Relation: "owner"},
+			"zone_owner":     {Scope: "zone", Relation: "owner"},
 		},
-		AdminResources: []permissionmanifest.AdminResource{{Type: "iam_authz", ID: "global"}},
+		PlatformResources: []permissionmanifest.AdminResource{{Type: "iam_authz", ID: "global"}},
 	}
 	cfg := conf.ControlPlaneBootstrapAdminsConfig{
 		Enabled: true,
@@ -42,9 +41,9 @@ func TestBootstrapControlPlaneAdminsUsesManifestPolicy(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := []authz.Relationship{
+		{Resource: authz.ObjectRef{Type: "iam_authz", ID: "global"}, Relation: "platform", Subject: authz.SubjectRef{Type: "platform", ID: "global"}},
+		{Resource: authz.ObjectRef{Type: "zone", ID: "aisphere"}, Relation: "platform", Subject: authz.SubjectRef{Type: "platform", ID: "global"}},
 		{Resource: authz.ObjectRef{Type: "zone", ID: "aisphere"}, Relation: "owner", Subject: authz.SubjectRef{Type: "user", ID: "u1"}},
-		{Resource: authz.ObjectRef{Type: "zone", ID: "aisphere"}, Relation: "permission_admin", Subject: authz.SubjectRef{Type: "user", ID: "u1"}},
-		{Resource: authz.ObjectRef{Type: "iam_authz", ID: "global"}, Relation: "admin", Subject: authz.SubjectRef{Type: "user", ID: "u1"}},
 	}
 	if len(relationships) != len(want) {
 		t.Fatalf("relationships = %#v, want %#v", relationships, want)
@@ -56,11 +55,96 @@ func TestBootstrapControlPlaneAdminsUsesManifestPolicy(t *testing.T) {
 	}
 }
 
+func TestBootstrapControlPlaneAdminsWritesStructuralRelationshipsOnce(t *testing.T) {
+	store := authz.NewMemoryRelationshipStore()
+	policy := permissionmanifest.BootstrapPolicy{
+		DefaultRole: "zone_admin",
+		PlatformID:  "global",
+		Roles: map[string]permissionmanifest.BootstrapRole{
+			"zone_admin": {Scope: "zone", Relation: "admin"},
+		},
+		PlatformResources: []permissionmanifest.AdminResource{{Type: "iam", ID: "grant"}},
+	}
+	cfg := conf.ControlPlaneBootstrapAdminsConfig{Enabled: true, Subjects: []conf.ControlPlaneAdminSubject{
+		{Type: "user", ID: "u1", ZoneID: "org-a", Role: "zone_admin"},
+		{Type: "user", ID: "u2", ZoneID: "org-a", Role: "zone_admin"},
+	}}
+
+	if err := bootstrapControlPlaneAdmins(context.Background(), cfg, policy, store, nil, logx.Noop()); err != nil {
+		t.Fatal(err)
+	}
+	relationships, err := store.ReadRelationships(context.Background(), authz.RelationshipFilter{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(relationships) != 4 {
+		t.Fatalf("relationships = %#v, want two structural and two personnel relationships", relationships)
+	}
+}
+
+func TestBootstrapControlPlaneAdminsRejectsZoneRoleWithoutZone(t *testing.T) {
+	policy := permissionmanifest.BootstrapPolicy{
+		PlatformID: "global",
+		Roles: map[string]permissionmanifest.BootstrapRole{
+			"zone_admin": {Scope: "zone", Relation: "admin"},
+		},
+	}
+	cfg := conf.ControlPlaneBootstrapAdminsConfig{Enabled: true, Subjects: []conf.ControlPlaneAdminSubject{{Type: "user", ID: "u1", Role: "zone_admin"}}}
+
+	err := bootstrapControlPlaneAdmins(context.Background(), cfg, policy, authz.NewMemoryRelationshipStore(), nil, logx.Noop())
+	if err == nil || !strings.Contains(err.Error(), "zone_id is required for bootstrap role zone_admin") {
+		t.Fatalf("error = %v", err)
+	}
+}
+
+func TestBootstrapControlPlaneAdminsCleansOnlyLegacyExpansionRelationships(t *testing.T) {
+	ctx := context.Background()
+	store := authz.NewMemoryRelationshipStore()
+	old := []authz.Relationship{
+		{Resource: authz.ObjectRef{Type: "zone", ID: "org-a"}, Relation: "admin", Subject: authz.SubjectRef{Type: "user", ID: "u1"}},
+		{Resource: authz.ObjectRef{Type: "zone", ID: "org-a"}, Relation: "permission_admin", Subject: authz.SubjectRef{Type: "user", ID: "u1"}},
+		{Resource: authz.ObjectRef{Type: "iam_authz", ID: "global"}, Relation: "admin", Subject: authz.SubjectRef{Type: "user", ID: "u1"}},
+		{Resource: authz.ObjectRef{Type: "skill", ID: "s1"}, Relation: "viewer", Subject: authz.SubjectRef{Type: "user", ID: "u1"}},
+	}
+	if _, err := store.WriteRelationships(ctx, old...); err != nil {
+		t.Fatal(err)
+	}
+	policy := permissionmanifest.BootstrapPolicy{
+		PlatformID: "global",
+		Roles: map[string]permissionmanifest.BootstrapRole{
+			"zone_owner": {Scope: "zone", Relation: "owner"},
+		},
+		PlatformResources: []permissionmanifest.AdminResource{{Type: "iam_authz", ID: "global"}},
+	}
+	cfg := conf.ControlPlaneBootstrapAdminsConfig{
+		Enabled: true, CleanupLegacyExpansions: true,
+		Subjects: []conf.ControlPlaneAdminSubject{{Type: "user", ID: "u1", ZoneID: "org-a", Role: "zone_owner"}},
+	}
+
+	if err := bootstrapControlPlaneAdmins(ctx, cfg, policy, store, nil, logx.Noop()); err != nil {
+		t.Fatal(err)
+	}
+	relationships, err := store.ReadRelationships(ctx, authz.RelationshipFilter{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hasBootstrapRelationship(relationships, old[0]) || hasBootstrapRelationship(relationships, old[1]) || hasBootstrapRelationship(relationships, old[2]) {
+		t.Fatalf("legacy relationships remain: %#v", relationships)
+	}
+	if !hasBootstrapRelationship(relationships, old[3]) {
+		t.Fatalf("unrelated grant was removed: %#v", relationships)
+	}
+	wantOwner := authz.Relationship{Resource: authz.ObjectRef{Type: "zone", ID: "org-a"}, Relation: "owner", Subject: authz.SubjectRef{Type: "user", ID: "u1"}}
+	if !hasBootstrapRelationship(relationships, wantOwner) {
+		t.Fatalf("new scoped owner missing: %#v", relationships)
+	}
+}
+
 func TestBootstrapControlPlaneAdminsRejectsUnknownManifestRole(t *testing.T) {
 	policy := permissionmanifest.BootstrapPolicy{
-		DefaultRole: "zone_owner",
+		PlatformID: "global",
 		Roles: map[string]permissionmanifest.BootstrapRole{
-			"zone_owner": {ZoneRelations: []string{"owner"}},
+			"zone_owner": {Scope: "zone", Relation: "owner"},
 		},
 	}
 	cfg := conf.ControlPlaneBootstrapAdminsConfig{
@@ -88,7 +172,7 @@ func TestLoadPermissionManifestValidatesCommittedFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if manifest == nil || len(manifest.Bootstrap.AdminResources) != 9 {
+	if manifest == nil || len(manifest.Bootstrap.PlatformResources) != 9 {
 		t.Fatalf("manifest = %#v", manifest)
 	}
 }

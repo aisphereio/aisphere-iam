@@ -502,6 +502,14 @@ Evidence qualifiers:
 - **Verification criteria:** before expiry, after expiry, clock skew, retry and cleanup cases are covered.
 - **Done criteria:** expiry worker/query strategy and integration tests exist.
 
+## REQ-IAM-GRANT-007 — Support scoped administrators and reusable custom roles
+- **Priority:** P1
+- **Status:** `PARTIAL_IMPLEMENTATION`, `UNIT_EVIDENCE`
+- **Requirement:** IAM shall assign administrators once at platform, Zone or Group scope and derive child-resource access through SpiceDB inheritance; IAM shall also support manifest-validated custom role capability bundles for fine-grained User and Group grants.
+- **Constraint:** existing `owner` and `admin` bootstrap aliases must remain Zone-scoped; platform roles require explicit names and legacy expanded relationships may only be removed through an explicit migration switch.
+- **Verification criteria:** relationship cardinality, platform/Zone/Group scope boundaries, safe legacy cleanup, custom role lifecycle, binding projection, impact preview and resource-level sharing are tested.
+- **Done criteria:** backend projection and API tests, frontend role/assignment flows, migration documentation and cross-surface verification pass.
+
 ---
 
 # 12. Engineering, security and release requirements

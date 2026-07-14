@@ -284,60 +284,60 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 	if !cfg.Enabled || writer == nil || len(cfg.Subjects) == 0 {
 		return nil
 	}
-	resources := policy.AdminResources
-	rels := make([]authz.Relationship, 0, len(resources)*len(cfg.Subjects)+len(cfg.Subjects)*6)
-	for _, subject := range cfg.Subjects {
-		legacySubject, hasLegacy := legacyBootstrapSubject(subject)
-		if hasLegacy {
-			for _, resource := range resources {
-				resource.Type = strings.TrimSpace(resource.Type)
-				resource.ID = strings.TrimSpace(resource.ID)
-				if resource.Type == "" || resource.ID == "" {
-					continue
-				}
-				rels = append(rels, authz.Relationship{
-					Resource: authz.ObjectRef{Type: resource.Type, ID: resource.ID},
-					Relation: "admin",
-					Subject:  legacySubject,
-				})
-			}
-		}
-
-		zoneID := dataFirstNonEmpty(subject.ZoneID, subject.CasdoorOrg)
-		zoneSubject, hasZoneSubject, err := resolveBootstrapZoneSubject(ctx, subject, directory)
-		if err != nil {
-			return err
-		}
-		if zoneID == "" || !hasZoneSubject {
+	platformID := strings.TrimSpace(policy.PlatformID)
+	if platformID == "" {
+		return fmt.Errorf("bootstrap platform_id is required")
+	}
+	rels := make([]authz.Relationship, 0, len(policy.PlatformResources)+len(cfg.Subjects)*2)
+	for _, resource := range policy.PlatformResources {
+		resource.Type = strings.TrimSpace(resource.Type)
+		resource.ID = strings.TrimSpace(resource.ID)
+		if resource.Type == "" || resource.ID == "" {
 			continue
 		}
-		rolePolicy, _, ok := policy.ResolveRole(subject.Role)
+		rels = append(rels, authz.Relationship{
+			Resource: authz.ObjectRef{Type: resource.Type, ID: resource.ID},
+			Relation: "platform",
+			Subject:  authz.SubjectRef{Type: "platform", ID: platformID},
+		})
+	}
+	for _, subject := range cfg.Subjects {
+		rolePolicy, canonicalRole, ok := policy.ResolveRole(subject.Role)
 		if !ok {
 			return fmt.Errorf("unknown bootstrap role %s", strings.TrimSpace(subject.Role))
 		}
-		zoneSubject = stripSubjectRelation(zoneSubject)
-		for _, relation := range rolePolicy.ZoneRelations {
+		resolvedSubject, hasSubject, err := resolveBootstrapZoneSubject(ctx, subject, directory)
+		if err != nil {
+			return err
+		}
+		if !hasSubject {
+			continue
+		}
+		zoneID := dataFirstNonEmpty(subject.ZoneID, subject.CasdoorOrg)
+		var resource authz.ObjectRef
+		switch strings.TrimSpace(rolePolicy.Scope) {
+		case "platform":
+			resource = authz.ObjectRef{Type: "platform", ID: platformID}
+		case "zone":
+			if zoneID == "" {
+				return fmt.Errorf("zone_id is required for bootstrap role %s", canonicalRole)
+			}
+			resource = authz.ObjectRef{Type: "zone", ID: zoneID}
+		case "":
+			return fmt.Errorf("bootstrap role %s scope is required", canonicalRole)
+		default:
+			return fmt.Errorf("unsupported bootstrap role scope %s", rolePolicy.Scope)
+		}
+		if zoneID != "" {
 			rels = append(rels, authz.Relationship{
 				Resource: authz.ObjectRef{Type: "zone", ID: zoneID},
-				Relation: relation,
-				Subject:  zoneSubject,
+				Relation: "platform",
+				Subject:  authz.SubjectRef{Type: "platform", ID: platformID},
 			})
 		}
-		if !hasLegacy && rolePolicy.ControlPlaneAdmin {
-			for _, resource := range resources {
-				resource.Type = strings.TrimSpace(resource.Type)
-				resource.ID = strings.TrimSpace(resource.ID)
-				if resource.Type == "" || resource.ID == "" {
-					continue
-				}
-				rels = append(rels, authz.Relationship{
-					Resource: authz.ObjectRef{Type: resource.Type, ID: resource.ID},
-					Relation: "admin",
-					Subject:  zoneSubject,
-				})
-			}
-		}
+		rels = append(rels, authz.Relationship{Resource: resource, Relation: strings.TrimSpace(rolePolicy.Relation), Subject: resolvedSubject})
 	}
+	rels = dedupeRelationships(rels)
 	if len(rels) == 0 {
 		return nil
 	}
@@ -346,17 +346,64 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 		return err
 	}
 	logger.Info("control plane admin relationships bootstrapped", logx.Int("written", result.Written))
+	if cfg.CleanupLegacyExpansions {
+		deleted, err := cleanupLegacyBootstrapExpansions(ctx, cfg.Subjects, policy, writer, directory)
+		if err != nil {
+			return err
+		}
+		logger.Info("legacy control plane admin relationships cleaned", logx.Int("deleted", deleted))
+	}
 	return nil
 }
 
-func legacyBootstrapSubject(subject conf.ControlPlaneAdminSubject) (authz.SubjectRef, bool) {
-	subject.Type = strings.TrimSpace(subject.Type)
-	subject.ID = strings.TrimSpace(subject.ID)
-	subject.Relation = strings.TrimSpace(subject.Relation)
-	if subject.Type == "" || subject.ID == "" {
-		return authz.SubjectRef{}, false
+var legacyBootstrapZoneRelations = map[string][]string{
+	"zone_owner": {"owner", "admin", "user_manager", "group_manager", "permission_admin"},
+	"zone_admin": {"admin", "user_manager", "group_manager", "permission_admin"},
+}
+
+func cleanupLegacyBootstrapExpansions(ctx context.Context, subjects []conf.ControlPlaneAdminSubject, policy permissionmanifest.BootstrapPolicy, writer authz.RelationshipWriter, directory authn.UserDirectory) (int, error) {
+	deleted := 0
+	for _, subject := range subjects {
+		role, canonicalRole, ok := policy.ResolveRole(subject.Role)
+		if !ok {
+			return deleted, fmt.Errorf("unknown bootstrap role %s", strings.TrimSpace(subject.Role))
+		}
+		resolvedSubject, hasSubject, err := resolveBootstrapZoneSubject(ctx, subject, directory)
+		if err != nil {
+			return deleted, err
+		}
+		if !hasSubject {
+			continue
+		}
+		zoneID := dataFirstNonEmpty(subject.ZoneID, subject.CasdoorOrg)
+		for _, relation := range legacyBootstrapZoneRelations[canonicalRole] {
+			if role.Scope == "zone" && relation == strings.TrimSpace(role.Relation) {
+				continue
+			}
+			part, err := writer.DeleteRelationships(ctx, authz.RelationshipFilter{
+				ResourceType: "zone", ResourceID: zoneID, Relation: relation,
+				SubjectType: resolvedSubject.Type, SubjectID: resolvedSubject.ID, SubjectRel: resolvedSubject.Relation,
+			})
+			deleted += part.Deleted
+			if err != nil {
+				return deleted, err
+			}
+		}
+		if canonicalRole != "zone_owner" && canonicalRole != "zone_admin" {
+			continue
+		}
+		for _, resource := range policy.PlatformResources {
+			part, err := writer.DeleteRelationships(ctx, authz.RelationshipFilter{
+				ResourceType: strings.TrimSpace(resource.Type), ResourceID: strings.TrimSpace(resource.ID), Relation: "admin",
+				SubjectType: resolvedSubject.Type, SubjectID: resolvedSubject.ID, SubjectRel: resolvedSubject.Relation,
+			})
+			deleted += part.Deleted
+			if err != nil {
+				return deleted, err
+			}
+		}
 	}
-	return authz.SubjectRef{Type: subject.Type, ID: subject.ID, Relation: subject.Relation}, true
+	return deleted, nil
 }
 
 func resolveBootstrapZoneSubject(ctx context.Context, subject conf.ControlPlaneAdminSubject, directory authn.UserDirectory) (authz.SubjectRef, bool, error) {
@@ -391,11 +438,6 @@ func resolveBootstrapZoneSubject(ctx context.Context, subject conf.ControlPlaneA
 		return authz.SubjectRef{Type: subjectType, ID: user.ID, Relation: relation}, true, nil
 	}
 	return authz.SubjectRef{}, false, authn.ErrIdentityBackendFailed("bootstrap admin user not found: "+orgID+"/"+username, nil)
-}
-
-func stripSubjectRelation(subject authz.SubjectRef) authz.SubjectRef {
-	subject.Relation = ""
-	return subject
 }
 
 func dataFirstNonEmpty(values ...string) string {
