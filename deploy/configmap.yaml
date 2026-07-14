@@ -139,7 +139,7 @@ data:
             username: admin
             zone_id: aisphere
             casdoor_org: aisphere
-            role: zone_owner
+            role: platform_admin
             source: bootstrap
             reason: initial Casdoor admin user
 
