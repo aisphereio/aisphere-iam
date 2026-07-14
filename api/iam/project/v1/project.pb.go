@@ -1569,26 +1569,26 @@ const file_iam_project_v1_project_proto_rawDesc = "" +
 	"\x06PUBLIC\x10\x032\xe7\x12\n" +
 	"\x0eProjectService\x12\xcb\x01\n" +
 	"\rCreateProject\x12$.iam.project.v1.CreateProjectRequest\x1a\x17.iam.project.v1.Project\"{\x92\xf4\x18N\b\x03\x12,\n" +
-	"\x0ecreate_project\x12\viam:project\x1a\viam-service \x01\x1a\x1c\b\x01\x12\x12iam.project.create\x1a\x04high\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/iam/control-plane/projects\x12\xcb\x01\n" +
+	"\x0ecreate_project\x12\viam:project\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x12iam.project.create\x1a\x04high\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/iam/control-plane/projects\x12\xcb\x01\n" +
 	"\n" +
 	"GetProject\x12!.iam.project.v1.GetProjectRequest\x1a\x17.iam.project.v1.Project\"\x80\x01\x92\xf4\x18I\b\x03\x12+\n" +
-	"\x04read\x12\x14project:{project_id}\x1a\viam-service \x01\x1a\x18\b\x01\x12\x0fiam.project.get\x1a\x03low\x82\xd3\xe4\x93\x02-\x12+/v1/iam/control-plane/projects/{project_id}\x12\xc4\x01\n" +
+	"\x04read\x12\x14project:{project_id}\x1a\viam-service \x03\x1a\x18\b\x01\x12\x0fiam.project.get\x1a\x03low\x82\xd3\xe4\x93\x02-\x12+/v1/iam/control-plane/projects/{project_id}\x12\xc4\x01\n" +
 	"\fListProjects\x12#.iam.project.v1.ListProjectsRequest\x1a!.iam.project.v1.ListProjectsReply\"l\x92\xf4\x18B\b\x03\x12 \n" +
-	"\x04list\x12\tproject:*\x1a\viam-service \x01\x1a\x1c\b\x01\x12\x10iam.project.list\x1a\x06medium\x82\xd3\xe4\x93\x02 \x12\x1e/v1/iam/control-plane/projects\x12\xda\x01\n" +
+	"\x04list\x12\tproject:*\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x10iam.project.list\x1a\x06medium\x82\xd3\xe4\x93\x02 \x12\x1e/v1/iam/control-plane/projects\x12\xda\x01\n" +
 	"\rUpdateProject\x12$.iam.project.v1.UpdateProjectRequest\x1a\x17.iam.project.v1.Project\"\x89\x01\x92\xf4\x18O\b\x03\x12-\n" +
-	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x01\x1a\x1c\b\x01\x12\x12iam.project.update\x1a\x04high\x82\xd3\xe4\x93\x020:\x01*2+/v1/iam/control-plane/projects/{project_id}\x12\xe5\x01\n" +
+	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x12iam.project.update\x1a\x04high\x82\xd3\xe4\x93\x020:\x01*2+/v1/iam/control-plane/projects/{project_id}\x12\xe5\x01\n" +
 	"\x0eArchiveProject\x12%.iam.project.v1.ArchiveProjectRequest\x1a\x17.iam.project.v1.Project\"\x92\x01\x92\xf4\x18P\b\x03\x12-\n" +
-	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x01\x1a\x1d\b\x01\x12\x13iam.project.archive\x1a\x04high\x82\xd3\xe4\x93\x028:\x01*\"3/v1/iam/control-plane/projects/{project_id}/archive\x12\xdc\x01\n" +
+	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x03\x1a\x1d\b\x01\x12\x13iam.project.archive\x1a\x04high\x82\xd3\xe4\x93\x028:\x01*\"3/v1/iam/control-plane/projects/{project_id}/archive\x12\xdc\x01\n" +
 	"\x12RegisterCapability\x12).iam.project.v1.RegisterCapabilityRequest\x1a\x1a.iam.project.v1.Capability\"\x7f\x92\xf4\x18N\b\x03\x12'\n" +
-	"\x06manage\x12\x0eiam:capability\x1a\viam-service \x01\x1a!\b\x01\x12\x17iam.capability.register\x1a\x04high\x82\xd3\xe4\x93\x02':\x01*\"\"/v1/iam/control-plane/capabilities\x12\xdc\x01\n" +
+	"\x06manage\x12\x0eiam:capability\x1a\viam-service \x03\x1a!\b\x01\x12\x17iam.capability.register\x1a\x04high\x82\xd3\xe4\x93\x02':\x01*\"\"/v1/iam/control-plane/capabilities\x12\xdc\x01\n" +
 	"\x10ListCapabilities\x12'.iam.project.v1.ListCapabilitiesRequest\x1a%.iam.project.v1.ListCapabilitiesReply\"x\x92\xf4\x18J\b\x03\x12%\n" +
-	"\x04list\x12\x0eiam:capability\x1a\viam-service \x01\x1a\x1f\b\x01\x12\x13iam.capability.list\x1a\x06medium\x82\xd3\xe4\x93\x02$\x12\"/v1/iam/control-plane/capabilities\x12\xa7\x02\n" +
+	"\x04list\x12\x0eiam:capability\x1a\viam-service \x03\x1a\x1f\b\x01\x12\x13iam.capability.list\x1a\x06medium\x82\xd3\xe4\x93\x02$\x12\"/v1/iam/control-plane/capabilities\x12\xa7\x02\n" +
 	"\x17EnableProjectCapability\x12..iam.project.v1.EnableProjectCapabilityRequest\x1a!.iam.project.v1.ProjectCapability\"\xb8\x01\x92\xf4\x18Z\b\x03\x12-\n" +
-	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x01\x1a'\b\x01\x12\x1diam.project_capability.enable\x1a\x04high\x82\xd3\xe4\x93\x02T:\x01*\"O/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable\x12\xab\x02\n" +
+	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x03\x1a'\b\x01\x12\x1diam.project_capability.enable\x1a\x04high\x82\xd3\xe4\x93\x02T:\x01*\"O/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable\x12\xab\x02\n" +
 	"\x18DisableProjectCapability\x12/.iam.project.v1.DisableProjectCapabilityRequest\x1a!.iam.project.v1.ProjectCapability\"\xba\x01\x92\xf4\x18[\b\x03\x12-\n" +
-	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x01\x1a(\b\x01\x12\x1eiam.project_capability.disable\x1a\x04high\x82\xd3\xe4\x93\x02U:\x01*\"P/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable\x12\x96\x02\n" +
+	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x03\x1a(\b\x01\x12\x1eiam.project_capability.disable\x1a\x04high\x82\xd3\xe4\x93\x02U:\x01*\"P/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable\x12\x96\x02\n" +
 	"\x17ListProjectCapabilities\x12..iam.project.v1.ListProjectCapabilitiesRequest\x1a,.iam.project.v1.ListProjectCapabilitiesReply\"\x9c\x01\x92\xf4\x18X\b\x03\x12+\n" +
-	"\x04read\x12\x14project:{project_id}\x1a\viam-service \x01\x1a'\b\x01\x12\x1biam.project_capability.list\x1a\x06medium\x82\xd3\xe4\x93\x02:\x128/v1/iam/control-plane/projects/{project_id}/capabilitiesBAZ?github.com/aisphereio/aisphere-iam/api/iam/project/v1;projectv1b\x06proto3"
+	"\x04read\x12\x14project:{project_id}\x1a\viam-service \x03\x1a'\b\x01\x12\x1biam.project_capability.list\x1a\x06medium\x82\xd3\xe4\x93\x02:\x128/v1/iam/control-plane/projects/{project_id}/capabilitiesBAZ?github.com/aisphereio/aisphere-iam/api/iam/project/v1;projectv1b\x06proto3"
 
 var (
 	file_iam_project_v1_project_proto_rawDescOnce sync.Once

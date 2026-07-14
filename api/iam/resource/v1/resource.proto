@@ -19,7 +19,7 @@ service ResourceService {
     option (google.api.http) = { post: "/v1/iam/control-plane/resource-types" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "iam:resource_type" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage" resource: "iam:resource_type" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource_type.register" risk: "high" }
     };
   }
@@ -28,7 +28,7 @@ service ResourceService {
     option (google.api.http) = { get: "/v1/iam/control-plane/resource-types/{type}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "iam:resource_type:{type}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "read" resource: "iam:resource_type:{type}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource_type.get" risk: "low" }
     };
   }
@@ -37,7 +37,7 @@ service ResourceService {
     option (google.api.http) = { get: "/v1/iam/control-plane/resource-types" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:resource_type:*" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "list" resource: "iam:resource_type:*" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource_type.list" risk: "medium" }
     };
   }
@@ -46,7 +46,7 @@ service ResourceService {
     option (google.api.http) = { put: "/v1/iam/control-plane/resources" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "upsert" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "upsert" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource.upsert" risk: "high" }
       reason: "Resource projections are written by trusted owner services."
     };
@@ -56,7 +56,7 @@ service ResourceService {
     option (google.api.http) = { get: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "read" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource.get" risk: "low" }
     };
   }
@@ -65,7 +65,7 @@ service ResourceService {
     option (google.api.http) = { get: "/v1/iam/control-plane/resources" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "list" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource.list" risk: "medium" }
     };
   }
@@ -74,7 +74,7 @@ service ResourceService {
     option (google.api.http) = { post: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "move" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "move" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource.move" risk: "high" }
       reason: "Resource moves are requested only by trusted resource owner services."
     };
@@ -84,7 +84,7 @@ service ResourceService {
     option (google.api.http) = { post: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "archive" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "archive" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource.archive" risk: "high" }
       reason: "Resource archival is synchronized from trusted resource owner services."
     };
@@ -94,7 +94,7 @@ service ResourceService {
     option (google.api.http) = { delete: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "delete" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "delete" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource.delete" risk: "high" }
       reason: "Resource deletion is synchronized from trusted resource owner services."
     };
@@ -104,7 +104,7 @@ service ResourceService {
     option (google.api.http) = { post: "/v1/iam/control-plane/resource-bindings" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "bind" resource: "iam:resource_binding" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "bind" resource: "iam:resource_binding" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource_binding.bind" risk: "high" }
       reason: "Resource bindings are projected by trusted platform services."
     };
@@ -114,7 +114,7 @@ service ResourceService {
     option (google.api.http) = { post: "/v1/iam/control-plane/resource-bindings/{binding_id}/unbind" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "unbind" resource: "iam:resource_binding:{binding_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "unbind" resource: "iam:resource_binding:{binding_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource_binding.unbind" risk: "high" }
       reason: "Resource binding removal is projected by trusted platform services."
     };
@@ -124,7 +124,7 @@ service ResourceService {
     option (google.api.http) = { get: "/v1/iam/control-plane/resource-bindings" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:resource_binding" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "list" resource: "iam:resource_binding" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource_binding.list" risk: "medium" }
     };
   }
@@ -133,7 +133,7 @@ service ResourceService {
     option (google.api.http) = { post: "/v1/iam/control-plane/external-resource-bindings" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "bind" resource: "iam:external_resource_binding" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "bind" resource: "iam:external_resource_binding" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.external_resource_binding.bind" risk: "high" }
       reason: "External resource mappings are projected by trusted integration services."
     };
@@ -143,7 +143,7 @@ service ResourceService {
     option (google.api.http) = { get: "/v1/iam/control-plane/external-resource-bindings" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:external_resource_binding" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "list" resource: "iam:external_resource_binding" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.external_resource_binding.list" risk: "medium" }
     };
   }

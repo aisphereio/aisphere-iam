@@ -19,7 +19,7 @@ service GrantService {
     option (google.api.http) = { post: "/v1/iam/control-plane/role-templates" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "iam:role_template" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage" resource: "iam:role_template" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.role_template.register" risk: "high" }
     };
   }
@@ -28,7 +28,7 @@ service GrantService {
     option (google.api.http) = { patch: "/v1/iam/control-plane/role-templates/{id}" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "iam:role_template:{id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage" resource: "iam:role_template:{id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.role_template.update" risk: "high" }
     };
   }
@@ -37,7 +37,7 @@ service GrantService {
     option (google.api.http) = { post: "/v1/iam/control-plane/role-templates/{id}:disable" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "iam:role_template:{id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage" resource: "iam:role_template:{id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.role_template.disable" risk: "high" }
     };
   }
@@ -46,7 +46,7 @@ service GrantService {
     option (google.api.http) = { post: "/v1/iam/control-plane/role-templates/{id}:preview-impact" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "iam:role_template:{id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "read" resource: "iam:role_template:{id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.role_template.preview_impact" risk: "medium" }
     };
   }
@@ -55,7 +55,7 @@ service GrantService {
     option (google.api.http) = { get: "/v1/iam/control-plane/role-templates" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:role_template" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "list" resource: "iam:role_template" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.role_template.list" risk: "medium" }
     };
   }
@@ -64,7 +64,7 @@ service GrantService {
     option (google.api.http) = { post: "/v1/iam/control-plane/grants" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "grant" resource: "iam:grant" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "grant" resource: "iam:grant" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.grant.create" risk: "high" }
     };
   }
@@ -73,7 +73,7 @@ service GrantService {
     option (google.api.http) = { post: "/v1/iam/control-plane/grants/{grant_id}/revoke" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "revoke" resource: "iam:grant:{grant_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "revoke" resource: "iam:grant:{grant_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.grant.revoke" risk: "high" }
     };
   }
@@ -82,7 +82,7 @@ service GrantService {
     option (google.api.http) = { get: "/v1/iam/control-plane/grants" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:grant" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "list" resource: "iam:grant" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.grant.list" risk: "medium" }
     };
   }
@@ -91,7 +91,7 @@ service GrantService {
     option (google.api.http) = { post: "/v1/iam/control-plane/access:explain" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "explain" resource: "iam:grant" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "explain" resource: "iam:grant" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.access.explain" risk: "medium" }
     };
   }

@@ -21,7 +21,7 @@ service ProjectService {
     option (google.api.http) = { post: "/v1/iam/control-plane/projects" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "create_project" resource: "iam:project" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "create_project" resource: "iam:project" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.create" risk: "high" }
     };
   }
@@ -30,7 +30,7 @@ service ProjectService {
     option (google.api.http) = { get: "/v1/iam/control-plane/projects/{project_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "project:{project_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "read" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.get" risk: "low" }
     };
   }
@@ -39,7 +39,7 @@ service ProjectService {
     option (google.api.http) = { get: "/v1/iam/control-plane/projects" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "project:*" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "list" resource: "project:*" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.list" risk: "medium" }
     };
   }
@@ -48,7 +48,7 @@ service ProjectService {
     option (google.api.http) = { patch: "/v1/iam/control-plane/projects/{project_id}" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.update" risk: "high" }
     };
   }
@@ -57,7 +57,7 @@ service ProjectService {
     option (google.api.http) = { post: "/v1/iam/control-plane/projects/{project_id}/archive" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.archive" risk: "high" }
     };
   }
@@ -66,7 +66,7 @@ service ProjectService {
     option (google.api.http) = { post: "/v1/iam/control-plane/capabilities" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "iam:capability" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage" resource: "iam:capability" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.capability.register" risk: "high" }
     };
   }
@@ -75,7 +75,7 @@ service ProjectService {
     option (google.api.http) = { get: "/v1/iam/control-plane/capabilities" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "iam:capability" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "list" resource: "iam:capability" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.capability.list" risk: "medium" }
     };
   }
@@ -84,7 +84,7 @@ service ProjectService {
     option (google.api.http) = { post: "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project_capability.enable" risk: "high" }
     };
   }
@@ -93,7 +93,7 @@ service ProjectService {
     option (google.api.http) = { post: "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project_capability.disable" risk: "high" }
     };
   }
@@ -102,7 +102,7 @@ service ProjectService {
     option (google.api.http) = { get: "/v1/iam/control-plane/projects/{project_id}/capabilities" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "project:{project_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "read" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project_capability.list" risk: "medium" }
     };
   }

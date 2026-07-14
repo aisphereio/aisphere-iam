@@ -1433,24 +1433,24 @@ const file_iam_grant_v1_grant_proto_rawDesc = "" +
 	"\x11consistency_token\x18\x05 \x01(\tR\x10consistencyToken2\x8f\x10\n" +
 	"\fGrantService\x12\xe7\x01\n" +
 	"\x14RegisterRoleTemplate\x12).iam.grant.v1.RegisterRoleTemplateRequest\x1a\x1a.iam.grant.v1.RoleTemplate\"\x87\x01\x92\xf4\x18T\b\x03\x12*\n" +
-	"\x06manage\x12\x11iam:role_template\x1a\viam-service \x01\x1a$\b\x01\x12\x1aiam.role_template.register\x1a\x04high\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/control-plane/role-templates\x12\xeb\x01\n" +
+	"\x06manage\x12\x11iam:role_template\x1a\viam-service \x03\x1a$\b\x01\x12\x1aiam.role_template.register\x1a\x04high\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/control-plane/role-templates\x12\xeb\x01\n" +
 	"\x12UpdateRoleTemplate\x12'.iam.grant.v1.UpdateRoleTemplateRequest\x1a\x1a.iam.grant.v1.RoleTemplate\"\x8f\x01\x92\xf4\x18W\b\x03\x12/\n" +
-	"\x06manage\x12\x16iam:role_template:{id}\x1a\viam-service \x01\x1a\"\b\x01\x12\x18iam.role_template.update\x1a\x04high\x82\xd3\xe4\x93\x02.:\x01*2)/v1/iam/control-plane/role-templates/{id}\x12\xf6\x01\n" +
+	"\x06manage\x12\x16iam:role_template:{id}\x1a\viam-service \x03\x1a\"\b\x01\x12\x18iam.role_template.update\x1a\x04high\x82\xd3\xe4\x93\x02.:\x01*2)/v1/iam/control-plane/role-templates/{id}\x12\xf6\x01\n" +
 	"\x13DisableRoleTemplate\x12(.iam.grant.v1.DisableRoleTemplateRequest\x1a\x1a.iam.grant.v1.RoleTemplate\"\x98\x01\x92\xf4\x18X\b\x03\x12/\n" +
-	"\x06manage\x12\x16iam:role_template:{id}\x1a\viam-service \x01\x1a#\b\x01\x12\x19iam.role_template.disable\x1a\x04high\x82\xd3\xe4\x93\x026:\x01*\"1/v1/iam/control-plane/role-templates/{id}:disable\x12\xa2\x02\n" +
+	"\x06manage\x12\x16iam:role_template:{id}\x1a\viam-service \x03\x1a#\b\x01\x12\x19iam.role_template.disable\x1a\x04high\x82\xd3\xe4\x93\x026:\x01*\"1/v1/iam/control-plane/role-templates/{id}:disable\x12\xa2\x02\n" +
 	"\x19PreviewRoleTemplateImpact\x12..iam.grant.v1.PreviewRoleTemplateImpactRequest\x1a,.iam.grant.v1.PreviewRoleTemplateImpactReply\"\xa6\x01\x92\xf4\x18_\b\x03\x12-\n" +
-	"\x04read\x12\x16iam:role_template:{id}\x1a\viam-service \x01\x1a,\b\x01\x12 iam.role_template.preview_impact\x1a\x06medium\x82\xd3\xe4\x93\x02=:\x01*\"8/v1/iam/control-plane/role-templates/{id}:preview-impact\x12\xe4\x01\n" +
+	"\x04read\x12\x16iam:role_template:{id}\x1a\viam-service \x03\x1a,\b\x01\x12 iam.role_template.preview_impact\x1a\x06medium\x82\xd3\xe4\x93\x02=:\x01*\"8/v1/iam/control-plane/role-templates/{id}:preview-impact\x12\xe4\x01\n" +
 	"\x11ListRoleTemplates\x12&.iam.grant.v1.ListRoleTemplatesRequest\x1a$.iam.grant.v1.ListRoleTemplatesReply\"\x80\x01\x92\xf4\x18P\b\x03\x12(\n" +
-	"\x04list\x12\x11iam:role_template\x1a\viam-service \x01\x1a\"\b\x01\x12\x16iam.role_template.list\x1a\x06medium\x82\xd3\xe4\x93\x02&\x12$/v1/iam/control-plane/role-templates\x12\xb2\x01\n" +
+	"\x04list\x12\x11iam:role_template\x1a\viam-service \x03\x1a\"\b\x01\x12\x16iam.role_template.list\x1a\x06medium\x82\xd3\xe4\x93\x02&\x12$/v1/iam/control-plane/role-templates\x12\xb2\x01\n" +
 	"\vGrantAccess\x12 .iam.grant.v1.GrantAccessRequest\x1a\x13.iam.grant.v1.Grant\"l\x92\xf4\x18A\b\x03\x12!\n" +
-	"\x05grant\x12\tiam:grant\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.grant.create\x1a\x04high\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/control-plane/grants\x12\xdf\x01\n" +
+	"\x05grant\x12\tiam:grant\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x10iam.grant.create\x1a\x04high\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/control-plane/grants\x12\xdf\x01\n" +
 	"\fRevokeAccess\x12!.iam.grant.v1.RevokeAccessRequest\x1a\x1f.iam.grant.v1.RevokeAccessReply\"\x8a\x01\x92\xf4\x18M\b\x03\x12-\n" +
-	"\x06revoke\x12\x14iam:grant:{grant_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.grant.revoke\x1a\x04high\x82\xd3\xe4\x93\x023:\x01*\"./v1/iam/control-plane/grants/{grant_id}/revoke\x12\xb6\x01\n" +
+	"\x06revoke\x12\x14iam:grant:{grant_id}\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x10iam.grant.revoke\x1a\x04high\x82\xd3\xe4\x93\x023:\x01*\"./v1/iam/control-plane/grants/{grant_id}/revoke\x12\xb6\x01\n" +
 	"\n" +
 	"ListGrants\x12\x1f.iam.grant.v1.ListGrantsRequest\x1a\x1d.iam.grant.v1.ListGrantsReply\"h\x92\xf4\x18@\b\x03\x12 \n" +
-	"\x04list\x12\tiam:grant\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x0eiam.grant.list\x1a\x06medium\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/iam/control-plane/grants\x12\xd1\x01\n" +
+	"\x04list\x12\tiam:grant\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x0eiam.grant.list\x1a\x06medium\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/iam/control-plane/grants\x12\xd1\x01\n" +
 	"\rExplainAccess\x12\".iam.grant.v1.ExplainAccessRequest\x1a .iam.grant.v1.ExplainAccessReply\"z\x92\xf4\x18G\b\x03\x12#\n" +
-	"\aexplain\x12\tiam:grant\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x12iam.access.explain\x1a\x06medium\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/control-plane/access:explainB=Z;github.com/aisphereio/aisphere-iam/api/iam/grant/v1;grantv1b\x06proto3"
+	"\aexplain\x12\tiam:grant\x1a\viam-service \x03\x1a\x1e\b\x01\x12\x12iam.access.explain\x1a\x06medium\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/control-plane/access:explainB=Z;github.com/aisphereio/aisphere-iam/api/iam/grant/v1;grantv1b\x06proto3"
 
 var (
 	file_iam_grant_v1_grant_proto_rawDescOnce sync.Once

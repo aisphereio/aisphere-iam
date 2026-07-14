@@ -15,7 +15,7 @@ service IAMAuthService {
     option (google.api.http) = { post: "/v1/iam/auth/verify" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "verify" resource: "iam:token" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "verify" resource: "iam:token" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.verify_token" risk: "medium" }
       reason: "Token verification is only callable by trusted platform services."
     };
@@ -113,7 +113,7 @@ service IAMPermissionService {
     option (google.api.http) = { post: "/v1/iam/permissions/check" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "check" resource: "iam:permission" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "check" resource: "iam:permission" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.permission.check" risk: "medium" }
       reason: "Permission decisions are exposed to platform services, not directly to external clients."
     };
@@ -123,7 +123,7 @@ service IAMPermissionService {
     option (google.api.http) = { post: "/v1/iam/permissions:batch-check" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "check" resource: "iam:permission" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "check" resource: "iam:permission" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.permission.batch_check" risk: "medium" }
       reason: "Batch permission decisions are restricted to trusted platform services."
     };
@@ -133,7 +133,7 @@ service IAMPermissionService {
     option (google.api.http) = { post: "/v1/iam/relationships:write" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "write" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "write" resource: "iam:relationship" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.relationship.batch_write" risk: "high" }
       reason: "Relationship projection is restricted to trusted platform services."
     };
@@ -143,7 +143,7 @@ service IAMPermissionService {
     option (google.api.http) = { post: "/v1/iam/relationships:delete" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "delete" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "delete" resource: "iam:relationship" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.relationship.batch_delete" risk: "high" }
       reason: "Relationship projection cleanup is restricted to trusted platform services."
     };
@@ -153,7 +153,7 @@ service IAMPermissionService {
     option (google.api.http) = { post: "/v1/iam/relationships:read" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "read" resource: "iam:relationship" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "read" resource: "iam:relationship" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.relationship.read" risk: "medium" }
       reason: "Relationship graph reads are restricted to trusted platform services."
     };
@@ -163,7 +163,7 @@ service IAMPermissionService {
     option (google.api.http) = { post: "/v1/iam/resources/lookup" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "lookup" resource: "iam:resource" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "lookup" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.resource.lookup" risk: "medium" }
       reason: "Authorization graph resource lookup is restricted to trusted backend services."
     };
@@ -173,7 +173,7 @@ service IAMPermissionService {
     option (google.api.http) = { post: "/v1/iam/subjects/lookup" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
-      authz: { action: "lookup" resource: "iam:subject" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "lookup" resource: "iam:subject" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.subject.lookup" risk: "medium" }
       reason: "Authorization graph subject lookup is restricted to trusted backend services."
     };

@@ -4116,7 +4116,7 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x10subject_relation\x18\x06 \x01(\tR\x0fsubjectRelation2\x80\x03\n" +
 	"\x0eIAMAuthService\x12\xe9\x01\n" +
 	"\vVerifyToken\x12\x1a.iam.v1.VerifyTokenRequest\x1a\x11.iam.v1.Principal\"\xaa\x01\x92\xf4\x18\x87\x01\b\x04\x12\"\n" +
-	"\x06verify\x12\tiam:token\x1a\viam-service \x01\x1a\x1c\b\x01\x12\x10iam.verify_token\x1a\x06medium2AToken verification is only callable by trusted platform services.\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/iam/auth/verify\x12\x81\x01\n" +
+	"\x06verify\x12\tiam:token\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x10iam.verify_token\x1a\x06medium2AToken verification is only callable by trusted platform services.\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/iam/auth/verify\x12\x81\x01\n" +
 	"\x05GetMe\x12\x14.iam.v1.GetMeRequest\x1a\x12.iam.v1.GetMeReply\"N\x92\xf4\x188\b\x02\x12\x1f\n" +
 	"\x04read\x12\biam:self\x1a\viam-service \x03\x1a\x13\b\x01\x12\n" +
 	"iam.get_me\x1a\x03low\x82\xd3\xe4\x93\x02\f\x12\n" +
@@ -4144,19 +4144,19 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x12view_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a*\b\x01\x12\x1eiam.directory_projection.drift\x1a\x06medium\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/iam/directory/projections:drift2\xfe\x0f\n" +
 	"\x14IAMPermissionService\x12\xa1\x02\n" +
 	"\x0fCheckPermission\x12\x1e.iam.v1.CheckPermissionRequest\x1a\x1c.iam.v1.CheckPermissionReply\"\xcf\x01\x92\xf4\x18\xa6\x01\b\x04\x12&\n" +
-	"\x05check\x12\x0eiam:permission\x1a\viam-service \x01\x1a \b\x01\x12\x14iam.permission.check\x1a\x06medium2XPermission decisions are exposed to platform services, not directly to external clients.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/iam/permissions/check\x12\xae\x02\n" +
+	"\x05check\x12\x0eiam:permission\x1a\viam-service \x03\x1a \b\x01\x12\x14iam.permission.check\x1a\x06medium2XPermission decisions are exposed to platform services, not directly to external clients.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/iam/permissions/check\x12\xae\x02\n" +
 	"\x15BatchCheckPermissions\x12$.iam.v1.BatchCheckPermissionsRequest\x1a\".iam.v1.BatchCheckPermissionsReply\"\xca\x01\x92\xf4\x18\x9b\x01\b\x04\x12&\n" +
-	"\x05check\x12\x0eiam:permission\x1a\viam-service \x01\x1a&\b\x01\x12\x1aiam.permission.batch_check\x1a\x06medium2GBatch permission decisions are restricted to trusted platform services.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/iam/permissions:batch-check\x12\x9f\x02\n" +
+	"\x05check\x12\x0eiam:permission\x1a\viam-service \x03\x1a&\b\x01\x12\x1aiam.permission.batch_check\x1a\x06medium2GBatch permission decisions are restricted to trusted platform services.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/iam/permissions:batch-check\x12\x9f\x02\n" +
 	"\x12WriteRelationships\x12!.iam.v1.WriteRelationshipsRequest\x1a\x1f.iam.v1.WriteRelationshipsReply\"\xc4\x01\x92\xf4\x18\x99\x01\b\x04\x12(\n" +
-	"\x05write\x12\x10iam:relationship\x1a\viam-service \x01\x1a&\b\x01\x12\x1ciam.relationship.batch_write\x1a\x04high2CRelationship projection is restricted to trusted platform services.\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/iam/relationships:write\x12\xad\x02\n" +
+	"\x05write\x12\x10iam:relationship\x1a\viam-service \x03\x1a&\b\x01\x12\x1ciam.relationship.batch_write\x1a\x04high2CRelationship projection is restricted to trusted platform services.\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/iam/relationships:write\x12\xad\x02\n" +
 	"\x13DeleteRelationships\x12\".iam.v1.DeleteRelationshipsRequest\x1a .iam.v1.DeleteRelationshipsReply\"\xcf\x01\x92\xf4\x18\xa3\x01\b\x04\x12)\n" +
-	"\x06delete\x12\x10iam:relationship\x1a\viam-service \x01\x1a'\b\x01\x12\x1diam.relationship.batch_delete\x1a\x04high2KRelationship projection cleanup is restricted to trusted platform services.\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/relationships:delete\x12\x97\x02\n" +
+	"\x06delete\x12\x10iam:relationship\x1a\viam-service \x03\x1a'\b\x01\x12\x1diam.relationship.batch_delete\x1a\x04high2KRelationship projection cleanup is restricted to trusted platform services.\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/relationships:delete\x12\x97\x02\n" +
 	"\x11ReadRelationships\x12 .iam.v1.ListRelationshipsRequest\x1a\x1e.iam.v1.ListRelationshipsReply\"\xbf\x01\x92\xf4\x18\x95\x01\b\x04\x12'\n" +
-	"\x04read\x12\x10iam:relationship\x1a\viam-service \x01\x1a!\b\x01\x12\x15iam.relationship.read\x1a\x06medium2ERelationship graph reads are restricted to trusted platform services.\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/iam/relationships:read\x12\x94\x02\n" +
+	"\x04read\x12\x10iam:relationship\x1a\viam-service \x03\x1a!\b\x01\x12\x15iam.relationship.read\x1a\x06medium2ERelationship graph reads are restricted to trusted platform services.\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/iam/relationships:read\x12\x94\x02\n" +
 	"\x0fLookupResources\x12\x1e.iam.v1.LookupResourcesRequest\x1a\x1c.iam.v1.LookupResourcesReply\"\xc2\x01\x92\xf4\x18\x9a\x01\b\x04\x12%\n" +
-	"\x06lookup\x12\fiam:resource\x1a\viam-service \x01\x1a\x1f\b\x01\x12\x13iam.resource.lookup\x1a\x06medium2NAuthorization graph resource lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/iam/resources/lookup\x12\x8d\x02\n" +
+	"\x06lookup\x12\fiam:resource\x1a\viam-service \x03\x1a\x1f\b\x01\x12\x13iam.resource.lookup\x1a\x06medium2NAuthorization graph resource lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/iam/resources/lookup\x12\x8d\x02\n" +
 	"\x0eLookupSubjects\x12\x1d.iam.v1.LookupSubjectsRequest\x1a\x1b.iam.v1.LookupSubjectsReply\"\xbe\x01\x92\xf4\x18\x97\x01\b\x04\x12$\n" +
-	"\x06lookup\x12\viam:subject\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x12iam.subject.lookup\x1a\x06medium2MAuthorization graph subject lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/iam/subjects/lookup2\x98\x11\n" +
+	"\x06lookup\x12\viam:subject\x1a\viam-service \x03\x1a\x1e\b\x01\x12\x12iam.subject.lookup\x1a\x06medium2MAuthorization graph subject lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/iam/subjects/lookup2\x98\x11\n" +
 	"\x1cIAMAuthorizationAdminService\x12\xd2\x01\n" +
 	"\x16GetAuthorizationSchema\x12%.iam.v1.GetAuthorizationSchemaRequest\x1a\x1b.iam.v1.AuthorizationSchema\"t\x92\xf4\x18T\b\x03\x12.\n" +
 	"\vview_schema\x12\x10iam_authz:global\x1a\viam-service \x03\x1a \b\x01\x12\x14iam.authz.schema.get\x1a\x06medium\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/iam/authz/schema\x12\xfc\x01\n" +
