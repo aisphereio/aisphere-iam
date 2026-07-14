@@ -359,3 +359,35 @@ role_templates:
     built_in: true
     enabled: true
     sort_order: 20
+
+bootstrap:
+  default_role: zone_owner
+  roles:
+    zone_owner:
+      aliases: [owner]
+      zone_relations: [owner, admin, user_manager, group_manager, permission_admin]
+      control_plane_admin: true
+    zone_admin:
+      aliases: [admin]
+      zone_relations: [admin, user_manager, group_manager, permission_admin]
+      control_plane_admin: true
+    user_viewer:
+      zone_relations: [user_viewer]
+    user_manager:
+      zone_relations: [user_manager]
+    group_viewer:
+      zone_relations: [group_viewer]
+    group_manager:
+      zone_relations: [group_manager]
+    permission_admin:
+      zone_relations: [permission_admin]
+  admin_resources:
+    - {type: iam, id: organization}
+    - {type: iam, id: capability}
+    - {type: iam, id: resource_type}
+    - {type: iam, id: resource}
+    - {type: iam, id: resource_binding}
+    - {type: iam, id: external_resource_binding}
+    - {type: iam, id: role_template}
+    - {type: iam, id: grant}
+    - {type: iam_authz, id: global}
