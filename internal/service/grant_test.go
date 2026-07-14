@@ -158,7 +158,7 @@ func TestGrantServiceCustomRoleGrantUsesRoleBindingAndRevokesAllBindingEdges(t *
 		t.Fatal(err)
 	}
 	want := []authz.Relationship{
-		{Resource: authz.ObjectRef{Type: "role_binding", ID: grant.GetId()}, Relation: "role", Subject: authz.SubjectRef{Type: "custom_role", ID: "test_skill:reviewer"}},
+		{Resource: authz.ObjectRef{Type: "role_binding", ID: grant.GetId()}, Relation: "role", Subject: authz.SubjectRef{Type: "custom_role", ID: "test_skill_reviewer"}},
 		{Resource: authz.ObjectRef{Type: "role_binding", ID: grant.GetId()}, Relation: "grantee", Subject: authz.SubjectRef{Type: "user", ID: "alice"}},
 		{Resource: authz.ObjectRef{Type: "test_skill", ID: "skill-1"}, Relation: "custom_binding", Subject: authz.SubjectRef{Type: "role_binding", ID: grant.GetId()}},
 	}

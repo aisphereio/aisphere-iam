@@ -124,7 +124,7 @@ func (s *Service) RegisterRoleTemplate(ctx context.Context, req RegisterRoleTemp
 	}
 	id := strings.TrimSpace(req.ID)
 	if id == "" {
-		id = req.ResourceType + ":" + req.RoleKey
+		id = req.ResourceType + "_" + req.RoleKey
 	}
 	now := s.now()
 	role := &data.RoleTemplateModel{
@@ -311,7 +311,7 @@ func roleCapabilityRelationships(role *data.RoleTemplateModel) []authz.Relations
 	if role == nil {
 		return nil
 	}
-	objectID := role.ResourceType + ":" + role.RoleKey
+	objectID := role.ResourceType + "_" + role.RoleKey
 	rels := make([]authz.Relationship, 0, len(role.Permissions))
 	for _, permission := range normalizeStrings(role.Permissions) {
 		rels = append(rels, authz.Relationship{
@@ -595,7 +595,7 @@ func customGrantRelationships(grant *data.GrantModel, spiceType string) []authz.
 	return []authz.Relationship{
 		{
 			Resource: authz.ObjectRef{Type: "role_binding", ID: grant.ID}, Relation: "role",
-			Subject: authz.SubjectRef{Type: "custom_role", ID: grant.ResourceType + ":" + grant.RoleKey}, ExpiresAt: expiresAt,
+			Subject: authz.SubjectRef{Type: "custom_role", ID: grant.ResourceType + "_" + grant.RoleKey}, ExpiresAt: expiresAt,
 		},
 		{
 			Resource: authz.ObjectRef{Type: "role_binding", ID: grant.ID}, Relation: "grantee",

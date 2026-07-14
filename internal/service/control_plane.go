@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strconv"
 	"strings"
 	"time"
@@ -146,15 +147,26 @@ func (s *ResourceService) UpsertResource(ctx context.Context, req *resourcev1.Up
 }
 
 func (s *ResourceService) GetResource(ctx context.Context, req *resourcev1.GetResourceRequest) (*resourcev1.Resource, error) {
+	zoneID, _, err := currentProjectContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	model, err := s.repo.GetResource(ctx, req.GetResourceType(), req.GetResourceId())
 	if err != nil {
 		return nil, err
+	}
+	if strings.TrimSpace(model.OrgID) != zoneID {
+		return nil, errors.New("resource does not belong to the current zone")
 	}
 	return resourceModelToProto(model), nil
 }
 
 func (s *ResourceService) ListResources(ctx context.Context, req *resourcev1.ListResourcesRequest) (*resourcev1.ListResourcesReply, error) {
-	page, err := s.repo.ListResources(ctx, data.ListOptions{Type: req.GetType(), OrgID: req.GetOrgId(), ProjectID: req.GetProjectId(), Status: req.GetStatus(), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
+	orgID, _, err := currentProjectContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	page, err := s.repo.ListResources(ctx, data.ListOptions{Type: req.GetType(), OrgID: orgID, ProjectID: req.GetProjectId(), Status: req.GetStatus(), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
 	if err != nil {
 		return nil, err
 	}
