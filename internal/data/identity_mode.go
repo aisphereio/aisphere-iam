@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -604,27 +605,22 @@ func qualifiedGroupID(orgID, groupID string) string {
 	return orgID + "/" + groupID
 }
 
-// spicedbObjectIDRepl maps characters that SpiceDB's default object_id regex
-// (`^(([a-zA-Z0-9/_|\-=+]{1,})|\*)$`) does not allow to a safe replacement.
-// Casdoor group/user/org names are free-form and may contain spaces, dots,
-// colons, @, etc. Without sanitization these reach SpiceDB and cause
-// InvalidArgument errors that retry forever in DTM sagas.
-var spicedbObjectIDRepl = strings.NewReplacer(
-	" ", "_", ".", "_", ":", "_", "@", "_",
-	"#", "_", "!", "_", "%", "_", "&", "_",
-	"(", "_", ")", "_", "[", "_", "]", "_",
-	"{", "_", "}", "_", ",", "_", ";", "_",
-	"~", "_", "`", "_", "'", "_", `"`, "_",
-)
+// spicedbObjectIDAllowedRe matches characters that SpiceDB's default object_id
+// regex (`^(([a-zA-Z0-9/_|\-=+]{1,})|\*)$`) permits. Any character outside this
+// set is replaced with "_" so that free-form Casdoor group/user/org names
+// (which may contain spaces, dots, colons, Chinese characters, emoji, etc.)
+// never reach SpiceDB and cause InvalidArgument errors that retry forever in
+// DTM sagas.
+var spicedbObjectIDAllowedRe = regexp.MustCompile(`[^a-zA-Z0-9/_|\-=+]`)
 
-// sanitizeObjectID normalizes a SpiceDB object_id so it matches the allowed
+// SanitizeObjectID normalizes a SpiceDB object_id so it matches the allowed
 // character set. The wildcard "*" is returned as-is.
-func sanitizeObjectID(id string) string {
+func SanitizeObjectID(id string) string {
 	id = strings.TrimSpace(id)
 	if id == "*" {
 		return id
 	}
-	return spicedbObjectIDRepl.Replace(id)
+	return spicedbObjectIDAllowedRe.ReplaceAllString(id, "_")
 }
 
 func normalizeProjectionPayload(payload IdentityAuthZProjectionPayload) IdentityAuthZProjectionPayload {
@@ -637,8 +633,8 @@ func normalizeProjectionPayload(payload IdentityAuthZProjectionPayload) Identity
 		if rel.Resource.IsZero() || strings.TrimSpace(rel.Relation) == "" || rel.Subject.IsZero() {
 			continue
 		}
-		rel.Resource.ID = sanitizeObjectID(rel.Resource.ID)
-		rel.Subject.ID = sanitizeObjectID(rel.Subject.ID)
+		rel.Resource.ID = SanitizeObjectID(rel.Resource.ID)
+		rel.Subject.ID = SanitizeObjectID(rel.Subject.ID)
 		rels = append(rels, rel)
 	}
 	payload.Relationships = dedupeRelationships(rels)
@@ -647,8 +643,8 @@ func normalizeProjectionPayload(payload IdentityAuthZProjectionPayload) Identity
 		if filter.ResourceType == "" && filter.ResourceID == "" && filter.Relation == "" && filter.SubjectType == "" && filter.SubjectID == "" && filter.SubjectRel == "" {
 			continue
 		}
-		filter.ResourceID = sanitizeObjectID(filter.ResourceID)
-		filter.SubjectID = sanitizeObjectID(filter.SubjectID)
+		filter.ResourceID = SanitizeObjectID(filter.ResourceID)
+		filter.SubjectID = SanitizeObjectID(filter.SubjectID)
 		filters = append(filters, filter)
 	}
 	payload.Filters = filters

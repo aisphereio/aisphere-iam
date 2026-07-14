@@ -219,7 +219,7 @@ func writeGroupStructure(ctx context.Context, writer authz.RelationshipWriter, z
 		{
 			Resource: authz.ObjectRef{Type: "group", ID: groupResourceID(zoneID, groupID)},
 			Relation: "zone",
-			Subject:  authz.SubjectRef{Type: "zone", ID: zoneID},
+			Subject:  authz.SubjectRef{Type: "zone", ID: data.SanitizeObjectID(zoneID)},
 		},
 	}
 	if parentID := strings.TrimSpace(group.ParentID); parentID != "" {
@@ -241,12 +241,12 @@ func groupResourceID(zoneID, groupID string) string {
 	zoneID = strings.Trim(strings.TrimSpace(zoneID), "/")
 	groupID = strings.Trim(strings.TrimSpace(groupID), "/")
 	if zoneID == "" {
-		return groupID
+		return data.SanitizeObjectID(groupID)
 	}
 	if groupID == "" {
-		return zoneID
+		return data.SanitizeObjectID(zoneID)
 	}
-	return zoneID + "/" + groupID
+	return data.SanitizeObjectID(zoneID) + "/" + data.SanitizeObjectID(groupID)
 }
 
 func normalizeGroupPayload(in groupWritePayload) groupWritePayload {
