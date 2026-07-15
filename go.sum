@@ -18,12 +18,8 @@ github.com/BurntSushi/toml v1.6.0 h1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk
 github.com/BurntSushi/toml v1.6.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
-github.com/aisphereio/kernel v0.4.12 h1:d0q1iwNsRtF++I4pTPkzQZKtrCyLR6iAuchSZKd/LoI=
-github.com/aisphereio/kernel v0.4.12/go.mod h1:q9OWv0BtDyfWIGxBgiNPM1MUI479Y6o9W8Sjo16p5II=
-github.com/aisphereio/kernel v0.4.13 h1:hU83r10QxmCoahuzg3fn032ThSMSnG34VImmmyg5NPE=
-github.com/aisphereio/kernel v0.4.13/go.mod h1:q9OWv0BtDyfWIGxBgiNPM1MUI479Y6o9W8Sjo16p5II=
-github.com/aisphereio/kernel v0.4.14 h1:7C6y1d4XZI2i0q8AJkyGJCWtgafgi3hAGGUsMHUCVSk=
-github.com/aisphereio/kernel v0.4.14/go.mod h1:q9OWv0BtDyfWIGxBgiNPM1MUI479Y6o9W8Sjo16p5II=
+github.com/aisphereio/kernel v0.4.15 h1:yfUxsacASXFI+UIUBVv3+UOmarYKvomF8eENe2o9hM4=
+github.com/aisphereio/kernel v0.4.15/go.mod h1:q9OWv0BtDyfWIGxBgiNPM1MUI479Y6o9W8Sjo16p5II=
 github.com/alicebob/miniredis/v2 v2.38.0 h1:nZAzCR+Lj+Vxk4ZXzm2NuKq2O33RXj1XxJ2e2uP9jiw=
 github.com/alicebob/miniredis/v2 v2.38.0/go.mod h1:TcL7YfarKPGDAthEtl5NBeHZfeUQj6OXMm/+iu5cLMM=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=

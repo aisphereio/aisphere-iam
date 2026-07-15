@@ -2,9 +2,12 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 
+	"github.com/aisphereio/aisphere-iam/internal/biz/idgen"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authz"
@@ -65,18 +68,32 @@ func createIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
 					return nil, err
 				}
 			}
+			// Casdoor's group primary key is (Owner, Name); the parent is NOT
+			// part of the key, so two groups in the same org can never share a
+			// Name regardless of tree position.  Generate a unique, slug-safe
+			// Name and preserve the user's original input as DisplayName.
+			existingNames, err := collectExistingGroupNames(ctx, resources.Identity, orgID)
+			if err != nil {
+				return nil, err
+			}
+			uniqueName := generateUniqueGroupName(payload.Name, existingNames, "")
+			displayName := payload.DisplayName
+			if displayName == "" {
+				displayName = payload.Name // keep the user's original text visible
+			}
 			group, err := resources.Identity.CreateGroup(ctx, authn.CreateGroupRequest{Group: authn.Group{
 				OrgID:       orgID,
 				ParentID:    payload.ParentID,
-				Name:        payload.Name,
-				DisplayName: payload.DisplayName,
+				Name:        uniqueName,
+				DisplayName: displayName,
 				Type:        defaultGroupType(payload.Type),
 				Users:       cleanStrings(payload.Users),
 			}})
 			if err != nil {
 				return nil, err
 			}
-			if err := writeGroupStructure(ctx, resources.AuthzAdmin, orgID, group); err != nil {
+			ownerSubj := principalSubject(principal)
+			if err := writeGroupStructure(ctx, resources.AuthzAdmin, orgID, group, &ownerSubj); err != nil {
 				return nil, err
 			}
 			return groupToReply(group), nil
@@ -109,19 +126,34 @@ func updateIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
 			if name == "" {
 				name = groupID
 			}
+			// When the caller is actually renaming the group (new name differs
+			// from the current ID), slugify and de-duplicate just like on
+			// create.  Keeping the same name is a no-op and must not trigger a
+			// collision check against itself.
+			if name != groupID {
+				existingNames, err := collectExistingGroupNames(ctx, resources.Identity, orgID)
+				if err != nil {
+					return nil, err
+				}
+				name = generateUniqueGroupName(name, existingNames, groupID)
+			}
+			displayName := payload.DisplayName
+			if displayName == "" {
+				displayName = payload.Name
+			}
 			group, err := resources.Identity.UpdateGroup(ctx, authn.UpdateGroupRequest{Group: authn.Group{
 				ID:          groupID,
 				OrgID:       orgID,
 				ParentID:    payload.ParentID,
 				Name:        name,
-				DisplayName: payload.DisplayName,
+				DisplayName: displayName,
 				Type:        defaultGroupType(payload.Type),
 				Users:       cleanStrings(payload.Users),
 			}})
 			if err != nil {
 				return nil, err
 			}
-			if err := writeGroupStructure(ctx, resources.AuthzAdmin, orgID, group); err != nil {
+			if err := writeGroupStructure(ctx, resources.AuthzAdmin, orgID, group, nil); err != nil {
 				return nil, err
 			}
 			return groupToReply(group), nil
@@ -207,7 +239,7 @@ func principalSubject(principal authn.Principal) authz.SubjectRef {
 	}
 }
 
-func writeGroupStructure(ctx context.Context, writer authz.RelationshipWriter, zoneID string, group authn.Group) error {
+func writeGroupStructure(ctx context.Context, writer authz.RelationshipWriter, zoneID string, group authn.Group, ownerSubject *authz.SubjectRef) error {
 	if writer == nil {
 		return nil
 	}
@@ -227,6 +259,17 @@ func writeGroupStructure(ctx context.Context, writer authz.RelationshipWriter, z
 			Resource: authz.ObjectRef{Type: "group", ID: groupResourceID(zoneID, groupID)},
 			Relation: "parent",
 			Subject:  authz.SubjectRef{Type: "group", ID: groupResourceID(zoneID, parentID)},
+		})
+	}
+	// Grant the creating principal an owner relationship so they can manage
+	// the group and create child groups beneath it.  Only written on create
+	// (ownerSubject != nil); the update path passes nil to preserve existing
+	// ownership rather than re-assigning it to whoever happens to be editing.
+	if ownerSubject != nil && ownerSubject.Type != "" && ownerSubject.ID != "" {
+		rels = append(rels, authz.Relationship{
+			Resource: authz.ObjectRef{Type: "group", ID: groupResourceID(zoneID, groupID)},
+			Relation: "owner",
+			Subject:  *ownerSubject,
 		})
 	}
 	_, err := writer.WriteRelationships(ctx, rels...)
@@ -304,4 +347,80 @@ func firstNonEmptyString(values ...string) string {
 		}
 	}
 	return ""
+}
+
+// groupSlugAllowedRe matches characters that are safe for a Casdoor group Name.
+// Casdoor's Name column is effectively [a-zA-Z0-9_]; we also allow hyphens
+// and collapse everything else to a hyphen for readability.
+var groupSlugAllowedRe = regexp.MustCompile(`[^a-z0-9-]`)
+
+// groupSlugCollapseRe matches runs of consecutive hyphens produced by slugification.
+var groupSlugCollapseRe = regexp.MustCompile(`-{2,}`)
+
+// slugifyGroupName converts a user-supplied name into a safe, lowercase slug
+// suitable for Casdoor's group Name primary key.  Non-ASCII input (e.g.
+// Chinese) collapses to hyphens and, when nothing readable remains, falls
+// back to "group-<random>" so the caller still gets a valid, unique key.
+// The result is capped at 80 characters to leave room for de-duplication
+// suffixes (-2, -3, ...) added by generateUniqueGroupName.
+func slugifyGroupName(raw string) string {
+	s := strings.ToLower(strings.TrimSpace(raw))
+	s = groupSlugAllowedRe.ReplaceAllString(s, "-")
+	s = groupSlugCollapseRe.ReplaceAllString(s, "-")
+	s = strings.Trim(s, "-")
+	if len(s) > 80 {
+		s = s[:80]
+		s = strings.TrimRight(s, "-")
+	}
+	if s == "" {
+		// Non-ASCII input (or symbols-only) produced an empty slug.
+		// Fall back to a short random identifier.
+		return "group-" + idgen.New("")
+	}
+	return s
+}
+
+// generateUniqueGroupName produces a slug from rawName that is unique within
+// the org (zone) by appending -2, -3, ... when the base slug already exists.
+// existingNames should contain the lowercased Name of every group already in
+// the org.  When skipName is non-empty it is excluded from the collision check
+// (used by the update path so a group can "keep" its own name).
+func generateUniqueGroupName(raw string, existingNames map[string]bool, skipName string) string {
+	base := slugifyGroupName(raw)
+	if !existingNames[strings.ToLower(base)] || strings.EqualFold(base, skipName) {
+		return base
+	}
+	for i := 2; ; i++ {
+		candidate := fmt.Sprintf("%s-%d", base, i)
+		if len(candidate) > 100 {
+			// Truncate base to keep total within Casdoor varchar(100).
+			trim := 100 - len(fmt.Sprintf("-%d", i))
+			if trim < 1 {
+				break
+			}
+			candidate = fmt.Sprintf("%s-%d", base[:trim], i)
+		}
+		if !existingNames[strings.ToLower(candidate)] || strings.EqualFold(candidate, skipName) {
+			return candidate
+		}
+	}
+	return base + "-" + idgen.New("")
+}
+
+// collectExistingGroupNames queries the identity provider for all groups in
+// orgID and returns their lowercased Name values as a set.  This is used for
+// de-duplication before CreateGroup/UpdateGroup so we never rely on Casdoor's
+// unique-constraint error as the primary collision guard.
+func collectExistingGroupNames(ctx context.Context, identity authn.IdentityAdmin, orgID string) (map[string]bool, error) {
+	groups, err := identity.ListGroups(ctx, authn.GroupFilter{OrgID: orgID})
+	if err != nil {
+		return nil, err
+	}
+	names := make(map[string]bool, len(groups))
+	for _, g := range groups {
+		if name := strings.TrimSpace(g.Name); name != "" {
+			names[strings.ToLower(name)] = true
+		}
+	}
+	return names, nil
 }
