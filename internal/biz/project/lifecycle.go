@@ -8,6 +8,7 @@ import (
 
 	"github.com/aisphereio/kernel/authz"
 
+	"github.com/aisphereio/aisphere-iam/internal/biz/graphid"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 )
 
@@ -111,14 +112,15 @@ func (s *Service) ArchiveProject(ctx context.Context, req ArchiveProjectRequest)
 	if err := s.repo.UpsertProject(ctx, project); err != nil {
 		return nil, err
 	}
-	// Purge the project's SpiceDB relationships so an archived project
-	// immediately loses all grants (project#owner/developer/etc. and any
-	// edges where the project is a subject).  Compensation data is captured
-	// so a future un-archive could restore authorization.
-	filters := []authz.RelationshipFilter{
-		{ResourceType: ResourceTypeProject, ResourceID: project.ID},
-		{SubjectType: ResourceTypeProject, SubjectID: project.ID},
-	}
+// Purge the project's SpiceDB relationships so an archived project
+		// immediately loses all grants (project#owner/developer/etc. and any
+		// edges where the project is a subject).  Compensation data is captured
+		// so a future un-archive could restore authorization.
+		qualifiedID := graphid.QualifiedID(req.ZoneID, project.ID)
+		filters := []authz.RelationshipFilter{
+			{ResourceType: ResourceTypeProject, ResourceID: qualifiedID},
+			{SubjectType: ResourceTypeProject, SubjectID: qualifiedID},
+		}
 	rels, _ := s.captureRelationships(ctx, filters)
 	if event, err := s.projection.NewBatchDeleteEvent("project", project.ID, filters, rels...); err == nil && event != nil {
 		if err := s.repo.CreateOutboxEvents(ctx, event); err == nil {
@@ -158,7 +160,7 @@ func (s *Service) loadProjectInZone(ctx context.Context, id, zoneID string) (*da
 	if id == "" || zoneID == "" {
 		return nil, errors.New("project_id and zone_id are required")
 	}
-	project, err := s.repo.GetProject(ctx, id)
+	project, err := s.repo.GetProject(ctx, id, zoneID)
 	if err != nil {
 		return nil, err
 	}

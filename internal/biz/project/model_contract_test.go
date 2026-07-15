@@ -100,7 +100,7 @@ func TestLegacyOrganizationSurfaceRemoved(t *testing.T) {
 proto := files["project proto"]
 		for _, token := range []string{
 			`post: "/v1/iam/orgs/{org_id}/projects"`,
-			`string org_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY]`,
+			`(google.api.field_behavior) = REQUIRED,`,
 			`resource: "zone:{org_id}"`,
 			`resource: "project:{org_id}/{project_id}"`,
 		} {

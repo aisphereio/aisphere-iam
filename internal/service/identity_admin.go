@@ -29,28 +29,31 @@ func NewIAMIdentityAdminService(deps IAMDeps) *IAMIdentityAdminService {
 }
 
 func (s *IAMIdentityAdminService) CreateUser(ctx context.Context, req *v1.CreateUserRequest) (*v1.User, error) {
-	if s.deps.Identity == nil {
-		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
+		if s.deps.Identity == nil {
+			return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
+		}
+		user := userFromProto(req.GetUser())
+		// org_id comes from the path (validated against Principal.org_id by middleware).
+		// Body org_id is ignored to prevent privilege escalation.
+		user.OrgID = req.GetOrgId()
+		created, err := s.deps.Identity.CreateUser(ctx, authn.CreateUserRequest{
+			User:           user,
+			IdempotencyKey: req.GetIdempotencyKey(),
+		})
+		if err != nil {
+			return nil, err
+		}
+		return userToProto(created), nil
 	}
-	user := userFromProto(req.GetUser())
-	user.OrgID = firstNonEmptyString(user.OrgID, req.GetOrgId())
-	created, err := s.deps.Identity.CreateUser(ctx, authn.CreateUserRequest{
-		User:           user,
-		IdempotencyKey: req.GetIdempotencyKey(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return userToProto(created), nil
-}
 
 func (s *IAMIdentityAdminService) UpdateUser(ctx context.Context, req *v1.UpdateUserRequest) (*v1.User, error) {
-	if s.deps.Identity == nil {
-		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
-	}
-	user := userFromProto(req.GetUser())
-	user.ID = firstNonEmptyString(user.ID, req.GetUserId())
-	user.OrgID = firstNonEmptyString(user.OrgID, req.GetOrgId())
+		if s.deps.Identity == nil {
+			return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
+		}
+		user := userFromProto(req.GetUser())
+		user.ID = firstNonEmptyString(user.ID, req.GetUserId())
+		// org_id must come from the path; body org_id is ignored.
+		user.OrgID = req.GetOrgId()
 	updated, err := s.deps.Identity.UpdateUser(ctx, authn.UpdateUserRequest{User: user})
 	if err != nil {
 		return nil, err

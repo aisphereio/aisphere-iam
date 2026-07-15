@@ -151,11 +151,11 @@ func (s *Service) UpsertResource(ctx context.Context, req UpsertResourceRequest)
 	if err != nil {
 		return nil, authz.WriteResult{}, err
 	}
-	if req.Parent.Type != "" {
-		if err := requireListed(rt.ParentTypesJSON, req.Parent.Type, "parent type is not allowed for resource type"); err != nil {
-			return nil, authz.WriteResult{}, err
-		}
-		if err := s.requireResourceExists(ctx, req.Parent); err != nil {
+if req.Parent.Type != "" {
+			if err := requireListed(rt.ParentTypesJSON, req.Parent.Type, "parent type is not allowed for resource type"); err != nil {
+				return nil, authz.WriteResult{}, err
+			}
+			if err := s.requireResourceExists(ctx, req.Parent, req.OrgID); err != nil {
 			return nil, authz.WriteResult{}, err
 		}
 	}
@@ -233,10 +233,10 @@ func (s *Service) BindResource(ctx context.Context, req BindResourceRequest) (*d
 			return nil, authz.WriteResult{}, err
 		}
 	}
-	if err := s.requireResourceExists(ctx, req.Source); err != nil {
-		return nil, authz.WriteResult{}, err
-	}
-	if err := s.requireResourceExists(ctx, req.Target); err != nil {
+if err := s.requireResourceExists(ctx, req.Source, req.OrgID); err != nil {
+			return nil, authz.WriteResult{}, err
+		}
+		if err := s.requireResourceExists(ctx, req.Target, req.OrgID); err != nil {
 		return nil, authz.WriteResult{}, err
 	}
 	id := strings.TrimSpace(req.ID)
@@ -277,81 +277,81 @@ binding := &data.ResourceBindingModel{
 // or deleting a resource no longer leaves dangling authorization tuples.
 // The deleted relationships are captured as compensation data so a DTM saga
 // rollback can restore them.
-func (s *Service) DeleteResource(ctx context.Context, ref ResourceRef) error {
-	if s.repo == nil {
-		return errors.New("resource service repository is nil")
+func (s *Service) DeleteResource(ctx context.Context, ref ResourceRef, orgID string) error {
+		if s.repo == nil {
+			return errors.New("resource service repository is nil")
+		}
+		ref.Type, ref.ID = strings.TrimSpace(ref.Type), strings.TrimSpace(ref.ID)
+		if ref.Type == "" || ref.ID == "" {
+			return errors.New("resource type and id are required")
+		}
+		spiceType, err := s.spiceType(ctx, ref.Type)
+		if err != nil {
+			return err
+		}
+		filters := []authz.RelationshipFilter{
+			{ResourceType: spiceType, ResourceID: ref.ID},
+			{SubjectType: spiceType, SubjectID: ref.ID},
+		}
+		rels, _ := s.captureRelationships(ctx, filters)
+		event, err := s.projection.NewBatchDeleteEvent("resource", ref.Type+":"+ref.ID, filters, rels...)
+		if err != nil {
+			return err
+		}
+		if err := s.repo.CreateOutboxEvents(ctx, event); err != nil {
+			return err
+		}
+		if _, err := s.projection.Dispatch(ctx, event); err != nil {
+			return err
+		}
+		return s.repo.DeleteResource(ctx, ref.Type, ref.ID, orgID)
 	}
-	ref.Type, ref.ID = strings.TrimSpace(ref.Type), strings.TrimSpace(ref.ID)
-	if ref.Type == "" || ref.ID == "" {
-		return errors.New("resource type and id are required")
-	}
-	spiceType, err := s.spiceType(ctx, ref.Type)
-	if err != nil {
-		return err
-	}
-	filters := []authz.RelationshipFilter{
-		{ResourceType: spiceType, ResourceID: ref.ID},
-		{SubjectType: spiceType, SubjectID: ref.ID},
-	}
-	rels, _ := s.captureRelationships(ctx, filters)
-	event, err := s.projection.NewBatchDeleteEvent("resource", ref.Type+":"+ref.ID, filters, rels...)
-	if err != nil {
-		return err
-	}
-	if err := s.repo.CreateOutboxEvents(ctx, event); err != nil {
-		return err
-	}
-	if _, err := s.projection.Dispatch(ctx, event); err != nil {
-		return err
-	}
-	return s.repo.DeleteResource(ctx, ref.Type, ref.ID)
-}
 
 // ArchiveResource marks the resource archived and purges its authorization
 // relationships so archived resources immediately lose all grants.  There is
 // no un-archive path today; compensation data is retained for a future restore.
-func (s *Service) ArchiveResource(ctx context.Context, ref ResourceRef) error {
-	if s.repo == nil {
-		return errors.New("resource service repository is nil")
+func (s *Service) ArchiveResource(ctx context.Context, ref ResourceRef, orgID string) error {
+		if s.repo == nil {
+			return errors.New("resource service repository is nil")
+		}
+		ref.Type, ref.ID = strings.TrimSpace(ref.Type), strings.TrimSpace(ref.ID)
+		if ref.Type == "" || ref.ID == "" {
+			return errors.New("resource type and id are required")
+		}
+		spiceType, err := s.spiceType(ctx, ref.Type)
+		if err != nil {
+			return err
+		}
+		filters := []authz.RelationshipFilter{
+			{ResourceType: spiceType, ResourceID: ref.ID},
+			{SubjectType: spiceType, SubjectID: ref.ID},
+		}
+		rels, _ := s.captureRelationships(ctx, filters)
+		event, err := s.projection.NewBatchDeleteEvent("resource", ref.Type+":"+ref.ID, filters, rels...)
+		if err != nil {
+			return err
+		}
+		if err := s.repo.CreateOutboxEvents(ctx, event); err != nil {
+			return err
+		}
+		if _, err := s.projection.Dispatch(ctx, event); err != nil {
+			return err
+		}
+		return s.repo.ArchiveResource(ctx, ref.Type, ref.ID, orgID)
 	}
-	ref.Type, ref.ID = strings.TrimSpace(ref.Type), strings.TrimSpace(ref.ID)
-	if ref.Type == "" || ref.ID == "" {
-		return errors.New("resource type and id are required")
-	}
-	spiceType, err := s.spiceType(ctx, ref.Type)
-	if err != nil {
-		return err
-	}
-	filters := []authz.RelationshipFilter{
-		{ResourceType: spiceType, ResourceID: ref.ID},
-		{SubjectType: spiceType, SubjectID: ref.ID},
-	}
-	rels, _ := s.captureRelationships(ctx, filters)
-	event, err := s.projection.NewBatchDeleteEvent("resource", ref.Type+":"+ref.ID, filters, rels...)
-	if err != nil {
-		return err
-	}
-	if err := s.repo.CreateOutboxEvents(ctx, event); err != nil {
-		return err
-	}
-	if _, err := s.projection.Dispatch(ctx, event); err != nil {
-		return err
-	}
-	return s.repo.ArchiveResource(ctx, ref.Type, ref.ID)
-}
 
 // MoveResource reparents the resource and projects a parent-relationship
 // replace (delete the old #parent edge, write the new one) so SpiceDB topology
 // stays in sync with the DB record.
-func (s *Service) MoveResource(ctx context.Context, ref, newParent ResourceRef) (*data.ResourceModel, error) {
-	if s.repo == nil {
-		return nil, errors.New("resource service repository is nil")
-	}
-	ref.Type, ref.ID = strings.TrimSpace(ref.Type), strings.TrimSpace(ref.ID)
-	if ref.Type == "" || ref.ID == "" {
-		return nil, errors.New("resource type and id are required")
-	}
-	existing, err := s.repo.GetResource(ctx, ref.Type, ref.ID)
+func (s *Service) MoveResource(ctx context.Context, ref, newParent ResourceRef, orgID string) (*data.ResourceModel, error) {
+		if s.repo == nil {
+			return nil, errors.New("resource service repository is nil")
+		}
+		ref.Type, ref.ID = strings.TrimSpace(ref.Type), strings.TrimSpace(ref.ID)
+		if ref.Type == "" || ref.ID == "" {
+			return nil, errors.New("resource type and id are required")
+		}
+		existing, err := s.repo.GetResource(ctx, ref.Type, ref.ID, orgID)
 	if err != nil {
 		return nil, err
 	}
@@ -404,65 +404,65 @@ func (s *Service) MoveResource(ctx context.Context, ref, newParent ResourceRef) 
 
 // UnbindResource removes a resource binding and projects deletion of the
 // SpiceDB relationship that the binding established.
-func (s *Service) UnbindResource(ctx context.Context, bindingID string) error {
-	if s.repo == nil {
-		return errors.New("resource service repository is nil")
-	}
-	bindingID = strings.TrimSpace(bindingID)
-	if bindingID == "" {
-		return errors.New("binding id is required")
-	}
-	bindings, err := s.repo.ListResourceBindings(ctx, data.ListOptions{Status: data.StatusActive})
-	if err != nil {
-		return err
-	}
-	var match *data.ResourceBindingModel
-	for i := range bindings {
-		if bindings[i].ID == bindingID {
-			match = &bindings[i]
-			break
+func (s *Service) UnbindResource(ctx context.Context, bindingID, orgID string) error {
+		if s.repo == nil {
+			return errors.New("resource service repository is nil")
 		}
+		bindingID = strings.TrimSpace(bindingID)
+		if bindingID == "" {
+			return errors.New("binding id is required")
+		}
+		bindings, err := s.repo.ListResourceBindings(ctx, data.ListOptions{OrgID: orgID, Status: data.StatusActive})
+		if err != nil {
+			return err
+		}
+		var match *data.ResourceBindingModel
+		for i := range bindings {
+			if bindings[i].ID == bindingID {
+				match = &bindings[i]
+				break
+			}
+		}
+		if match == nil {
+			// Binding may already be gone; still clear the DB row idempotently.
+			return s.repo.UnbindResource(ctx, bindingID, orgID)
+		}
+		srcType, err := s.spiceType(ctx, match.SourceType)
+		if err != nil {
+			return err
+		}
+		tgtType, err := s.spiceType(ctx, match.TargetType)
+		if err != nil {
+			return err
+		}
+		relation := match.Relation
+		subject := graph.Subject(tgtType, match.TargetID, "")
+		if match.Relation == RelationBackingRepo {
+			relation = RelationBackingSkill
+			subject = graph.Subject(srcType, match.SourceID, "")
+			srcType, tgtType = tgtType, srcType
+		}
+		rel := authz.Relationship{
+			Resource: graph.Object(srcType, match.SourceID),
+			Relation: relation,
+			Subject:  subject,
+		}
+		filter := authz.RelationshipFilter{
+			ResourceType: srcType, ResourceID: match.SourceID, Relation: relation,
+			SubjectType: subject.Type, SubjectID: subject.ID, SubjectRel: subject.Relation,
+		}
+		event, err := s.projection.NewDeleteEvent("resource_binding", bindingID, filter, rel)
+		if err != nil {
+			return err
+		}
+		if err := s.repo.CreateOutboxEvents(ctx, event); err != nil {
+			return err
+		}
+		if _, err := s.projection.Dispatch(ctx, event); err != nil {
+			return err
+		}
+		return s.repo.UnbindResource(ctx, bindingID, orgID)
 	}
-	if match == nil {
-		// Binding may already be gone; still clear the DB row idempotently.
-		return s.repo.UnbindResource(ctx, bindingID)
-	}
-	srcType, err := s.spiceType(ctx, match.SourceType)
-	if err != nil {
-		return err
-	}
-	tgtType, err := s.spiceType(ctx, match.TargetType)
-	if err != nil {
-		return err
-	}
-	relation := match.Relation
-	subject := graph.Subject(tgtType, match.TargetID, "")
-	if match.Relation == RelationBackingRepo {
-		relation = RelationBackingSkill
-		subject = graph.Subject(srcType, match.SourceID, "")
-		srcType, tgtType = tgtType, srcType
-	}
-	rel := authz.Relationship{
-		Resource: graph.Object(srcType, match.SourceID),
-		Relation: relation,
-		Subject:  subject,
-	}
-	filter := authz.RelationshipFilter{
-		ResourceType: srcType, ResourceID: match.SourceID, Relation: relation,
-		SubjectType: subject.Type, SubjectID: subject.ID, SubjectRel: subject.Relation,
-	}
-	event, err := s.projection.NewDeleteEvent("resource_binding", bindingID, filter, rel)
-	if err != nil {
-		return err
-	}
-	if err := s.repo.CreateOutboxEvents(ctx, event); err != nil {
-		return err
-	}
-	if _, err := s.projection.Dispatch(ctx, event); err != nil {
-		return err
-	}
-	return s.repo.UnbindResource(ctx, bindingID)
-}
 
 // captureRelationships reads current SpiceDB relationships for the given
 // filters so they can be attached as compensation data to delete events.  It
@@ -591,25 +591,25 @@ func subjectString(s SubjectRef) string {
 	return toAuthzSubject(s).String()
 }
 
-func (s *Service) requireResourceExists(ctx context.Context, ref ResourceRef) error {
-	switch strings.TrimSpace(ref.Type) {
-	case "":
-		return errors.New("resource type is required")
-	case "organization":
-		return errors.New("resource type organization is removed; use zone")
-	case "zone", "group":
-		if strings.TrimSpace(ref.ID) == "" {
-			return errors.New("resource id is required")
+func (s *Service) requireResourceExists(ctx context.Context, ref ResourceRef, orgID string) error {
+		switch strings.TrimSpace(ref.Type) {
+		case "":
+			return errors.New("resource type is required")
+		case "organization":
+			return errors.New("resource type organization is removed; use zone")
+		case "zone", "group":
+			if strings.TrimSpace(ref.ID) == "" {
+				return errors.New("resource id is required")
+			}
+			return nil
+		case "project":
+			_, err := s.repo.GetProject(ctx, ref.ID, orgID)
+			return err
+		default:
+			_, err := s.repo.GetResource(ctx, ref.Type, ref.ID, orgID)
+			return err
 		}
-		return nil
-	case "project":
-		_, err := s.repo.GetProject(ctx, ref.ID)
-		return err
-	default:
-		_, err := s.repo.GetResource(ctx, ref.Type, ref.ID)
-		return err
 	}
-}
 
 func requireListed(raw, value, message string) error {
 	value = strings.TrimSpace(value)

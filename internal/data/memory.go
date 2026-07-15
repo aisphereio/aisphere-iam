@@ -105,15 +105,18 @@ func (r *MemoryControlPlaneRepository) CreateProject(ctx context.Context, p *Pro
 	}
 	return nil
 }
-func (r *MemoryControlPlaneRepository) GetProject(ctx context.Context, id string) (*ProjectModel, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	v := r.projects[id]
-	if v == nil {
-		return nil, fmt.Errorf("%w: project %s", ErrNotFound, id)
+func (r *MemoryControlPlaneRepository) GetProject(ctx context.Context, id, orgID string) (*ProjectModel, error) {
+		r.mu.RLock()
+		defer r.mu.RUnlock()
+		v := r.projects[id]
+		if v == nil {
+			return nil, fmt.Errorf("%w: project %s", ErrNotFound, id)
+		}
+		if v.OrgID != orgID {
+			return nil, fmt.Errorf("%w: project %s in org %s", ErrNotFound, id, orgID)
+		}
+		return clone(v), nil
 	}
-	return clone(v), nil
-}
 func (r *MemoryControlPlaneRepository) ListProjects(ctx context.Context, opts ListOptions) (*Page[ProjectModel], error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -126,15 +129,18 @@ func (r *MemoryControlPlaneRepository) ListProjects(ctx context.Context, opts Li
 	return pageOf(out, opts.Page, opts.Size), nil
 }
 
-func (r *MemoryControlPlaneRepository) ArchiveProject(ctx context.Context, id string) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	v := r.projects[id]
-	if v == nil {
-		return fmt.Errorf("%w: project %s", ErrNotFound, id)
-	}
-	v.Status = StatusArchived
-	v.UpdatedAt = time.Now().UTC()
+func (r *MemoryControlPlaneRepository) ArchiveProject(ctx context.Context, id, orgID string) error {
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		v := r.projects[id]
+		if v == nil {
+			return fmt.Errorf("%w: project %s", ErrNotFound, id)
+		}
+		if v.OrgID != orgID {
+			return fmt.Errorf("%w: project %s in org %s", ErrNotFound, id, orgID)
+		}
+		v.Status = StatusArchived
+		v.UpdatedAt = time.Now().UTC()
 	return nil
 }
 
@@ -227,15 +233,18 @@ func (r *MemoryControlPlaneRepository) UpsertResource(ctx context.Context, res *
 	}
 	return nil
 }
-func (r *MemoryControlPlaneRepository) GetResource(ctx context.Context, typ, id string) (*ResourceModel, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	v := r.resources[key(typ, id)]
-	if v == nil {
-		return nil, fmt.Errorf("%w: resource %s/%s", ErrNotFound, typ, id)
+func (r *MemoryControlPlaneRepository) GetResource(ctx context.Context, typ, id, orgID string) (*ResourceModel, error) {
+		r.mu.RLock()
+		defer r.mu.RUnlock()
+		v := r.resources[key(typ, id)]
+		if v == nil {
+			return nil, fmt.Errorf("%w: resource %s/%s", ErrNotFound, typ, id)
+		}
+		if v.OrgID != orgID {
+			return nil, fmt.Errorf("%w: resource %s/%s in org %s", ErrNotFound, typ, id, orgID)
+		}
+		return clone(v), nil
 	}
-	return clone(v), nil
-}
 func (r *MemoryControlPlaneRepository) ListResources(ctx context.Context, opts ListOptions) (*Page[ResourceModel], error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -247,29 +256,35 @@ func (r *MemoryControlPlaneRepository) ListResources(ctx context.Context, opts L
 	}
 	return pageOf(out, opts.Page, opts.Size), nil
 }
-func (r *MemoryControlPlaneRepository) ArchiveResource(ctx context.Context, typ, id string) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	v := r.resources[key(typ, id)]
-	if v == nil {
-		return fmt.Errorf("%w: resource %s/%s", ErrNotFound, typ, id)
+func (r *MemoryControlPlaneRepository) ArchiveResource(ctx context.Context, typ, id, orgID string) error {
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		v := r.resources[key(typ, id)]
+		if v == nil {
+			return fmt.Errorf("%w: resource %s/%s", ErrNotFound, typ, id)
+		}
+		if v.OrgID != orgID {
+			return fmt.Errorf("%w: resource %s/%s in org %s", ErrNotFound, typ, id, orgID)
+		}
+		v.Status = StatusArchived
+		v.UpdatedAt = time.Now().UTC()
+		return nil
 	}
-	v.Status = StatusArchived
-	v.UpdatedAt = time.Now().UTC()
-	return nil
-}
 
-func (r *MemoryControlPlaneRepository) DeleteResource(ctx context.Context, typ, id string) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	v := r.resources[key(typ, id)]
-	if v == nil {
-		return fmt.Errorf("%w: resource %s/%s", ErrNotFound, typ, id)
+func (r *MemoryControlPlaneRepository) DeleteResource(ctx context.Context, typ, id, orgID string) error {
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		v := r.resources[key(typ, id)]
+		if v == nil {
+			return fmt.Errorf("%w: resource %s/%s", ErrNotFound, typ, id)
+		}
+		if v.OrgID != orgID {
+			return fmt.Errorf("%w: resource %s/%s in org %s", ErrNotFound, typ, id, orgID)
+		}
+		v.Status = StatusDeleted
+		v.UpdatedAt = time.Now().UTC()
+		return nil
 	}
-	v.Status = StatusDeleted
-	v.UpdatedAt = time.Now().UTC()
-	return nil
-}
 
 func (r *MemoryControlPlaneRepository) BindResource(ctx context.Context, b *ResourceBindingModel, events ...*OutboxEventModel) error {
 	r.mu.Lock()
@@ -297,12 +312,19 @@ func (r *MemoryControlPlaneRepository) ListResourceBindings(ctx context.Context,
 	}
 	return out, nil
 }
-func (r *MemoryControlPlaneRepository) UnbindResource(ctx context.Context, bindingID string) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	delete(r.bindings, bindingID)
-	return nil
-}
+func (r *MemoryControlPlaneRepository) UnbindResource(ctx context.Context, bindingID, orgID string) error {
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		v := r.bindings[bindingID]
+		if v == nil {
+			return fmt.Errorf("%w: binding %s", ErrNotFound, bindingID)
+		}
+		if v.OrgID != orgID {
+			return fmt.Errorf("%w: binding %s in org %s", ErrNotFound, bindingID, orgID)
+		}
+		delete(r.bindings, bindingID)
+		return nil
+	}
 func (r *MemoryControlPlaneRepository) ListExternalResourceBindings(ctx context.Context, opts ListOptions) ([]ExternalResourceBindingModel, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -447,22 +469,28 @@ func (r *MemoryControlPlaneRepository) CreateGrant(ctx context.Context, grant *G
 	}
 	return nil
 }
-func (r *MemoryControlPlaneRepository) GetGrant(ctx context.Context, id string) (*GrantModel, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	v := r.grants[id]
-	if v == nil {
-		return nil, fmt.Errorf("%w: grant %s", ErrNotFound, id)
+func (r *MemoryControlPlaneRepository) GetGrant(ctx context.Context, id, orgID string) (*GrantModel, error) {
+		r.mu.RLock()
+		defer r.mu.RUnlock()
+		v := r.grants[id]
+		if v == nil {
+			return nil, fmt.Errorf("%w: grant %s", ErrNotFound, id)
+		}
+		if v.OrgID != orgID {
+			return nil, fmt.Errorf("%w: grant %s in org %s", ErrNotFound, id, orgID)
+		}
+		return clone(v), nil
 	}
-	return clone(v), nil
-}
-func (r *MemoryControlPlaneRepository) RevokeGrant(ctx context.Context, id string, revokedAt time.Time, audit *GrantAuditModel, events ...*OutboxEventModel) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	v := r.grants[id]
-	if v == nil {
-		return fmt.Errorf("%w: grant %s", ErrNotFound, id)
-	}
+func (r *MemoryControlPlaneRepository) RevokeGrant(ctx context.Context, id, orgID string, revokedAt time.Time, audit *GrantAuditModel, events ...*OutboxEventModel) error {
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		v := r.grants[id]
+		if v == nil {
+			return fmt.Errorf("%w: grant %s", ErrNotFound, id)
+		}
+		if v.OrgID != orgID {
+			return fmt.Errorf("%w: grant %s in org %s", ErrNotFound, id, orgID)
+		}
 	t := revokedAt
 	v.RevokedAt = &t
 	if audit != nil {

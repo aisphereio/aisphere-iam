@@ -19,7 +19,7 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
-            value: "/v1/iam/groups"
+            value: "/v1/iam/orgs/{org_id}/groups"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -42,7 +42,7 @@ spec:
         - method: "PATCH"
           path:
             type: PathPrefix
-            value: "/v1/iam/groups/{group_id}"
+            value: "/v1/iam/orgs/{org_id}/groups/{group_id}"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -56,7 +56,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "group:{group_id}"
+                value: "group:{org_id}/{group_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -65,7 +65,7 @@ spec:
         - method: "DELETE"
           path:
             type: PathPrefix
-            value: "/v1/iam/groups/{group_id}"
+            value: "/v1/iam/orgs/{org_id}/groups/{group_id}"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -79,7 +79,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "group:{group_id}"
+                value: "group:{org_id}/{group_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -88,7 +88,7 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
-            value: "/v1/iam/groups/{group_id}/users/{user_id}"
+            value: "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -102,7 +102,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "group:{group_id}"
+                value: "group:{org_id}/{group_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -111,7 +111,7 @@ spec:
         - method: "DELETE"
           path:
             type: PathPrefix
-            value: "/v1/iam/groups/{group_id}/users/{user_id}"
+            value: "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -125,7 +125,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "group:{group_id}"
+                value: "group:{org_id}/{group_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"

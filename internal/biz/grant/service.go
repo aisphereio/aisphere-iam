@@ -71,11 +71,12 @@ type GrantAccessRequest struct {
 }
 
 type RevokeAccessRequest struct {
-	GrantID                 string
-	Reason                  string
-	DeleteGraphRelationship bool
-	Actor                   SubjectRef
-}
+		GrantID                 string
+		OrgID                   string
+		Reason                  string
+		DeleteGraphRelationship bool
+		Actor                   SubjectRef
+	}
 
 type ExplainAccessRequest struct {
 	Resource   ResourceRef
@@ -391,7 +392,7 @@ func (s *Service) GrantAccess(ctx context.Context, req GrantAccessRequest) (*dat
 	if !role.Enabled {
 		return nil, authz.WriteResult{}, errors.New("role template is disabled")
 	}
-	if _, err := s.resourceByRef(ctx, req.Resource); err != nil {
+	if _, err := s.resourceByRef(ctx, req.Resource, req.OrgID); err != nil {
 		return nil, authz.WriteResult{}, err
 	}
 	id := idgen.New("grant")
@@ -445,7 +446,7 @@ func (s *Service) RevokeAccess(ctx context.Context, req RevokeAccessRequest) (au
 	if req.GrantID == "" {
 		return authz.WriteResult{}, errors.New("grant_id is required")
 	}
-	existing, err := s.repo.GetGrant(ctx, req.GrantID)
+	existing, err := s.repo.GetGrant(ctx, req.GrantID, req.OrgID)
 	if err != nil {
 		return authz.WriteResult{}, err
 	}
@@ -483,7 +484,7 @@ func (s *Service) RevokeAccess(ctx context.Context, req RevokeAccessRequest) (au
 	if err != nil {
 		return authz.WriteResult{}, err
 	}
-	if err := s.repo.RevokeGrant(ctx, req.GrantID, now, audit, event); err != nil {
+	if err := s.repo.RevokeGrant(ctx, req.GrantID, req.OrgID, now, audit, event); err != nil {
 		return authz.WriteResult{}, err
 	}
 	return s.projection.Dispatch(ctx, event)
@@ -620,21 +621,21 @@ func relationshipFilter(rel authz.Relationship) authz.RelationshipFilter {
 	}
 }
 
-func (s *Service) resourceByRef(ctx context.Context, ref ResourceRef) (any, error) {
-	switch strings.TrimSpace(ref.Type) {
-	case "organization":
-		return nil, errors.New("resource type organization is removed; use zone")
-	case "project":
-		return s.repo.GetProject(ctx, ref.ID)
-	case "zone", "group":
-		if strings.TrimSpace(ref.ID) == "" {
-			return nil, errors.New("resource id is required")
+func (s *Service) resourceByRef(ctx context.Context, ref ResourceRef, orgID string) (any, error) {
+		switch strings.TrimSpace(ref.Type) {
+		case "organization":
+			return nil, errors.New("resource type organization is removed; use zone")
+		case "project":
+			return s.repo.GetProject(ctx, ref.ID, orgID)
+		case "zone", "group":
+			if strings.TrimSpace(ref.ID) == "" {
+				return nil, errors.New("resource id is required")
+			}
+			return ref, nil
+		default:
+			return s.repo.GetResource(ctx, ref.Type, ref.ID, orgID)
 		}
-		return ref, nil
-	default:
-		return s.repo.GetResource(ctx, ref.Type, ref.ID)
 	}
-}
 
 // ExpireDueGrants scans for grants whose expires_at has passed and revokes
 // them. It is designed to be called from a scheduled task (taskx) and is
@@ -712,7 +713,7 @@ audit := &data.GrantAuditModel{
 	if err != nil {
 		return err
 	}
-	if err := s.repo.RevokeGrant(ctx, grant.ID, now, audit, event); err != nil {
+	if err := s.repo.RevokeGrant(ctx, grant.ID, grant.OrgID, now, audit, event); err != nil {
 		return err
 	}
 	_, err = s.projection.Dispatch(ctx, event)

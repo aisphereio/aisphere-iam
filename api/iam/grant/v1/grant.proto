@@ -180,7 +180,10 @@ message ListRoleTemplatesReply {
 }
 
 message GrantAccessRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   iam.resource.v1.ResourceRef resource = 1 [(google.api.field_behavior) = REQUIRED];
   string role_key = 2 [
     (google.api.field_behavior) = REQUIRED,
@@ -194,7 +197,10 @@ message GrantAccessRequest {
 }
 
 message RevokeAccessRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string grant_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -210,7 +216,10 @@ message RevokeAccessReply {
 }
 
 message ListGrantsRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   iam.resource.v1.ResourceRef resource = 1;
   iam.resource.v1.SubjectRef subject = 2;
   string relation = 3;
@@ -228,7 +237,10 @@ message ListGrantsReply {
 }
 
 message ExplainAccessRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   iam.resource.v1.ResourceRef resource = 1 [(google.api.field_behavior) = REQUIRED];
   string permission = 2 [
     (google.api.field_behavior) = REQUIRED,

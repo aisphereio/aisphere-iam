@@ -129,45 +129,49 @@ func (s *ResourceService) ListResourceTypes(ctx context.Context, req *resourcev1
 }
 
 func (s *ResourceService) UpsertResource(ctx context.Context, req *resourcev1.UpsertResourceRequest) (*resourcev1.Resource, error) {
-	actor, err := currentResourceSubject(ctx)
-	if err != nil {
-		return nil, err
+		actor, err := currentResourceSubject(ctx)
+		if err != nil {
+			return nil, err
+		}
+		orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
+		if err != nil {
+			return nil, err
+		}
+		in := req.GetResource()
+		model, _, err := s.biz.UpsertResource(ctx, resourcebiz.UpsertResourceRequest{
+			Ref: resourceRef(in.GetRef()), OrgID: orgID, ProjectID: in.GetProjectId(), Parent: resourceRef(in.GetParent()),
+			OwnerService: in.GetOwnerService(), OwnerResourceID: in.GetOwnerResourceId(), Slug: in.GetSlug(), DisplayName: in.GetDisplayName(),
+			Path: in.GetPath(), Status: in.GetStatus(), Visibility: in.GetVisibility(), LabelsJSON: mapStringToJSON(in.GetLabels()),
+			AnnotationsJSON: mapStringToJSON(in.GetAnnotations()), MetadataJSON: structToJSON(in.GetMetadata(), "{}"),
+			CreatedBy: actor, Owner: resourceSubjectOr(req.GetOwner(), actor),
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resourceModelToProto(model), nil
 	}
-	in := req.GetResource()
-	model, _, err := s.biz.UpsertResource(ctx, resourcebiz.UpsertResourceRequest{
-		Ref: resourceRef(in.GetRef()), OrgID: in.GetOrgId(), ProjectID: in.GetProjectId(), Parent: resourceRef(in.GetParent()),
-		OwnerService: in.GetOwnerService(), OwnerResourceID: in.GetOwnerResourceId(), Slug: in.GetSlug(), DisplayName: in.GetDisplayName(),
-		Path: in.GetPath(), Status: in.GetStatus(), Visibility: in.GetVisibility(), LabelsJSON: mapStringToJSON(in.GetLabels()),
-		AnnotationsJSON: mapStringToJSON(in.GetAnnotations()), MetadataJSON: structToJSON(in.GetMetadata(), "{}"),
-		CreatedBy: actor, Owner: resourceSubjectOr(req.GetOwner(), actor),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return resourceModelToProto(model), nil
-}
 
 func (s *ResourceService) GetResource(ctx context.Context, req *resourcev1.GetResourceRequest) (*resourcev1.Resource, error) {
-	zoneID, _, err := currentProjectContext(ctx)
-	if err != nil {
-		return nil, err
+			zoneID, _, err := currentProjectContext(ctx, req.GetOrgId())
+			if err != nil {
+				return nil, err
+			}
+			model, err := s.repo.GetResource(ctx, req.GetResourceType(), req.GetResourceId(), zoneID)
+		if err != nil {
+			return nil, err
+		}
+		if strings.TrimSpace(model.OrgID) != zoneID {
+			return nil, errors.New("resource does not belong to the current zone")
+		}
+		return resourceModelToProto(model), nil
 	}
-	model, err := s.repo.GetResource(ctx, req.GetResourceType(), req.GetResourceId())
-	if err != nil {
-		return nil, err
-	}
-	if strings.TrimSpace(model.OrgID) != zoneID {
-		return nil, errors.New("resource does not belong to the current zone")
-	}
-	return resourceModelToProto(model), nil
-}
 
 func (s *ResourceService) ListResources(ctx context.Context, req *resourcev1.ListResourcesRequest) (*resourcev1.ListResourcesReply, error) {
-	orgID, _, err := currentProjectContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	page, err := s.repo.ListResources(ctx, data.ListOptions{Type: req.GetType(), OrgID: orgID, ProjectID: req.GetProjectId(), Status: req.GetStatus(), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
+		orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
+		if err != nil {
+			return nil, err
+		}
+		page, err := s.repo.ListResources(ctx, data.ListOptions{Type: req.GetType(), OrgID: orgID, ProjectID: req.GetProjectId(), Status: req.GetStatus(), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
 	if err != nil {
 		return nil, err
 	}
@@ -179,37 +183,49 @@ func (s *ResourceService) ListResources(ctx context.Context, req *resourcev1.Lis
 }
 
 func (s *ResourceService) MoveResource(ctx context.Context, req *resourcev1.MoveResourceRequest) (*resourcev1.Resource, error) {
-	ref := resourceRef(&resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()})
-	var newParent resourcebiz.ResourceRef
-	if p := req.GetNewParent(); p != nil {
-		newParent = resourceRef(p)
-	}
-	if _, err := s.biz.MoveResource(ctx, ref, newParent); err != nil {
-		return nil, err
-	}
-	return s.GetResource(ctx, &resourcev1.GetResourceRequest{ResourceType: req.GetResourceType(), ResourceId: req.GetResourceId()})
-}
+			orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
+			if err != nil {
+				return nil, err
+			}
+			ref := resourceRef(&resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()})
+			var newParent resourcebiz.ResourceRef
+			if p := req.GetNewParent(); p != nil {
+				newParent = resourceRef(p)
+			}
+			if _, err := s.biz.MoveResource(ctx, ref, newParent, orgID); err != nil {
+				return nil, err
+			}
+			return s.GetResource(ctx, &resourcev1.GetResourceRequest{OrgId: req.GetOrgId(), ResourceType: req.GetResourceType(), ResourceId: req.GetResourceId()})
+		}
 
 func (s *ResourceService) ArchiveResource(ctx context.Context, req *resourcev1.ArchiveResourceRequest) (*resourcev1.Resource, error) {
-	if err := s.biz.ArchiveResource(ctx, resourceRef(&resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()})); err != nil {
-		return nil, err
-	}
-	return s.GetResource(ctx, &resourcev1.GetResourceRequest{ResourceType: req.GetResourceType(), ResourceId: req.GetResourceId()})
-}
+			orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
+			if err != nil {
+				return nil, err
+			}
+			if err := s.biz.ArchiveResource(ctx, resourceRef(&resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()}), orgID); err != nil {
+				return nil, err
+			}
+			return s.GetResource(ctx, &resourcev1.GetResourceRequest{OrgId: req.GetOrgId(), ResourceType: req.GetResourceType(), ResourceId: req.GetResourceId()})
+		}
 
 func (s *ResourceService) DeleteResource(ctx context.Context, req *resourcev1.DeleteResourceRequest) (*resourcev1.DeleteResourceReply, error) {
-	if err := s.biz.DeleteResource(ctx, resourceRef(&resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()})); err != nil {
-		return nil, err
-	}
-	return &resourcev1.DeleteResourceReply{Ref: &resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()}, Deleted: true}, nil
-}
+			orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
+			if err != nil {
+				return nil, err
+			}
+			if err := s.biz.DeleteResource(ctx, resourceRef(&resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()}), orgID); err != nil {
+				return nil, err
+			}
+			return &resourcev1.DeleteResourceReply{Ref: &resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()}, Deleted: true}, nil
+		}
 
 func (s *ResourceService) BindResource(ctx context.Context, req *resourcev1.BindResourceRequest) (*resourcev1.ResourceBinding, error) {
 		actor, err := currentResourceSubject(ctx)
 		if err != nil {
 			return nil, err
 		}
-		orgID, err := currentOrgID(ctx)
+		orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
 		if err != nil {
 			return nil, err
 		}
@@ -222,7 +238,11 @@ func (s *ResourceService) BindResource(ctx context.Context, req *resourcev1.Bind
 	}
 
 func (s *ResourceService) UnbindResource(ctx context.Context, req *resourcev1.UnbindResourceRequest) (*resourcev1.UnbindResourceReply, error) {
-		if err := s.biz.UnbindResource(ctx, req.GetBindingId()); err != nil {
+			orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
+			if err != nil {
+				return nil, err
+			}
+			if err := s.biz.UnbindResource(ctx, req.GetBindingId(), orgID); err != nil {
 			return nil, err
 		}
 		return &resourcev1.UnbindResourceReply{BindingId: req.GetBindingId(), Unbound: true}, nil
@@ -230,7 +250,7 @@ func (s *ResourceService) UnbindResource(ctx context.Context, req *resourcev1.Un
 
 func (s *ResourceService) ListResourceBindings(ctx context.Context, req *resourcev1.ListResourceBindingsRequest) (*resourcev1.ListResourceBindingsReply, error) {
 		source := req.GetSource()
-		orgID, err := currentOrgID(ctx)
+		orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
 		if err != nil {
 			return nil, err
 		}
@@ -247,7 +267,7 @@ func (s *ResourceService) ListResourceBindings(ctx context.Context, req *resourc
 
 func (s *ResourceService) BindExternalResource(ctx context.Context, req *resourcev1.BindExternalResourceRequest) (*resourcev1.ExternalResourceBinding, error) {
 		in := req.GetBinding()
-		orgID, err := currentOrgID(ctx)
+		orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
 		if err != nil {
 			return nil, err
 		}
@@ -259,21 +279,21 @@ func (s *ResourceService) BindExternalResource(ctx context.Context, req *resourc
 	}
 
 func (s *ResourceService) ListExternalResourceBindings(ctx context.Context, req *resourcev1.ListExternalResourceBindingsRequest) (*resourcev1.ListExternalResourceBindingsReply, error) {
-source := req.GetResource()
-		orgID, err := currentOrgID(ctx)
+		source := req.GetResource()
+		orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
 		if err != nil {
 			return nil, err
 		}
 		items, err := s.repo.ListExternalResourceBindings(ctx, data.ListOptions{OrgID: orgID, ResourceType: source.GetType(), ResourceID: source.GetId(), Type: req.GetProvider(), Status: req.GetSyncStatus()})
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+		out := make([]*resourcev1.ExternalResourceBinding, 0, len(items))
+		for i := range items {
+			out = append(out, externalBindingModelToProto(&items[i]))
+		}
+		return &resourcev1.ListExternalResourceBindingsReply{Bindings: out, TotalSize: int64(len(out))}, nil
 	}
-	out := make([]*resourcev1.ExternalResourceBinding, 0, len(items))
-	for i := range items {
-		out = append(out, externalBindingModelToProto(&items[i]))
-	}
-	return &resourcev1.ListExternalResourceBindingsReply{Bindings: out, TotalSize: int64(len(out))}, nil
-}
 
 type GrantService struct {
 	grantv1.UnimplementedGrantServiceServer
@@ -349,7 +369,7 @@ func (s *GrantService) GrantAccess(ctx context.Context, req *grantv1.GrantAccess
 		if err != nil {
 			return nil, err
 		}
-		orgID, err := currentOrgID(ctx)
+		orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
 		if err != nil {
 			return nil, err
 		}
@@ -363,21 +383,25 @@ func (s *GrantService) GrantAccess(ctx context.Context, req *grantv1.GrantAccess
 	}
 
 func (s *GrantService) RevokeAccess(ctx context.Context, req *grantv1.RevokeAccessRequest) (*grantv1.RevokeAccessReply, error) {
-	actor, err := currentGrantSubject(ctx)
-	if err != nil {
-		return nil, err
+			actor, err := currentGrantSubject(ctx)
+			if err != nil {
+				return nil, err
+			}
+			orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
+			if err != nil {
+				return nil, err
+			}
+			wr, err := s.biz.RevokeAccess(ctx, grantbiz.RevokeAccessRequest{GrantID: req.GetGrantId(), OrgID: orgID, Reason: req.GetReason(), DeleteGraphRelationship: true, Actor: actor})
+		if err != nil {
+			return nil, err
+		}
+		return &grantv1.RevokeAccessReply{GrantId: req.GetGrantId(), Revoked: true, ConsistencyToken: wr.ConsistencyToken}, nil
 	}
-	wr, err := s.biz.RevokeAccess(ctx, grantbiz.RevokeAccessRequest{GrantID: req.GetGrantId(), Reason: req.GetReason(), DeleteGraphRelationship: true, Actor: actor})
-	if err != nil {
-		return nil, err
-	}
-	return &grantv1.RevokeAccessReply{GrantId: req.GetGrantId(), Revoked: true, ConsistencyToken: wr.ConsistencyToken}, nil
-}
 
 func (s *GrantService) ListGrants(ctx context.Context, req *grantv1.ListGrantsRequest) (*grantv1.ListGrantsReply, error) {
 		res := req.GetResource()
 		sub := req.GetSubject()
-		orgID, err := currentOrgID(ctx)
+		orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
 		if err != nil {
 			return nil, err
 		}
@@ -393,12 +417,15 @@ func (s *GrantService) ListGrants(ctx context.Context, req *grantv1.ListGrantsRe
 	}
 
 func (s *GrantService) ExplainAccess(ctx context.Context, req *grantv1.ExplainAccessRequest) (*grantv1.ExplainAccessReply, error) {
-	reply, err := s.biz.ExplainAccess(ctx, grantbiz.ExplainAccessRequest{Resource: grantResource(req.GetResource()), Permission: req.GetPermission(), Subject: grantSubject(req.GetSubject())})
-	if err != nil {
-		return nil, err
+		if _, _, err := currentProjectContext(ctx, req.GetOrgId()); err != nil {
+			return nil, err
+		}
+		reply, err := s.biz.ExplainAccess(ctx, grantbiz.ExplainAccessRequest{Resource: grantResource(req.GetResource()), Permission: req.GetPermission(), Subject: grantSubject(req.GetSubject())})
+		if err != nil {
+			return nil, err
+		}
+		return &grantv1.ExplainAccessReply{Allowed: reply.Allowed, Effect: reply.Effect, Reason: reply.Reason, ConsistencyToken: reply.ConsistencyToken}, nil
 	}
-	return &grantv1.ExplainAccessReply{Allowed: reply.Allowed, Effect: reply.Effect, Reason: reply.Reason, ConsistencyToken: reply.ConsistencyToken}, nil
-}
 
 func projectModelToProto(in *data.ProjectModel) *projectv1.Project {
 	if in == nil {

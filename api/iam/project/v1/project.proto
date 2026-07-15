@@ -174,7 +174,10 @@ message ProjectCapability {
 }
 
 message CreateProjectRequest {
-  string org_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
 
   string slug = 2 [
     (google.api.field_behavior) = REQUIRED,
@@ -190,12 +193,18 @@ message CreateProjectRequest {
 }
 
 message GetProjectRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message ListProjectsRequest {
-  string org_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
 
   string query = 2;
   bool joined = 3;
@@ -213,7 +222,10 @@ message ListProjectsReply {
 }
 
 message UpdateProjectRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
   string display_name = 2;
   string description = 3;
@@ -225,7 +237,10 @@ message UpdateProjectRequest {
 }
 
 message ArchiveProjectRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
   string reason = 2;
 }
@@ -244,7 +259,10 @@ message ListCapabilitiesReply {
 }
 
 message EnableProjectCapabilityRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
   string capability_id = 2 [(google.api.field_behavior) = REQUIRED];
   google.protobuf.Struct config = 3;
@@ -252,14 +270,20 @@ message EnableProjectCapabilityRequest {
 }
 
 message DisableProjectCapabilityRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
   string capability_id = 2 [(google.api.field_behavior) = REQUIRED];
   string reason = 3;
 }
 
 message ListProjectCapabilitiesRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
   optional bool enabled = 2;
 }

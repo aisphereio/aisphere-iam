@@ -58,11 +58,11 @@ type Page[T any] struct {
 }
 
 type ControlPlaneRepository interface {
-	CreateProject(ctx context.Context, project *ProjectModel, outbox ...*OutboxEventModel) error
-	UpsertProject(ctx context.Context, project *ProjectModel) error
-	GetProject(ctx context.Context, id string) (*ProjectModel, error)
-	ListProjects(ctx context.Context, opts ListOptions) (*Page[ProjectModel], error)
-	ArchiveProject(ctx context.Context, id string) error
+CreateProject(ctx context.Context, project *ProjectModel, outbox ...*OutboxEventModel) error
+		UpsertProject(ctx context.Context, project *ProjectModel) error
+		GetProject(ctx context.Context, id, orgID string) (*ProjectModel, error)
+		ListProjects(ctx context.Context, opts ListOptions) (*Page[ProjectModel], error)
+		ArchiveProject(ctx context.Context, id, orgID string) error
 
 	UpsertCapability(ctx context.Context, capability *CapabilityModel) error
 	ListCapabilities(ctx context.Context, opts ListOptions) ([]CapabilityModel, error)
@@ -73,17 +73,17 @@ type ControlPlaneRepository interface {
 	GetResourceType(ctx context.Context, typ string) (*ResourceTypeModel, error)
 	ListResourceTypes(ctx context.Context, opts ListOptions) ([]ResourceTypeModel, error)
 
-	UpsertResource(ctx context.Context, resource *ResourceModel, outbox ...*OutboxEventModel) error
-	GetResource(ctx context.Context, typ, id string) (*ResourceModel, error)
-	ListResources(ctx context.Context, opts ListOptions) (*Page[ResourceModel], error)
-	ArchiveResource(ctx context.Context, typ, id string) error
-	DeleteResource(ctx context.Context, typ, id string) error
+UpsertResource(ctx context.Context, resource *ResourceModel, outbox ...*OutboxEventModel) error
+		GetResource(ctx context.Context, typ, id, orgID string) (*ResourceModel, error)
+		ListResources(ctx context.Context, opts ListOptions) (*Page[ResourceModel], error)
+		ArchiveResource(ctx context.Context, typ, id, orgID string) error
+		DeleteResource(ctx context.Context, typ, id, orgID string) error
 
-	BindResource(ctx context.Context, binding *ResourceBindingModel, outbox ...*OutboxEventModel) error
-	ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error)
-	UnbindResource(ctx context.Context, bindingID string) error
-	BindExternalResource(ctx context.Context, binding *ExternalResourceBindingModel) error
-	ListExternalResourceBindings(ctx context.Context, opts ListOptions) ([]ExternalResourceBindingModel, error)
+BindResource(ctx context.Context, binding *ResourceBindingModel, outbox ...*OutboxEventModel) error
+		ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error)
+		UnbindResource(ctx context.Context, bindingID, orgID string) error
+		BindExternalResource(ctx context.Context, binding *ExternalResourceBindingModel) error
+		ListExternalResourceBindings(ctx context.Context, opts ListOptions) ([]ExternalResourceBindingModel, error)
 
 	UpsertRoleTemplate(ctx context.Context, role *RoleTemplateModel) error
 	SaveRoleTemplate(ctx context.Context, role *RoleTemplateModel, audit *RoleTemplateAuditModel, outbox ...*OutboxEventModel) error
@@ -92,11 +92,11 @@ type ControlPlaneRepository interface {
 	CountActiveGrantsByRole(ctx context.Context, roleTemplateID string, at time.Time) (int64, error)
 	ListRoleTemplates(ctx context.Context, resourceType string) ([]RoleTemplateModel, error)
 
-	CreateGrant(ctx context.Context, grant *GrantModel, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
-	GetGrant(ctx context.Context, id string) (*GrantModel, error)
-	RevokeGrant(ctx context.Context, id string, revokedAt time.Time, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
-	ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error)
-	ListDueExpiringGrants(ctx context.Context, limit int) ([]GrantModel, error)
+CreateGrant(ctx context.Context, grant *GrantModel, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
+		GetGrant(ctx context.Context, id, orgID string) (*GrantModel, error)
+		RevokeGrant(ctx context.Context, id, orgID string, revokedAt time.Time, audit *GrantAuditModel, outbox ...*OutboxEventModel) error
+		ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error)
+		ListDueExpiringGrants(ctx context.Context, limit int) ([]GrantModel, error)
 
 	CreateOutboxEvents(ctx context.Context, events ...*OutboxEventModel) error
 	GetOutboxEvent(ctx context.Context, id string) (*OutboxEventModel, error)
@@ -127,18 +127,18 @@ func (r *DBControlPlaneRepository) UpsertProject(ctx context.Context, project *P
 	return r.db.SafeUpsert(ctx, project, []string{"display_name", "description", "status", "visibility", "labels_json", "annotations_json", "metadata_json", "updated_at"})
 }
 
-func (r *DBControlPlaneRepository) GetProject(ctx context.Context, id string) (*ProjectModel, error) {
-	var out ProjectModel
-	if err := r.db.FindOne(ctx, &out, "id = ?", id); err != nil {
-		return nil, err
+func (r *DBControlPlaneRepository) GetProject(ctx context.Context, id, orgID string) (*ProjectModel, error) {
+		var out ProjectModel
+		if err := r.db.FindOne(ctx, &out, "id = ? AND org_id = ?", id, orgID); err != nil {
+			return nil, err
+		}
+		return &out, nil
 	}
-	return &out, nil
-}
 
-func (r *DBControlPlaneRepository) ArchiveProject(ctx context.Context, id string) error {
-	now := time.Now().UTC()
-	return r.db.Update(ctx, &ProjectModel{}, "id = ?", []any{id}, map[string]any{"status": StatusArchived, "updated_at": now})
-}
+func (r *DBControlPlaneRepository) ArchiveProject(ctx context.Context, id, orgID string) error {
+		now := time.Now().UTC()
+		return r.db.Update(ctx, &ProjectModel{}, "id = ? AND org_id = ?", []any{id, orgID}, map[string]any{"status": StatusArchived, "updated_at": now})
+	}
 
 func (r *DBControlPlaneRepository) ListProjects(ctx context.Context, opts ListOptions) (*Page[ProjectModel], error) {
 	var out []ProjectModel
@@ -193,13 +193,13 @@ func (r *DBControlPlaneRepository) UpsertResource(ctx context.Context, resource 
 	})
 }
 
-func (r *DBControlPlaneRepository) GetResource(ctx context.Context, typ, id string) (*ResourceModel, error) {
-	var out ResourceModel
-	if err := r.db.FindOne(ctx, &out, "type = ? AND id = ?", typ, id); err != nil {
-		return nil, err
+func (r *DBControlPlaneRepository) GetResource(ctx context.Context, typ, id, orgID string) (*ResourceModel, error) {
+		var out ResourceModel
+		if err := r.db.FindOne(ctx, &out, "type = ? AND id = ? AND org_id = ?", typ, id, orgID); err != nil {
+			return nil, err
+		}
+		return &out, nil
 	}
-	return &out, nil
-}
 
 func (r *DBControlPlaneRepository) ListResources(ctx context.Context, opts ListOptions) (*Page[ResourceModel], error) {
 	var out []ResourceModel
@@ -208,15 +208,15 @@ func (r *DBControlPlaneRepository) ListResources(ctx context.Context, opts ListO
 	return pageFrom(out, res, err)
 }
 
-func (r *DBControlPlaneRepository) ArchiveResource(ctx context.Context, typ, id string) error {
-	now := time.Now().UTC()
-	return r.db.Update(ctx, &ResourceModel{}, "type = ? AND id = ?", []any{typ, id}, map[string]any{"status": StatusArchived, "updated_at": now})
-}
+func (r *DBControlPlaneRepository) ArchiveResource(ctx context.Context, typ, id, orgID string) error {
+		now := time.Now().UTC()
+		return r.db.Update(ctx, &ResourceModel{}, "type = ? AND id = ? AND org_id = ?", []any{typ, id, orgID}, map[string]any{"status": StatusArchived, "updated_at": now})
+	}
 
-func (r *DBControlPlaneRepository) DeleteResource(ctx context.Context, typ, id string) error {
-	now := time.Now().UTC()
-	return r.db.Update(ctx, &ResourceModel{}, "type = ? AND id = ?", []any{typ, id}, map[string]any{"status": StatusDeleted, "updated_at": now})
-}
+func (r *DBControlPlaneRepository) DeleteResource(ctx context.Context, typ, id, orgID string) error {
+		now := time.Now().UTC()
+		return r.db.Update(ctx, &ResourceModel{}, "type = ? AND id = ? AND org_id = ?", []any{typ, id, orgID}, map[string]any{"status": StatusDeleted, "updated_at": now})
+	}
 
 func (r *DBControlPlaneRepository) BindResource(ctx context.Context, binding *ResourceBindingModel, outbox ...*OutboxEventModel) error {
 	return r.db.InTx(ctx, func(tx dbx.Tx) error {
@@ -233,9 +233,9 @@ func (r *DBControlPlaneRepository) ListResourceBindings(ctx context.Context, opt
 		return out, r.db.FindMany(ctx, &out, query, args...)
 	}
 
-func (r *DBControlPlaneRepository) UnbindResource(ctx context.Context, bindingID string) error {
-	return r.db.Delete(ctx, &ResourceBindingModel{}, "id = ?", bindingID)
-}
+func (r *DBControlPlaneRepository) UnbindResource(ctx context.Context, bindingID, orgID string) error {
+		return r.db.Delete(ctx, &ResourceBindingModel{}, "id = ? AND org_id = ?", bindingID, orgID)
+	}
 
 func (r *DBControlPlaneRepository) BindExternalResource(ctx context.Context, binding *ExternalResourceBindingModel) error {
 	return r.db.SafeUpsert(ctx, binding, []string{"resource_type", "resource_id", "external_path", "external_url", "sync_mode", "sync_status", "last_synced_at", "metadata_json", "updated_at"})
@@ -375,27 +375,27 @@ func (r *DBControlPlaneRepository) CreateGrant(ctx context.Context, grant *Grant
 	})
 }
 
-func (r *DBControlPlaneRepository) GetGrant(ctx context.Context, id string) (*GrantModel, error) {
-	var out GrantModel
-	if err := r.db.FindOne(ctx, &out, "id = ?", id); err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (r *DBControlPlaneRepository) RevokeGrant(ctx context.Context, id string, revokedAt time.Time, audit *GrantAuditModel, outbox ...*OutboxEventModel) error {
-	return r.db.InTx(ctx, func(tx dbx.Tx) error {
-		if err := tx.Update(ctx, &GrantModel{}, "id = ? AND revoked_at IS NULL", []any{id}, map[string]any{"revoked_at": revokedAt}); err != nil {
-			return err
+func (r *DBControlPlaneRepository) GetGrant(ctx context.Context, id, orgID string) (*GrantModel, error) {
+		var out GrantModel
+		if err := r.db.FindOne(ctx, &out, "id = ? AND org_id = ?", id, orgID); err != nil {
+			return nil, err
 		}
-		if audit != nil {
-			if err := tx.Create(ctx, audit); err != nil {
+		return &out, nil
+	}
+
+func (r *DBControlPlaneRepository) RevokeGrant(ctx context.Context, id, orgID string, revokedAt time.Time, audit *GrantAuditModel, outbox ...*OutboxEventModel) error {
+		return r.db.InTx(ctx, func(tx dbx.Tx) error {
+			if err := tx.Update(ctx, &GrantModel{}, "id = ? AND org_id = ? AND revoked_at IS NULL", []any{id, orgID}, map[string]any{"revoked_at": revokedAt}); err != nil {
 				return err
 			}
-		}
-		return createOutbox(ctx, tx, outbox...)
-	})
-}
+			if audit != nil {
+				if err := tx.Create(ctx, audit); err != nil {
+					return err
+				}
+			}
+			return createOutbox(ctx, tx, outbox...)
+		})
+	}
 
 func (r *DBControlPlaneRepository) ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error) {
 		var out []GrantModel

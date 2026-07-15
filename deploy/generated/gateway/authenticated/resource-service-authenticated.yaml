@@ -88,7 +88,7 @@ spec:
         - method: "GET"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}"
+            value: "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -111,7 +111,7 @@ spec:
         - method: "GET"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/resources"
+            value: "/v1/iam/orgs/{org_id}/resources"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -134,7 +134,7 @@ spec:
         - method: "GET"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/resource-bindings"
+            value: "/v1/iam/orgs/{org_id}/resource-bindings"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -157,7 +157,7 @@ spec:
         - method: "GET"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/external-resource-bindings"
+            value: "/v1/iam/orgs/{org_id}/external-resource-bindings"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:

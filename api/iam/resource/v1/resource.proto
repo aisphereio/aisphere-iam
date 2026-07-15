@@ -262,7 +262,10 @@ message ListResourceTypesReply {
 }
 
 message UpsertResourceRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   Resource resource = 1 [(google.api.field_behavior) = REQUIRED];
   bool write_parent_relationship = 2;
   bool create_default_owner_grant = 3;
@@ -270,7 +273,10 @@ message UpsertResourceRequest {
 }
 
 message GetResourceRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string resource_type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -282,7 +288,10 @@ message GetResourceRequest {
 }
 
 message ListResourcesRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string type = 1;
   string project_id = 3;
   ResourceRef parent = 4;
@@ -301,7 +310,10 @@ message ListResourcesReply {
 }
 
 message MoveResourceRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string resource_type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -314,7 +326,10 @@ message MoveResourceRequest {
 }
 
 message ArchiveResourceRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string resource_type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -327,7 +342,10 @@ message ArchiveResourceRequest {
 }
 
 message DeleteResourceRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string resource_type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -346,13 +364,19 @@ message DeleteResourceReply {
 }
 
 message BindResourceRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   ResourceBinding binding = 1 [(google.api.field_behavior) = REQUIRED];
   bool write_graph_relationship = 2;
 }
 
 message UnbindResourceRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   string binding_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -366,7 +390,10 @@ message UnbindResourceReply {
 }
 
 message ListResourceBindingsRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   ResourceRef source = 1;
   ResourceRef target = 2;
   string relation = 3;
@@ -382,12 +409,18 @@ message ListResourceBindingsReply {
 }
 
 message BindExternalResourceRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   ExternalResourceBinding binding = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message ListExternalResourceBindingsRequest {
-  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
   ResourceRef resource = 1;
   string provider = 2;
   string external_type = 3;

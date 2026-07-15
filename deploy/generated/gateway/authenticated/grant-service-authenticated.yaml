@@ -134,7 +134,7 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/grants"
+            value: "/v1/iam/orgs/{org_id}/grants"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -157,7 +157,7 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/grants/{grant_id}/revoke"
+            value: "/v1/iam/orgs/{org_id}/grants/{grant_id}/revoke"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -180,7 +180,7 @@ spec:
         - method: "GET"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/grants"
+            value: "/v1/iam/orgs/{org_id}/grants"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -203,7 +203,7 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/access:explain"
+            value: "/v1/iam/orgs/{org_id}/access:explain"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:

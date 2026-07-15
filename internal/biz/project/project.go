@@ -14,6 +14,7 @@ import (
 	"github.com/aisphereio/kernel/authz"
 
 	"github.com/aisphereio/aisphere-iam/internal/biz/graph"
+	"github.com/aisphereio/aisphere-iam/internal/biz/graphid"
 	"github.com/aisphereio/aisphere-iam/internal/biz/idgen"
 	"github.com/aisphereio/aisphere-iam/internal/biz/projection"
 	"github.com/aisphereio/aisphere-iam/internal/data"
@@ -128,12 +129,12 @@ func (s *Service) CreateProject(ctx context.Context, req CreateProjectRequest) (
 	}
 rels := []authz.Relationship{
 			{
-				Resource: graph.Object(ResourceTypeProject, zoneID+"/"+project.ID),
-				Relation: RelationZone,
-				Subject:  graph.Subject(ResourceTypeZone, zoneID, ""),
-			},
-			{
-				Resource: graph.Object(ResourceTypeProject, zoneID+"/"+project.ID),
+Resource: graph.Object(ResourceTypeProject, graphid.QualifiedID(zoneID, project.ID)),
+					Relation: RelationZone,
+					Subject:  graph.Subject(ResourceTypeZone, zoneID, ""),
+				},
+				{
+					Resource: graph.Object(ResourceTypeProject, graphid.QualifiedID(zoneID, project.ID)),
 				Relation: RelationOwner,
 				Subject:  toAuthzSubject(req.Owner),
 			},

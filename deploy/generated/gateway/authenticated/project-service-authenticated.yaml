@@ -19,7 +19,7 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/projects"
+            value: "/v1/iam/orgs/{org_id}/projects"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -33,7 +33,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "create_project"
               - name: X-Aisphere-Authz-Resource
-                value: "iam:project"
+                value: "zone:{org_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -42,7 +42,7 @@ spec:
         - method: "GET"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/projects/{project_id}"
+            value: "/v1/iam/orgs/{org_id}/projects/{project_id}"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -56,7 +56,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "read"
               - name: X-Aisphere-Authz-Resource
-                value: "project:{project_id}"
+                value: "project:{org_id}/{project_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -65,7 +65,7 @@ spec:
         - method: "GET"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/projects"
+            value: "/v1/iam/orgs/{org_id}/projects"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -79,7 +79,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "list"
               - name: X-Aisphere-Authz-Resource
-                value: "project:*"
+                value: "zone:{org_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -88,7 +88,7 @@ spec:
         - method: "PATCH"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/projects/{project_id}"
+            value: "/v1/iam/orgs/{org_id}/projects/{project_id}"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -102,7 +102,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "project:{project_id}"
+                value: "project:{org_id}/{project_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -111,7 +111,7 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/projects/{project_id}/archive"
+            value: "/v1/iam/orgs/{org_id}/projects/{project_id}/archive"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -125,7 +125,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "project:{project_id}"
+                value: "project:{org_id}/{project_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -180,7 +180,7 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable"
+            value: "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:enable"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -194,7 +194,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "project:{project_id}"
+                value: "project:{org_id}/{project_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -203,7 +203,7 @@ spec:
         - method: "POST"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable"
+            value: "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:disable"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -217,7 +217,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "manage"
               - name: X-Aisphere-Authz-Resource
-                value: "project:{project_id}"
+                value: "project:{org_id}/{project_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"
@@ -226,7 +226,7 @@ spec:
         - method: "GET"
           path:
             type: PathPrefix
-            value: "/v1/iam/control-plane/projects/{project_id}/capabilities"
+            value: "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities"
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
@@ -240,7 +240,7 @@ spec:
               - name: X-Aisphere-Authz-Action
                 value: "read"
               - name: X-Aisphere-Authz-Resource
-                value: "project:{project_id}"
+                value: "project:{org_id}/{project_id}"
       backendRefs:
         - name: "aisphere-iam"
           namespace: "aisphere"

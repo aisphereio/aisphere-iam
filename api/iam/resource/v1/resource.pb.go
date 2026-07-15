@@ -2149,22 +2149,25 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\n" +
 	"_grantable\"^\n" +
 	"\x16ListResourceTypesReply\x12D\n" +
-	"\x0eresource_types\x18\x01 \x03(\v2\x1d.iam.resource.v1.ResourceTypeR\rresourceTypes\"\x9b\x02\n" +
-	"\x15UpsertResourceRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12:\n" +
+	"\x0eresource_types\x18\x01 \x03(\v2\x1d.iam.resource.v1.ResourceTypeR\rresourceTypes\"\xa2\x02\n" +
+	"\x15UpsertResourceRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12:\n" +
 	"\bresource\x18\x01 \x01(\v2\x19.iam.resource.v1.ResourceB\x03\xe0A\x02R\bresource\x12:\n" +
 	"\x19write_parent_relationship\x18\x02 \x01(\bR\x17writeParentRelationship\x12;\n" +
 	"\x1acreate_default_owner_grant\x18\x03 \x01(\bR\x17createDefaultOwnerGrant\x121\n" +
-	"\x05owner\x18\x04 \x01(\v2\x1b.iam.resource.v1.SubjectRefR\x05owner\"\x8e\x01\n" +
-	"\x12GetResourceRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12/\n" +
+	"\x05owner\x18\x04 \x01(\v2\x1b.iam.resource.v1.SubjectRefR\x05owner\"\x95\x01\n" +
+	"\x12GetResourceRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12/\n" +
 	"\rresource_type\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
 	"\vresource_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
-	"resourceId\"\xba\x03\n" +
-	"\x14ListResourcesRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12\x12\n" +
+	"resourceId\"\xc1\x03\n" +
+	"\x14ListResourcesRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x03 \x01(\tR\tprojectId\x124\n" +
@@ -2186,26 +2189,29 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\tresources\x18\x01 \x03(\v2\x19.iam.resource.v1.ResourceR\tresources\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xd1\x01\n" +
-	"\x13MoveResourceRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12/\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xd8\x01\n" +
+	"\x13MoveResourceRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12/\n" +
 	"\rresource_type\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
 	"\vresource_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
 	"resourceId\x12@\n" +
 	"\n" +
-	"new_parent\x18\x03 \x01(\v2\x1c.iam.resource.v1.ResourceRefB\x03\xe0A\x02R\tnewParent\"\xaa\x01\n" +
-	"\x16ArchiveResourceRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12/\n" +
+	"new_parent\x18\x03 \x01(\v2\x1c.iam.resource.v1.ResourceRefB\x03\xe0A\x02R\tnewParent\"\xb1\x01\n" +
+	"\x16ArchiveResourceRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12/\n" +
 	"\rresource_type\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
 	"\vresource_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
 	"resourceId\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\"\xca\x01\n" +
-	"\x15DeleteResourceRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12/\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\"\xd1\x01\n" +
+	"\x15DeleteResourceRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12/\n" +
 	"\rresource_type\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
 	"\vresource_id\x18\x02 \x01(\tB\n" +
@@ -2216,13 +2222,15 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\x06reason\x18\x04 \x01(\tR\x06reason\"_\n" +
 	"\x13DeleteResourceReply\x12.\n" +
 	"\x03ref\x18\x01 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\x03ref\x12\x18\n" +
-	"\adeleted\x18\x02 \x01(\bR\adeleted\"\xac\x01\n" +
-	"\x13BindResourceRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12?\n" +
+	"\adeleted\x18\x02 \x01(\bR\adeleted\"\xb3\x01\n" +
+	"\x13BindResourceRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12?\n" +
 	"\abinding\x18\x01 \x01(\v2 .iam.resource.v1.ResourceBindingB\x03\xe0A\x02R\abinding\x128\n" +
-	"\x18write_graph_relationship\x18\x02 \x01(\bR\x16writeGraphRelationship\"\x9a\x01\n" +
-	"\x15UnbindResourceRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12)\n" +
+	"\x18write_graph_relationship\x18\x02 \x01(\bR\x16writeGraphRelationship\"\xa1\x01\n" +
+	"\x15UnbindResourceRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12)\n" +
 	"\n" +
 	"binding_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tbindingId\x12:\n" +
@@ -2230,9 +2238,10 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\x13UnbindResourceReply\x12\x1d\n" +
 	"\n" +
 	"binding_id\x18\x01 \x01(\tR\tbindingId\x12\x18\n" +
-	"\aunbound\x18\x02 \x01(\bR\aunbound\"\x95\x02\n" +
-	"\x1bListResourceBindingsRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x124\n" +
+	"\aunbound\x18\x02 \x01(\bR\aunbound\"\x9c\x02\n" +
+	"\x1bListResourceBindingsRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x124\n" +
 	"\x06source\x18\x01 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\x06source\x124\n" +
 	"\x06target\x18\x02 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\x06target\x12\x1a\n" +
 	"\brelation\x18\x03 \x01(\tR\brelation\x12\x16\n" +
@@ -2244,12 +2253,14 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\bbindings\x18\x01 \x03(\v2 .iam.resource.v1.ResourceBindingR\bbindings\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x82\x01\n" +
-	"\x1bBindExternalResourceRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12G\n" +
-	"\abinding\x18\x01 \x01(\v2(.iam.resource.v1.ExternalResourceBindingB\x03\xe0A\x02R\abinding\"\xba\x02\n" +
-	"#ListExternalResourceBindingsRequest\x12\x1a\n" +
-	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x128\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x89\x01\n" +
+	"\x1bBindExternalResourceRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12G\n" +
+	"\abinding\x18\x01 \x01(\v2(.iam.resource.v1.ExternalResourceBindingB\x03\xe0A\x02R\abinding\"\xc1\x02\n" +
+	"#ListExternalResourceBindingsRequest\x12!\n" +
+	"\x06org_id\x18\t \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x128\n" +
 	"\bresource\x18\x01 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\bresource\x12\x1a\n" +
 	"\bprovider\x18\x02 \x01(\tR\bprovider\x12#\n" +
 	"\rexternal_type\x18\x03 \x01(\tR\fexternalType\x12\x1f\n" +
