@@ -44,6 +44,8 @@ func registerIdentityGroupRoutes(srv *khttp.Server, resources *data.Resources) {
 	r.POST("/v1/iam/orgs/{org_id}/groups", createIdentityGroupHandler(resources))
 	r.PATCH("/v1/iam/orgs/{org_id}/groups/{group_id}", updateIdentityGroupHandler(resources))
 	r.DELETE("/v1/iam/orgs/{org_id}/groups/{group_id}", deleteIdentityGroupHandler(resources))
+	r.POST("/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}", assignUserToGroupHandler(resources))
+	r.DELETE("/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}", removeUserFromGroupHandler(resources))
 }
 
 func createIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
@@ -367,4 +369,54 @@ func collectExistingGroupNames(ctx context.Context, identity authn.IdentityAdmin
 		}
 	}
 	return names, nil
+}
+
+func assignUserToGroupHandler(resources *data.Resources) khttp.HandlerFunc {
+	return func(c khttp.Context) error {
+		orgID := strings.TrimSpace(c.Vars().Get("org_id"))
+		groupID := strings.TrimSpace(c.Vars().Get("group_id"))
+		userID := strings.TrimSpace(c.Vars().Get("user_id"))
+		if orgID == "" || groupID == "" || userID == "" {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "org_id, group_id and user_id are required"})
+		}
+		_, err := runWithGatewayPrincipal(c, func(ctx context.Context, principal authn.Principal) (any, error) {
+			if err := requireAuthz(ctx, resources.Authz, principal, groupObject(orgID, groupID), "manage"); err != nil {
+				return nil, err
+			}
+			return nil, resources.Identity.AssignUserToGroup(ctx, authn.AssignUserToGroupRequest{
+				OrgID:   orgID,
+				GroupID: groupID,
+				UserID:  userID,
+			})
+		})
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	}
+}
+
+func removeUserFromGroupHandler(resources *data.Resources) khttp.HandlerFunc {
+	return func(c khttp.Context) error {
+		orgID := strings.TrimSpace(c.Vars().Get("org_id"))
+		groupID := strings.TrimSpace(c.Vars().Get("group_id"))
+		userID := strings.TrimSpace(c.Vars().Get("user_id"))
+		if orgID == "" || groupID == "" || userID == "" {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "org_id, group_id and user_id are required"})
+		}
+		_, err := runWithGatewayPrincipal(c, func(ctx context.Context, principal authn.Principal) (any, error) {
+			if err := requireAuthz(ctx, resources.Authz, principal, groupObject(orgID, groupID), "manage"); err != nil {
+				return nil, err
+			}
+			return nil, resources.Identity.RemoveUserFromGroup(ctx, authn.AssignUserToGroupRequest{
+				OrgID:   orgID,
+				GroupID: groupID,
+				UserID:  userID,
+			})
+		})
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	}
 }
