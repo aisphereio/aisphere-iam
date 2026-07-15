@@ -137,7 +137,6 @@ control_plane:
     path: configs/resource/defaults.yaml
   bootstrap_admins:
     enabled: true
-    cleanup_legacy_expansions: true
     subjects:
       - type: user
         username: admin

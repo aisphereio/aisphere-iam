@@ -114,9 +114,8 @@ type ControlPlaneDefaultsConfig struct {
 }
 
 type ControlPlaneBootstrapAdminsConfig struct {
-	Enabled                 bool                       `json:"enabled" yaml:"enabled"`
-	CleanupLegacyExpansions bool                       `json:"cleanup_legacy_expansions" yaml:"cleanup_legacy_expansions"`
-	Subjects                []ControlPlaneAdminSubject `json:"subjects" yaml:"subjects"`
+	Enabled  bool                       `json:"enabled" yaml:"enabled"`
+	Subjects []ControlPlaneAdminSubject `json:"subjects" yaml:"subjects"`
 }
 
 type ControlPlaneAdminSubject struct {

@@ -346,75 +346,7 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 		return err
 	}
 	logger.Info("control plane admin relationships bootstrapped", logx.Int("written", result.Written))
-	if cfg.CleanupLegacyExpansions {
-		deleted, err := cleanupLegacyBootstrapExpansions(ctx, cfg.Subjects, policy, writer, directory)
-		if err != nil {
-			return err
-		}
-		logger.Info("legacy control plane admin relationships cleaned", logx.Int("deleted", deleted))
-	}
 	return nil
-}
-
-// legacyBootstrapZoneRelations maps each canonical bootstrap role to the zone
-// relations that the pre-convergence bootstrap code used to expand it into.
-// platform_owner / platform_admin are included because those subjects were
-// previously bootstrapped as zone_owner / zone_admin and carry the same legacy
-// zone-level expansions that must be cleaned up now that a single platform
-// relationship supersedes them.  platform_admin maps to the full zone_owner
-// expansion (including owner) because the typical migration path was
-// zone_owner → platform_admin.
-var legacyBootstrapZoneRelations = map[string][]string{
-	"zone_owner":     {"owner", "admin", "user_manager", "group_manager", "permission_admin"},
-	"zone_admin":     {"admin", "user_manager", "group_manager", "permission_admin"},
-	"platform_owner": {"owner", "admin", "user_manager", "group_manager", "permission_admin"},
-	"platform_admin": {"owner", "admin", "user_manager", "group_manager", "permission_admin"},
-}
-
-func cleanupLegacyBootstrapExpansions(ctx context.Context, subjects []conf.ControlPlaneAdminSubject, policy permissionmanifest.BootstrapPolicy, writer authz.RelationshipWriter, directory authn.UserDirectory) (int, error) {
-	deleted := 0
-	for _, subject := range subjects {
-		role, canonicalRole, ok := policy.ResolveRole(subject.Role)
-		if !ok {
-			return deleted, fmt.Errorf("unknown bootstrap role %s", strings.TrimSpace(subject.Role))
-		}
-		resolvedSubject, hasSubject, err := resolveBootstrapZoneSubject(ctx, subject, directory)
-		if err != nil {
-			return deleted, err
-		}
-		if !hasSubject {
-			continue
-		}
-		zoneID := dataFirstNonEmpty(subject.ZoneID, subject.CasdoorOrg)
-		for _, relation := range legacyBootstrapZoneRelations[canonicalRole] {
-			if role.Scope == "zone" && relation == strings.TrimSpace(role.Relation) {
-				continue
-			}
-			part, err := writer.DeleteRelationships(ctx, authz.RelationshipFilter{
-				ResourceType: "zone", ResourceID: zoneID, Relation: relation,
-				SubjectType: resolvedSubject.Type, SubjectID: resolvedSubject.ID, SubjectRel: resolvedSubject.Relation,
-			})
-			deleted += part.Deleted
-			if err != nil {
-				return deleted, err
-			}
-		}
-		// Clean up legacy iam#admin / iam_authz#admin relationships that the
-		// old bootstrap wrote for every platform resource.  This now runs for
-		// all roles that have legacy zone expansions (including platform_owner
-		// and platform_admin), not just zone_owner / zone_admin.
-		for _, resource := range policy.PlatformResources {
-			part, err := writer.DeleteRelationships(ctx, authz.RelationshipFilter{
-				ResourceType: strings.TrimSpace(resource.Type), ResourceID: strings.TrimSpace(resource.ID), Relation: "admin",
-				SubjectType: resolvedSubject.Type, SubjectID: resolvedSubject.ID, SubjectRel: resolvedSubject.Relation,
-			})
-			deleted += part.Deleted
-			if err != nil {
-				return deleted, err
-			}
-		}
-	}
-	return deleted, nil
 }
 
 func resolveBootstrapZoneSubject(ctx context.Context, subject conf.ControlPlaneAdminSubject, directory authn.UserDirectory) (authz.SubjectRef, bool, error) {
