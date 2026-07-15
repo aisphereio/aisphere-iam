@@ -126,18 +126,18 @@ func (s *Service) CreateProject(ctx context.Context, req CreateProjectRequest) (
 		CreatedAt:       now,
 		UpdatedAt:       now,
 	}
-	rels := []authz.Relationship{
-		{
-			Resource: graph.Object(ResourceTypeProject, project.ID),
-			Relation: RelationZone,
-			Subject:  graph.Subject(ResourceTypeZone, zoneID, ""),
-		},
-		{
-			Resource: graph.Object(ResourceTypeProject, project.ID),
-			Relation: RelationOwner,
-			Subject:  toAuthzSubject(req.Owner),
-		},
-	}
+rels := []authz.Relationship{
+			{
+				Resource: graph.Object(ResourceTypeProject, zoneID+"/"+project.ID),
+				Relation: RelationZone,
+				Subject:  graph.Subject(ResourceTypeZone, zoneID, ""),
+			},
+			{
+				Resource: graph.Object(ResourceTypeProject, zoneID+"/"+project.ID),
+				Relation: RelationOwner,
+				Subject:  toAuthzSubject(req.Owner),
+			},
+		}
 	event, err := s.projection.NewWriteEvent("project", project.ID, rels...)
 	if err != nil {
 		return nil, authz.WriteResult{}, err

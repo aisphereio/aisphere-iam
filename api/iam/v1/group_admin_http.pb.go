@@ -34,11 +34,11 @@ type IAMGroupAdminServiceHTTPServer interface {
 
 func RegisterIAMGroupAdminServiceHTTPServer(s *http.Server, srv IAMGroupAdminServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("DELETE", "/v1/iam/groups/{group_id}", _IAMGroupAdminService_DeleteGroup0_HTTP_Handler(srv))
-	r.Handle("DELETE", "/v1/iam/groups/{group_id}/users/{user_id}", _IAMGroupAdminService_RemoveUserFromGroup0_HTTP_Handler(srv))
-	r.Handle("PATCH", "/v1/iam/groups/{group_id}", _IAMGroupAdminService_UpdateGroup0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/groups", _IAMGroupAdminService_CreateGroup0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/groups/{group_id}/users/{user_id}", _IAMGroupAdminService_AssignUserToGroup0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/v1/iam/orgs/{org_id}/groups/{group_id}", _IAMGroupAdminService_DeleteGroup0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}", _IAMGroupAdminService_RemoveUserFromGroup0_HTTP_Handler(srv))
+	r.Handle("PATCH", "/v1/iam/orgs/{org_id}/groups/{group_id}", _IAMGroupAdminService_UpdateGroup0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/groups", _IAMGroupAdminService_CreateGroup0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}", _IAMGroupAdminService_AssignUserToGroup0_HTTP_Handler(srv))
 }
 
 func _IAMGroupAdminService_DeleteGroup0_HTTP_Handler(srv IAMGroupAdminServiceHTTPServer) func(ctx http.Context) error {
@@ -122,6 +122,9 @@ func _IAMGroupAdminService_CreateGroup0_HTTP_Handler(srv IAMGroupAdminServiceHTT
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
 		if err := http.ValidateRequest(ctx, &in); err != nil {
 			return err
 		}
@@ -181,7 +184,7 @@ func NewIAMGroupAdminServiceHTTPClient(client *http.Client) IAMGroupAdminService
 
 func (c *IAMGroupAdminServiceHTTPClientImpl) AssignUserToGroup(ctx context.Context, in *AssignUserToGroupRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/v1/iam/groups/{group_id}/users/{user_id}"
+	pattern := "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -198,7 +201,7 @@ func (c *IAMGroupAdminServiceHTTPClientImpl) AssignUserToGroup(ctx context.Conte
 
 func (c *IAMGroupAdminServiceHTTPClientImpl) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...http.CallOption) (*Group, error) {
 	var out Group
-	pattern := "/v1/iam/groups"
+	pattern := "/v1/iam/orgs/{org_id}/groups"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -215,7 +218,7 @@ func (c *IAMGroupAdminServiceHTTPClientImpl) CreateGroup(ctx context.Context, in
 
 func (c *IAMGroupAdminServiceHTTPClientImpl) DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/v1/iam/groups/{group_id}"
+	pattern := "/v1/iam/orgs/{org_id}/groups/{group_id}"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -231,7 +234,7 @@ func (c *IAMGroupAdminServiceHTTPClientImpl) DeleteGroup(ctx context.Context, in
 
 func (c *IAMGroupAdminServiceHTTPClientImpl) RemoveUserFromGroup(ctx context.Context, in *RemoveUserFromGroupRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/v1/iam/groups/{group_id}/users/{user_id}"
+	pattern := "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -247,7 +250,7 @@ func (c *IAMGroupAdminServiceHTTPClientImpl) RemoveUserFromGroup(ctx context.Con
 
 func (c *IAMGroupAdminServiceHTTPClientImpl) UpdateGroup(ctx context.Context, in *UpdateGroupRequest, opts ...http.CallOption) (*Group, error) {
 	var out Group
-	pattern := "/v1/iam/groups/{group_id}"
+	pattern := "/v1/iam/orgs/{org_id}/groups/{group_id}"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),

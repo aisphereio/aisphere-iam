@@ -18,46 +18,46 @@ option go_package = "github.com/aisphereio/aisphere-iam/api/iam/project/v1;proje
 // a second Organization. Every project is scoped to Principal.org_id.
 service ProjectService {
   rpc CreateProject(CreateProjectRequest) returns (Project) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/projects" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/projects" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "create_project" resource: "iam:project" audience: "iam-service" mode: SELF_CHECK }
+      authz: { action: "create_project" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.create" risk: "high" }
     };
   }
 
   rpc GetProject(GetProjectRequest) returns (Project) {
-    option (google.api.http) = { get: "/v1/iam/control-plane/projects/{project_id}" };
+    option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/projects/{project_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
+      authz: { action: "read" resource: "project:{org_id}/{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.get" risk: "low" }
     };
   }
 
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsReply) {
-    option (google.api.http) = { get: "/v1/iam/control-plane/projects" };
+    option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/projects" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "project:*" audience: "iam-service" mode: SELF_CHECK }
+      authz: { action: "list" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.list" risk: "medium" }
     };
   }
 
   rpc UpdateProject(UpdateProjectRequest) returns (Project) {
-    option (google.api.http) = { patch: "/v1/iam/control-plane/projects/{project_id}" body: "*" };
+    option (google.api.http) = { patch: "/v1/iam/orgs/{org_id}/projects/{project_id}" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
+      authz: { action: "manage" resource: "project:{org_id}/{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.update" risk: "high" }
     };
   }
 
   rpc ArchiveProject(ArchiveProjectRequest) returns (Project) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/projects/{project_id}/archive" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/projects/{project_id}/archive" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
+      authz: { action: "manage" resource: "project:{org_id}/{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.archive" risk: "high" }
     };
   }
@@ -81,28 +81,28 @@ service ProjectService {
   }
 
   rpc EnableProjectCapability(EnableProjectCapabilityRequest) returns (ProjectCapability) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:enable" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
+      authz: { action: "manage" resource: "project:{org_id}/{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project_capability.enable" risk: "high" }
     };
   }
 
   rpc DisableProjectCapability(DisableProjectCapabilityRequest) returns (ProjectCapability) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:disable" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
+      authz: { action: "manage" resource: "project:{org_id}/{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project_capability.disable" risk: "high" }
     };
   }
 
   rpc ListProjectCapabilities(ListProjectCapabilitiesRequest) returns (ListProjectCapabilitiesReply) {
-    option (google.api.http) = { get: "/v1/iam/control-plane/projects/{project_id}/capabilities" };
+    option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "read" resource: "project:{project_id}" audience: "iam-service" mode: SELF_CHECK }
+      authz: { action: "read" resource: "project:{org_id}/{project_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project_capability.list" risk: "medium" }
     };
   }
@@ -174,8 +174,7 @@ message ProjectCapability {
 }
 
 message CreateProjectRequest {
-  reserved 1, 9;
-  reserved "org_id", "owner";
+  string org_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   string slug = 2 [
     (google.api.field_behavior) = REQUIRED,
@@ -191,12 +190,12 @@ message CreateProjectRequest {
 }
 
 message GetProjectRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message ListProjectsRequest {
-  reserved 1;
-  reserved "org_id";
+  string org_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   string query = 2;
   bool joined = 3;
@@ -214,6 +213,7 @@ message ListProjectsReply {
 }
 
 message UpdateProjectRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
   string display_name = 2;
   string description = 3;
@@ -225,6 +225,7 @@ message UpdateProjectRequest {
 }
 
 message ArchiveProjectRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
   string reason = 2;
 }
@@ -243,6 +244,7 @@ message ListCapabilitiesReply {
 }
 
 message EnableProjectCapabilityRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
   string capability_id = 2 [(google.api.field_behavior) = REQUIRED];
   google.protobuf.Struct config = 3;
@@ -250,12 +252,14 @@ message EnableProjectCapabilityRequest {
 }
 
 message DisableProjectCapabilityRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
   string capability_id = 2 [(google.api.field_behavior) = REQUIRED];
   string reason = 3;
 }
 
 message ListProjectCapabilitiesRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string project_id = 1 [(google.api.field_behavior) = REQUIRED];
   optional bool enabled = 2;
 }

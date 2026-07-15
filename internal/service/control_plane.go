@@ -14,8 +14,9 @@ import (
 	grantbiz "github.com/aisphereio/aisphere-iam/internal/biz/grant"
 	projectbiz "github.com/aisphereio/aisphere-iam/internal/biz/project"
 	resourcebiz "github.com/aisphereio/aisphere-iam/internal/biz/resource"
-	"github.com/aisphereio/aisphere-iam/internal/data"
-	"github.com/aisphereio/kernel/authn"
+"github.com/aisphereio/aisphere-iam/internal/data"
+		"github.com/aisphereio/kernel/authn"
+		"github.com/aisphereio/kernel/authz"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -32,36 +33,36 @@ func NewProjectService(biz *projectbiz.Service, repo data.ControlPlaneRepository
 }
 
 func (s *ProjectService) CreateProject(ctx context.Context, req *projectv1.CreateProjectRequest) (*projectv1.Project, error) {
-	orgID, actor, err := currentProjectContext(ctx)
-	if err != nil {
-		return nil, err
+		orgID, actor, err := currentProjectContext(ctx, req.GetOrgId())
+		if err != nil {
+			return nil, err
+		}
+		project, _, err := s.biz.CreateProject(ctx, projectbiz.CreateProjectRequest{
+			ZoneID: orgID, Slug: req.GetSlug(), DisplayName: req.GetDisplayName(), Description: req.GetDescription(),
+			Visibility: visibilityToStatus(req.GetVisibility()), LabelsJSON: mapStringToJSON(req.GetLabels()), AnnotationsJSON: mapStringToJSON(req.GetAnnotations()), MetadataJSON: structToJSON(req.GetMetadata(), "{}"),
+			CreatedBy: actor, Owner: actor,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return projectModelToProto(project), nil
 	}
-	project, _, err := s.biz.CreateProject(ctx, projectbiz.CreateProjectRequest{
-		ZoneID: orgID, Slug: req.GetSlug(), DisplayName: req.GetDisplayName(), Description: req.GetDescription(),
-		Visibility: visibilityToStatus(req.GetVisibility()), LabelsJSON: mapStringToJSON(req.GetLabels()), AnnotationsJSON: mapStringToJSON(req.GetAnnotations()), MetadataJSON: structToJSON(req.GetMetadata(), "{}"),
-		CreatedBy: actor, Owner: actor,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return projectModelToProto(project), nil
-}
 
-func (s *ProjectService) ListProjects(ctx context.Context, req *projectv1.ListProjectsRequest) (*projectv1.ListProjectsReply, error) {
-	orgID, _, err := currentProjectContext(ctx)
-	if err != nil {
-		return nil, err
+	func (s *ProjectService) ListProjects(ctx context.Context, req *projectv1.ListProjectsRequest) (*projectv1.ListProjectsReply, error) {
+		orgID, _, err := currentProjectContext(ctx, req.GetOrgId())
+		if err != nil {
+			return nil, err
+		}
+		page, err := s.repo.ListProjects(ctx, data.ListOptions{OrgID: orgID, Q: req.GetQuery(), Status: lifecycleToStatus(req.GetStatus()), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
+		if err != nil {
+			return nil, err
+		}
+		out := make([]*projectv1.Project, 0, len(page.Items))
+		for i := range page.Items {
+			out = append(out, projectModelToProto(&page.Items[i]))
+		}
+		return &projectv1.ListProjectsReply{Projects: out, TotalSize: page.Total, NextPageToken: nextPage(page)}, nil
 	}
-	page, err := s.repo.ListProjects(ctx, data.ListOptions{OrgID: orgID, Q: req.GetQuery(), Status: lifecycleToStatus(req.GetStatus()), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
-	if err != nil {
-		return nil, err
-	}
-	out := make([]*projectv1.Project, 0, len(page.Items))
-	for i := range page.Items {
-		out = append(out, projectModelToProto(&page.Items[i]))
-	}
-	return &projectv1.ListProjectsReply{Projects: out, TotalSize: page.Total, NextPageToken: nextPage(page)}, nil
-}
 
 func (s *ProjectService) RegisterCapability(ctx context.Context, req *projectv1.RegisterCapabilityRequest) (*projectv1.Capability, error) {
 	in := req.GetCapability()
@@ -471,7 +472,7 @@ func currentPrincipalSubject(ctx context.Context) (string, string, error) {
 	return subjectType, strings.TrimSpace(principal.SubjectID), nil
 }
 
-func currentProjectContext(ctx context.Context) (string, projectbiz.SubjectRef, error) {
+func currentProjectContext(ctx context.Context, pathOrgIDs ...string) (string, projectbiz.SubjectRef, error) {
 	principal, ok := authn.PrincipalFromContext(ctx)
 	if !ok || !principal.IsAuthenticated() {
 		return "", projectbiz.SubjectRef{}, authn.ErrMissingCredential("kernel principal is required")
@@ -479,6 +480,10 @@ func currentProjectContext(ctx context.Context) (string, projectbiz.SubjectRef, 
 	orgID := strings.TrimSpace(principal.OrgID)
 	if orgID == "" {
 		return "", projectbiz.SubjectRef{}, authn.ErrMissingCredential("kernel principal org_id is required")
+	}
+	// If a path org_id is provided, validate it matches the principal's org_id.
+	if len(pathOrgIDs) > 0 && pathOrgIDs[0] != "" && !strings.EqualFold(pathOrgIDs[0], orgID) {
+		return "", projectbiz.SubjectRef{}, authz.ErrPermissionDenied("org_id mismatch: path org_id does not match principal org_id")
 	}
 	subjectType := strings.TrimSpace(principal.SubjectType)
 	if subjectType == "" {

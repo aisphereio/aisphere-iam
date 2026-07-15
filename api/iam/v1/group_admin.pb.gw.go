@@ -39,12 +39,21 @@ func request_IAMGroupAdminService_CreateGroup_0(ctx context.Context, marshaler r
 	var (
 		protoReq CreateGroupRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := client.CreateGroup(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -54,9 +63,18 @@ func local_request_IAMGroupAdminService_CreateGroup_0(ctx context.Context, marsh
 	var (
 		protoReq CreateGroupRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := server.CreateGroup(ctx, &protoReq)
 	return msg, metadata, err
@@ -74,7 +92,15 @@ func request_IAMGroupAdminService_UpdateGroup_0(ctx context.Context, marshaler r
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["group_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["group_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group_id")
 	}
@@ -95,7 +121,15 @@ func local_request_IAMGroupAdminService_UpdateGroup_0(ctx context.Context, marsh
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["group_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["group_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group_id")
 	}
@@ -107,7 +141,7 @@ func local_request_IAMGroupAdminService_UpdateGroup_0(ctx context.Context, marsh
 	return msg, metadata, err
 }
 
-var filter_IAMGroupAdminService_DeleteGroup_0 = &utilities.DoubleArray{Encoding: map[string]int{"group_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var filter_IAMGroupAdminService_DeleteGroup_0 = &utilities.DoubleArray{Encoding: map[string]int{"org_id": 0, "group_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
 
 func request_IAMGroupAdminService_DeleteGroup_0(ctx context.Context, marshaler runtime.Marshaler, client IAMGroupAdminServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -118,7 +152,15 @@ func request_IAMGroupAdminService_DeleteGroup_0(ctx context.Context, marshaler r
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["group_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["group_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group_id")
 	}
@@ -142,7 +184,15 @@ func local_request_IAMGroupAdminService_DeleteGroup_0(ctx context.Context, marsh
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["group_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["group_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group_id")
 	}
@@ -172,7 +222,15 @@ func request_IAMGroupAdminService_AssignUserToGroup_0(ctx context.Context, marsh
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["group_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["group_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group_id")
 	}
@@ -201,7 +259,15 @@ func local_request_IAMGroupAdminService_AssignUserToGroup_0(ctx context.Context,
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["group_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["group_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group_id")
 	}
@@ -221,8 +287,6 @@ func local_request_IAMGroupAdminService_AssignUserToGroup_0(ctx context.Context,
 	return msg, metadata, err
 }
 
-var filter_IAMGroupAdminService_RemoveUserFromGroup_0 = &utilities.DoubleArray{Encoding: map[string]int{"group_id": 0, "user_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
-
 func request_IAMGroupAdminService_RemoveUserFromGroup_0(ctx context.Context, marshaler runtime.Marshaler, client IAMGroupAdminServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq RemoveUserFromGroupRequest
@@ -232,7 +296,15 @@ func request_IAMGroupAdminService_RemoveUserFromGroup_0(ctx context.Context, mar
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["group_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["group_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group_id")
 	}
@@ -247,12 +319,6 @@ func request_IAMGroupAdminService_RemoveUserFromGroup_0(ctx context.Context, mar
 	protoReq.UserId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IAMGroupAdminService_RemoveUserFromGroup_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.RemoveUserFromGroup(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -264,7 +330,15 @@ func local_request_IAMGroupAdminService_RemoveUserFromGroup_0(ctx context.Contex
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["group_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["group_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "group_id")
 	}
@@ -279,12 +353,6 @@ func local_request_IAMGroupAdminService_RemoveUserFromGroup_0(ctx context.Contex
 	protoReq.UserId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_IAMGroupAdminService_RemoveUserFromGroup_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.RemoveUserFromGroup(ctx, &protoReq)
 	return msg, metadata, err
@@ -302,7 +370,7 @@ func RegisterIAMGroupAdminServiceHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/CreateGroup", runtime.WithHTTPPathPattern("/v1/iam/groups"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/CreateGroup", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/groups"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -322,7 +390,7 @@ func RegisterIAMGroupAdminServiceHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/UpdateGroup", runtime.WithHTTPPathPattern("/v1/iam/groups/{group_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/UpdateGroup", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/groups/{group_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -342,7 +410,7 @@ func RegisterIAMGroupAdminServiceHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/DeleteGroup", runtime.WithHTTPPathPattern("/v1/iam/groups/{group_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/DeleteGroup", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/groups/{group_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -362,7 +430,7 @@ func RegisterIAMGroupAdminServiceHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/AssignUserToGroup", runtime.WithHTTPPathPattern("/v1/iam/groups/{group_id}/users/{user_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/AssignUserToGroup", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -382,7 +450,7 @@ func RegisterIAMGroupAdminServiceHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/RemoveUserFromGroup", runtime.WithHTTPPathPattern("/v1/iam/groups/{group_id}/users/{user_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/RemoveUserFromGroup", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -440,7 +508,7 @@ func RegisterIAMGroupAdminServiceHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/CreateGroup", runtime.WithHTTPPathPattern("/v1/iam/groups"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/CreateGroup", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/groups"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -457,7 +525,7 @@ func RegisterIAMGroupAdminServiceHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/UpdateGroup", runtime.WithHTTPPathPattern("/v1/iam/groups/{group_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/UpdateGroup", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/groups/{group_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -474,7 +542,7 @@ func RegisterIAMGroupAdminServiceHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/DeleteGroup", runtime.WithHTTPPathPattern("/v1/iam/groups/{group_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/DeleteGroup", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/groups/{group_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -491,7 +559,7 @@ func RegisterIAMGroupAdminServiceHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/AssignUserToGroup", runtime.WithHTTPPathPattern("/v1/iam/groups/{group_id}/users/{user_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/AssignUserToGroup", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -508,7 +576,7 @@ func RegisterIAMGroupAdminServiceHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/RemoveUserFromGroup", runtime.WithHTTPPathPattern("/v1/iam/groups/{group_id}/users/{user_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMGroupAdminService/RemoveUserFromGroup", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -525,11 +593,11 @@ func RegisterIAMGroupAdminServiceHandlerClient(ctx context.Context, mux *runtime
 }
 
 var (
-	pattern_IAMGroupAdminService_CreateGroup_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "iam", "groups"}, ""))
-	pattern_IAMGroupAdminService_UpdateGroup_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "iam", "groups", "group_id"}, ""))
-	pattern_IAMGroupAdminService_DeleteGroup_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "iam", "groups", "group_id"}, ""))
-	pattern_IAMGroupAdminService_AssignUserToGroup_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "iam", "groups", "group_id", "users", "user_id"}, ""))
-	pattern_IAMGroupAdminService_RemoveUserFromGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "iam", "groups", "group_id", "users", "user_id"}, ""))
+	pattern_IAMGroupAdminService_CreateGroup_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "groups"}, ""))
+	pattern_IAMGroupAdminService_UpdateGroup_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "iam", "orgs", "org_id", "groups", "group_id"}, ""))
+	pattern_IAMGroupAdminService_DeleteGroup_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "iam", "orgs", "org_id", "groups", "group_id"}, ""))
+	pattern_IAMGroupAdminService_AssignUserToGroup_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6, 1, 0, 4, 1, 5, 7}, []string{"v1", "iam", "orgs", "org_id", "groups", "group_id", "users", "user_id"}, ""))
+	pattern_IAMGroupAdminService_RemoveUserFromGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6, 1, 0, 4, 1, 5, 7}, []string{"v1", "iam", "orgs", "org_id", "groups", "group_id", "users", "user_id"}, ""))
 )
 
 var (

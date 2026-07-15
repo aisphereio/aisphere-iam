@@ -585,6 +585,7 @@ func (x *ProjectCapability) GetUpdatedAt() *timestamppb.Timestamp {
 
 type CreateProjectRequest struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
+	OrgId              string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Slug               string                 `protobuf:"bytes,2,opt,name=slug,proto3" json:"slug,omitempty"`
 	DisplayName        string                 `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	Description        string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
@@ -625,6 +626,13 @@ func (x *CreateProjectRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CreateProjectRequest.ProtoReflect.Descriptor instead.
 func (*CreateProjectRequest) Descriptor() ([]byte, []int) {
 	return file_iam_project_v1_project_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CreateProjectRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *CreateProjectRequest) GetSlug() string {
@@ -685,6 +693,7 @@ func (x *CreateProjectRequest) GetEnableCapabilities() []string {
 
 type GetProjectRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -720,6 +729,13 @@ func (*GetProjectRequest) Descriptor() ([]byte, []int) {
 	return file_iam_project_v1_project_proto_rawDescGZIP(), []int{5}
 }
 
+func (x *GetProjectRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
 func (x *GetProjectRequest) GetProjectId() string {
 	if x != nil {
 		return x.ProjectId
@@ -729,6 +745,7 @@ func (x *GetProjectRequest) GetProjectId() string {
 
 type ListProjectsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Query         string                 `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
 	Joined        bool                   `protobuf:"varint,3,opt,name=joined,proto3" json:"joined,omitempty"`
 	Status        LifecycleStatus        `protobuf:"varint,4,opt,name=status,proto3,enum=iam.project.v1.LifecycleStatus" json:"status,omitempty"`
@@ -768,6 +785,13 @@ func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListProjectsRequest.ProtoReflect.Descriptor instead.
 func (*ListProjectsRequest) Descriptor() ([]byte, []int) {
 	return file_iam_project_v1_project_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListProjectsRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *ListProjectsRequest) GetQuery() string {
@@ -881,6 +905,7 @@ func (x *ListProjectsReply) GetTotalSize() int64 {
 
 type UpdateProjectRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	DisplayName   string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
@@ -921,6 +946,13 @@ func (x *UpdateProjectRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpdateProjectRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProjectRequest) Descriptor() ([]byte, []int) {
 	return file_iam_project_v1_project_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateProjectRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *UpdateProjectRequest) GetProjectId() string {
@@ -981,6 +1013,7 @@ func (x *UpdateProjectRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 
 type ArchiveProjectRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	Reason        string                 `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1015,6 +1048,13 @@ func (x *ArchiveProjectRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ArchiveProjectRequest.ProtoReflect.Descriptor instead.
 func (*ArchiveProjectRequest) Descriptor() ([]byte, []int) {
 	return file_iam_project_v1_project_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ArchiveProjectRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *ArchiveProjectRequest) GetProjectId() string {
@@ -1173,6 +1213,7 @@ func (x *ListCapabilitiesReply) GetCapabilities() []*Capability {
 
 type EnableProjectCapabilityRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	CapabilityId  string                 `protobuf:"bytes,2,opt,name=capability_id,json=capabilityId,proto3" json:"capability_id,omitempty"`
 	Config        *structpb.Struct       `protobuf:"bytes,3,opt,name=config,proto3" json:"config,omitempty"`
@@ -1211,6 +1252,13 @@ func (*EnableProjectCapabilityRequest) Descriptor() ([]byte, []int) {
 	return file_iam_project_v1_project_proto_rawDescGZIP(), []int{13}
 }
 
+func (x *EnableProjectCapabilityRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
 func (x *EnableProjectCapabilityRequest) GetProjectId() string {
 	if x != nil {
 		return x.ProjectId
@@ -1241,6 +1289,7 @@ func (x *EnableProjectCapabilityRequest) GetQuota() *structpb.Struct {
 
 type DisableProjectCapabilityRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	CapabilityId  string                 `protobuf:"bytes,2,opt,name=capability_id,json=capabilityId,proto3" json:"capability_id,omitempty"`
 	Reason        string                 `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
@@ -1278,6 +1327,13 @@ func (*DisableProjectCapabilityRequest) Descriptor() ([]byte, []int) {
 	return file_iam_project_v1_project_proto_rawDescGZIP(), []int{14}
 }
 
+func (x *DisableProjectCapabilityRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
 func (x *DisableProjectCapabilityRequest) GetProjectId() string {
 	if x != nil {
 		return x.ProjectId
@@ -1301,6 +1357,7 @@ func (x *DisableProjectCapabilityRequest) GetReason() string {
 
 type ListProjectCapabilitiesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	Enabled       *bool                  `protobuf:"varint,2,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1335,6 +1392,13 @@ func (x *ListProjectCapabilitiesRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListProjectCapabilitiesRequest.ProtoReflect.Descriptor instead.
 func (*ListProjectCapabilitiesRequest) Descriptor() ([]byte, []int) {
 	return file_iam_project_v1_project_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ListProjectCapabilitiesRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *ListProjectCapabilitiesRequest) GetProjectId() string {
@@ -1460,8 +1524,9 @@ const file_iam_project_v1_project_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xe2\x04\n" +
-	"\x14CreateProjectRequest\x12\x1e\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xe3\x04\n" +
+	"\x14CreateProjectRequest\x12\x1a\n" +
+	"\x06org_id\x18\x01 \x01(\tB\x03\xe0A\x03R\x05orgId\x12\x1e\n" +
 	"\x04slug\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04slug\x12&\n" +
 	"\fdisplay_name\x18\x03 \x01(\tB\x03\xe0A\x02R\vdisplayName\x12 \n" +
@@ -1479,12 +1544,13 @@ const file_iam_project_v1_project_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
 	"\x10AnnotationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x01\x10\x02J\x04\b\t\x10\n" +
-	"R\x06org_idR\x05owner\"7\n" +
-	"\x11GetProjectRequest\x12\"\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"S\n" +
+	"\x11GetProjectRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12\"\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tprojectId\"\x8d\x03\n" +
-	"\x13ListProjectsRequest\x12\x14\n" +
+	"project_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tprojectId\"\x9b\x03\n" +
+	"\x13ListProjectsRequest\x12\x1a\n" +
+	"\x06org_id\x18\x01 \x01(\tB\x03\xe0A\x03R\x05orgId\x12\x14\n" +
 	"\x05query\x18\x02 \x01(\tR\x05query\x12\x16\n" +
 	"\x06joined\x18\x03 \x01(\bR\x06joined\x127\n" +
 	"\x06status\x18\x04 \x01(\x0e2\x1f.iam.project.v1.LifecycleStatusR\x06status\x12A\n" +
@@ -1497,13 +1563,14 @@ const file_iam_project_v1_project_proto_rawDesc = "" +
 	"page_token\x18\b \x01(\tR\tpageToken\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x01\x10\x02R\x06org_id\"\x8f\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8f\x01\n" +
 	"\x11ListProjectsReply\x123\n" +
 	"\bprojects\x18\x01 \x03(\v2\x17.iam.project.v1.ProjectR\bprojects\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xd2\x04\n" +
-	"\x14UpdateProjectRequest\x12\"\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xee\x04\n" +
+	"\x14UpdateProjectRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12\"\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tprojectId\x12!\n" +
 	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x12 \n" +
@@ -1521,8 +1588,9 @@ const file_iam_project_v1_project_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
 	"\x10AnnotationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"S\n" +
-	"\x15ArchiveProjectRequest\x12\"\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"o\n" +
+	"\x15ArchiveProjectRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12\"\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tprojectId\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\"\\\n" +
@@ -1534,19 +1602,22 @@ const file_iam_project_v1_project_proto_rawDesc = "" +
 	"\rowner_service\x18\x01 \x01(\tR\fownerService\x127\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x1f.iam.project.v1.LifecycleStatusR\x06status\"W\n" +
 	"\x15ListCapabilitiesReply\x12>\n" +
-	"\fcapabilities\x18\x01 \x03(\v2\x1a.iam.project.v1.CapabilityR\fcapabilities\"\xce\x01\n" +
-	"\x1eEnableProjectCapabilityRequest\x12\"\n" +
+	"\fcapabilities\x18\x01 \x03(\v2\x1a.iam.project.v1.CapabilityR\fcapabilities\"\xea\x01\n" +
+	"\x1eEnableProjectCapabilityRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12\"\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tprojectId\x12(\n" +
 	"\rcapability_id\x18\x02 \x01(\tB\x03\xe0A\x02R\fcapabilityId\x12/\n" +
 	"\x06config\x18\x03 \x01(\v2\x17.google.protobuf.StructR\x06config\x12-\n" +
-	"\x05quota\x18\x04 \x01(\v2\x17.google.protobuf.StructR\x05quota\"\x87\x01\n" +
-	"\x1fDisableProjectCapabilityRequest\x12\"\n" +
+	"\x05quota\x18\x04 \x01(\v2\x17.google.protobuf.StructR\x05quota\"\xa3\x01\n" +
+	"\x1fDisableProjectCapabilityRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12\"\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tprojectId\x12(\n" +
 	"\rcapability_id\x18\x02 \x01(\tB\x03\xe0A\x02R\fcapabilityId\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\"o\n" +
-	"\x1eListProjectCapabilitiesRequest\x12\"\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\"\x8b\x01\n" +
+	"\x1eListProjectCapabilitiesRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12\"\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tprojectId\x12\x1d\n" +
 	"\aenabled\x18\x02 \x01(\bH\x00R\aenabled\x88\x01\x01B\n" +
@@ -1566,29 +1637,29 @@ const file_iam_project_v1_project_proto_rawDesc = "" +
 	"\aPRIVATE\x10\x01\x12\a\n" +
 	"\x03ORG\x10\x02\x12\n" +
 	"\n" +
-	"\x06PUBLIC\x10\x032\xe7\x12\n" +
-	"\x0eProjectService\x12\xcb\x01\n" +
-	"\rCreateProject\x12$.iam.project.v1.CreateProjectRequest\x1a\x17.iam.project.v1.Project\"{\x92\xf4\x18N\b\x03\x12,\n" +
-	"\x0ecreate_project\x12\viam:project\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x12iam.project.create\x1a\x04high\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/iam/control-plane/projects\x12\xcb\x01\n" +
+	"\x06PUBLIC\x10\x032\xa3\x13\n" +
+	"\x0eProjectService\x12\xcd\x01\n" +
+	"\rCreateProject\x12$.iam.project.v1.CreateProjectRequest\x1a\x17.iam.project.v1.Project\"}\x92\xf4\x18P\b\x03\x12.\n" +
+	"\x0ecreate_project\x12\rzone:{org_id}\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x12iam.project.create\x1a\x04high\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/iam/orgs/{org_id}/projects\x12\xd4\x01\n" +
 	"\n" +
-	"GetProject\x12!.iam.project.v1.GetProjectRequest\x1a\x17.iam.project.v1.Project\"\x80\x01\x92\xf4\x18I\b\x03\x12+\n" +
-	"\x04read\x12\x14project:{project_id}\x1a\viam-service \x03\x1a\x18\b\x01\x12\x0fiam.project.get\x1a\x03low\x82\xd3\xe4\x93\x02-\x12+/v1/iam/control-plane/projects/{project_id}\x12\xc4\x01\n" +
-	"\fListProjects\x12#.iam.project.v1.ListProjectsRequest\x1a!.iam.project.v1.ListProjectsReply\"l\x92\xf4\x18B\b\x03\x12 \n" +
-	"\x04list\x12\tproject:*\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x10iam.project.list\x1a\x06medium\x82\xd3\xe4\x93\x02 \x12\x1e/v1/iam/control-plane/projects\x12\xda\x01\n" +
-	"\rUpdateProject\x12$.iam.project.v1.UpdateProjectRequest\x1a\x17.iam.project.v1.Project\"\x89\x01\x92\xf4\x18O\b\x03\x12-\n" +
-	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x12iam.project.update\x1a\x04high\x82\xd3\xe4\x93\x020:\x01*2+/v1/iam/control-plane/projects/{project_id}\x12\xe5\x01\n" +
-	"\x0eArchiveProject\x12%.iam.project.v1.ArchiveProjectRequest\x1a\x17.iam.project.v1.Project\"\x92\x01\x92\xf4\x18P\b\x03\x12-\n" +
-	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x03\x1a\x1d\b\x01\x12\x13iam.project.archive\x1a\x04high\x82\xd3\xe4\x93\x028:\x01*\"3/v1/iam/control-plane/projects/{project_id}/archive\x12\xdc\x01\n" +
+	"GetProject\x12!.iam.project.v1.GetProjectRequest\x1a\x17.iam.project.v1.Project\"\x89\x01\x92\xf4\x18R\b\x03\x124\n" +
+	"\x04read\x12\x1dproject:{org_id}/{project_id}\x1a\viam-service \x03\x1a\x18\b\x01\x12\x0fiam.project.get\x1a\x03low\x82\xd3\xe4\x93\x02-\x12+/v1/iam/orgs/{org_id}/projects/{project_id}\x12\xc8\x01\n" +
+	"\fListProjects\x12#.iam.project.v1.ListProjectsRequest\x1a!.iam.project.v1.ListProjectsReply\"p\x92\xf4\x18F\b\x03\x12$\n" +
+	"\x04list\x12\rzone:{org_id}\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x10iam.project.list\x1a\x06medium\x82\xd3\xe4\x93\x02 \x12\x1e/v1/iam/orgs/{org_id}/projects\x12\xe3\x01\n" +
+	"\rUpdateProject\x12$.iam.project.v1.UpdateProjectRequest\x1a\x17.iam.project.v1.Project\"\x92\x01\x92\xf4\x18X\b\x03\x126\n" +
+	"\x06manage\x12\x1dproject:{org_id}/{project_id}\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x12iam.project.update\x1a\x04high\x82\xd3\xe4\x93\x020:\x01*2+/v1/iam/orgs/{org_id}/projects/{project_id}\x12\xee\x01\n" +
+	"\x0eArchiveProject\x12%.iam.project.v1.ArchiveProjectRequest\x1a\x17.iam.project.v1.Project\"\x9b\x01\x92\xf4\x18Y\b\x03\x126\n" +
+	"\x06manage\x12\x1dproject:{org_id}/{project_id}\x1a\viam-service \x03\x1a\x1d\b\x01\x12\x13iam.project.archive\x1a\x04high\x82\xd3\xe4\x93\x028:\x01*\"3/v1/iam/orgs/{org_id}/projects/{project_id}/archive\x12\xdc\x01\n" +
 	"\x12RegisterCapability\x12).iam.project.v1.RegisterCapabilityRequest\x1a\x1a.iam.project.v1.Capability\"\x7f\x92\xf4\x18N\b\x03\x12'\n" +
 	"\x06manage\x12\x0eiam:capability\x1a\viam-service \x03\x1a!\b\x01\x12\x17iam.capability.register\x1a\x04high\x82\xd3\xe4\x93\x02':\x01*\"\"/v1/iam/control-plane/capabilities\x12\xdc\x01\n" +
 	"\x10ListCapabilities\x12'.iam.project.v1.ListCapabilitiesRequest\x1a%.iam.project.v1.ListCapabilitiesReply\"x\x92\xf4\x18J\b\x03\x12%\n" +
-	"\x04list\x12\x0eiam:capability\x1a\viam-service \x03\x1a\x1f\b\x01\x12\x13iam.capability.list\x1a\x06medium\x82\xd3\xe4\x93\x02$\x12\"/v1/iam/control-plane/capabilities\x12\xa7\x02\n" +
-	"\x17EnableProjectCapability\x12..iam.project.v1.EnableProjectCapabilityRequest\x1a!.iam.project.v1.ProjectCapability\"\xb8\x01\x92\xf4\x18Z\b\x03\x12-\n" +
-	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x03\x1a'\b\x01\x12\x1diam.project_capability.enable\x1a\x04high\x82\xd3\xe4\x93\x02T:\x01*\"O/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable\x12\xab\x02\n" +
-	"\x18DisableProjectCapability\x12/.iam.project.v1.DisableProjectCapabilityRequest\x1a!.iam.project.v1.ProjectCapability\"\xba\x01\x92\xf4\x18[\b\x03\x12-\n" +
-	"\x06manage\x12\x14project:{project_id}\x1a\viam-service \x03\x1a(\b\x01\x12\x1eiam.project_capability.disable\x1a\x04high\x82\xd3\xe4\x93\x02U:\x01*\"P/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable\x12\x96\x02\n" +
-	"\x17ListProjectCapabilities\x12..iam.project.v1.ListProjectCapabilitiesRequest\x1a,.iam.project.v1.ListProjectCapabilitiesReply\"\x9c\x01\x92\xf4\x18X\b\x03\x12+\n" +
-	"\x04read\x12\x14project:{project_id}\x1a\viam-service \x03\x1a'\b\x01\x12\x1biam.project_capability.list\x1a\x06medium\x82\xd3\xe4\x93\x02:\x128/v1/iam/control-plane/projects/{project_id}/capabilitiesBAZ?github.com/aisphereio/aisphere-iam/api/iam/project/v1;projectv1b\x06proto3"
+	"\x04list\x12\x0eiam:capability\x1a\viam-service \x03\x1a\x1f\b\x01\x12\x13iam.capability.list\x1a\x06medium\x82\xd3\xe4\x93\x02$\x12\"/v1/iam/control-plane/capabilities\x12\xb0\x02\n" +
+	"\x17EnableProjectCapability\x12..iam.project.v1.EnableProjectCapabilityRequest\x1a!.iam.project.v1.ProjectCapability\"\xc1\x01\x92\xf4\x18c\b\x03\x126\n" +
+	"\x06manage\x12\x1dproject:{org_id}/{project_id}\x1a\viam-service \x03\x1a'\b\x01\x12\x1diam.project_capability.enable\x1a\x04high\x82\xd3\xe4\x93\x02T:\x01*\"O/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:enable\x12\xb4\x02\n" +
+	"\x18DisableProjectCapability\x12/.iam.project.v1.DisableProjectCapabilityRequest\x1a!.iam.project.v1.ProjectCapability\"\xc3\x01\x92\xf4\x18d\b\x03\x126\n" +
+	"\x06manage\x12\x1dproject:{org_id}/{project_id}\x1a\viam-service \x03\x1a(\b\x01\x12\x1eiam.project_capability.disable\x1a\x04high\x82\xd3\xe4\x93\x02U:\x01*\"P/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:disable\x12\x9f\x02\n" +
+	"\x17ListProjectCapabilities\x12..iam.project.v1.ListProjectCapabilitiesRequest\x1a,.iam.project.v1.ListProjectCapabilitiesReply\"\xa5\x01\x92\xf4\x18a\b\x03\x124\n" +
+	"\x04read\x12\x1dproject:{org_id}/{project_id}\x1a\viam-service \x03\x1a'\b\x01\x12\x1biam.project_capability.list\x1a\x06medium\x82\xd3\xe4\x93\x02:\x128/v1/iam/orgs/{org_id}/projects/{project_id}/capabilitiesBAZ?github.com/aisphereio/aisphere-iam/api/iam/project/v1;projectv1b\x06proto3"
 
 var (
 	file_iam_project_v1_project_proto_rawDescOnce sync.Once

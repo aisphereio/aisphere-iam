@@ -12,97 +12,97 @@ import (
 )
 
 func (s *ProjectService) GetProject(ctx context.Context, req *projectv1.GetProjectRequest) (*projectv1.Project, error) {
-	zoneID, _, err := currentProjectContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	project, err := s.biz.GetProject(ctx, req.GetProjectId(), zoneID)
-	if err != nil {
-		return nil, err
-	}
-	return projectModelToProto(project), nil
-}
-
-func (s *ProjectService) UpdateProject(ctx context.Context, req *projectv1.UpdateProjectRequest) (*projectv1.Project, error) {
-	zoneID, _, err := currentProjectContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	update, err := projectUpdateFromProto(req, zoneID)
-	if err != nil {
-		return nil, err
-	}
-	project, err := s.biz.UpdateProject(ctx, update)
-	if err != nil {
-		return nil, err
-	}
-	return projectModelToProto(project), nil
-}
-
-func (s *ProjectService) ArchiveProject(ctx context.Context, req *projectv1.ArchiveProjectRequest) (*projectv1.Project, error) {
-	zoneID, _, err := currentProjectContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	project, err := s.biz.ArchiveProject(ctx, projectbiz.ArchiveProjectRequest{
-		ID: req.GetProjectId(), ZoneID: zoneID, Reason: strings.TrimSpace(req.GetReason()),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return projectModelToProto(project), nil
-}
-
-func (s *ProjectService) EnableProjectCapability(ctx context.Context, req *projectv1.EnableProjectCapabilityRequest) (*projectv1.ProjectCapability, error) {
-	zoneID, _, err := currentProjectContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	capability, err := s.biz.SetProjectCapability(ctx, projectbiz.SetProjectCapabilityRequest{
-		ZoneID: zoneID, ProjectID: req.GetProjectId(), CapabilityID: req.GetCapabilityId(), Enabled: true,
-		ConfigJSON: structToJSON(req.GetConfig(), "{}"), QuotaJSON: structToJSON(req.GetQuota(), "{}"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return projectCapabilityModelToProto(capability), nil
-}
-
-func (s *ProjectService) DisableProjectCapability(ctx context.Context, req *projectv1.DisableProjectCapabilityRequest) (*projectv1.ProjectCapability, error) {
-	zoneID, _, err := currentProjectContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	capability, err := s.biz.SetProjectCapability(ctx, projectbiz.SetProjectCapabilityRequest{
-		ZoneID: zoneID, ProjectID: req.GetProjectId(), CapabilityID: req.GetCapabilityId(), Enabled: false,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return projectCapabilityModelToProto(capability), nil
-}
-
-func (s *ProjectService) ListProjectCapabilities(ctx context.Context, req *projectv1.ListProjectCapabilitiesRequest) (*projectv1.ListProjectCapabilitiesReply, error) {
-	zoneID, _, err := currentProjectContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := s.biz.GetProject(ctx, req.GetProjectId(), zoneID); err != nil {
-		return nil, err
-	}
-	items, err := s.repo.ListProjectCapabilities(ctx, req.GetProjectId())
-	if err != nil {
-		return nil, err
-	}
-	out := make([]*projectv1.ProjectCapability, 0, len(items))
-	for i := range items {
-		if req.Enabled != nil && items[i].Enabled != req.GetEnabled() {
-			continue
+		zoneID, _, err := currentProjectContext(ctx, req.GetOrgId())
+		if err != nil {
+			return nil, err
 		}
-		out = append(out, projectCapabilityModelToProto(&items[i]))
+		project, err := s.biz.GetProject(ctx, req.GetProjectId(), zoneID)
+		if err != nil {
+			return nil, err
+		}
+		return projectModelToProto(project), nil
 	}
-	return &projectv1.ListProjectCapabilitiesReply{Capabilities: out}, nil
-}
+
+	func (s *ProjectService) UpdateProject(ctx context.Context, req *projectv1.UpdateProjectRequest) (*projectv1.Project, error) {
+		zoneID, _, err := currentProjectContext(ctx, req.GetOrgId())
+		if err != nil {
+			return nil, err
+		}
+		update, err := projectUpdateFromProto(req, zoneID)
+		if err != nil {
+			return nil, err
+		}
+		project, err := s.biz.UpdateProject(ctx, update)
+		if err != nil {
+			return nil, err
+		}
+		return projectModelToProto(project), nil
+	}
+
+	func (s *ProjectService) ArchiveProject(ctx context.Context, req *projectv1.ArchiveProjectRequest) (*projectv1.Project, error) {
+		zoneID, _, err := currentProjectContext(ctx, req.GetOrgId())
+		if err != nil {
+			return nil, err
+		}
+		project, err := s.biz.ArchiveProject(ctx, projectbiz.ArchiveProjectRequest{
+			ID: req.GetProjectId(), ZoneID: zoneID, Reason: strings.TrimSpace(req.GetReason()),
+		})
+		if err != nil {
+			return nil, err
+		}
+		return projectModelToProto(project), nil
+	}
+
+	func (s *ProjectService) EnableProjectCapability(ctx context.Context, req *projectv1.EnableProjectCapabilityRequest) (*projectv1.ProjectCapability, error) {
+		zoneID, _, err := currentProjectContext(ctx, req.GetOrgId())
+		if err != nil {
+			return nil, err
+		}
+		capability, err := s.biz.SetProjectCapability(ctx, projectbiz.SetProjectCapabilityRequest{
+			ZoneID: zoneID, ProjectID: req.GetProjectId(), CapabilityID: req.GetCapabilityId(), Enabled: true,
+			ConfigJSON: structToJSON(req.GetConfig(), "{}"), QuotaJSON: structToJSON(req.GetQuota(), "{}"),
+		})
+		if err != nil {
+			return nil, err
+		}
+		return projectCapabilityModelToProto(capability), nil
+	}
+
+	func (s *ProjectService) DisableProjectCapability(ctx context.Context, req *projectv1.DisableProjectCapabilityRequest) (*projectv1.ProjectCapability, error) {
+		zoneID, _, err := currentProjectContext(ctx, req.GetOrgId())
+		if err != nil {
+			return nil, err
+		}
+		capability, err := s.biz.SetProjectCapability(ctx, projectbiz.SetProjectCapabilityRequest{
+			ZoneID: zoneID, ProjectID: req.GetProjectId(), CapabilityID: req.GetCapabilityId(), Enabled: false,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return projectCapabilityModelToProto(capability), nil
+	}
+
+	func (s *ProjectService) ListProjectCapabilities(ctx context.Context, req *projectv1.ListProjectCapabilitiesRequest) (*projectv1.ListProjectCapabilitiesReply, error) {
+		zoneID, _, err := currentProjectContext(ctx, req.GetOrgId())
+		if err != nil {
+			return nil, err
+		}
+		if _, err := s.biz.GetProject(ctx, req.GetProjectId(), zoneID); err != nil {
+			return nil, err
+		}
+		items, err := s.repo.ListProjectCapabilities(ctx, req.GetProjectId())
+		if err != nil {
+			return nil, err
+		}
+		out := make([]*projectv1.ProjectCapability, 0, len(items))
+		for i := range items {
+			if req.Enabled != nil && items[i].Enabled != req.GetEnabled() {
+				continue
+			}
+			out = append(out, projectCapabilityModelToProto(&items[i]))
+		}
+		return &projectv1.ListProjectCapabilitiesReply{Capabilities: out}, nil
+	}
 
 func projectUpdateFromProto(req *projectv1.UpdateProjectRequest, zoneID string) (projectbiz.UpdateProjectRequest, error) {
 	out := projectbiz.UpdateProjectRequest{ID: req.GetProjectId(), ZoneID: zoneID}

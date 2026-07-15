@@ -44,15 +44,15 @@ type ProjectServiceHTTPServer interface {
 func RegisterProjectServiceHTTPServer(s *http.Server, srv ProjectServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/v1/iam/control-plane/capabilities", _ProjectService_ListCapabilities0_HTTP_Handler(srv))
-	r.Handle("GET", "/v1/iam/control-plane/projects", _ProjectService_ListProjects0_HTTP_Handler(srv))
-	r.Handle("GET", "/v1/iam/control-plane/projects/{project_id}/capabilities", _ProjectService_ListProjectCapabilities0_HTTP_Handler(srv))
-	r.Handle("GET", "/v1/iam/control-plane/projects/{project_id}", _ProjectService_GetProject0_HTTP_Handler(srv))
-	r.Handle("PATCH", "/v1/iam/control-plane/projects/{project_id}", _ProjectService_UpdateProject0_HTTP_Handler(srv))
+	r.Handle("GET", "/v1/iam/orgs/{org_id}/projects", _ProjectService_ListProjects0_HTTP_Handler(srv))
+	r.Handle("GET", "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities", _ProjectService_ListProjectCapabilities0_HTTP_Handler(srv))
+	r.Handle("GET", "/v1/iam/orgs/{org_id}/projects/{project_id}", _ProjectService_GetProject0_HTTP_Handler(srv))
+	r.Handle("PATCH", "/v1/iam/orgs/{org_id}/projects/{project_id}", _ProjectService_UpdateProject0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/capabilities", _ProjectService_RegisterCapability0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/projects", _ProjectService_CreateProject0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/projects/{project_id}/archive", _ProjectService_ArchiveProject0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable", _ProjectService_DisableProjectCapability0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable", _ProjectService_EnableProjectCapability0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/projects", _ProjectService_CreateProject0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/projects/{project_id}/archive", _ProjectService_ArchiveProject0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:disable", _ProjectService_DisableProjectCapability0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:enable", _ProjectService_EnableProjectCapability0_HTTP_Handler(srv))
 }
 
 func _ProjectService_ListCapabilities0_HTTP_Handler(srv ProjectServiceHTTPServer) func(ctx http.Context) error {
@@ -81,6 +81,9 @@ func _ProjectService_ListProjects0_HTTP_Handler(srv ProjectServiceHTTPServer) fu
 	return func(ctx http.Context) error {
 		var in ListProjectsRequest
 		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		if err := http.ValidateRequest(ctx, &in); err != nil {
@@ -202,6 +205,9 @@ func _ProjectService_CreateProject0_HTTP_Handler(srv ProjectServiceHTTPServer) f
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
 		if err := http.ValidateRequest(ctx, &in); err != nil {
 			return err
 		}
@@ -316,7 +322,7 @@ func NewProjectServiceHTTPClient(client *http.Client) ProjectServiceHTTPClient {
 
 func (c *ProjectServiceHTTPClientImpl) ArchiveProject(ctx context.Context, in *ArchiveProjectRequest, opts ...http.CallOption) (*Project, error) {
 	var out Project
-	pattern := "/v1/iam/control-plane/projects/{project_id}/archive"
+	pattern := "/v1/iam/orgs/{org_id}/projects/{project_id}/archive"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -333,7 +339,7 @@ func (c *ProjectServiceHTTPClientImpl) ArchiveProject(ctx context.Context, in *A
 
 func (c *ProjectServiceHTTPClientImpl) CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...http.CallOption) (*Project, error) {
 	var out Project
-	pattern := "/v1/iam/control-plane/projects"
+	pattern := "/v1/iam/orgs/{org_id}/projects"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -350,7 +356,7 @@ func (c *ProjectServiceHTTPClientImpl) CreateProject(ctx context.Context, in *Cr
 
 func (c *ProjectServiceHTTPClientImpl) DisableProjectCapability(ctx context.Context, in *DisableProjectCapabilityRequest, opts ...http.CallOption) (*ProjectCapability, error) {
 	var out ProjectCapability
-	pattern := "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable"
+	pattern := "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:disable"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -367,7 +373,7 @@ func (c *ProjectServiceHTTPClientImpl) DisableProjectCapability(ctx context.Cont
 
 func (c *ProjectServiceHTTPClientImpl) EnableProjectCapability(ctx context.Context, in *EnableProjectCapabilityRequest, opts ...http.CallOption) (*ProjectCapability, error) {
 	var out ProjectCapability
-	pattern := "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable"
+	pattern := "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:enable"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -384,7 +390,7 @@ func (c *ProjectServiceHTTPClientImpl) EnableProjectCapability(ctx context.Conte
 
 func (c *ProjectServiceHTTPClientImpl) GetProject(ctx context.Context, in *GetProjectRequest, opts ...http.CallOption) (*Project, error) {
 	var out Project
-	pattern := "/v1/iam/control-plane/projects/{project_id}"
+	pattern := "/v1/iam/orgs/{org_id}/projects/{project_id}"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -416,7 +422,7 @@ func (c *ProjectServiceHTTPClientImpl) ListCapabilities(ctx context.Context, in 
 
 func (c *ProjectServiceHTTPClientImpl) ListProjectCapabilities(ctx context.Context, in *ListProjectCapabilitiesRequest, opts ...http.CallOption) (*ListProjectCapabilitiesReply, error) {
 	var out ListProjectCapabilitiesReply
-	pattern := "/v1/iam/control-plane/projects/{project_id}/capabilities"
+	pattern := "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -432,7 +438,7 @@ func (c *ProjectServiceHTTPClientImpl) ListProjectCapabilities(ctx context.Conte
 
 func (c *ProjectServiceHTTPClientImpl) ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...http.CallOption) (*ListProjectsReply, error) {
 	var out ListProjectsReply
-	pattern := "/v1/iam/control-plane/projects"
+	pattern := "/v1/iam/orgs/{org_id}/projects"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -465,7 +471,7 @@ func (c *ProjectServiceHTTPClientImpl) RegisterCapability(ctx context.Context, i
 
 func (c *ProjectServiceHTTPClientImpl) UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...http.CallOption) (*Project, error) {
 	var out Project
-	pattern := "/v1/iam/control-plane/projects/{project_id}"
+	pattern := "/v1/iam/orgs/{org_id}/projects/{project_id}"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),

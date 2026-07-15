@@ -39,12 +39,21 @@ func request_ProjectService_CreateProject_0(ctx context.Context, marshaler runti
 	var (
 		protoReq CreateProjectRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := client.CreateProject(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -54,9 +63,18 @@ func local_request_ProjectService_CreateProject_0(ctx context.Context, marshaler
 	var (
 		protoReq CreateProjectRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := server.CreateProject(ctx, &protoReq)
 	return msg, metadata, err
@@ -71,7 +89,15 @@ func request_ProjectService_GetProject_0(ctx context.Context, marshaler runtime.
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -89,7 +115,15 @@ func local_request_ProjectService_GetProject_0(ctx context.Context, marshaler ru
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -101,15 +135,24 @@ func local_request_ProjectService_GetProject_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
-var filter_ProjectService_ListProjects_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_ProjectService_ListProjects_0 = &utilities.DoubleArray{Encoding: map[string]int{"org_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_ProjectService_ListProjects_0(ctx context.Context, marshaler runtime.Marshaler, client ProjectServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListProjectsRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -125,7 +168,16 @@ func local_request_ProjectService_ListProjects_0(ctx context.Context, marshaler 
 	var (
 		protoReq ListProjectsRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -148,7 +200,15 @@ func request_ProjectService_UpdateProject_0(ctx context.Context, marshaler runti
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -169,7 +229,15 @@ func local_request_ProjectService_UpdateProject_0(ctx context.Context, marshaler
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -193,7 +261,15 @@ func request_ProjectService_ArchiveProject_0(ctx context.Context, marshaler runt
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -214,7 +290,15 @@ func local_request_ProjectService_ArchiveProject_0(ctx context.Context, marshale
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -300,7 +384,15 @@ func request_ProjectService_EnableProjectCapability_0(ctx context.Context, marsh
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -329,7 +421,15 @@ func local_request_ProjectService_EnableProjectCapability_0(ctx context.Context,
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -361,7 +461,15 @@ func request_ProjectService_DisableProjectCapability_0(ctx context.Context, mars
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -390,7 +498,15 @@ func local_request_ProjectService_DisableProjectCapability_0(ctx context.Context
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -410,7 +526,7 @@ func local_request_ProjectService_DisableProjectCapability_0(ctx context.Context
 	return msg, metadata, err
 }
 
-var filter_ProjectService_ListProjectCapabilities_0 = &utilities.DoubleArray{Encoding: map[string]int{"project_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var filter_ProjectService_ListProjectCapabilities_0 = &utilities.DoubleArray{Encoding: map[string]int{"org_id": 0, "project_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
 
 func request_ProjectService_ListProjectCapabilities_0(ctx context.Context, marshaler runtime.Marshaler, client ProjectServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -421,7 +537,15 @@ func request_ProjectService_ListProjectCapabilities_0(ctx context.Context, marsh
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -445,7 +569,15 @@ func local_request_ProjectService_ListProjectCapabilities_0(ctx context.Context,
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["project_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["project_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project_id")
 	}
@@ -475,7 +607,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/CreateProject", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/CreateProject", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -495,7 +627,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/GetProject", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/GetProject", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -515,7 +647,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/ListProjects", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/ListProjects", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -535,7 +667,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/UpdateProject", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/UpdateProject", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -555,7 +687,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/ArchiveProject", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}/archive"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/ArchiveProject", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}/archive"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -615,7 +747,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/EnableProjectCapability", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/EnableProjectCapability", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:enable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -635,7 +767,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/DisableProjectCapability", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/DisableProjectCapability", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:disable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -655,7 +787,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/ListProjectCapabilities", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}/capabilities"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.project.v1.ProjectService/ListProjectCapabilities", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -713,7 +845,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/CreateProject", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/CreateProject", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -730,7 +862,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/GetProject", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/GetProject", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -747,7 +879,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/ListProjects", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/ListProjects", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -764,7 +896,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/UpdateProject", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/UpdateProject", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -781,7 +913,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/ArchiveProject", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}/archive"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/ArchiveProject", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}/archive"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -832,7 +964,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/EnableProjectCapability", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/EnableProjectCapability", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:enable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -849,7 +981,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/DisableProjectCapability", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/DisableProjectCapability", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:disable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -866,7 +998,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/ListProjectCapabilities", runtime.WithHTTPPathPattern("/v1/iam/control-plane/projects/{project_id}/capabilities"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.project.v1.ProjectService/ListProjectCapabilities", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -883,16 +1015,16 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 }
 
 var (
-	pattern_ProjectService_CreateProject_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "projects"}, ""))
-	pattern_ProjectService_GetProject_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "iam", "control-plane", "projects", "project_id"}, ""))
-	pattern_ProjectService_ListProjects_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "projects"}, ""))
-	pattern_ProjectService_UpdateProject_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "iam", "control-plane", "projects", "project_id"}, ""))
-	pattern_ProjectService_ArchiveProject_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"v1", "iam", "control-plane", "projects", "project_id", "archive"}, ""))
+	pattern_ProjectService_CreateProject_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "projects"}, ""))
+	pattern_ProjectService_GetProject_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "iam", "orgs", "org_id", "projects", "project_id"}, ""))
+	pattern_ProjectService_ListProjects_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "projects"}, ""))
+	pattern_ProjectService_UpdateProject_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "iam", "orgs", "org_id", "projects", "project_id"}, ""))
+	pattern_ProjectService_ArchiveProject_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"v1", "iam", "orgs", "org_id", "projects", "project_id", "archive"}, ""))
 	pattern_ProjectService_RegisterCapability_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "capabilities"}, ""))
 	pattern_ProjectService_ListCapabilities_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "capabilities"}, ""))
-	pattern_ProjectService_EnableProjectCapability_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5, 1, 0, 4, 1, 5, 6}, []string{"v1", "iam", "control-plane", "projects", "project_id", "capabilities", "capability_id"}, "enable"))
-	pattern_ProjectService_DisableProjectCapability_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5, 1, 0, 4, 1, 5, 6}, []string{"v1", "iam", "control-plane", "projects", "project_id", "capabilities", "capability_id"}, "disable"))
-	pattern_ProjectService_ListProjectCapabilities_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"v1", "iam", "control-plane", "projects", "project_id", "capabilities"}, ""))
+	pattern_ProjectService_EnableProjectCapability_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6, 1, 0, 4, 1, 5, 7}, []string{"v1", "iam", "orgs", "org_id", "projects", "project_id", "capabilities", "capability_id"}, "enable"))
+	pattern_ProjectService_DisableProjectCapability_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6, 1, 0, 4, 1, 5, 7}, []string{"v1", "iam", "orgs", "org_id", "projects", "project_id", "capabilities", "capability_id"}, "disable"))
+	pattern_ProjectService_ListProjectCapabilities_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"v1", "iam", "orgs", "org_id", "projects", "project_id", "capabilities"}, ""))
 )
 
 var (

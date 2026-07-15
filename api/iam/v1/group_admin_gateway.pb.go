@@ -18,35 +18,35 @@ func IAMGroupAdminServiceGatewayManifest() gatewayx.Manifest {
 			{
 				ID:       "i.a.m.group.admin.create.group",
 				Method:   "POST",
-				Path:     "/v1/iam/groups",
+				Path:     "/v1/iam/orgs/{org_id}/groups",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMGroupAdminService/CreateGroup"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "i.a.m.group.admin.update.group",
 				Method:   "PATCH",
-				Path:     "/v1/iam/groups/{group_id}",
+				Path:     "/v1/iam/orgs/{org_id}/groups/{group_id}",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMGroupAdminService/UpdateGroup"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "i.a.m.group.admin.delete.group",
 				Method:   "DELETE",
-				Path:     "/v1/iam/groups/{group_id}",
+				Path:     "/v1/iam/orgs/{org_id}/groups/{group_id}",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMGroupAdminService/DeleteGroup"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "i.a.m.group.admin.assign.user.to.group",
 				Method:   "POST",
-				Path:     "/v1/iam/groups/{group_id}/users/{user_id}",
+				Path:     "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMGroupAdminService/AssignUserToGroup"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "i.a.m.group.admin.remove.user.from.group",
 				Method:   "DELETE",
-				Path:     "/v1/iam/groups/{group_id}/users/{user_id}",
+				Path:     "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMGroupAdminService/RemoveUserFromGroup"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
@@ -62,6 +62,9 @@ func IAMGroupAdminServiceGatewayBindCreateGroup(req gatewayx.DispatchRequest, ma
 	if v, ok := req.Body.(CreateGroupRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	return out, nil
 }
 
@@ -72,6 +75,9 @@ func IAMGroupAdminServiceGatewayBindUpdateGroup(req gatewayx.DispatchRequest, ma
 	}
 	if v, ok := req.Body.(UpdateGroupRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["group_id"]; v != "" {
 		out.GroupId = v
@@ -87,6 +93,9 @@ func IAMGroupAdminServiceGatewayBindDeleteGroup(req gatewayx.DispatchRequest, ma
 	if v, ok := req.Body.(DeleteGroupRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	if v := match.Params["group_id"]; v != "" {
 		out.GroupId = v
 	}
@@ -100,6 +109,9 @@ func IAMGroupAdminServiceGatewayBindAssignUserToGroup(req gatewayx.DispatchReque
 	}
 	if v, ok := req.Body.(AssignUserToGroupRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["group_id"]; v != "" {
 		out.GroupId = v
@@ -117,6 +129,9 @@ func IAMGroupAdminServiceGatewayBindRemoveUserFromGroup(req gatewayx.DispatchReq
 	}
 	if v, ok := req.Body.(RemoveUserFromGroupRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["group_id"]; v != "" {
 		out.GroupId = v

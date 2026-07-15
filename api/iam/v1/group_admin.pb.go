@@ -27,18 +27,18 @@ var File_iam_v1_group_admin_proto protoreflect.FileDescriptor
 
 const file_iam_v1_group_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x18iam/v1/group_admin.proto\x12\x06iam.v1\x1a\x1faisphere/access/v1/access.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x10iam/v1/iam.proto2\xd6\a\n" +
-	"\x14IAMGroupAdminService\x12\xa4\x01\n" +
-	"\vCreateGroup\x12\x1a.iam.v1.CreateGroupRequest\x1a\r.iam.v1.Group\"j\x92\xf4\x18M\b\x03\x12-\n" +
-	"\rcreate_groups\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.group.create\x1a\x04high\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/iam/groups\x12\xab\x01\n" +
-	"\vUpdateGroup\x12\x1a.iam.v1.UpdateGroupRequest\x1a\r.iam.v1.Group\"q\x92\xf4\x18I\b\x03\x12)\n" +
-	"\x06manage\x12\x10group:{group_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.group.update\x1a\x04high\x82\xd3\xe4\x93\x02\x1e:\x01*2\x19/v1/iam/groups/{group_id}\x12\xb5\x01\n" +
-	"\vDeleteGroup\x12\x1a.iam.v1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"r\x92\xf4\x18M\b\x03\x12)\n" +
-	"\x06manage\x12\x10group:{group_id}\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x10iam.group.delete\x1a\bcritical\x82\xd3\xe4\x93\x02\x1b*\x19/v1/iam/groups/{group_id}\x12\xd6\x01\n" +
-	"\x11AssignUserToGroup\x12 .iam.v1.AssignUserToGroupRequest\x1a\x16.google.protobuf.Empty\"\x86\x01\x92\xf4\x18N\b\x03\x12)\n" +
-	"\x06manage\x12\x10group:{group_id}\x1a\viam-service \x01\x1a\x1f\b\x01\x12\x15iam.group.user.assign\x1a\x04high\x82\xd3\xe4\x93\x02.:\x01*\")/v1/iam/groups/{group_id}/users/{user_id}\x12\xd7\x01\n" +
-	"\x13RemoveUserFromGroup\x12\".iam.v1.RemoveUserFromGroupRequest\x1a\x16.google.protobuf.Empty\"\x83\x01\x92\xf4\x18N\b\x03\x12)\n" +
-	"\x06manage\x12\x10group:{group_id}\x1a\viam-service \x01\x1a\x1f\b\x01\x12\x15iam.group.user.remove\x1a\x04high\x82\xd3\xe4\x93\x02+*)/v1/iam/groups/{group_id}/users/{user_id}B2Z0github.com/aisphereio/aisphere-iam/api/iam/v1;v1b\x06proto3"
+	"\x18iam/v1/group_admin.proto\x12\x06iam.v1\x1a\x1faisphere/access/v1/access.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x10iam/v1/iam.proto2\xc2\b\n" +
+	"\x14IAMGroupAdminService\x12\xb2\x01\n" +
+	"\vCreateGroup\x12\x1a.iam.v1.CreateGroupRequest\x1a\r.iam.v1.Group\"x\x92\xf4\x18M\b\x03\x12-\n" +
+	"\rcreate_groups\x12\rzone:{org_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.group.create\x1a\x04high\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/orgs/{org_id}/groups\x12\xc3\x01\n" +
+	"\vUpdateGroup\x12\x1a.iam.v1.UpdateGroupRequest\x1a\r.iam.v1.Group\"\x88\x01\x92\xf4\x18R\b\x03\x122\n" +
+	"\x06manage\x12\x19group:{org_id}/{group_id}\x1a\viam-service \x01\x1a\x1a\b\x01\x12\x10iam.group.update\x1a\x04high\x82\xd3\xe4\x93\x02,:\x01*2'/v1/iam/orgs/{org_id}/groups/{group_id}\x12\xcd\x01\n" +
+	"\vDeleteGroup\x12\x1a.iam.v1.DeleteGroupRequest\x1a\x16.google.protobuf.Empty\"\x89\x01\x92\xf4\x18V\b\x03\x122\n" +
+	"\x06manage\x12\x19group:{org_id}/{group_id}\x1a\viam-service \x01\x1a\x1e\b\x01\x12\x10iam.group.delete\x1a\bcritical\x82\xd3\xe4\x93\x02)*'/v1/iam/orgs/{org_id}/groups/{group_id}\x12\xed\x01\n" +
+	"\x11AssignUserToGroup\x12 .iam.v1.AssignUserToGroupRequest\x1a\x16.google.protobuf.Empty\"\x9d\x01\x92\xf4\x18W\b\x03\x122\n" +
+	"\x06manage\x12\x19group:{org_id}/{group_id}\x1a\viam-service \x01\x1a\x1f\b\x01\x12\x15iam.group.user.assign\x1a\x04high\x82\xd3\xe4\x93\x02<:\x01*\"7/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}\x12\xee\x01\n" +
+	"\x13RemoveUserFromGroup\x12\".iam.v1.RemoveUserFromGroupRequest\x1a\x16.google.protobuf.Empty\"\x9a\x01\x92\xf4\x18W\b\x03\x122\n" +
+	"\x06manage\x12\x19group:{org_id}/{group_id}\x1a\viam-service \x01\x1a\x1f\b\x01\x12\x15iam.group.user.remove\x1a\x04high\x82\xd3\xe4\x93\x029*7/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}B2Z0github.com/aisphereio/aisphere-iam/api/iam/v1;v1b\x06proto3"
 
 var file_iam_v1_group_admin_proto_goTypes = []any{
 	(*CreateGroupRequest)(nil),         // 0: iam.v1.CreateGroupRequest

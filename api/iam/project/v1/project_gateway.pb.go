@@ -18,35 +18,35 @@ func ProjectServiceGatewayManifest() gatewayx.Manifest {
 			{
 				ID:       "project.create.project",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/projects",
+				Path:     "/v1/iam/orgs/{org_id}/projects",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.project.v1.ProjectService/CreateProject"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "project.get.project",
 				Method:   "GET",
-				Path:     "/v1/iam/control-plane/projects/{project_id}",
+				Path:     "/v1/iam/orgs/{org_id}/projects/{project_id}",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.project.v1.ProjectService/GetProject"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "project.list.projects",
 				Method:   "GET",
-				Path:     "/v1/iam/control-plane/projects",
+				Path:     "/v1/iam/orgs/{org_id}/projects",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.project.v1.ProjectService/ListProjects"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "project.update.project",
 				Method:   "PATCH",
-				Path:     "/v1/iam/control-plane/projects/{project_id}",
+				Path:     "/v1/iam/orgs/{org_id}/projects/{project_id}",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.project.v1.ProjectService/UpdateProject"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "project.archive.project",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/projects/{project_id}/archive",
+				Path:     "/v1/iam/orgs/{org_id}/projects/{project_id}/archive",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.project.v1.ProjectService/ArchiveProject"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
@@ -67,21 +67,21 @@ func ProjectServiceGatewayManifest() gatewayx.Manifest {
 			{
 				ID:       "project.enable.project.capability",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:enable",
+				Path:     "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:enable",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.project.v1.ProjectService/EnableProjectCapability"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "project.disable.project.capability",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/projects/{project_id}/capabilities/{capability_id}:disable",
+				Path:     "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities/{capability_id}:disable",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.project.v1.ProjectService/DisableProjectCapability"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "project.list.project.capabilities",
 				Method:   "GET",
-				Path:     "/v1/iam/control-plane/projects/{project_id}/capabilities",
+				Path:     "/v1/iam/orgs/{org_id}/projects/{project_id}/capabilities",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.project.v1.ProjectService/ListProjectCapabilities"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
@@ -97,6 +97,9 @@ func ProjectServiceGatewayBindCreateProject(req gatewayx.DispatchRequest, match 
 	if v, ok := req.Body.(CreateProjectRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	return out, nil
 }
 
@@ -107,6 +110,9 @@ func ProjectServiceGatewayBindGetProject(req gatewayx.DispatchRequest, match gat
 	}
 	if v, ok := req.Body.(GetProjectRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["project_id"]; v != "" {
 		out.ProjectId = v
@@ -122,6 +128,9 @@ func ProjectServiceGatewayBindListProjects(req gatewayx.DispatchRequest, match g
 	if v, ok := req.Body.(ListProjectsRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	return out, nil
 }
 
@@ -132,6 +141,9 @@ func ProjectServiceGatewayBindUpdateProject(req gatewayx.DispatchRequest, match 
 	}
 	if v, ok := req.Body.(UpdateProjectRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["project_id"]; v != "" {
 		out.ProjectId = v
@@ -146,6 +158,9 @@ func ProjectServiceGatewayBindArchiveProject(req gatewayx.DispatchRequest, match
 	}
 	if v, ok := req.Body.(ArchiveProjectRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["project_id"]; v != "" {
 		out.ProjectId = v
@@ -183,6 +198,9 @@ func ProjectServiceGatewayBindEnableProjectCapability(req gatewayx.DispatchReque
 	if v, ok := req.Body.(EnableProjectCapabilityRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	if v := match.Params["project_id"]; v != "" {
 		out.ProjectId = v
 	}
@@ -200,6 +218,9 @@ func ProjectServiceGatewayBindDisableProjectCapability(req gatewayx.DispatchRequ
 	if v, ok := req.Body.(DisableProjectCapabilityRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	if v := match.Params["project_id"]; v != "" {
 		out.ProjectId = v
 	}
@@ -216,6 +237,9 @@ func ProjectServiceGatewayBindListProjectCapabilities(req gatewayx.DispatchReque
 	}
 	if v, ok := req.Body.(ListProjectCapabilitiesRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["project_id"]; v != "" {
 		out.ProjectId = v
