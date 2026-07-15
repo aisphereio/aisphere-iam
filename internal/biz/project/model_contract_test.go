@@ -97,16 +97,17 @@ func TestLegacyOrganizationSurfaceRemoved(t *testing.T) {
 		}
 	}
 
-	proto := files["project proto"]
-	for _, token := range []string{
-		`post: "/v1/iam/control-plane/projects"`,
-		`reserved "org_id", "owner"`,
-		"string org_id = 2;",
-	} {
-		if !strings.Contains(proto, token) {
-			t.Fatalf("project proto is missing Principal-scoped contract %q", token)
+proto := files["project proto"]
+		for _, token := range []string{
+			`post: "/v1/iam/orgs/{org_id}/projects"`,
+			`string org_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY]`,
+			`resource: "zone:{org_id}"`,
+			`resource: "project:{org_id}/{project_id}"`,
+		} {
+			if !strings.Contains(proto, token) {
+				t.Fatalf("project proto is missing org-scoped contract %q", token)
+			}
 		}
-	}
 
 	transport := files["project transport"]
 	for _, token := range []string{"ZoneID: orgID", "CreatedBy: actor, Owner: actor", "OrgID: orgID"} {
