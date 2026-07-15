@@ -405,7 +405,19 @@ func (s *GrantService) ListGrants(ctx context.Context, req *grantv1.ListGrantsRe
 		if err != nil {
 			return nil, err
 		}
-		page, err := s.repo.ListGrants(ctx, data.ListOptions{OrgID: orgID, ResourceType: res.GetType(), ResourceID: res.GetId(), SubjectType: sub.GetType(), SubjectID: sub.GetId(), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
+		page, err := s.repo.ListGrants(ctx, data.ListOptions{
+			OrgID:        orgID,
+			ResourceType: res.GetType(),
+			ResourceID:   res.GetId(),
+			SubjectType:  sub.GetType(),
+			SubjectID:    sub.GetId(),
+			Relation:     req.GetRelation(),
+			RoleKey:      req.GetRoleKey(),
+			Source:       req.GetSource(),
+			Active:       req.Active,
+			Page:         pageFromToken(req.GetPageToken()),
+			Size:         int(req.GetPageSize()),
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -424,7 +436,17 @@ func (s *GrantService) ExplainAccess(ctx context.Context, req *grantv1.ExplainAc
 		if err != nil {
 			return nil, err
 		}
-		return &grantv1.ExplainAccessReply{Allowed: reply.Allowed, Effect: reply.Effect, Reason: reply.Reason, ConsistencyToken: reply.ConsistencyToken}, nil
+		steps := make([]*grantv1.ExplainStep, 0, len(reply.Steps))
+		for _, step := range reply.Steps {
+			steps = append(steps, &grantv1.ExplainStep{
+				Source:   step.Source,
+				Relation: step.Relation,
+				Resource: &resourcev1.ResourceRef{Type: step.Resource.Type, Id: step.Resource.ID},
+				Subject:  &resourcev1.SubjectRef{Type: step.Subject.Type, Id: step.Subject.ID, Relation: step.Subject.Relation},
+				Reason:   step.Reason,
+			})
+		}
+		return &grantv1.ExplainAccessReply{Allowed: reply.Allowed, Effect: reply.Effect, Reason: reply.Reason, ConsistencyToken: reply.ConsistencyToken, Steps: steps}, nil
 	}
 
 func projectModelToProto(in *data.ProjectModel) *projectv1.Project {

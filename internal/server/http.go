@@ -18,7 +18,7 @@ import (
 	khttp "github.com/aisphereio/kernel/transportx/http"
 )
 
-func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.MetricsConfig, logger logx.Logger, metrics metricsx.Manager, resources *data.Resources, projections *projection.Manager, authSvc *service.IAMAuthService, dirSvc *service.IAMDirectoryService, groupSvc *service.IAMGroupAdminService, permSvc *service.IAMPermissionService, authzAdminSvc *service.IAMAuthorizationAdminService, projectSvc *service.ProjectService, resourceSvc *service.ResourceService, grantSvc *service.GrantService, securityCfg conf.SecurityConfig) *khttp.Server {
+func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.MetricsConfig, logger logx.Logger, metrics metricsx.Manager, resources *data.Resources, projections *projection.Manager, authSvc *service.IAMAuthService, dirSvc *service.IAMDirectoryService, groupSvc *service.IAMGroupAdminService, permSvc *service.IAMPermissionService, authzAdminSvc *service.IAMAuthorizationAdminService, projectSvc *service.ProjectService, resourceSvc *service.ResourceService, grantSvc *service.GrantService, accessQuerySvc *service.AccessQueryService, securityCfg conf.SecurityConfig) *khttp.Server {
 	addr := cfg.HTTP.Addr
 	if addr == "" {
 		addr = "0.0.0.0:8000"
@@ -41,7 +41,7 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 		opts = append(opts, khttp.Middleware(m...))
 	}
 	srv := khttp.NewServer(opts...)
-	if err := serverx.RegisterHTTPServices(srv, IAMBindings(resources, authSvc, dirSvc, groupSvc, permSvc, projectSvc, resourceSvc, grantSvc)...); err != nil {
+	if err := serverx.RegisterHTTPServices(srv, IAMBindings(resources, authSvc, dirSvc, groupSvc, permSvc, projectSvc, resourceSvc, grantSvc, accessQuerySvc)...); err != nil {
 		panic(err)
 	}
 v1.RegisterIAMAuthorizationAdminServiceHTTPServer(srv, authzAdminSvc)

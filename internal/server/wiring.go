@@ -6,7 +6,7 @@ import (
 	"github.com/aisphereio/kernel/serverx"
 )
 
-func IAMBindings(resources *data.Resources, authSvc *service.IAMAuthService, dirSvc *service.IAMDirectoryService, groupSvc *service.IAMGroupAdminService, permSvc *service.IAMPermissionService, projectSvc *service.ProjectService, resourceSvc *service.ResourceService, grantSvc *service.GrantService) []serverx.ServiceBinding {
+func IAMBindings(resources *data.Resources, authSvc *service.IAMAuthService, dirSvc *service.IAMDirectoryService, groupSvc *service.IAMGroupAdminService, permSvc *service.IAMPermissionService, projectSvc *service.ProjectService, resourceSvc *service.ResourceService, grantSvc *service.GrantService, accessQuerySvc *service.AccessQueryService) []serverx.ServiceBinding {
 	modules := IAMModules()
 	return []serverx.ServiceBinding{
 		{Module: modules[0], Implementation: authSvc},
@@ -17,6 +17,7 @@ func IAMBindings(resources *data.Resources, authSvc *service.IAMAuthService, dir
 		{Module: modules[5], Implementation: projectSvc},
 		{Module: modules[6], Implementation: resourceSvc},
 		{Module: modules[7], Implementation: grantSvc},
+		{Module: modules[8], Implementation: accessQuerySvc},
 	}
 }
 

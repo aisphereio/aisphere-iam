@@ -1,0 +1,220 @@
+syntax = "proto3";
+
+package iam.access.v1;
+
+import "aisphere/access/v1/access.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "iam/resource/v1/resource.proto";
+
+option go_package = "github.com/aisphereio/aisphere-iam/api/iam/access/v1;accessv1";
+
+// AccessQueryService provides a unified permission query model that aggregates
+// Postgres Grant records, SpiceDB effective permissions, directory membership,
+// and resource inheritance into a single Entitlement view.
+//
+// This is the primary API consumed by the IAM frontend for:
+// - User permissions page (what can this user do?)
+// - Resource permissions page (who can access this resource?)
+// - Grant preview (what will happen if I grant this role?)
+service AccessQueryService {
+  // ListSubjectEntitlements returns all effective permissions for a subject
+  // across all resources, including inherited permissions from groups,
+  // parent resources, zone-level, and platform-level grants.
+  rpc ListSubjectEntitlements(ListSubjectEntitlementsRequest) returns (ListSubjectEntitlementsReply) {
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/access:subject-entitlements" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "read" resource: "iam:access_query" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.access_query.subject_entitlements" risk: "medium" }
+    };
+  }
+
+  // ListResourceAccess returns all subjects that have effective permissions
+  // on a given resource, including inherited access.
+  rpc ListResourceAccess(ListResourceAccessRequest) returns (ListResourceAccessReply) {
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/access:resource-access" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "read" resource: "iam:access_query" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.access_query.resource_access" risk: "medium" }
+    };
+  }
+
+  // PreviewGrant checks what permissions a subject would receive if granted
+  // a given role on a resource, without actually creating the grant.
+  rpc PreviewGrant(PreviewGrantRequest) returns (PreviewGrantReply) {
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/access:preview-grant" body: "*" };
+    option (aisphere.access.v1.policy) = {
+      exposure: AUTHORIZED
+      authz: { action: "read" resource: "iam:access_query" audience: "iam-service" mode: SELF_CHECK }
+      audit: { enabled: true event: "iam.access_query.preview_grant" risk: "low" }
+    };
+  }
+}
+
+// EntitlementSourceType describes how an entitlement was derived.
+enum EntitlementSourceType {
+  ENTITLEMENT_SOURCE_TYPE_UNSPECIFIED = 0;
+  // DIRECT_GRANT: A direct grant record exists in Postgres (iam_grants).
+  DIRECT_GRANT = 1;
+  // GROUP_GRANT: The subject inherits via group membership.
+  GROUP_GRANT = 2;
+  // PARENT_INHERITANCE: The subject has permissions on a parent resource.
+  PARENT_INHERITANCE = 3;
+  // ORG_INHERITANCE: The subject has zone-level (org) permissions.
+  ORG_INHERITANCE = 4;
+  // PLATFORM_INHERITANCE: The subject has platform-level permissions.
+  PLATFORM_INHERITANCE = 5;
+}
+
+// Entitlement represents a single effective permission entry for a subject
+// on a resource, with its derivation source.
+message Entitlement {
+  // id is a unique identifier for this entitlement entry.
+  // For direct grants, this is the grant_id.
+  // For inherited entitlements, this is "inherited:{hash}".
+  string id = 1;
+
+  // subject is the subject (user, group, service account) that holds this entitlement.
+  iam.resource.v1.SubjectRef subject = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // resource is the resource this entitlement applies to.
+  iam.resource.v1.ResourceRef resource = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // role_key identifies the role template that defines the permissions.
+  string role_key = 4;
+
+  // permissions is the resolved list of permission strings from the role template.
+  repeated string permissions = 5;
+
+  // source_type indicates how this entitlement was derived.
+  EntitlementSourceType source_type = 6;
+
+  // source_subject points to the entity that actually holds the grant.
+  // For GROUP_GRANT, this is the group. For DIRECT_GRANT, this is the subject itself.
+  iam.resource.v1.SubjectRef source_subject = 7;
+
+  // source_resource points to the resource that actually has the grant.
+  // For PARENT_INHERITANCE, this is the parent resource.
+  // For ORG_INHERITANCE, this is the zone.
+  iam.resource.v1.ResourceRef source_resource = 8;
+
+  // grant_id is the ID of the grant record that can be revoked.
+  // Empty for inherited entitlements that cannot be revoked here.
+  string grant_id = 9;
+
+  // revocable_here indicates whether this entitlement can be revoked from
+  // the current context. Only DIRECT_GRANT entitlements are revocable here.
+  bool revocable_here = 10;
+
+  // expires_at is the expiration time of the grant, if any.
+  google.protobuf.Timestamp expires_at = 11;
+
+  // consistency_token is an opaque token for consistency checking.
+  string consistency_token = 12;
+}
+
+// ListSubjectEntitlementsRequest
+message ListSubjectEntitlementsRequest {
+  // org_id is the organization context.
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+
+  // subject is the subject to query entitlements for.
+  iam.resource.v1.SubjectRef subject = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // resource_type optionally filters to a specific resource type.
+  string resource_type = 2;
+
+  // page_size controls the maximum number of entitlements to return.
+  int32 page_size = 10;
+
+  // page_token for pagination.
+  string page_token = 11;
+}
+
+// ListSubjectEntitlementsReply
+message ListSubjectEntitlementsReply {
+  // entitlements is the list of effective permissions for the subject.
+  repeated Entitlement entitlements = 1;
+
+  // next_page_token for pagination.
+  string next_page_token = 2;
+
+  // total_size is the total number of entitlements matching the query.
+  int64 total_size = 3;
+}
+
+// ListResourceAccessRequest
+message ListResourceAccessRequest {
+  // org_id is the organization context.
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+
+  // resource is the resource to query access for.
+  iam.resource.v1.ResourceRef resource = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // subject_type is optional to filter by subject type (e.g., "user", "group").
+  string subject_type = 2;
+
+  // page_size for pagination.
+  int32 page_size = 10;
+
+  // page_token for pagination.
+  string page_token = 11;
+}
+
+// ListResourceAccessReply
+message ListResourceAccessReply {
+  // entitlements is the list of subjects with effective access to the resource.
+  repeated Entitlement entitlements = 1;
+
+  // next_page_token for pagination.
+  string next_page_token = 2;
+
+  // total_size is the total number of entitlements matching the query.
+  int64 total_size = 3;
+}
+
+// PreviewGrantRequest
+message PreviewGrantRequest {
+  // org_id is the organization context.
+  string org_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+
+  // resource is the target resource.
+  iam.resource.v1.ResourceRef resource = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // role_key identifies the role template to preview.
+  string role_key = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+
+  // subject is the subject that would receive the grant.
+  iam.resource.v1.SubjectRef subject = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// PreviewGrantReply
+message PreviewGrantReply {
+  // permissions is the list of permissions the subject would gain.
+  repeated string permissions = 1;
+
+  // already_granted indicates if the subject already has this grant.
+  bool already_granted = 2;
+
+  // existing_grant_id is the ID of the existing grant if already_granted is true.
+  string existing_grant_id = 3;
+
+  // consistency_token for consistency checking.
+  string consistency_token = 4;
+}

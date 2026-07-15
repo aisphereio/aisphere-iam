@@ -84,18 +84,28 @@ type ExplainAccessRequest struct {
 	Subject    SubjectRef
 }
 
+type ExplainStep struct {
+	Source   string
+	Relation string
+	Resource ResourceRef
+	Subject  SubjectRef
+	Reason   string
+}
+
 type ExplainAccessReply struct {
 	Allowed          bool
 	Effect           string
 	Reason           string
 	ConsistencyToken string
+	Steps            []ExplainStep
 }
 
 type Service struct {
-	repo       data.ControlPlaneRepository
-	authorizer authz.Authorizer
-	projection *projection.Manager
-	now        func() time.Time
+	repo              data.ControlPlaneRepository
+	authorizer        authz.Authorizer
+	relationshipStore authz.RelationshipStore
+	projection        *projection.Manager
+	now               func() time.Time
 }
 
 func NewService(repo data.ControlPlaneRepository, authorizer authz.Authorizer, writer authz.RelationshipWriter, managers ...*projection.Manager) *Service {
@@ -103,7 +113,10 @@ func NewService(repo data.ControlPlaneRepository, authorizer authz.Authorizer, w
 	if pm == nil {
 		pm = projection.NewManager(repo, writer, nil)
 	}
-	return &Service{repo: repo, authorizer: authorizer, projection: pm, now: func() time.Time { return time.Now().UTC() }}
+	// If the writer also implements RelationshipStore (which SpiceDB client does),
+	// use it for relationship reads in ExplainAccess.
+	rs, _ := writer.(authz.RelationshipStore)
+	return &Service{repo: repo, authorizer: authorizer, relationshipStore: rs, projection: pm, now: time.Now}
 }
 
 func (s *Service) RegisterRoleTemplate(ctx context.Context, req RegisterRoleTemplateRequest) (*data.RoleTemplateModel, error) {
@@ -491,25 +504,129 @@ func (s *Service) RevokeAccess(ctx context.Context, req RevokeAccessRequest) (au
 }
 
 func (s *Service) ExplainAccess(ctx context.Context, req ExplainAccessRequest) (*ExplainAccessReply, error) {
-	if s.authorizer == nil {
-		return nil, errors.New("authorizer is nil")
+		if s.authorizer == nil {
+			return nil, errors.New("authorizer is nil")
+		}
+		if req.Resource.Type == "" || req.Resource.ID == "" || strings.TrimSpace(req.Permission) == "" || subjectZero(req.Subject) {
+			return nil, errors.New("resource, permission and subject are required")
+		}
+		spiceType, err := s.spiceType(ctx, req.Resource.Type)
+		if err != nil {
+			return nil, err
+		}
+		resourceObj := graph.Object(spiceType, req.Resource.ID)
+		subjectObj := toAuthzSubject(req.Subject)
+
+		decision, err := s.authorizer.Check(ctx, authz.CheckRequest{
+			Subject:    subjectObj,
+			Resource:   resourceObj,
+			Permission: strings.TrimSpace(req.Permission),
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		// Trace the permission chain to build ExplainSteps.
+		steps := s.tracePermissionChain(ctx, spiceType, req.Resource.ID, req.Resource.Type, req.Permission, req.Subject)
+
+		return &ExplainAccessReply{
+			Allowed:          decision.Allowed,
+			Effect:           string(decision.Effect),
+			Reason:           decision.Reason,
+			ConsistencyToken: decision.ConsistencyToken,
+			Steps:            steps,
+		}, nil
 	}
-	if req.Resource.Type == "" || req.Resource.ID == "" || strings.TrimSpace(req.Permission) == "" || subjectZero(req.Subject) {
-		return nil, errors.New("resource, permission and subject are required")
+
+// tracePermissionChain attempts to trace how a subject gets a permission on a resource.
+// It checks multiple levels: direct grant, group membership, parent inheritance, zone, platform.
+func (s *Service) tracePermissionChain(ctx context.Context, spiceType, resourceID, productType, permission string, subject SubjectRef) []ExplainStep {
+	if s.relationshipStore == nil {
+		return nil
 	}
-	spiceType, err := s.spiceType(ctx, req.Resource.Type)
-	if err != nil {
-		return nil, err
+	var steps []ExplainStep
+
+	addStep := func(source, relation string, res ResourceRef, sub SubjectRef, reason string) {
+		steps = append(steps, ExplainStep{
+			Source:   source,
+			Relation: relation,
+			Resource: res,
+			Subject:  sub,
+			Reason:   reason,
+		})
 	}
-	decision, err := s.authorizer.Check(ctx, authz.CheckRequest{
-		Subject:    toAuthzSubject(req.Subject),
-		Resource:   graph.Object(spiceType, req.Resource.ID),
-		Permission: strings.TrimSpace(req.Permission),
+
+	// 1. Check direct relationship: resource#relation@subject
+	rels, _ := s.relationshipStore.ReadRelationships(ctx, authz.RelationshipFilter{
+		ResourceType: spiceType,
+		ResourceID:   resourceID,
+		SubjectType:  subject.Type,
+		SubjectID:    subject.ID,
 	})
-	if err != nil {
-		return nil, err
+	for _, rel := range rels {
+		addStep("DIRECT", rel.Relation, ResourceRef{Type: productType, ID: resourceID}, subject, "直接授权")
 	}
-	return &ExplainAccessReply{Allowed: decision.Allowed, Effect: string(decision.Effect), Reason: decision.Reason, ConsistencyToken: decision.ConsistencyToken}, nil
+
+	// 2. Check group membership: group#member@subject
+	groups, _ := s.relationshipStore.ReadRelationships(ctx, authz.RelationshipFilter{
+		ResourceType: "group",
+		Relation:     "member",
+		SubjectType:  subject.Type,
+		SubjectID:    subject.ID,
+	})
+	for _, g := range groups {
+		// Check if the group has a grant on this resource
+		groupRels, _ := s.relationshipStore.ReadRelationships(ctx, authz.RelationshipFilter{
+			ResourceType: spiceType,
+			ResourceID:   resourceID,
+			SubjectType:  "group",
+			SubjectID:    g.Resource.ID,
+			SubjectRel:   "member",
+		})
+		for _, gr := range groupRels {
+			addStep("GROUP_GRANT", gr.Relation, ResourceRef{Type: productType, ID: resourceID}, SubjectRef{Type: "group", ID: g.Resource.ID}, "用户组继承")
+		}
+	}
+
+	// 3. Check parent resource traversal
+	parents, _ := s.relationshipStore.ReadRelationships(ctx, authz.RelationshipFilter{
+		ResourceType: spiceType,
+		ResourceID:   resourceID,
+		Relation:     "parent",
+	})
+	for _, p := range parents {
+		parentRels, _ := s.relationshipStore.ReadRelationships(ctx, authz.RelationshipFilter{
+			ResourceType: p.Subject.Type,
+			ResourceID:   p.Subject.ID,
+			SubjectType:  subject.Type,
+			SubjectID:    subject.ID,
+		})
+		for _, pr := range parentRels {
+			addStep("PARENT_INHERITANCE", pr.Relation, ResourceRef{Type: p.Subject.Type, ID: p.Subject.ID}, SubjectRef{Type: subject.Type, ID: subject.ID}, "父资源继承")
+		}
+	}
+
+	// 4. Check zone-level permissions
+	zoneRels, _ := s.relationshipStore.ReadRelationships(ctx, authz.RelationshipFilter{
+		ResourceType: "zone",
+		SubjectType:  subject.Type,
+		SubjectID:    subject.ID,
+	})
+	for _, zr := range zoneRels {
+		addStep("ORG_INHERITANCE", zr.Relation, ResourceRef{Type: "zone", ID: zr.Resource.ID}, SubjectRef{Type: subject.Type, ID: subject.ID}, "组织级权限")
+	}
+
+	// 5. Check platform-level permissions
+	platformRels, _ := s.relationshipStore.ReadRelationships(ctx, authz.RelationshipFilter{
+		ResourceType: "platform",
+		SubjectType:  subject.Type,
+		SubjectID:    subject.ID,
+	})
+	for _, pr := range platformRels {
+		addStep("PLATFORM_INHERITANCE", pr.Relation, ResourceRef{Type: "platform", ID: pr.Resource.ID}, SubjectRef{Type: subject.Type, ID: subject.ID}, "平台级权限")
+	}
+
+	return steps
 }
 
 func (s *Service) findRoleTemplate(ctx context.Context, resourceType, roleKey string) (*data.RoleTemplateModel, error) {

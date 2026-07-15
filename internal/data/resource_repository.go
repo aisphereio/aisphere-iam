@@ -43,6 +43,10 @@ type ListOptions struct {
 	ResourceID   string
 	SubjectType  string
 	SubjectID    string
+	Relation     string
+	RoleKey      string
+	Source       string
+	Active       *bool
 	Status       string
 	Q            string
 	Page         int
@@ -399,7 +403,15 @@ func (r *DBControlPlaneRepository) RevokeGrant(ctx context.Context, id, orgID st
 
 func (r *DBControlPlaneRepository) ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error) {
 		var out []GrantModel
-		query, args := whereBuilder().eq("org_id", opts.OrgID).eq("resource_type", opts.ResourceType).eq("resource_id", opts.ResourceID).eq("subject_type", opts.SubjectType).eq("subject_id", opts.SubjectID).build()
+		wb := whereBuilder().eq("org_id", opts.OrgID).eq("resource_type", opts.ResourceType).eq("resource_id", opts.ResourceID).eq("subject_type", opts.SubjectType).eq("subject_id", opts.SubjectID).eq("relation", opts.Relation).eq("role_key", opts.RoleKey).eq("source", opts.Source)
+		if opts.Active != nil {
+			if *opts.Active {
+				wb = wb.isNull("revoked_at")
+			} else {
+				wb = wb.isNotNull("revoked_at")
+			}
+		}
+		query, args := wb.build()
 		res, err := r.db.Paginate(ctx, &out, &GrantModel{}, query, args, opts.Page, opts.Size)
 		return pageFrom(out, res, err)
 	}
@@ -541,18 +553,28 @@ func (w *where) eq(col string, value any) *where {
 }
 
 func (w *where) likeAny(cols []string, q string) *where {
-	q = strings.TrimSpace(q)
-	if q == "" || len(cols) == 0 {
+		q = strings.TrimSpace(q)
+		if q == "" || len(cols) == 0 {
+			return w
+		}
+		clauses := make([]string, 0, len(cols))
+		for _, col := range cols {
+			clauses = append(clauses, col+" ILIKE ?")
+			w.args = append(w.args, "%"+q+"%")
+		}
+		w.parts = append(w.parts, "("+strings.Join(clauses, " OR ")+")")
 		return w
 	}
-	clauses := make([]string, 0, len(cols))
-	for _, col := range cols {
-		clauses = append(clauses, col+" ILIKE ?")
-		w.args = append(w.args, "%"+q+"%")
+
+func (w *where) isNull(col string) *where {
+		w.parts = append(w.parts, col+" IS NULL")
+		return w
 	}
-	w.parts = append(w.parts, "("+strings.Join(clauses, " OR ")+")")
-	return w
-}
+
+func (w *where) isNotNull(col string) *where {
+		w.parts = append(w.parts, col+" IS NOT NULL")
+		return w
+	}
 
 func (w *where) build() (any, []any) {
 	if len(w.parts) == 0 {

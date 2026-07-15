@@ -1,6 +1,7 @@
 package server
 
 import (
+	accessv1 "github.com/aisphereio/aisphere-iam/api/iam/access/v1"
 	grantv1 "github.com/aisphereio/aisphere-iam/api/iam/grant/v1"
 	projectv1 "github.com/aisphereio/aisphere-iam/api/iam/project/v1"
 	resourcev1 "github.com/aisphereio/aisphere-iam/api/iam/resource/v1"
@@ -18,6 +19,7 @@ func IAMModules() []serverx.ServiceModule {
 		projectv1.ProjectServiceKernelModule(),
 		resourcev1.ResourceServiceKernelModule(),
 		grantv1.GrantServiceKernelModule(),
+		accessv1.AccessQueryServiceKernelModule(),
 	}
 }
 

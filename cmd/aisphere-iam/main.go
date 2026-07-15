@@ -19,8 +19,9 @@ import (
 	defaults "github.com/aisphereio/aisphere-iam/internal/biz/defaults"
 	grantbiz "github.com/aisphereio/aisphere-iam/internal/biz/grant"
 	projectbiz "github.com/aisphereio/aisphere-iam/internal/biz/project"
-	"github.com/aisphereio/aisphere-iam/internal/biz/projection"
-	resourcebiz "github.com/aisphereio/aisphere-iam/internal/biz/resource"
+accessbiz "github.com/aisphereio/aisphere-iam/internal/biz/accessquery"
+		"github.com/aisphereio/aisphere-iam/internal/biz/projection"
+		resourcebiz "github.com/aisphereio/aisphere-iam/internal/biz/resource"
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/aisphere-iam/internal/server"
@@ -101,8 +102,12 @@ func main() {
 	resourceService := service.NewResourceService(resourceUsecase, resources.ControlPlane)
 	grantService := service.NewGrantService(grantUsecase, resources.ControlPlane)
 
-	httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
-	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, bc.Security)
+	// AccessQueryService — unified permission query
+	accessQueryUsecase := accessbiz.NewService(resources.ControlPlane, resources.AuthzAdmin)
+	accessQueryService := service.NewAccessQueryService(accessQueryUsecase, resources.ControlPlane)
+
+	httpServer := server.NewHTTPServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, projectionManager, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, accessQueryService, bc.Security)
+	grpcServer := server.NewGRPCServer(bc.Server, bc.Log, bc.Metrics, logger, metrics, resources, authService, directoryService, groupService, permissionService, authzAdminService, projectService, resourceService, grantService, accessQueryService, bc.Security)
 
 	// ── taskx / Dapr Jobs ──────────────────────────────────────────────
 	// Dapr callback server on a dedicated port so sidecar callbacks bypass
