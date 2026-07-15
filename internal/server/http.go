@@ -44,12 +44,10 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 	if err := serverx.RegisterHTTPServices(srv, IAMBindings(resources, authSvc, dirSvc, groupSvc, permSvc, projectSvc, resourceSvc, grantSvc)...); err != nil {
 		panic(err)
 	}
-	v1.RegisterIAMAuthorizationAdminServiceHTTPServer(srv, authzAdminSvc)
-	registerIdentityGroupRoutes(srv, resources)
-	registerIdentityMembershipRoutes(srv, resources)
-	registerProjectionBranches(srv, projections)
-	registerIdentityAuthZBranches(srv, resources)
-	registerDirectoryProjectionCompatibilityRoutes(srv, service.NewDirectoryProjectionOpsFromDeps(resources.Identity, resources.AuthzAdmin, resources.IdentityProjection))
+v1.RegisterIAMAuthorizationAdminServiceHTTPServer(srv, authzAdminSvc)
+		registerProjectionBranches(srv, projections)
+		registerIdentityAuthZBranches(srv, resources)
+		registerDirectoryProjectionCompatibilityRoutes(srv, service.NewDirectoryProjectionOpsFromDeps(resources.Identity, resources.AuthzAdmin, resources.IdentityProjection))
 
 	srv.HandleFunc("/v1/iam/ui/login", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, safeUILoginReturnURL(r.URL.Query().Get("return_to")), http.StatusFound)

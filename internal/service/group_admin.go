@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"strings"
 
 	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	"github.com/aisphereio/kernel/authn"
+	"github.com/aisphereio/kernel/authz"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -20,6 +22,9 @@ import (
 //   - external_oidc: group writes remain allowed (Aisphere-owned groups).
 //
 // Group writes are projected into AuthZ by data.BindIdentityAuthZ.
+//
+// org_id is extracted from the URL path (not the request body) and validated
+// against the authenticated principal's org_id to prevent cross-org access.
 type IAMGroupAdminService struct {
 	v1.UnimplementedIAMGroupAdminServiceServer
 	deps IAMDeps
@@ -29,12 +34,35 @@ func NewIAMGroupAdminService(deps IAMDeps) *IAMGroupAdminService {
 	return &IAMGroupAdminService{deps: deps}
 }
 
+// orgIDFromPrincipal validates the path org_id against the authenticated
+// principal's org_id. The path org_id is bound by the proto-generated HTTP
+// handler from the URL; we cross-check it against the principal to prevent
+// body-override attacks. Returns the validated org_id.
+func (s *IAMGroupAdminService) orgIDFromPrincipal(ctx context.Context, pathOrgID string) (string, error) {
+	principal, ok := authn.PrincipalFromContext(ctx)
+	if !ok || !principal.IsAuthenticated() {
+		return "", authn.ErrMissingCredential("kernel principal is required")
+	}
+	principalOrgID := strings.TrimSpace(principal.OrgID)
+	if principalOrgID == "" {
+		return "", authn.ErrMissingCredential("kernel principal org_id is required")
+	}
+	if pathOrgID != "" && !strings.EqualFold(pathOrgID, principalOrgID) {
+		return "", authz.ErrPermissionDenied("org_id mismatch: path org_id does not match principal org_id")
+	}
+	return principalOrgID, nil
+}
+
 func (s *IAMGroupAdminService) CreateGroup(ctx context.Context, req *v1.CreateGroupRequest) (*v1.Group, error) {
 	if s.deps.Identity == nil {
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
+	orgID, err := s.orgIDFromPrincipal(ctx, req.GetOrgId())
+	if err != nil {
+		return nil, err
+	}
 	group := groupFromProto(req.GetGroup())
-	group.OrgID = firstNonEmptyString(group.OrgID, req.GetOrgId())
+	group.OrgID = orgID
 	created, err := s.deps.Identity.CreateGroup(ctx, authn.CreateGroupRequest{
 		Group:          group,
 		IdempotencyKey: req.GetIdempotencyKey(),
@@ -49,9 +77,13 @@ func (s *IAMGroupAdminService) UpdateGroup(ctx context.Context, req *v1.UpdateGr
 	if s.deps.Identity == nil {
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
+	orgID, err := s.orgIDFromPrincipal(ctx, req.GetOrgId())
+	if err != nil {
+		return nil, err
+	}
 	group := groupFromProto(req.GetGroup())
 	group.ID = firstNonEmptyString(group.ID, req.GetGroupId())
-	group.OrgID = firstNonEmptyString(group.OrgID, req.GetOrgId())
+	group.OrgID = orgID
 	updated, err := s.deps.Identity.UpdateGroup(ctx, authn.UpdateGroupRequest{Group: group})
 	if err != nil {
 		return nil, err
@@ -63,8 +95,12 @@ func (s *IAMGroupAdminService) DeleteGroup(ctx context.Context, req *v1.DeleteGr
 	if s.deps.Identity == nil {
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
+	orgID, err := s.orgIDFromPrincipal(ctx, req.GetOrgId())
+	if err != nil {
+		return nil, err
+	}
 	if err := s.deps.Identity.DeleteGroup(ctx, authn.DeleteGroupRequest{
-		OrgID:     req.GetOrgId(),
+		OrgID:     orgID,
 		GroupID:   req.GetGroupId(),
 		Recursive: req.GetRecursive(),
 	}); err != nil {
@@ -77,8 +113,12 @@ func (s *IAMGroupAdminService) AssignUserToGroup(ctx context.Context, req *v1.As
 	if s.deps.Identity == nil {
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
+	orgID, err := s.orgIDFromPrincipal(ctx, req.GetOrgId())
+	if err != nil {
+		return nil, err
+	}
 	if err := s.deps.Identity.AssignUserToGroup(ctx, authn.AssignUserToGroupRequest{
-		OrgID:   req.GetOrgId(),
+		OrgID:   orgID,
 		GroupID: req.GetGroupId(),
 		UserID:  req.GetUserId(),
 	}); err != nil {
@@ -91,8 +131,12 @@ func (s *IAMGroupAdminService) RemoveUserFromGroup(ctx context.Context, req *v1.
 	if s.deps.Identity == nil {
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
+	orgID, err := s.orgIDFromPrincipal(ctx, req.GetOrgId())
+	if err != nil {
+		return nil, err
+	}
 	if err := s.deps.Identity.RemoveUserFromGroup(ctx, authn.AssignUserToGroupRequest{
-		OrgID:   req.GetOrgId(),
+		OrgID:   orgID,
 		GroupID: req.GetGroupId(),
 		UserID:  req.GetUserId(),
 	}); err != nil {
