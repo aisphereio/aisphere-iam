@@ -1,0 +1,306 @@
+- generic:
+  - generic:
+    - complementary:
+      - generic:
+        - generic:
+          - generic: IAM 控制台
+          - generic: 身份与访问管理
+      - generic:
+        - generic:
+          - generic:
+            - navigation:
+              - generic:
+                - button [expanded]:
+                  - generic: 身份目录
+                - generic:
+                  - button:
+                    - generic: 本地用户
+                  - button:
+                    - generic:
+                      - generic: 组织管理
+                      - generic: 组织根节点 + 多级用户组树
+              - generic:
+                - button [expanded]:
+                  - generic: 资源域
+                - generic:
+                  - button:
+                    - generic: 项目
+                  - button:
+                    - generic: 资源
+                  - button:
+                    - generic: 能力管理
+              - generic:
+                - button [expanded]:
+                  - generic: 权限治理
+                - generic:
+                  - button:
+                    - generic: 访问控制
+      - generic:
+        - generic:
+          - generic: 系统正常
+          - generic: 1.0.0
+      - generic:
+        - generic:
+          - button:
+            - generic: 管理
+          - button:
+            - generic: 管理员
+            - generic:
+              - generic: 成员
+              - generic: "@496333c7-7acc-4717-8596-056544fc0a68"
+          - generic:
+            - button
+            - button
+      - button
+    - generic:
+      - banner:
+        - generic: 多级用户组
+        - generic:
+          - generic:
+            - generic: Casdoor 组织
+            - combobox:
+              - generic: aisphere
+          - button:
+            - generic: zh
+          - button
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic: 组织结构（含成员）
+                  - generic: 用户源作为根节点。下方树里同时展示组织和成员：组织用文件夹图标，成员用头像 + 姓名。 点击节点在右侧查看详情。
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: 顶级组织
+                      - generic: "24"
+                    - generic:
+                      - generic: 子组织
+                      - generic: "9"
+                    - generic:
+                      - generic: 成员总数
+                      - generic: "6"
+                  - generic:
+                    - button:
+                      - generic: aisphere
+                      - generic: 用户源 / Zone
+                    - generic:
+                      - button: 展开全部
+                      - generic: /
+                      - button: 折叠全部
+                      - generic: 25 已展开
+                    - generic:
+                      - generic:
+                        - button:
+                          - generic: 地球联盟组织
+                          - generic: Physical
+                          - generic: "3"
+                        - generic:
+                          - generic:
+                            - button:
+                              - generic: 老墨
+                              - generic: Physical
+                              - generic: "1"
+                            - generic:
+                              - generic:
+                                - button:
+                                  - generic: test-auth-group-1783957506
+                                  - generic: folder
+                                  - generic: "1"
+                          - generic:
+                            - button:
+                              - generic: 美利坚
+                              - generic: Physical
+                              - generic: "3"
+                          - generic:
+                            - button:
+                              - generic: test-perm-group
+                              - generic: group
+                      - generic:
+                        - button:
+                          - generic: Test Basic
+                      - generic:
+                        - button:
+                          - generic: Test Debug
+                      - generic:
+                        - button:
+                          - generic: test-auth-group
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-auth-group-$SUFFIX
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-auth-group-1783957127
+                          - generic: Virtual
+                      - generic:
+                        - button:
+                          - generic: test-auth-group-1783957377
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-auth-group-1783957461
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-auth-group-1783957609
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-auth-group-1783957682
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-auth-group-1783957768
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-final-1783957187
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-perm-group-1783957377
+                          - generic: group
+                      - generic:
+                        - button:
+                          - generic: test-perm-group-1783957461
+                          - generic: group
+                      - generic:
+                        - button:
+                          - generic: test-perm-group-1783957506
+                          - generic: group
+                      - generic:
+                        - button:
+                          - generic: test-perm-group-1783957609
+                          - generic: group
+                      - generic:
+                        - button:
+                          - generic: test-perm-group-1783957682
+                          - generic: group
+                      - generic:
+                        - button:
+                          - generic: test-perm-group-1783957768
+                          - generic: group
+                      - generic:
+                        - button:
+                          - generic: test-unauth
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-unauth-$SUFFIX
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-unauth-1783957609
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-unauth2-1783957377
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-unauth2-1783957506
+                          - generic: folder
+                      - generic:
+                        - button:
+                          - generic: test-unauth2-1783957609
+                          - generic: folder
+                  - button: 刷新组织结构
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: 老墨
+                    - generic:
+                      - generic: Physical
+                      - generic: "33"
+                  - generic:
+                    - text: 当前路径：
+                    - generic:
+                      - text: aisphere
+                      - generic: › 地球联盟组织
+                      - generic: › 老墨
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - text: 成员
+                        - generic: "0"
+                    - generic: 当前组织暂无成员。在下方"添加成员"区域选择用户加入。
+                  - generic:
+                    - generic: 添加成员
+                    - generic:
+                      - combobox [expanded]:
+                        - generic: 选择要加入的用户
+                      - button [disabled]: 加入当前组织
+                  - generic:
+                    - generic:
+                      - generic:
+                        - text: 下级组织（含子级）
+                        - generic: "3"
+                    - generic:
+                      - generic:
+                        - button:
+                          - generic:
+                            - generic: test-auth-group-1783957506
+                            - generic: aisphere › 地球联盟组织 › 老墨 › test-auth-group-1783957506
+                          - generic: folder
+                          - generic: "1"
+                      - generic:
+                        - button:
+                          - generic:
+                            - generic: test-unauth-1783957461
+                            - generic: aisphere › 地球联盟组织 › 老墨 › test-auth-group-1783957506 › test-unauth-1783957461
+                          - generic: folder
+                          - generic: "1"
+                      - generic:
+                        - button:
+                          - generic:
+                            - generic: test-unauth2-1783957682
+                            - generic: aisphere › 地球联盟组织 › 老墨 › test-auth-group-1783957506 › test-unauth-1783957461 › test-unauth2-1783957682
+                          - generic: folder
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: 组织管理
+                    - generic: "33"
+                  - generic: 编辑 老墨 或在它下面新建子组织。也可以在"父级组织"下拉里调整层级。
+                - generic:
+                  - generic:
+                    - text: 组织名称 *
+                    - textbox:
+                      - /placeholder: platform
+                      - text: 老墨
+                  - generic:
+                    - text: 显示名
+                    - textbox:
+                      - /placeholder: 平台组织
+                      - text: 老墨
+                  - generic:
+                    - text: 组织类型
+                    - textbox:
+                      - /placeholder: Physical
+                      - text: Physical
+                  - generic:
+                    - generic:
+                      - text: 父级组织
+                      - generic: （留空 = 顶级组织；选中组织后默认填入当前选中组织，可手动改）
+                    - combobox:
+                      - generic: aisphere › 地球联盟组织
+                  - generic:
+                    - button: 新建子组织
+                    - button: 更新选中组织
+                    - button: 删除选中组织
+                    - button: 回到用户源根节点
+  - region "Notifications alt+T"
+  - alert
+  - listbox [ref=f1e978]:
+    - option "Test API User" [active] [ref=f1e979]
+    - option "New User - dxhhnb" [ref=f1e982]
+    - option "管理员" [ref=f1e985]
+    - option "Test User" [ref=f1e988]
+    - option "user1" [ref=f1e991]
+    - option "user" [ref=f1e994]

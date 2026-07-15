@@ -1,0 +1,8 @@
+- generic [ref=e3]:
+  - main [ref=e4]:
+    - generic [ref=e5]: Loading
+  - contentinfo [ref=e12]:
+    - text: Powered by
+    - link "Casdoor":
+      - /url: https://casdoor.org
+      - img "Casdoor"

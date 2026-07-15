@@ -1,0 +1,39 @@
+- generic [ref=e3]:
+  - main [ref=e4]:
+    - generic [ref=e10]:
+      - img "global" [ref=e13] [cursor=pointer]
+      - generic [ref=e16]:
+        - img "aisphere-iam"
+      - generic [ref=e19]:
+        - tablist [ref=e20]:
+          - generic [ref=e22]:
+            - tab "Password" [selected] [ref=e24] [cursor=pointer]
+            - tab "Code" [ref=e26] [cursor=pointer]
+            - tab "WebAuthn" [ref=e28] [cursor=pointer]
+            - tab "Face ID" [ref=e30] [cursor=pointer]
+        - generic:
+          - generic:
+            - tabpanel "Password"
+      - generic [ref=e37]:
+        - img "user" [ref=e39]
+        - textbox "username, Email or phone" [ref=e42]
+      - generic [ref=e51]:
+        - img "lock" [ref=e53]
+        - textbox "Password" [ref=e56]
+        - img "eye-invisible" [ref=e58] [cursor=pointer]
+      - generic [ref=e63]:
+        - generic [ref=e64] [cursor=pointer]:
+          - checkbox "Auto sign in" [checked] [ref=e66]
+          - generic [ref=e67]: Auto sign in
+        - link "Forgot password?" [ref=e68] [cursor=pointer]:
+          - /url: /forget/aisphere-iam
+      - button "Sign In" [ref=e74] [cursor=pointer]
+      - generic [ref=e77]:
+        - text: No account?
+        - link "sign up now" [ref=e78] [cursor=pointer]:
+          - /url: /signup/oauth/authorize?client_id=869aff97ab0408cbbd1c&code_challenge=s7yh2K2zPIJRov-qXjc3j4xUW0P30NHF0jgPNzcprBo&code_challenge_method=S256&redirect_uri=https%3A%2F%2Fiam.weagent.cc%3A30723%2Foauth2%2Fcallback&response_type=code&scope=openid%20profile%20email&state=eyJ1cmwiOiJodHRwczovL2lhbS53ZWFnZW50LmNjOjMwNzIzLyIsImNzcmZfdG9rZW4iOiJiZjVlYTQyODRhNGE0NGMwLkpHc08zQ3hSeGpqOFY3MVN2V2ZnSXVoMWRiejVOTWdnMXFRV3N1RXo4N0U9IiwiZmxvd19pZCI6ImJmNWVhNDI4NGE0YTQ0YzAifQ
+  - contentinfo [ref=e84]:
+    - text: Powered by
+    - link "Casdoor":
+      - /url: https://casdoor.org
+      - img "Casdoor"

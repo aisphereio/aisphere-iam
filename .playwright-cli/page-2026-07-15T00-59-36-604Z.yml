@@ -1,0 +1,110 @@
+- generic:
+  - generic:
+    - complementary:
+      - generic:
+        - generic:
+          - generic: IAM 控制台
+          - generic: 身份与访问管理
+      - generic:
+        - generic:
+          - generic:
+            - navigation:
+              - generic:
+                - button [expanded]:
+                  - generic: 身份目录
+                - generic:
+                  - button:
+                    - generic: 本地用户
+                  - button:
+                    - generic: 组织管理
+              - generic:
+                - button [expanded]:
+                  - generic: 资源域
+                - generic:
+                  - button:
+                    - generic:
+                      - generic: 项目
+                      - generic: 管理组织下的项目
+                  - button:
+                    - generic: 资源
+                  - button:
+                    - generic: 能力管理
+              - generic:
+                - button [expanded]:
+                  - generic: 权限治理
+                - generic:
+                  - button:
+                    - generic: 访问控制
+      - generic:
+        - generic:
+          - generic: 系统正常
+          - generic: 1.0.0
+      - generic:
+        - generic:
+          - button:
+            - generic: 管理
+          - button:
+            - generic: 管理员
+            - generic:
+              - generic: 成员
+              - generic: "@496333c7-7acc-4717-8596-056544fc0a68"
+          - generic:
+            - button
+            - button
+      - button
+    - generic:
+      - banner:
+        - generic: 项目
+        - generic:
+          - button:
+            - generic: zh
+          - button
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - textbox:
+                  - /placeholder: 搜索项目...
+              - button: 创建
+            - generic:
+              - generic:
+                - generic:
+                  - table:
+                    - rowgroup:
+                      - row:
+                        - columnheader: 标识
+                        - columnheader: 显示名称
+                        - columnheader: 组织
+                        - columnheader: 状态
+                        - columnheader: 可见性
+                        - columnheader: 资源数
+                        - columnheader: 创建时间
+                        - columnheader: 操作
+                    - rowgroup:
+                      - row:
+                        - cell: 暂无项目
+  - region "Notifications alt+T"
+  - alert
+  - dialog [ref=f1e265]:
+    - generic [ref=f1e266]:
+      - heading "创建项目" [level=2] [ref=f1e267]
+      - paragraph [ref=f1e268]: 在组织下创建一个新项目
+    - generic [ref=f1e269]:
+      - generic [ref=f1e270]:
+        - generic [ref=f1e271]: 组织 *
+        - combobox [active] [ref=f1e272]:
+          - generic: 选择组织
+      - generic [ref=f1e273]:
+        - generic [ref=f1e274]: 标识 *
+        - textbox "my-project" [ref=f1e275]
+      - generic [ref=f1e276]:
+        - text: 显示名称
+        - textbox "我的项目" [ref=f1e277]
+      - generic [ref=f1e278]:
+        - text: 描述
+        - textbox [ref=f1e279]
+    - generic [ref=f1e280]:
+      - button "取消" [ref=f1e281]
+      - button "创建" [ref=f1e282]
+    - button "Close" [ref=f1e283]
