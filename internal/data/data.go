@@ -356,9 +356,19 @@ func bootstrapControlPlaneAdmins(ctx context.Context, cfg conf.ControlPlaneBoots
 	return nil
 }
 
+// legacyBootstrapZoneRelations maps each canonical bootstrap role to the zone
+// relations that the pre-convergence bootstrap code used to expand it into.
+// platform_owner / platform_admin are included because those subjects were
+// previously bootstrapped as zone_owner / zone_admin and carry the same legacy
+// zone-level expansions that must be cleaned up now that a single platform
+// relationship supersedes them.  platform_admin maps to the full zone_owner
+// expansion (including owner) because the typical migration path was
+// zone_owner → platform_admin.
 var legacyBootstrapZoneRelations = map[string][]string{
-	"zone_owner": {"owner", "admin", "user_manager", "group_manager", "permission_admin"},
-	"zone_admin": {"admin", "user_manager", "group_manager", "permission_admin"},
+	"zone_owner":     {"owner", "admin", "user_manager", "group_manager", "permission_admin"},
+	"zone_admin":     {"admin", "user_manager", "group_manager", "permission_admin"},
+	"platform_owner": {"owner", "admin", "user_manager", "group_manager", "permission_admin"},
+	"platform_admin": {"owner", "admin", "user_manager", "group_manager", "permission_admin"},
 }
 
 func cleanupLegacyBootstrapExpansions(ctx context.Context, subjects []conf.ControlPlaneAdminSubject, policy permissionmanifest.BootstrapPolicy, writer authz.RelationshipWriter, directory authn.UserDirectory) (int, error) {
@@ -389,9 +399,10 @@ func cleanupLegacyBootstrapExpansions(ctx context.Context, subjects []conf.Contr
 				return deleted, err
 			}
 		}
-		if canonicalRole != "zone_owner" && canonicalRole != "zone_admin" {
-			continue
-		}
+		// Clean up legacy iam#admin / iam_authz#admin relationships that the
+		// old bootstrap wrote for every platform resource.  This now runs for
+		// all roles that have legacy zone expansions (including platform_owner
+		// and platform_admin), not just zone_owner / zone_admin.
 		for _, resource := range policy.PlatformResources {
 			part, err := writer.DeleteRelationships(ctx, authz.RelationshipFilter{
 				ResourceType: strings.TrimSpace(resource.Type), ResourceID: strings.TrimSpace(resource.ID), Relation: "admin",
