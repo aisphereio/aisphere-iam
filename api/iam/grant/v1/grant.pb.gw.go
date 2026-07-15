@@ -236,12 +236,21 @@ func request_GrantService_GrantAccess_0(ctx context.Context, marshaler runtime.M
 	var (
 		protoReq GrantAccessRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := client.GrantAccess(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -251,9 +260,18 @@ func local_request_GrantService_GrantAccess_0(ctx context.Context, marshaler run
 	var (
 		protoReq GrantAccessRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := server.GrantAccess(ctx, &protoReq)
 	return msg, metadata, err
@@ -271,7 +289,15 @@ func request_GrantService_RevokeAccess_0(ctx context.Context, marshaler runtime.
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["grant_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["grant_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "grant_id")
 	}
@@ -292,7 +318,15 @@ func local_request_GrantService_RevokeAccess_0(ctx context.Context, marshaler ru
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["grant_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["grant_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "grant_id")
 	}
@@ -304,15 +338,24 @@ func local_request_GrantService_RevokeAccess_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
-var filter_GrantService_ListGrants_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_GrantService_ListGrants_0 = &utilities.DoubleArray{Encoding: map[string]int{"org_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_GrantService_ListGrants_0(ctx context.Context, marshaler runtime.Marshaler, client GrantServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListGrantsRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -328,7 +371,16 @@ func local_request_GrantService_ListGrants_0(ctx context.Context, marshaler runt
 	var (
 		protoReq ListGrantsRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -343,12 +395,21 @@ func request_GrantService_ExplainAccess_0(ctx context.Context, marshaler runtime
 	var (
 		protoReq ExplainAccessRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := client.ExplainAccess(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -358,9 +419,18 @@ func local_request_GrantService_ExplainAccess_0(ctx context.Context, marshaler r
 	var (
 		protoReq ExplainAccessRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := server.ExplainAccess(ctx, &protoReq)
 	return msg, metadata, err
@@ -478,7 +548,7 @@ func RegisterGrantServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.grant.v1.GrantService/GrantAccess", runtime.WithHTTPPathPattern("/v1/iam/control-plane/grants"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.grant.v1.GrantService/GrantAccess", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/grants"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -498,7 +568,7 @@ func RegisterGrantServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.grant.v1.GrantService/RevokeAccess", runtime.WithHTTPPathPattern("/v1/iam/control-plane/grants/{grant_id}/revoke"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.grant.v1.GrantService/RevokeAccess", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/grants/{grant_id}/revoke"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -518,7 +588,7 @@ func RegisterGrantServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.grant.v1.GrantService/ListGrants", runtime.WithHTTPPathPattern("/v1/iam/control-plane/grants"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.grant.v1.GrantService/ListGrants", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/grants"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -538,7 +608,7 @@ func RegisterGrantServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.grant.v1.GrantService/ExplainAccess", runtime.WithHTTPPathPattern("/v1/iam/control-plane/access:explain"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.grant.v1.GrantService/ExplainAccess", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/access:explain"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -681,7 +751,7 @@ func RegisterGrantServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.grant.v1.GrantService/GrantAccess", runtime.WithHTTPPathPattern("/v1/iam/control-plane/grants"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.grant.v1.GrantService/GrantAccess", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/grants"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -698,7 +768,7 @@ func RegisterGrantServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.grant.v1.GrantService/RevokeAccess", runtime.WithHTTPPathPattern("/v1/iam/control-plane/grants/{grant_id}/revoke"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.grant.v1.GrantService/RevokeAccess", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/grants/{grant_id}/revoke"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -715,7 +785,7 @@ func RegisterGrantServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.grant.v1.GrantService/ListGrants", runtime.WithHTTPPathPattern("/v1/iam/control-plane/grants"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.grant.v1.GrantService/ListGrants", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/grants"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -732,7 +802,7 @@ func RegisterGrantServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.grant.v1.GrantService/ExplainAccess", runtime.WithHTTPPathPattern("/v1/iam/control-plane/access:explain"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.grant.v1.GrantService/ExplainAccess", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/access:explain"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -754,10 +824,10 @@ var (
 	pattern_GrantService_DisableRoleTemplate_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "iam", "control-plane", "role-templates", "id"}, "disable"))
 	pattern_GrantService_PreviewRoleTemplateImpact_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "iam", "control-plane", "role-templates", "id"}, "preview-impact"))
 	pattern_GrantService_ListRoleTemplates_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "role-templates"}, ""))
-	pattern_GrantService_GrantAccess_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "grants"}, ""))
-	pattern_GrantService_RevokeAccess_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"v1", "iam", "control-plane", "grants", "grant_id", "revoke"}, ""))
-	pattern_GrantService_ListGrants_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "grants"}, ""))
-	pattern_GrantService_ExplainAccess_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "access"}, "explain"))
+	pattern_GrantService_GrantAccess_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "grants"}, ""))
+	pattern_GrantService_RevokeAccess_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"v1", "iam", "orgs", "org_id", "grants", "grant_id", "revoke"}, ""))
+	pattern_GrantService_ListGrants_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "grants"}, ""))
+	pattern_GrantService_ExplainAccess_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "access"}, "explain"))
 )
 
 var (

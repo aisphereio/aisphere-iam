@@ -53,28 +53,28 @@ func GrantServiceGatewayManifest() gatewayx.Manifest {
 			{
 				ID:       "grant.grant.access",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/grants",
+				Path:     "/v1/iam/orgs/{org_id}/grants",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.grant.v1.GrantService/GrantAccess"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "grant.revoke.access",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/grants/{grant_id}/revoke",
+				Path:     "/v1/iam/orgs/{org_id}/grants/{grant_id}/revoke",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.grant.v1.GrantService/RevokeAccess"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "grant.list.grants",
 				Method:   "GET",
-				Path:     "/v1/iam/control-plane/grants",
+				Path:     "/v1/iam/orgs/{org_id}/grants",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.grant.v1.GrantService/ListGrants"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "grant.explain.access",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/access:explain",
+				Path:     "/v1/iam/orgs/{org_id}/access:explain",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.grant.v1.GrantService/ExplainAccess"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
@@ -154,6 +154,9 @@ func GrantServiceGatewayBindGrantAccess(req gatewayx.DispatchRequest, match gate
 	if v, ok := req.Body.(GrantAccessRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	return out, nil
 }
 
@@ -164,6 +167,9 @@ func GrantServiceGatewayBindRevokeAccess(req gatewayx.DispatchRequest, match gat
 	}
 	if v, ok := req.Body.(RevokeAccessRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["grant_id"]; v != "" {
 		out.GrantId = v
@@ -179,6 +185,9 @@ func GrantServiceGatewayBindListGrants(req gatewayx.DispatchRequest, match gatew
 	if v, ok := req.Body.(ListGrantsRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	return out, nil
 }
 
@@ -189,6 +198,9 @@ func GrantServiceGatewayBindExplainAccess(req gatewayx.DispatchRequest, match ga
 	}
 	if v, ok := req.Body.(ExplainAccessRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	return out, nil
 }

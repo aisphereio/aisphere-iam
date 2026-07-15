@@ -721,6 +721,7 @@ func (x *ListRoleTemplatesReply) GetRoleTemplates() []*RoleTemplate {
 
 type GrantAccessRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Resource      *v1.ResourceRef        `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
 	RoleKey       string                 `protobuf:"bytes,2,opt,name=role_key,json=roleKey,proto3" json:"role_key,omitempty"`
 	Subject       *v1.SubjectRef         `protobuf:"bytes,3,opt,name=subject,proto3" json:"subject,omitempty"`
@@ -760,6 +761,13 @@ func (x *GrantAccessRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GrantAccessRequest.ProtoReflect.Descriptor instead.
 func (*GrantAccessRequest) Descriptor() ([]byte, []int) {
 	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GrantAccessRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *GrantAccessRequest) GetResource() *v1.ResourceRef {
@@ -813,6 +821,7 @@ func (x *GrantAccessRequest) GetMetadata() *structpb.Struct {
 
 type RevokeAccessRequest struct {
 	state                   protoimpl.MessageState `protogen:"open.v1"`
+	OrgId                   string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	GrantId                 string                 `protobuf:"bytes,1,opt,name=grant_id,json=grantId,proto3" json:"grant_id,omitempty"`
 	Reason                  string                 `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
 	DeleteGraphRelationship bool                   `protobuf:"varint,3,opt,name=delete_graph_relationship,json=deleteGraphRelationship,proto3" json:"delete_graph_relationship,omitempty"`
@@ -848,6 +857,13 @@ func (x *RevokeAccessRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use RevokeAccessRequest.ProtoReflect.Descriptor instead.
 func (*RevokeAccessRequest) Descriptor() ([]byte, []int) {
 	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *RevokeAccessRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *RevokeAccessRequest) GetGrantId() string {
@@ -933,6 +949,7 @@ func (x *RevokeAccessReply) GetConsistencyToken() string {
 
 type ListGrantsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Resource      *v1.ResourceRef        `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
 	Subject       *v1.SubjectRef         `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
 	Relation      string                 `protobuf:"bytes,3,opt,name=relation,proto3" json:"relation,omitempty"`
@@ -973,6 +990,13 @@ func (x *ListGrantsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListGrantsRequest.ProtoReflect.Descriptor instead.
 func (*ListGrantsRequest) Descriptor() ([]byte, []int) {
 	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListGrantsRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *ListGrantsRequest) GetResource() *v1.ResourceRef {
@@ -1093,6 +1117,7 @@ func (x *ListGrantsReply) GetTotalSize() int64 {
 
 type ExplainAccessRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Resource      *v1.ResourceRef        `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
 	Permission    string                 `protobuf:"bytes,2,opt,name=permission,proto3" json:"permission,omitempty"`
 	Subject       *v1.SubjectRef         `protobuf:"bytes,3,opt,name=subject,proto3" json:"subject,omitempty"`
@@ -1128,6 +1153,13 @@ func (x *ExplainAccessRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ExplainAccessRequest.ProtoReflect.Descriptor instead.
 func (*ExplainAccessRequest) Descriptor() ([]byte, []int) {
 	return file_iam_grant_v1_grant_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ExplainAccessRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *ExplainAccessRequest) GetResource() *v1.ResourceRef {
@@ -1376,8 +1408,9 @@ const file_iam_grant_v1_grant_proto_rawDesc = "" +
 	"\n" +
 	"\b_enabled\"[\n" +
 	"\x16ListRoleTemplatesReply\x12A\n" +
-	"\x0erole_templates\x18\x01 \x03(\v2\x1a.iam.grant.v1.RoleTemplateR\rroleTemplates\"\xd6\x02\n" +
-	"\x12GrantAccessRequest\x12=\n" +
+	"\x0erole_templates\x18\x01 \x03(\v2\x1a.iam.grant.v1.RoleTemplateR\rroleTemplates\"\xf2\x02\n" +
+	"\x12GrantAccessRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12=\n" +
 	"\bresource\x18\x01 \x01(\v2\x1c.iam.resource.v1.ResourceRefB\x03\xe0A\x02R\bresource\x12%\n" +
 	"\brole_key\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\aroleKey\x12:\n" +
@@ -1386,8 +1419,9 @@ const file_iam_grant_v1_grant_proto_rawDesc = "" +
 	"\x06reason\x18\x05 \x01(\tR\x06reason\x129\n" +
 	"\n" +
 	"expires_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x123\n" +
-	"\bmetadata\x18\a \x01(\v2\x17.google.protobuf.StructR\bmetadata\"\x90\x01\n" +
-	"\x13RevokeAccessRequest\x12%\n" +
+	"\bmetadata\x18\a \x01(\v2\x17.google.protobuf.StructR\bmetadata\"\xac\x01\n" +
+	"\x13RevokeAccessRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12%\n" +
 	"\bgrant_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agrantId\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\x12:\n" +
@@ -1395,8 +1429,9 @@ const file_iam_grant_v1_grant_proto_rawDesc = "" +
 	"\x11RevokeAccessReply\x12\x19\n" +
 	"\bgrant_id\x18\x01 \x01(\tR\agrantId\x12\x18\n" +
 	"\arevoked\x18\x02 \x01(\bR\arevoked\x12+\n" +
-	"\x11consistency_token\x18\x03 \x01(\tR\x10consistencyToken\"\xb7\x02\n" +
-	"\x11ListGrantsRequest\x128\n" +
+	"\x11consistency_token\x18\x03 \x01(\tR\x10consistencyToken\"\xd3\x02\n" +
+	"\x11ListGrantsRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x128\n" +
 	"\bresource\x18\x01 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\bresource\x125\n" +
 	"\asubject\x18\x02 \x01(\v2\x1b.iam.resource.v1.SubjectRefR\asubject\x12\x1a\n" +
 	"\brelation\x18\x03 \x01(\tR\brelation\x12\x19\n" +
@@ -1411,8 +1446,9 @@ const file_iam_grant_v1_grant_proto_rawDesc = "" +
 	"\x06grants\x18\x01 \x03(\v2\x13.iam.grant.v1.GrantR\x06grants\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xbd\x01\n" +
-	"\x14ExplainAccessRequest\x12=\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xd9\x01\n" +
+	"\x14ExplainAccessRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12=\n" +
 	"\bresource\x18\x01 \x01(\v2\x1c.iam.resource.v1.ResourceRefB\x03\xe0A\x02R\bresource\x12*\n" +
 	"\n" +
 	"permission\x18\x02 \x01(\tB\n" +
@@ -1443,14 +1479,14 @@ const file_iam_grant_v1_grant_proto_rawDesc = "" +
 	"\x11ListRoleTemplates\x12&.iam.grant.v1.ListRoleTemplatesRequest\x1a$.iam.grant.v1.ListRoleTemplatesReply\"\x80\x01\x92\xf4\x18P\b\x03\x12(\n" +
 	"\x04list\x12\x11iam:role_template\x1a\viam-service \x03\x1a\"\b\x01\x12\x16iam.role_template.list\x1a\x06medium\x82\xd3\xe4\x93\x02&\x12$/v1/iam/control-plane/role-templates\x12\xb2\x01\n" +
 	"\vGrantAccess\x12 .iam.grant.v1.GrantAccessRequest\x1a\x13.iam.grant.v1.Grant\"l\x92\xf4\x18A\b\x03\x12!\n" +
-	"\x05grant\x12\tiam:grant\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x10iam.grant.create\x1a\x04high\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/control-plane/grants\x12\xdf\x01\n" +
+	"\x05grant\x12\tiam:grant\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x10iam.grant.create\x1a\x04high\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/orgs/{org_id}/grants\x12\xdf\x01\n" +
 	"\fRevokeAccess\x12!.iam.grant.v1.RevokeAccessRequest\x1a\x1f.iam.grant.v1.RevokeAccessReply\"\x8a\x01\x92\xf4\x18M\b\x03\x12-\n" +
-	"\x06revoke\x12\x14iam:grant:{grant_id}\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x10iam.grant.revoke\x1a\x04high\x82\xd3\xe4\x93\x023:\x01*\"./v1/iam/control-plane/grants/{grant_id}/revoke\x12\xb6\x01\n" +
+	"\x06revoke\x12\x14iam:grant:{grant_id}\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x10iam.grant.revoke\x1a\x04high\x82\xd3\xe4\x93\x023:\x01*\"./v1/iam/orgs/{org_id}/grants/{grant_id}/revoke\x12\xb6\x01\n" +
 	"\n" +
 	"ListGrants\x12\x1f.iam.grant.v1.ListGrantsRequest\x1a\x1d.iam.grant.v1.ListGrantsReply\"h\x92\xf4\x18@\b\x03\x12 \n" +
-	"\x04list\x12\tiam:grant\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x0eiam.grant.list\x1a\x06medium\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/iam/control-plane/grants\x12\xd1\x01\n" +
+	"\x04list\x12\tiam:grant\x1a\viam-service \x03\x1a\x1a\b\x01\x12\x0eiam.grant.list\x1a\x06medium\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/iam/orgs/{org_id}/grants\x12\xd1\x01\n" +
 	"\rExplainAccess\x12\".iam.grant.v1.ExplainAccessRequest\x1a .iam.grant.v1.ExplainAccessReply\"z\x92\xf4\x18G\b\x03\x12#\n" +
-	"\aexplain\x12\tiam:grant\x1a\viam-service \x03\x1a\x1e\b\x01\x12\x12iam.access.explain\x1a\x06medium\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/control-plane/access:explainB=Z;github.com/aisphereio/aisphere-iam/api/iam/grant/v1;grantv1b\x06proto3"
+	"\aexplain\x12\tiam:grant\x1a\viam-service \x03\x1a\x1e\b\x01\x12\x12iam.access.explain\x1a\x06medium\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/orgs/{org_id}/access:explainB=Z;github.com/aisphereio/aisphere-iam/api/iam/grant/v1;grantv1b\x06proto3"
 
 var (
 	file_iam_grant_v1_grant_proto_rawDescOnce sync.Once

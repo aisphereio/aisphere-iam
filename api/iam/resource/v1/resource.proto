@@ -43,7 +43,7 @@ service ResourceService {
   }
 
   rpc UpsertResource(UpsertResourceRequest) returns (Resource) {
-    option (google.api.http) = { put: "/v1/iam/control-plane/resources" body: "*" };
+    option (google.api.http) = { put: "/v1/iam/orgs/{org_id}/resources" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
       authz: { action: "upsert" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
@@ -53,7 +53,7 @@ service ResourceService {
   }
 
   rpc GetResource(GetResourceRequest) returns (Resource) {
-    option (google.api.http) = { get: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}" };
+    option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
       authz: { action: "read" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
@@ -62,7 +62,7 @@ service ResourceService {
   }
 
   rpc ListResources(ListResourcesRequest) returns (ListResourcesReply) {
-    option (google.api.http) = { get: "/v1/iam/control-plane/resources" };
+    option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/resources" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
       authz: { action: "list" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
@@ -71,7 +71,7 @@ service ResourceService {
   }
 
   rpc MoveResource(MoveResourceRequest) returns (Resource) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/move" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
       authz: { action: "move" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
@@ -81,7 +81,7 @@ service ResourceService {
   }
 
   rpc ArchiveResource(ArchiveResourceRequest) returns (Resource) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/archive" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
       authz: { action: "archive" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
@@ -91,7 +91,7 @@ service ResourceService {
   }
 
   rpc DeleteResource(DeleteResourceRequest) returns (DeleteResourceReply) {
-    option (google.api.http) = { delete: "/v1/iam/control-plane/resources/{resource_type}/{resource_id}" };
+    option (google.api.http) = { delete: "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
       authz: { action: "delete" resource: "iam:resource" audience: "iam-service" mode: SELF_CHECK }
@@ -101,7 +101,7 @@ service ResourceService {
   }
 
   rpc BindResource(BindResourceRequest) returns (ResourceBinding) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/resource-bindings" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/resource-bindings" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
       authz: { action: "bind" resource: "iam:resource_binding" audience: "iam-service" mode: SELF_CHECK }
@@ -111,7 +111,7 @@ service ResourceService {
   }
 
   rpc UnbindResource(UnbindResourceRequest) returns (UnbindResourceReply) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/resource-bindings/{binding_id}/unbind" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/resource-bindings/{binding_id}/unbind" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
       authz: { action: "unbind" resource: "iam:resource_binding:{binding_id}" audience: "iam-service" mode: SELF_CHECK }
@@ -121,7 +121,7 @@ service ResourceService {
   }
 
   rpc ListResourceBindings(ListResourceBindingsRequest) returns (ListResourceBindingsReply) {
-    option (google.api.http) = { get: "/v1/iam/control-plane/resource-bindings" };
+    option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/resource-bindings" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
       authz: { action: "list" resource: "iam:resource_binding" audience: "iam-service" mode: SELF_CHECK }
@@ -130,7 +130,7 @@ service ResourceService {
   }
 
   rpc BindExternalResource(BindExternalResourceRequest) returns (ExternalResourceBinding) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/external-resource-bindings" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/external-resource-bindings" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: INTERNAL
       authz: { action: "bind" resource: "iam:external_resource_binding" audience: "iam-service" mode: SELF_CHECK }
@@ -140,7 +140,7 @@ service ResourceService {
   }
 
   rpc ListExternalResourceBindings(ListExternalResourceBindingsRequest) returns (ListExternalResourceBindingsReply) {
-    option (google.api.http) = { get: "/v1/iam/control-plane/external-resource-bindings" };
+    option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/external-resource-bindings" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
       authz: { action: "list" resource: "iam:external_resource_binding" audience: "iam-service" mode: SELF_CHECK }
@@ -262,6 +262,7 @@ message ListResourceTypesReply {
 }
 
 message UpsertResourceRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   Resource resource = 1 [(google.api.field_behavior) = REQUIRED];
   bool write_parent_relationship = 2;
   bool create_default_owner_grant = 3;
@@ -269,6 +270,7 @@ message UpsertResourceRequest {
 }
 
 message GetResourceRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string resource_type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -280,16 +282,16 @@ message GetResourceRequest {
 }
 
 message ListResourcesRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string type = 1;
-  string org_id = 2;
   string project_id = 3;
   ResourceRef parent = 4;
   string owner_service = 5;
   string status = 6;
   string visibility = 7;
   map<string, string> labels = 8;
-  int32 page_size = 9;
-  string page_token = 10;
+  int32 page_size = 10;
+  string page_token = 11;
 }
 
 message ListResourcesReply {
@@ -299,6 +301,7 @@ message ListResourcesReply {
 }
 
 message MoveResourceRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string resource_type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -311,6 +314,7 @@ message MoveResourceRequest {
 }
 
 message ArchiveResourceRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string resource_type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -323,6 +327,7 @@ message ArchiveResourceRequest {
 }
 
 message DeleteResourceRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string resource_type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -341,11 +346,13 @@ message DeleteResourceReply {
 }
 
 message BindResourceRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   ResourceBinding binding = 1 [(google.api.field_behavior) = REQUIRED];
   bool write_graph_relationship = 2;
 }
 
 message UnbindResourceRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string binding_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -359,6 +366,7 @@ message UnbindResourceReply {
 }
 
 message ListResourceBindingsRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   ResourceRef source = 1;
   ResourceRef target = 2;
   string relation = 3;
@@ -374,10 +382,12 @@ message ListResourceBindingsReply {
 }
 
 message BindExternalResourceRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   ExternalResourceBinding binding = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message ListExternalResourceBindingsRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   ResourceRef resource = 1;
   string provider = 2;
   string external_type = 3;

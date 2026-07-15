@@ -51,20 +51,20 @@ type ResourceServiceHTTPServer interface {
 
 func RegisterResourceServiceHTTPServer(s *http.Server, srv ResourceServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("DELETE", "/v1/iam/control-plane/resources/{resource_type}/{resource_id}", _ResourceService_DeleteResource0_HTTP_Handler(srv))
-	r.Handle("GET", "/v1/iam/control-plane/external-resource-bindings", _ResourceService_ListExternalResourceBindings0_HTTP_Handler(srv))
-	r.Handle("GET", "/v1/iam/control-plane/resource-bindings", _ResourceService_ListResourceBindings0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}", _ResourceService_DeleteResource0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/control-plane/resource-types", _ResourceService_ListResourceTypes0_HTTP_Handler(srv))
-	r.Handle("GET", "/v1/iam/control-plane/resources", _ResourceService_ListResources0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/control-plane/resource-types/{type}", _ResourceService_GetResourceType0_HTTP_Handler(srv))
-	r.Handle("GET", "/v1/iam/control-plane/resources/{resource_type}/{resource_id}", _ResourceService_GetResource0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/external-resource-bindings", _ResourceService_BindExternalResource0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/resource-bindings", _ResourceService_BindResource0_HTTP_Handler(srv))
+	r.Handle("GET", "/v1/iam/orgs/{org_id}/external-resource-bindings", _ResourceService_ListExternalResourceBindings0_HTTP_Handler(srv))
+	r.Handle("GET", "/v1/iam/orgs/{org_id}/resource-bindings", _ResourceService_ListResourceBindings0_HTTP_Handler(srv))
+	r.Handle("GET", "/v1/iam/orgs/{org_id}/resources", _ResourceService_ListResources0_HTTP_Handler(srv))
+	r.Handle("GET", "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}", _ResourceService_GetResource0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/resource-types", _ResourceService_RegisterResourceType0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/resource-bindings/{binding_id}/unbind", _ResourceService_UnbindResource0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive", _ResourceService_ArchiveResource0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move", _ResourceService_MoveResource0_HTTP_Handler(srv))
-	r.Handle("PUT", "/v1/iam/control-plane/resources", _ResourceService_UpsertResource0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/external-resource-bindings", _ResourceService_BindExternalResource0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/resource-bindings", _ResourceService_BindResource0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/resource-bindings/{binding_id}/unbind", _ResourceService_UnbindResource0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/archive", _ResourceService_ArchiveResource0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/move", _ResourceService_MoveResource0_HTTP_Handler(srv))
+	r.Handle("PUT", "/v1/iam/orgs/{org_id}/resources", _ResourceService_UpsertResource0_HTTP_Handler(srv))
 }
 
 func _ResourceService_DeleteResource0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
@@ -92,50 +92,6 @@ func _ResourceService_DeleteResource0_HTTP_Handler(srv ResourceServiceHTTPServer
 	}
 }
 
-func _ResourceService_ListExternalResourceBindings0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListExternalResourceBindingsRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationResourceServiceListExternalResourceBindings)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListExternalResourceBindings(ctx, req.(*ListExternalResourceBindingsRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListExternalResourceBindingsReply)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ResourceService_ListResourceBindings0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListResourceBindingsRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationResourceServiceListResourceBindings)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListResourceBindings(ctx, req.(*ListResourceBindingsRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListResourceBindingsReply)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _ResourceService_ListResourceTypes0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in ListResourceTypesRequest
@@ -154,28 +110,6 @@ func _ResourceService_ListResourceTypes0_HTTP_Handler(srv ResourceServiceHTTPSer
 			return err
 		}
 		reply := out.(*ListResourceTypesReply)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ResourceService_ListResources0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListResourcesRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationResourceServiceListResources)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListResources(ctx, req.(*ListResourcesRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListResourcesReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -205,6 +139,81 @@ func _ResourceService_GetResourceType0_HTTP_Handler(srv ResourceServiceHTTPServe
 	}
 }
 
+func _ResourceService_ListExternalResourceBindings0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListExternalResourceBindingsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationResourceServiceListExternalResourceBindings)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListExternalResourceBindings(ctx, req.(*ListExternalResourceBindingsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListExternalResourceBindingsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ResourceService_ListResourceBindings0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListResourceBindingsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationResourceServiceListResourceBindings)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListResourceBindings(ctx, req.(*ListResourceBindingsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListResourceBindingsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _ResourceService_ListResources0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListResourcesRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationResourceServiceListResources)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListResources(ctx, req.(*ListResourcesRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListResourcesReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _ResourceService_GetResource0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetResourceRequest
@@ -230,10 +239,35 @@ func _ResourceService_GetResource0_HTTP_Handler(srv ResourceServiceHTTPServer) f
 	}
 }
 
+func _ResourceService_RegisterResourceType0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RegisterResourceTypeRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationResourceServiceRegisterResourceType)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RegisterResourceType(ctx, req.(*RegisterResourceTypeRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ResourceType)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _ResourceService_BindExternalResource0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in BindExternalResourceRequest
 		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		if err := http.ValidateRequest(ctx, &in); err != nil {
@@ -258,6 +292,9 @@ func _ResourceService_BindResource0_HTTP_Handler(srv ResourceServiceHTTPServer) 
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
 		if err := http.ValidateRequest(ctx, &in); err != nil {
 			return err
 		}
@@ -270,28 +307,6 @@ func _ResourceService_BindResource0_HTTP_Handler(srv ResourceServiceHTTPServer) 
 			return err
 		}
 		reply := out.(*ResourceBinding)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _ResourceService_RegisterResourceType0_HTTP_Handler(srv ResourceServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in RegisterResourceTypeRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationResourceServiceRegisterResourceType)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.RegisterResourceType(ctx, req.(*RegisterResourceTypeRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ResourceType)
 		return ctx.Result(200, reply)
 	}
 }
@@ -377,6 +392,9 @@ func _ResourceService_UpsertResource0_HTTP_Handler(srv ResourceServiceHTTPServer
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
 		if err := http.ValidateRequest(ctx, &in); err != nil {
 			return err
 		}
@@ -420,7 +438,7 @@ func NewResourceServiceHTTPClient(client *http.Client) ResourceServiceHTTPClient
 
 func (c *ResourceServiceHTTPClientImpl) ArchiveResource(ctx context.Context, in *ArchiveResourceRequest, opts ...http.CallOption) (*Resource, error) {
 	var out Resource
-	pattern := "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive"
+	pattern := "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/archive"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -437,7 +455,7 @@ func (c *ResourceServiceHTTPClientImpl) ArchiveResource(ctx context.Context, in 
 
 func (c *ResourceServiceHTTPClientImpl) BindExternalResource(ctx context.Context, in *BindExternalResourceRequest, opts ...http.CallOption) (*ExternalResourceBinding, error) {
 	var out ExternalResourceBinding
-	pattern := "/v1/iam/control-plane/external-resource-bindings"
+	pattern := "/v1/iam/orgs/{org_id}/external-resource-bindings"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -454,7 +472,7 @@ func (c *ResourceServiceHTTPClientImpl) BindExternalResource(ctx context.Context
 
 func (c *ResourceServiceHTTPClientImpl) BindResource(ctx context.Context, in *BindResourceRequest, opts ...http.CallOption) (*ResourceBinding, error) {
 	var out ResourceBinding
-	pattern := "/v1/iam/control-plane/resource-bindings"
+	pattern := "/v1/iam/orgs/{org_id}/resource-bindings"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -471,7 +489,7 @@ func (c *ResourceServiceHTTPClientImpl) BindResource(ctx context.Context, in *Bi
 
 func (c *ResourceServiceHTTPClientImpl) DeleteResource(ctx context.Context, in *DeleteResourceRequest, opts ...http.CallOption) (*DeleteResourceReply, error) {
 	var out DeleteResourceReply
-	pattern := "/v1/iam/control-plane/resources/{resource_type}/{resource_id}"
+	pattern := "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -487,7 +505,7 @@ func (c *ResourceServiceHTTPClientImpl) DeleteResource(ctx context.Context, in *
 
 func (c *ResourceServiceHTTPClientImpl) GetResource(ctx context.Context, in *GetResourceRequest, opts ...http.CallOption) (*Resource, error) {
 	var out Resource
-	pattern := "/v1/iam/control-plane/resources/{resource_type}/{resource_id}"
+	pattern := "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -519,7 +537,7 @@ func (c *ResourceServiceHTTPClientImpl) GetResourceType(ctx context.Context, in 
 
 func (c *ResourceServiceHTTPClientImpl) ListExternalResourceBindings(ctx context.Context, in *ListExternalResourceBindingsRequest, opts ...http.CallOption) (*ListExternalResourceBindingsReply, error) {
 	var out ListExternalResourceBindingsReply
-	pattern := "/v1/iam/control-plane/external-resource-bindings"
+	pattern := "/v1/iam/orgs/{org_id}/external-resource-bindings"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -535,7 +553,7 @@ func (c *ResourceServiceHTTPClientImpl) ListExternalResourceBindings(ctx context
 
 func (c *ResourceServiceHTTPClientImpl) ListResourceBindings(ctx context.Context, in *ListResourceBindingsRequest, opts ...http.CallOption) (*ListResourceBindingsReply, error) {
 	var out ListResourceBindingsReply
-	pattern := "/v1/iam/control-plane/resource-bindings"
+	pattern := "/v1/iam/orgs/{org_id}/resource-bindings"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -567,7 +585,7 @@ func (c *ResourceServiceHTTPClientImpl) ListResourceTypes(ctx context.Context, i
 
 func (c *ResourceServiceHTTPClientImpl) ListResources(ctx context.Context, in *ListResourcesRequest, opts ...http.CallOption) (*ListResourcesReply, error) {
 	var out ListResourcesReply
-	pattern := "/v1/iam/control-plane/resources"
+	pattern := "/v1/iam/orgs/{org_id}/resources"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -583,7 +601,7 @@ func (c *ResourceServiceHTTPClientImpl) ListResources(ctx context.Context, in *L
 
 func (c *ResourceServiceHTTPClientImpl) MoveResource(ctx context.Context, in *MoveResourceRequest, opts ...http.CallOption) (*Resource, error) {
 	var out Resource
-	pattern := "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move"
+	pattern := "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/move"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -617,7 +635,7 @@ func (c *ResourceServiceHTTPClientImpl) RegisterResourceType(ctx context.Context
 
 func (c *ResourceServiceHTTPClientImpl) UnbindResource(ctx context.Context, in *UnbindResourceRequest, opts ...http.CallOption) (*UnbindResourceReply, error) {
 	var out UnbindResourceReply
-	pattern := "/v1/iam/control-plane/resource-bindings/{binding_id}/unbind"
+	pattern := "/v1/iam/orgs/{org_id}/resource-bindings/{binding_id}/unbind"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -634,7 +652,7 @@ func (c *ResourceServiceHTTPClientImpl) UnbindResource(ctx context.Context, in *
 
 func (c *ResourceServiceHTTPClientImpl) UpsertResource(ctx context.Context, in *UpsertResourceRequest, opts ...http.CallOption) (*Resource, error) {
 	var out Resource
-	pattern := "/v1/iam/control-plane/resources"
+	pattern := "/v1/iam/orgs/{org_id}/resources"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),

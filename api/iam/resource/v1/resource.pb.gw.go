@@ -140,12 +140,21 @@ func request_ResourceService_UpsertResource_0(ctx context.Context, marshaler run
 	var (
 		protoReq UpsertResourceRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := client.UpsertResource(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -155,9 +164,18 @@ func local_request_ResourceService_UpsertResource_0(ctx context.Context, marshal
 	var (
 		protoReq UpsertResourceRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := server.UpsertResource(ctx, &protoReq)
 	return msg, metadata, err
@@ -172,7 +190,15 @@ func request_ResourceService_GetResource_0(ctx context.Context, marshaler runtim
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["resource_type"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["resource_type"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "resource_type")
 	}
@@ -198,7 +224,15 @@ func local_request_ResourceService_GetResource_0(ctx context.Context, marshaler 
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["resource_type"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["resource_type"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "resource_type")
 	}
@@ -218,15 +252,24 @@ func local_request_ResourceService_GetResource_0(ctx context.Context, marshaler 
 	return msg, metadata, err
 }
 
-var filter_ResourceService_ListResources_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_ResourceService_ListResources_0 = &utilities.DoubleArray{Encoding: map[string]int{"org_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_ResourceService_ListResources_0(ctx context.Context, marshaler runtime.Marshaler, client ResourceServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListResourcesRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -242,7 +285,16 @@ func local_request_ResourceService_ListResources_0(ctx context.Context, marshale
 	var (
 		protoReq ListResourcesRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -265,7 +317,15 @@ func request_ResourceService_MoveResource_0(ctx context.Context, marshaler runti
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["resource_type"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["resource_type"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "resource_type")
 	}
@@ -294,7 +354,15 @@ func local_request_ResourceService_MoveResource_0(ctx context.Context, marshaler
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["resource_type"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["resource_type"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "resource_type")
 	}
@@ -326,7 +394,15 @@ func request_ResourceService_ArchiveResource_0(ctx context.Context, marshaler ru
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["resource_type"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["resource_type"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "resource_type")
 	}
@@ -355,7 +431,15 @@ func local_request_ResourceService_ArchiveResource_0(ctx context.Context, marsha
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["resource_type"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["resource_type"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "resource_type")
 	}
@@ -375,7 +459,7 @@ func local_request_ResourceService_ArchiveResource_0(ctx context.Context, marsha
 	return msg, metadata, err
 }
 
-var filter_ResourceService_DeleteResource_0 = &utilities.DoubleArray{Encoding: map[string]int{"resource_type": 0, "resource_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+var filter_ResourceService_DeleteResource_0 = &utilities.DoubleArray{Encoding: map[string]int{"org_id": 0, "resource_type": 1, "resource_id": 2}, Base: []int{1, 1, 2, 3, 0, 0, 0}, Check: []int{0, 1, 1, 1, 2, 3, 4}}
 
 func request_ResourceService_DeleteResource_0(ctx context.Context, marshaler runtime.Marshaler, client ResourceServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -386,7 +470,15 @@ func request_ResourceService_DeleteResource_0(ctx context.Context, marshaler run
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["resource_type"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["resource_type"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "resource_type")
 	}
@@ -418,7 +510,15 @@ func local_request_ResourceService_DeleteResource_0(ctx context.Context, marshal
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["resource_type"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["resource_type"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "resource_type")
 	}
@@ -448,12 +548,21 @@ func request_ResourceService_BindResource_0(ctx context.Context, marshaler runti
 	var (
 		protoReq BindResourceRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := client.BindResource(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -463,9 +572,18 @@ func local_request_ResourceService_BindResource_0(ctx context.Context, marshaler
 	var (
 		protoReq BindResourceRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := server.BindResource(ctx, &protoReq)
 	return msg, metadata, err
@@ -483,7 +601,15 @@ func request_ResourceService_UnbindResource_0(ctx context.Context, marshaler run
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["binding_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["binding_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "binding_id")
 	}
@@ -504,7 +630,15 @@ func local_request_ResourceService_UnbindResource_0(ctx context.Context, marshal
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["binding_id"]
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
+	val, ok = pathParams["binding_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "binding_id")
 	}
@@ -516,15 +650,24 @@ func local_request_ResourceService_UnbindResource_0(ctx context.Context, marshal
 	return msg, metadata, err
 }
 
-var filter_ResourceService_ListResourceBindings_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_ResourceService_ListResourceBindings_0 = &utilities.DoubleArray{Encoding: map[string]int{"org_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_ResourceService_ListResourceBindings_0(ctx context.Context, marshaler runtime.Marshaler, client ResourceServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListResourceBindingsRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -540,7 +683,16 @@ func local_request_ResourceService_ListResourceBindings_0(ctx context.Context, m
 	var (
 		protoReq ListResourceBindingsRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -555,12 +707,21 @@ func request_ResourceService_BindExternalResource_0(ctx context.Context, marshal
 	var (
 		protoReq BindExternalResourceRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := client.BindExternalResource(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -570,23 +731,41 @@ func local_request_ResourceService_BindExternalResource_0(ctx context.Context, m
 	var (
 		protoReq BindExternalResourceRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	msg, err := server.BindExternalResource(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_ResourceService_ListExternalResourceBindings_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_ResourceService_ListExternalResourceBindings_0 = &utilities.DoubleArray{Encoding: map[string]int{"org_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_ResourceService_ListExternalResourceBindings_0(ctx context.Context, marshaler runtime.Marshaler, client ResourceServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListExternalResourceBindingsRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -602,7 +781,16 @@ func local_request_ResourceService_ListExternalResourceBindings_0(ctx context.Co
 	var (
 		protoReq ListExternalResourceBindingsRequest
 		metadata runtime.ServerMetadata
+		err      error
 	)
+	val, ok := pathParams["org_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "org_id")
+	}
+	protoReq.OrgId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "org_id", err)
+	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -685,7 +873,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/UpsertResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/UpsertResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -705,7 +893,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/GetResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources/{resource_type}/{resource_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/GetResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -725,7 +913,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListResources", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListResources", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -745,7 +933,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/MoveResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/MoveResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/move"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -765,7 +953,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ArchiveResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ArchiveResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/archive"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -785,7 +973,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/DeleteResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources/{resource_type}/{resource_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/DeleteResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -805,7 +993,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/BindResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resource-bindings"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/BindResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resource-bindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -825,7 +1013,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/UnbindResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resource-bindings/{binding_id}/unbind"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/UnbindResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resource-bindings/{binding_id}/unbind"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -845,7 +1033,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListResourceBindings", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resource-bindings"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListResourceBindings", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resource-bindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -865,7 +1053,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/BindExternalResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/external-resource-bindings"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/BindExternalResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/external-resource-bindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -885,7 +1073,7 @@ func RegisterResourceServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListExternalResourceBindings", runtime.WithHTTPPathPattern("/v1/iam/control-plane/external-resource-bindings"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListExternalResourceBindings", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/external-resource-bindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -994,7 +1182,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/UpsertResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/UpsertResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1011,7 +1199,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/GetResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources/{resource_type}/{resource_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/GetResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1028,7 +1216,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListResources", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListResources", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1045,7 +1233,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/MoveResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/MoveResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/move"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1062,7 +1250,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ArchiveResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ArchiveResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/archive"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1079,7 +1267,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/DeleteResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resources/{resource_type}/{resource_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/DeleteResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1096,7 +1284,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/BindResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resource-bindings"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/BindResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resource-bindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1113,7 +1301,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/UnbindResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resource-bindings/{binding_id}/unbind"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/UnbindResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resource-bindings/{binding_id}/unbind"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1130,7 +1318,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListResourceBindings", runtime.WithHTTPPathPattern("/v1/iam/control-plane/resource-bindings"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListResourceBindings", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/resource-bindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1147,7 +1335,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/BindExternalResource", runtime.WithHTTPPathPattern("/v1/iam/control-plane/external-resource-bindings"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/BindExternalResource", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/external-resource-bindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1164,7 +1352,7 @@ func RegisterResourceServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListExternalResourceBindings", runtime.WithHTTPPathPattern("/v1/iam/control-plane/external-resource-bindings"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.resource.v1.ResourceService/ListExternalResourceBindings", runtime.WithHTTPPathPattern("/v1/iam/orgs/{org_id}/external-resource-bindings"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1184,17 +1372,17 @@ var (
 	pattern_ResourceService_RegisterResourceType_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "resource-types"}, ""))
 	pattern_ResourceService_GetResourceType_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "iam", "control-plane", "resource-types", "type"}, ""))
 	pattern_ResourceService_ListResourceTypes_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "resource-types"}, ""))
-	pattern_ResourceService_UpsertResource_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "resources"}, ""))
-	pattern_ResourceService_GetResource_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "iam", "control-plane", "resources", "resource_type", "resource_id"}, ""))
-	pattern_ResourceService_ListResources_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "resources"}, ""))
-	pattern_ResourceService_MoveResource_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"v1", "iam", "control-plane", "resources", "resource_type", "resource_id", "move"}, ""))
-	pattern_ResourceService_ArchiveResource_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"v1", "iam", "control-plane", "resources", "resource_type", "resource_id", "archive"}, ""))
-	pattern_ResourceService_DeleteResource_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "iam", "control-plane", "resources", "resource_type", "resource_id"}, ""))
-	pattern_ResourceService_BindResource_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "resource-bindings"}, ""))
-	pattern_ResourceService_UnbindResource_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"v1", "iam", "control-plane", "resource-bindings", "binding_id", "unbind"}, ""))
-	pattern_ResourceService_ListResourceBindings_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "resource-bindings"}, ""))
-	pattern_ResourceService_BindExternalResource_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "external-resource-bindings"}, ""))
-	pattern_ResourceService_ListExternalResourceBindings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "control-plane", "external-resource-bindings"}, ""))
+	pattern_ResourceService_UpsertResource_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "resources"}, ""))
+	pattern_ResourceService_GetResource_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 1, 0, 4, 1, 5, 6}, []string{"v1", "iam", "orgs", "org_id", "resources", "resource_type", "resource_id"}, ""))
+	pattern_ResourceService_ListResources_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "resources"}, ""))
+	pattern_ResourceService_MoveResource_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 1, 0, 4, 1, 5, 6, 2, 7}, []string{"v1", "iam", "orgs", "org_id", "resources", "resource_type", "resource_id", "move"}, ""))
+	pattern_ResourceService_ArchiveResource_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 1, 0, 4, 1, 5, 6, 2, 7}, []string{"v1", "iam", "orgs", "org_id", "resources", "resource_type", "resource_id", "archive"}, ""))
+	pattern_ResourceService_DeleteResource_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 1, 0, 4, 1, 5, 6}, []string{"v1", "iam", "orgs", "org_id", "resources", "resource_type", "resource_id"}, ""))
+	pattern_ResourceService_BindResource_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "resource-bindings"}, ""))
+	pattern_ResourceService_UnbindResource_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"v1", "iam", "orgs", "org_id", "resource-bindings", "binding_id", "unbind"}, ""))
+	pattern_ResourceService_ListResourceBindings_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "resource-bindings"}, ""))
+	pattern_ResourceService_BindExternalResource_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "external-resource-bindings"}, ""))
+	pattern_ResourceService_ListExternalResourceBindings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "iam", "orgs", "org_id", "external-resource-bindings"}, ""))
 )
 
 var (

@@ -924,6 +924,7 @@ func (x *ListResourceTypesReply) GetResourceTypes() []*ResourceType {
 
 type UpsertResourceRequest struct {
 	state                   protoimpl.MessageState `protogen:"open.v1"`
+	OrgId                   string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Resource                *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
 	WriteParentRelationship bool                   `protobuf:"varint,2,opt,name=write_parent_relationship,json=writeParentRelationship,proto3" json:"write_parent_relationship,omitempty"`
 	CreateDefaultOwnerGrant bool                   `protobuf:"varint,3,opt,name=create_default_owner_grant,json=createDefaultOwnerGrant,proto3" json:"create_default_owner_grant,omitempty"`
@@ -962,6 +963,13 @@ func (*UpsertResourceRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{10}
 }
 
+func (x *UpsertResourceRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
 func (x *UpsertResourceRequest) GetResource() *Resource {
 	if x != nil {
 		return x.Resource
@@ -992,6 +1000,7 @@ func (x *UpsertResourceRequest) GetOwner() *SubjectRef {
 
 type GetResourceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ResourceType  string                 `protobuf:"bytes,1,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
 	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1028,6 +1037,13 @@ func (*GetResourceRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{11}
 }
 
+func (x *GetResourceRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
 func (x *GetResourceRequest) GetResourceType() string {
 	if x != nil {
 		return x.ResourceType
@@ -1044,16 +1060,16 @@ func (x *GetResourceRequest) GetResourceId() string {
 
 type ListResourcesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	OrgId         string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ProjectId     string                 `protobuf:"bytes,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	Parent        *ResourceRef           `protobuf:"bytes,4,opt,name=parent,proto3" json:"parent,omitempty"`
 	OwnerService  string                 `protobuf:"bytes,5,opt,name=owner_service,json=ownerService,proto3" json:"owner_service,omitempty"`
 	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
 	Visibility    string                 `protobuf:"bytes,7,opt,name=visibility,proto3" json:"visibility,omitempty"`
 	Labels        map[string]string      `protobuf:"bytes,8,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	PageSize      int32                  `protobuf:"varint,9,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,10,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	PageSize      int32                  `protobuf:"varint,10,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken     string                 `protobuf:"bytes,11,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1088,16 +1104,16 @@ func (*ListResourcesRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *ListResourcesRequest) GetType() string {
+func (x *ListResourcesRequest) GetOrgId() string {
 	if x != nil {
-		return x.Type
+		return x.OrgId
 	}
 	return ""
 }
 
-func (x *ListResourcesRequest) GetOrgId() string {
+func (x *ListResourcesRequest) GetType() string {
 	if x != nil {
-		return x.OrgId
+		return x.Type
 	}
 	return ""
 }
@@ -1220,6 +1236,7 @@ func (x *ListResourcesReply) GetTotalSize() int64 {
 
 type MoveResourceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ResourceType  string                 `protobuf:"bytes,1,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
 	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
 	NewParent     *ResourceRef           `protobuf:"bytes,3,opt,name=new_parent,json=newParent,proto3" json:"new_parent,omitempty"`
@@ -1257,6 +1274,13 @@ func (*MoveResourceRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{14}
 }
 
+func (x *MoveResourceRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
 func (x *MoveResourceRequest) GetResourceType() string {
 	if x != nil {
 		return x.ResourceType
@@ -1280,6 +1304,7 @@ func (x *MoveResourceRequest) GetNewParent() *ResourceRef {
 
 type ArchiveResourceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ResourceType  string                 `protobuf:"bytes,1,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
 	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
 	Reason        string                 `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
@@ -1317,6 +1342,13 @@ func (*ArchiveResourceRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{15}
 }
 
+func (x *ArchiveResourceRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
 func (x *ArchiveResourceRequest) GetResourceType() string {
 	if x != nil {
 		return x.ResourceType
@@ -1340,6 +1372,7 @@ func (x *ArchiveResourceRequest) GetReason() string {
 
 type DeleteResourceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	ResourceType  string                 `protobuf:"bytes,1,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
 	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
 	HardDelete    bool                   `protobuf:"varint,3,opt,name=hard_delete,json=hardDelete,proto3" json:"hard_delete,omitempty"`
@@ -1376,6 +1409,13 @@ func (x *DeleteResourceRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DeleteResourceRequest.ProtoReflect.Descriptor instead.
 func (*DeleteResourceRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *DeleteResourceRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *DeleteResourceRequest) GetResourceType() string {
@@ -1460,6 +1500,7 @@ func (x *DeleteResourceReply) GetDeleted() bool {
 
 type BindResourceRequest struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
+	OrgId                  string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Binding                *ResourceBinding       `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
 	WriteGraphRelationship bool                   `protobuf:"varint,2,opt,name=write_graph_relationship,json=writeGraphRelationship,proto3" json:"write_graph_relationship,omitempty"`
 	unknownFields          protoimpl.UnknownFields
@@ -1496,6 +1537,13 @@ func (*BindResourceRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{18}
 }
 
+func (x *BindResourceRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
 func (x *BindResourceRequest) GetBinding() *ResourceBinding {
 	if x != nil {
 		return x.Binding
@@ -1512,6 +1560,7 @@ func (x *BindResourceRequest) GetWriteGraphRelationship() bool {
 
 type UnbindResourceRequest struct {
 	state                   protoimpl.MessageState `protogen:"open.v1"`
+	OrgId                   string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	BindingId               string                 `protobuf:"bytes,1,opt,name=binding_id,json=bindingId,proto3" json:"binding_id,omitempty"`
 	DeleteGraphRelationship bool                   `protobuf:"varint,2,opt,name=delete_graph_relationship,json=deleteGraphRelationship,proto3" json:"delete_graph_relationship,omitempty"`
 	unknownFields           protoimpl.UnknownFields
@@ -1546,6 +1595,13 @@ func (x *UnbindResourceRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UnbindResourceRequest.ProtoReflect.Descriptor instead.
 func (*UnbindResourceRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *UnbindResourceRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *UnbindResourceRequest) GetBindingId() string {
@@ -1616,6 +1672,7 @@ func (x *UnbindResourceReply) GetUnbound() bool {
 
 type ListResourceBindingsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Source        *ResourceRef           `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
 	Target        *ResourceRef           `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
 	Relation      string                 `protobuf:"bytes,3,opt,name=relation,proto3" json:"relation,omitempty"`
@@ -1654,6 +1711,13 @@ func (x *ListResourceBindingsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListResourceBindingsRequest.ProtoReflect.Descriptor instead.
 func (*ListResourceBindingsRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ListResourceBindingsRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *ListResourceBindingsRequest) GetSource() *ResourceRef {
@@ -1760,6 +1824,7 @@ func (x *ListResourceBindingsReply) GetTotalSize() int64 {
 
 type BindExternalResourceRequest struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
+	OrgId         string                   `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Binding       *ExternalResourceBinding `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1795,6 +1860,13 @@ func (*BindExternalResourceRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{23}
 }
 
+func (x *BindExternalResourceRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
 func (x *BindExternalResourceRequest) GetBinding() *ExternalResourceBinding {
 	if x != nil {
 		return x.Binding
@@ -1804,6 +1876,7 @@ func (x *BindExternalResourceRequest) GetBinding() *ExternalResourceBinding {
 
 type ListExternalResourceBindingsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrgId         string                 `protobuf:"bytes,9,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Resource      *ResourceRef           `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
 	Provider      string                 `protobuf:"bytes,2,opt,name=provider,proto3" json:"provider,omitempty"`
 	ExternalType  string                 `protobuf:"bytes,3,opt,name=external_type,json=externalType,proto3" json:"external_type,omitempty"`
@@ -1843,6 +1916,13 @@ func (x *ListExternalResourceBindingsRequest) ProtoReflect() protoreflect.Messag
 // Deprecated: Use ListExternalResourceBindingsRequest.ProtoReflect.Descriptor instead.
 func (*ListExternalResourceBindingsRequest) Descriptor() ([]byte, []int) {
 	return file_iam_resource_v1_resource_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *ListExternalResourceBindingsRequest) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
 }
 
 func (x *ListExternalResourceBindingsRequest) GetResource() *ResourceRef {
@@ -2069,21 +2149,23 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\n" +
 	"_grantable\"^\n" +
 	"\x16ListResourceTypesReply\x12D\n" +
-	"\x0eresource_types\x18\x01 \x03(\v2\x1d.iam.resource.v1.ResourceTypeR\rresourceTypes\"\xff\x01\n" +
-	"\x15UpsertResourceRequest\x12:\n" +
+	"\x0eresource_types\x18\x01 \x03(\v2\x1d.iam.resource.v1.ResourceTypeR\rresourceTypes\"\x9b\x02\n" +
+	"\x15UpsertResourceRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12:\n" +
 	"\bresource\x18\x01 \x01(\v2\x19.iam.resource.v1.ResourceB\x03\xe0A\x02R\bresource\x12:\n" +
 	"\x19write_parent_relationship\x18\x02 \x01(\bR\x17writeParentRelationship\x12;\n" +
 	"\x1acreate_default_owner_grant\x18\x03 \x01(\bR\x17createDefaultOwnerGrant\x121\n" +
-	"\x05owner\x18\x04 \x01(\v2\x1b.iam.resource.v1.SubjectRefR\x05owner\"r\n" +
-	"\x12GetResourceRequest\x12/\n" +
+	"\x05owner\x18\x04 \x01(\v2\x1b.iam.resource.v1.SubjectRefR\x05owner\"\x8e\x01\n" +
+	"\x12GetResourceRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12/\n" +
 	"\rresource_type\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
 	"\vresource_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
-	"resourceId\"\xb5\x03\n" +
-	"\x14ListResourcesRequest\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\x12\x15\n" +
-	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x1d\n" +
+	"resourceId\"\xba\x03\n" +
+	"\x14ListResourcesRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x03 \x01(\tR\tprojectId\x124\n" +
 	"\x06parent\x18\x04 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\x06parent\x12#\n" +
@@ -2093,10 +2175,10 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"visibility\x18\a \x01(\tR\n" +
 	"visibility\x12I\n" +
 	"\x06labels\x18\b \x03(\v21.iam.resource.v1.ListResourcesRequest.LabelsEntryR\x06labels\x12\x1b\n" +
-	"\tpage_size\x18\t \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\tpage_size\x18\n" +
+	" \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\n" +
-	" \x01(\tR\tpageToken\x1a9\n" +
+	"page_token\x18\v \x01(\tR\tpageToken\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x94\x01\n" +
@@ -2104,23 +2186,26 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\tresources\x18\x01 \x03(\v2\x19.iam.resource.v1.ResourceR\tresources\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xb5\x01\n" +
-	"\x13MoveResourceRequest\x12/\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\xd1\x01\n" +
+	"\x13MoveResourceRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12/\n" +
 	"\rresource_type\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
 	"\vresource_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
 	"resourceId\x12@\n" +
 	"\n" +
-	"new_parent\x18\x03 \x01(\v2\x1c.iam.resource.v1.ResourceRefB\x03\xe0A\x02R\tnewParent\"\x8e\x01\n" +
-	"\x16ArchiveResourceRequest\x12/\n" +
+	"new_parent\x18\x03 \x01(\v2\x1c.iam.resource.v1.ResourceRefB\x03\xe0A\x02R\tnewParent\"\xaa\x01\n" +
+	"\x16ArchiveResourceRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12/\n" +
 	"\rresource_type\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
 	"\vresource_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
 	"resourceId\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\"\xae\x01\n" +
-	"\x15DeleteResourceRequest\x12/\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\"\xca\x01\n" +
+	"\x15DeleteResourceRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12/\n" +
 	"\rresource_type\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\fresourceType\x12+\n" +
 	"\vresource_id\x18\x02 \x01(\tB\n" +
@@ -2131,11 +2216,13 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\x06reason\x18\x04 \x01(\tR\x06reason\"_\n" +
 	"\x13DeleteResourceReply\x12.\n" +
 	"\x03ref\x18\x01 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\x03ref\x12\x18\n" +
-	"\adeleted\x18\x02 \x01(\bR\adeleted\"\x90\x01\n" +
-	"\x13BindResourceRequest\x12?\n" +
+	"\adeleted\x18\x02 \x01(\bR\adeleted\"\xac\x01\n" +
+	"\x13BindResourceRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12?\n" +
 	"\abinding\x18\x01 \x01(\v2 .iam.resource.v1.ResourceBindingB\x03\xe0A\x02R\abinding\x128\n" +
-	"\x18write_graph_relationship\x18\x02 \x01(\bR\x16writeGraphRelationship\"~\n" +
-	"\x15UnbindResourceRequest\x12)\n" +
+	"\x18write_graph_relationship\x18\x02 \x01(\bR\x16writeGraphRelationship\"\x9a\x01\n" +
+	"\x15UnbindResourceRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12)\n" +
 	"\n" +
 	"binding_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\tbindingId\x12:\n" +
@@ -2143,8 +2230,9 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\x13UnbindResourceReply\x12\x1d\n" +
 	"\n" +
 	"binding_id\x18\x01 \x01(\tR\tbindingId\x12\x18\n" +
-	"\aunbound\x18\x02 \x01(\bR\aunbound\"\xf9\x01\n" +
-	"\x1bListResourceBindingsRequest\x124\n" +
+	"\aunbound\x18\x02 \x01(\bR\aunbound\"\x95\x02\n" +
+	"\x1bListResourceBindingsRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x124\n" +
 	"\x06source\x18\x01 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\x06source\x124\n" +
 	"\x06target\x18\x02 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\x06target\x12\x1a\n" +
 	"\brelation\x18\x03 \x01(\tR\brelation\x12\x16\n" +
@@ -2156,10 +2244,12 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\bbindings\x18\x01 \x03(\v2 .iam.resource.v1.ResourceBindingR\bbindings\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"f\n" +
-	"\x1bBindExternalResourceRequest\x12G\n" +
-	"\abinding\x18\x01 \x01(\v2(.iam.resource.v1.ExternalResourceBindingB\x03\xe0A\x02R\abinding\"\x9e\x02\n" +
-	"#ListExternalResourceBindingsRequest\x128\n" +
+	"total_size\x18\x03 \x01(\x03R\ttotalSize\"\x82\x01\n" +
+	"\x1bBindExternalResourceRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x12G\n" +
+	"\abinding\x18\x01 \x01(\v2(.iam.resource.v1.ExternalResourceBindingB\x03\xe0A\x02R\abinding\"\xba\x02\n" +
+	"#ListExternalResourceBindingsRequest\x12\x1a\n" +
+	"\x06org_id\x18\t \x01(\tB\x03\xe0A\x03R\x05orgId\x128\n" +
 	"\bresource\x18\x01 \x01(\v2\x1c.iam.resource.v1.ResourceRefR\bresource\x12\x1a\n" +
 	"\bprovider\x18\x02 \x01(\tR\bprovider\x12#\n" +
 	"\rexternal_type\x18\x03 \x01(\tR\fexternalType\x12\x1f\n" +
@@ -2183,27 +2273,27 @@ const file_iam_resource_v1_resource_proto_rawDesc = "" +
 	"\x11ListResourceTypes\x12).iam.resource.v1.ListResourceTypesRequest\x1a'.iam.resource.v1.ListResourceTypesReply\"\x82\x01\x92\xf4\x18R\b\x03\x12*\n" +
 	"\x04list\x12\x13iam:resource_type:*\x1a\viam-service \x03\x1a\"\b\x01\x12\x16iam.resource_type.list\x1a\x06medium\x82\xd3\xe4\x93\x02&\x12$/v1/iam/control-plane/resource-types\x12\x8a\x02\n" +
 	"\x0eUpsertResource\x12&.iam.resource.v1.UpsertResourceRequest\x1a\x19.iam.resource.v1.Resource\"\xb4\x01\x92\xf4\x18\x85\x01\b\x04\x12%\n" +
-	"\x06upsert\x12\fiam:resource\x1a\viam-service \x03\x1a\x1d\b\x01\x12\x13iam.resource.upsert\x1a\x04high2;Resource projections are written by trusted owner services.\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/v1/iam/control-plane/resources\x12\xdb\x01\n" +
+	"\x06upsert\x12\fiam:resource\x1a\viam-service \x03\x1a\x1d\b\x01\x12\x13iam.resource.upsert\x1a\x04high2;Resource projections are written by trusted owner services.\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/v1/iam/orgs/{org_id}/resources\x12\xdb\x01\n" +
 	"\vGetResource\x12#.iam.resource.v1.GetResourceRequest\x1a\x19.iam.resource.v1.Resource\"\x8b\x01\x92\xf4\x18B\b\x03\x12#\n" +
-	"\x04read\x12\fiam:resource\x1a\viam-service \x03\x1a\x19\b\x01\x12\x10iam.resource.get\x1a\x03low\x82\xd3\xe4\x93\x02?\x12=/v1/iam/control-plane/resources/{resource_type}/{resource_id}\x12\xce\x01\n" +
+	"\x04read\x12\fiam:resource\x1a\viam-service \x03\x1a\x19\b\x01\x12\x10iam.resource.get\x1a\x03low\x82\xd3\xe4\x93\x02?\x12=/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}\x12\xce\x01\n" +
 	"\rListResources\x12%.iam.resource.v1.ListResourcesRequest\x1a#.iam.resource.v1.ListResourcesReply\"q\x92\xf4\x18F\b\x03\x12#\n" +
-	"\x04list\x12\fiam:resource\x1a\viam-service \x03\x1a\x1d\b\x01\x12\x11iam.resource.list\x1a\x06medium\x82\xd3\xe4\x93\x02!\x12\x1f/v1/iam/control-plane/resources\x12\xaf\x02\n" +
+	"\x04list\x12\fiam:resource\x1a\viam-service \x03\x1a\x1d\b\x01\x12\x11iam.resource.list\x1a\x06medium\x82\xd3\xe4\x93\x02!\x12\x1f/v1/iam/orgs/{org_id}/resources\x12\xaf\x02\n" +
 	"\fMoveResource\x12$.iam.resource.v1.MoveResourceRequest\x1a\x19.iam.resource.v1.Resource\"\xdd\x01\x92\xf4\x18\x8b\x01\b\x04\x12#\n" +
-	"\x04move\x12\fiam:resource\x1a\viam-service \x03\x1a\x1b\b\x01\x12\x11iam.resource.move\x1a\x04high2EResource moves are requested only by trusted resource owner services.\x82\xd3\xe4\x93\x02G:\x01*\"B/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move\x12\xc0\x02\n" +
+	"\x04move\x12\fiam:resource\x1a\viam-service \x03\x1a\x1b\b\x01\x12\x11iam.resource.move\x1a\x04high2EResource moves are requested only by trusted resource owner services.\x82\xd3\xe4\x93\x02G:\x01*\"B/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/move\x12\xc0\x02\n" +
 	"\x0fArchiveResource\x12'.iam.resource.v1.ArchiveResourceRequest\x1a\x19.iam.resource.v1.Resource\"\xe8\x01\x92\xf4\x18\x93\x01\b\x04\x12&\n" +
-	"\aarchive\x12\fiam:resource\x1a\viam-service \x03\x1a\x1e\b\x01\x12\x14iam.resource.archive\x1a\x04high2GResource archival is synchronized from trusted resource owner services.\x82\xd3\xe4\x93\x02J:\x01*\"E/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive\x12\xbc\x02\n" +
+	"\aarchive\x12\fiam:resource\x1a\viam-service \x03\x1a\x1e\b\x01\x12\x14iam.resource.archive\x1a\x04high2GResource archival is synchronized from trusted resource owner services.\x82\xd3\xe4\x93\x02J:\x01*\"E/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/archive\x12\xbc\x02\n" +
 	"\x0eDeleteResource\x12&.iam.resource.v1.DeleteResourceRequest\x1a$.iam.resource.v1.DeleteResourceReply\"\xdb\x01\x92\xf4\x18\x91\x01\b\x04\x12%\n" +
-	"\x06delete\x12\fiam:resource\x1a\viam-service \x03\x1a\x1d\b\x01\x12\x13iam.resource.delete\x1a\x04high2GResource deletion is synchronized from trusted resource owner services.\x82\xd3\xe4\x93\x02?*=/v1/iam/control-plane/resources/{resource_type}/{resource_id}\x12\xa3\x02\n" +
+	"\x06delete\x12\fiam:resource\x1a\viam-service \x03\x1a\x1d\b\x01\x12\x13iam.resource.delete\x1a\x04high2GResource deletion is synchronized from trusted resource owner services.\x82\xd3\xe4\x93\x02?*=/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}\x12\xa3\x02\n" +
 	"\fBindResource\x12$.iam.resource.v1.BindResourceRequest\x1a .iam.resource.v1.ResourceBinding\"\xca\x01\x92\xf4\x18\x93\x01\b\x04\x12+\n" +
-	"\x04bind\x12\x14iam:resource_binding\x1a\viam-service \x03\x1a#\b\x01\x12\x19iam.resource_binding.bind\x1a\x04high2=Resource bindings are projected by trusted platform services.\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/iam/control-plane/resource-bindings\x12\xd6\x02\n" +
+	"\x04bind\x12\x14iam:resource_binding\x1a\viam-service \x03\x1a#\b\x01\x12\x19iam.resource_binding.bind\x1a\x04high2=Resource bindings are projected by trusted platform services.\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/iam/orgs/{org_id}/resource-bindings\x12\xd6\x02\n" +
 	"\x0eUnbindResource\x12&.iam.resource.v1.UnbindResourceRequest\x1a$.iam.resource.v1.UnbindResourceReply\"\xf5\x01\x92\xf4\x18\xaa\x01\b\x04\x12:\n" +
-	"\x06unbind\x12!iam:resource_binding:{binding_id}\x1a\viam-service \x03\x1a%\b\x01\x12\x1biam.resource_binding.unbind\x1a\x04high2CResource binding removal is projected by trusted platform services.\x82\xd3\xe4\x93\x02@:\x01*\";/v1/iam/control-plane/resource-bindings/{binding_id}/unbind\x12\xfc\x01\n" +
+	"\x06unbind\x12!iam:resource_binding:{binding_id}\x1a\viam-service \x03\x1a%\b\x01\x12\x1biam.resource_binding.unbind\x1a\x04high2CResource binding removal is projected by trusted platform services.\x82\xd3\xe4\x93\x02@:\x01*\";/v1/iam/orgs/{org_id}/resource-bindings/{binding_id}/unbind\x12\xfc\x01\n" +
 	"\x14ListResourceBindings\x12,.iam.resource.v1.ListResourceBindingsRequest\x1a*.iam.resource.v1.ListResourceBindingsReply\"\x89\x01\x92\xf4\x18V\b\x03\x12+\n" +
-	"\x04list\x12\x14iam:resource_binding\x1a\viam-service \x03\x1a%\b\x01\x12\x19iam.resource_binding.list\x1a\x06medium\x82\xd3\xe4\x93\x02)\x12'/v1/iam/control-plane/resource-bindings\x12\xe2\x02\n" +
+	"\x04list\x12\x14iam:resource_binding\x1a\viam-service \x03\x1a%\b\x01\x12\x19iam.resource_binding.list\x1a\x06medium\x82\xd3\xe4\x93\x02)\x12'/v1/iam/orgs/{org_id}/resource-bindings\x12\xe2\x02\n" +
 	"\x14BindExternalResource\x12,.iam.resource.v1.BindExternalResourceRequest\x1a(.iam.resource.v1.ExternalResourceBinding\"\xf1\x01\x92\xf4\x18\xb1\x01\b\x04\x124\n" +
-	"\x04bind\x12\x1diam:external_resource_binding\x1a\viam-service \x03\x1a,\b\x01\x12\"iam.external_resource_binding.bind\x1a\x04high2IExternal resource mappings are projected by trusted integration services.\x82\xd3\xe4\x93\x025:\x01*\"0/v1/iam/control-plane/external-resource-bindings\x12\xaf\x02\n" +
+	"\x04bind\x12\x1diam:external_resource_binding\x1a\viam-service \x03\x1a,\b\x01\x12\"iam.external_resource_binding.bind\x1a\x04high2IExternal resource mappings are projected by trusted integration services.\x82\xd3\xe4\x93\x025:\x01*\"0/v1/iam/orgs/{org_id}/external-resource-bindings\x12\xaf\x02\n" +
 	"\x1cListExternalResourceBindings\x124.iam.resource.v1.ListExternalResourceBindingsRequest\x1a2.iam.resource.v1.ListExternalResourceBindingsReply\"\xa4\x01\x92\xf4\x18h\b\x03\x124\n" +
-	"\x04list\x12\x1diam:external_resource_binding\x1a\viam-service \x03\x1a.\b\x01\x12\"iam.external_resource_binding.list\x1a\x06medium\x82\xd3\xe4\x93\x022\x120/v1/iam/control-plane/external-resource-bindingsBCZAgithub.com/aisphereio/aisphere-iam/api/iam/resource/v1;resourcev1b\x06proto3"
+	"\x04list\x12\x1diam:external_resource_binding\x1a\viam-service \x03\x1a.\b\x01\x12\"iam.external_resource_binding.list\x1a\x06medium\x82\xd3\xe4\x93\x022\x120/v1/iam/orgs/{org_id}/external-resource-bindingsBCZAgithub.com/aisphereio/aisphere-iam/api/iam/resource/v1;resourcev1b\x06proto3"
 
 var (
 	file_iam_resource_v1_resource_proto_rawDescOnce sync.Once

@@ -61,7 +61,7 @@ service GrantService {
   }
 
   rpc GrantAccess(GrantAccessRequest) returns (Grant) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/grants" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/grants" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
       authz: { action: "grant" resource: "iam:grant" audience: "iam-service" mode: SELF_CHECK }
@@ -70,7 +70,7 @@ service GrantService {
   }
 
   rpc RevokeAccess(RevokeAccessRequest) returns (RevokeAccessReply) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/grants/{grant_id}/revoke" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/grants/{grant_id}/revoke" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
       authz: { action: "revoke" resource: "iam:grant:{grant_id}" audience: "iam-service" mode: SELF_CHECK }
@@ -79,7 +79,7 @@ service GrantService {
   }
 
   rpc ListGrants(ListGrantsRequest) returns (ListGrantsReply) {
-    option (google.api.http) = { get: "/v1/iam/control-plane/grants" };
+    option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/grants" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
       authz: { action: "list" resource: "iam:grant" audience: "iam-service" mode: SELF_CHECK }
@@ -88,7 +88,7 @@ service GrantService {
   }
 
   rpc ExplainAccess(ExplainAccessRequest) returns (ExplainAccessReply) {
-    option (google.api.http) = { post: "/v1/iam/control-plane/access:explain" body: "*" };
+    option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/access:explain" body: "*" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
       authz: { action: "explain" resource: "iam:grant" audience: "iam-service" mode: SELF_CHECK }
@@ -180,6 +180,7 @@ message ListRoleTemplatesReply {
 }
 
 message GrantAccessRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   iam.resource.v1.ResourceRef resource = 1 [(google.api.field_behavior) = REQUIRED];
   string role_key = 2 [
     (google.api.field_behavior) = REQUIRED,
@@ -193,6 +194,7 @@ message GrantAccessRequest {
 }
 
 message RevokeAccessRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   string grant_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.min_len = 1
@@ -208,6 +210,7 @@ message RevokeAccessReply {
 }
 
 message ListGrantsRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   iam.resource.v1.ResourceRef resource = 1;
   iam.resource.v1.SubjectRef subject = 2;
   string relation = 3;
@@ -225,6 +228,7 @@ message ListGrantsReply {
 }
 
 message ExplainAccessRequest {
+  string org_id = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   iam.resource.v1.ResourceRef resource = 1 [(google.api.field_behavior) = REQUIRED];
   string permission = 2 [
     (google.api.field_behavior) = REQUIRED,

@@ -39,77 +39,77 @@ func ResourceServiceGatewayManifest() gatewayx.Manifest {
 			{
 				ID:       "resource.upsert.resource",
 				Method:   "PUT",
-				Path:     "/v1/iam/control-plane/resources",
+				Path:     "/v1/iam/orgs/{org_id}/resources",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/UpsertResource"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "resource.get.resource",
 				Method:   "GET",
-				Path:     "/v1/iam/control-plane/resources/{resource_type}/{resource_id}",
+				Path:     "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/GetResource"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "resource.list.resources",
 				Method:   "GET",
-				Path:     "/v1/iam/control-plane/resources",
+				Path:     "/v1/iam/orgs/{org_id}/resources",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/ListResources"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "resource.move.resource",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/move",
+				Path:     "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/move",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/MoveResource"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "resource.archive.resource",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/resources/{resource_type}/{resource_id}/archive",
+				Path:     "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}/archive",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/ArchiveResource"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "resource.delete.resource",
 				Method:   "DELETE",
-				Path:     "/v1/iam/control-plane/resources/{resource_type}/{resource_id}",
+				Path:     "/v1/iam/orgs/{org_id}/resources/{resource_type}/{resource_id}",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/DeleteResource"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "resource.bind.resource",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/resource-bindings",
+				Path:     "/v1/iam/orgs/{org_id}/resource-bindings",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/BindResource"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "resource.unbind.resource",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/resource-bindings/{binding_id}/unbind",
+				Path:     "/v1/iam/orgs/{org_id}/resource-bindings/{binding_id}/unbind",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/UnbindResource"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "resource.list.resource.bindings",
 				Method:   "GET",
-				Path:     "/v1/iam/control-plane/resource-bindings",
+				Path:     "/v1/iam/orgs/{org_id}/resource-bindings",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/ListResourceBindings"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "resource.bind.external.resource",
 				Method:   "POST",
-				Path:     "/v1/iam/control-plane/external-resource-bindings",
+				Path:     "/v1/iam/orgs/{org_id}/external-resource-bindings",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/BindExternalResource"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_INTERNAL, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
 				ID:       "resource.list.external.resource.bindings",
 				Method:   "GET",
-				Path:     "/v1/iam/control-plane/external-resource-bindings",
+				Path:     "/v1/iam/orgs/{org_id}/external-resource-bindings",
 				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.resource.v1.ResourceService/ListExternalResourceBindings"},
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
@@ -161,6 +161,9 @@ func ResourceServiceGatewayBindUpsertResource(req gatewayx.DispatchRequest, matc
 	if v, ok := req.Body.(UpsertResourceRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	return out, nil
 }
 
@@ -171,6 +174,9 @@ func ResourceServiceGatewayBindGetResource(req gatewayx.DispatchRequest, match g
 	}
 	if v, ok := req.Body.(GetResourceRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["resource_type"]; v != "" {
 		out.ResourceType = v
@@ -189,6 +195,9 @@ func ResourceServiceGatewayBindListResources(req gatewayx.DispatchRequest, match
 	if v, ok := req.Body.(ListResourcesRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	return out, nil
 }
 
@@ -199,6 +208,9 @@ func ResourceServiceGatewayBindMoveResource(req gatewayx.DispatchRequest, match 
 	}
 	if v, ok := req.Body.(MoveResourceRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["resource_type"]; v != "" {
 		out.ResourceType = v
@@ -217,6 +229,9 @@ func ResourceServiceGatewayBindArchiveResource(req gatewayx.DispatchRequest, mat
 	if v, ok := req.Body.(ArchiveResourceRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	if v := match.Params["resource_type"]; v != "" {
 		out.ResourceType = v
 	}
@@ -233,6 +248,9 @@ func ResourceServiceGatewayBindDeleteResource(req gatewayx.DispatchRequest, matc
 	}
 	if v, ok := req.Body.(DeleteResourceRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["resource_type"]; v != "" {
 		out.ResourceType = v
@@ -251,6 +269,9 @@ func ResourceServiceGatewayBindBindResource(req gatewayx.DispatchRequest, match 
 	if v, ok := req.Body.(BindResourceRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	return out, nil
 }
 
@@ -261,6 +282,9 @@ func ResourceServiceGatewayBindUnbindResource(req gatewayx.DispatchRequest, matc
 	}
 	if v, ok := req.Body.(UnbindResourceRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	if v := match.Params["binding_id"]; v != "" {
 		out.BindingId = v
@@ -276,6 +300,9 @@ func ResourceServiceGatewayBindListResourceBindings(req gatewayx.DispatchRequest
 	if v, ok := req.Body.(ListResourceBindingsRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	return out, nil
 }
 
@@ -287,6 +314,9 @@ func ResourceServiceGatewayBindBindExternalResource(req gatewayx.DispatchRequest
 	if v, ok := req.Body.(BindExternalResourceRequest); ok {
 		out = &v
 	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
+	}
 	return out, nil
 }
 
@@ -297,6 +327,9 @@ func ResourceServiceGatewayBindListExternalResourceBindings(req gatewayx.Dispatc
 	}
 	if v, ok := req.Body.(ListExternalResourceBindingsRequest); ok {
 		out = &v
+	}
+	if v := match.Params["org_id"]; v != "" {
+		out.OrgId = v
 	}
 	return out, nil
 }

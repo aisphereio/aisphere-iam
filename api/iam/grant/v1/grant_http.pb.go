@@ -41,37 +41,15 @@ type GrantServiceHTTPServer interface {
 
 func RegisterGrantServiceHTTPServer(s *http.Server, srv GrantServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/v1/iam/control-plane/grants", _GrantService_ListGrants0_HTTP_Handler(srv))
 	r.Handle("GET", "/v1/iam/control-plane/role-templates", _GrantService_ListRoleTemplates0_HTTP_Handler(srv))
+	r.Handle("GET", "/v1/iam/orgs/{org_id}/grants", _GrantService_ListGrants0_HTTP_Handler(srv))
 	r.Handle("PATCH", "/v1/iam/control-plane/role-templates/{id}", _GrantService_UpdateRoleTemplate0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/access:explain", _GrantService_ExplainAccess0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/grants", _GrantService_GrantAccess0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/role-templates", _GrantService_RegisterRoleTemplate0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/control-plane/grants/{grant_id}/revoke", _GrantService_RevokeAccess0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/role-templates/{id}:disable", _GrantService_DisableRoleTemplate0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/control-plane/role-templates/{id}:preview-impact", _GrantService_PreviewRoleTemplateImpact0_HTTP_Handler(srv))
-}
-
-func _GrantService_ListGrants0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListGrantsRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationGrantServiceListGrants)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListGrants(ctx, req.(*ListGrantsRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListGrantsReply)
-		return ctx.Result(200, reply)
-	}
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/access:explain", _GrantService_ExplainAccess0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/grants", _GrantService_GrantAccess0_HTTP_Handler(srv))
+	r.Handle("POST", "/v1/iam/orgs/{org_id}/grants/{grant_id}/revoke", _GrantService_RevokeAccess0_HTTP_Handler(srv))
 }
 
 func _GrantService_ListRoleTemplates0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
@@ -92,6 +70,31 @@ func _GrantService_ListRoleTemplates0_HTTP_Handler(srv GrantServiceHTTPServer) f
 			return err
 		}
 		reply := out.(*ListRoleTemplatesReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _GrantService_ListGrants0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListGrantsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGrantServiceListGrants)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListGrants(ctx, req.(*ListGrantsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListGrantsReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -121,50 +124,6 @@ func _GrantService_UpdateRoleTemplate0_HTTP_Handler(srv GrantServiceHTTPServer) 
 	}
 }
 
-func _GrantService_ExplainAccess0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ExplainAccessRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationGrantServiceExplainAccess)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ExplainAccess(ctx, req.(*ExplainAccessRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ExplainAccessReply)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _GrantService_GrantAccess0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GrantAccessRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationGrantServiceGrantAccess)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GrantAccess(ctx, req.(*GrantAccessRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*Grant)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _GrantService_RegisterRoleTemplate0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in RegisterRoleTemplateRequest
@@ -183,31 +142,6 @@ func _GrantService_RegisterRoleTemplate0_HTTP_Handler(srv GrantServiceHTTPServer
 			return err
 		}
 		reply := out.(*RoleTemplate)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _GrantService_RevokeAccess0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in RevokeAccessRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationGrantServiceRevokeAccess)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.RevokeAccess(ctx, req.(*RevokeAccessRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*RevokeAccessReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -262,6 +196,81 @@ func _GrantService_PreviewRoleTemplateImpact0_HTTP_Handler(srv GrantServiceHTTPS
 	}
 }
 
+func _GrantService_ExplainAccess0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ExplainAccessRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGrantServiceExplainAccess)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ExplainAccess(ctx, req.(*ExplainAccessRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ExplainAccessReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _GrantService_GrantAccess0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GrantAccessRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGrantServiceGrantAccess)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GrantAccess(ctx, req.(*GrantAccessRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*Grant)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _GrantService_RevokeAccess0_HTTP_Handler(srv GrantServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RevokeAccessRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		if err := http.ValidateRequest(ctx, &in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGrantServiceRevokeAccess)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RevokeAccess(ctx, req.(*RevokeAccessRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RevokeAccessReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GrantServiceHTTPClient interface {
 	DisableRoleTemplate(ctx context.Context, req *DisableRoleTemplateRequest, opts ...http.CallOption) (rsp *RoleTemplate, err error)
 	ExplainAccess(ctx context.Context, req *ExplainAccessRequest, opts ...http.CallOption) (rsp *ExplainAccessReply, err error)
@@ -301,7 +310,7 @@ func (c *GrantServiceHTTPClientImpl) DisableRoleTemplate(ctx context.Context, in
 
 func (c *GrantServiceHTTPClientImpl) ExplainAccess(ctx context.Context, in *ExplainAccessRequest, opts ...http.CallOption) (*ExplainAccessReply, error) {
 	var out ExplainAccessReply
-	pattern := "/v1/iam/control-plane/access:explain"
+	pattern := "/v1/iam/orgs/{org_id}/access:explain"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -318,7 +327,7 @@ func (c *GrantServiceHTTPClientImpl) ExplainAccess(ctx context.Context, in *Expl
 
 func (c *GrantServiceHTTPClientImpl) GrantAccess(ctx context.Context, in *GrantAccessRequest, opts ...http.CallOption) (*Grant, error) {
 	var out Grant
-	pattern := "/v1/iam/control-plane/grants"
+	pattern := "/v1/iam/orgs/{org_id}/grants"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -335,7 +344,7 @@ func (c *GrantServiceHTTPClientImpl) GrantAccess(ctx context.Context, in *GrantA
 
 func (c *GrantServiceHTTPClientImpl) ListGrants(ctx context.Context, in *ListGrantsRequest, opts ...http.CallOption) (*ListGrantsReply, error) {
 	var out ListGrantsReply
-	pattern := "/v1/iam/control-plane/grants"
+	pattern := "/v1/iam/orgs/{org_id}/grants"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -401,7 +410,7 @@ func (c *GrantServiceHTTPClientImpl) RegisterRoleTemplate(ctx context.Context, i
 
 func (c *GrantServiceHTTPClientImpl) RevokeAccess(ctx context.Context, in *RevokeAccessRequest, opts ...http.CallOption) (*RevokeAccessReply, error) {
 	var out RevokeAccessReply
-	pattern := "/v1/iam/control-plane/grants/{grant_id}/revoke"
+	pattern := "/v1/iam/orgs/{org_id}/grants/{grant_id}/revoke"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
