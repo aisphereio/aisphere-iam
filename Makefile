@@ -3,7 +3,7 @@ BUF ?= buf
 KUBECTL ?= kubectl
 
 KERNEL_MODULE ?= github.com/aisphereio/kernel
-KERNEL_VERSION ?= v0.4.9
+KERNEL_VERSION ?= v0.4.15
 KERNEL_LOCAL ?= ../kernel
 
 APP_NAME ?= aisphere-iam
