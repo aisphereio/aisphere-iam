@@ -29,6 +29,8 @@ const (
 type outboxRepo interface {
 	GetOutboxEvent(ctx context.Context, id string) (*data.OutboxEventModel, error)
 	UpdateOutboxEvent(ctx context.Context, id string, columns map[string]any) error
+	ListOutboxEventsForRetry(ctx context.Context, limit int) ([]data.OutboxEventModel, error)
+	IncrementOutboxRetry(ctx context.Context, id string) (*data.OutboxEventModel, error)
 }
 
 type Payload struct {
@@ -271,10 +273,82 @@ func (m *Manager) markFailed(ctx context.Context, eventID string, err error) err
 	if m == nil || m.repo == nil {
 		return nil
 	}
+	// Atomically bump retry_count and read it back so we can dead-letter
+	// events that have exhausted their retry budget instead of spinning
+	// forever (the previous implementation hardcoded retry_count=1, which
+	// both lost the true count and never dead-lettered).
+	updated, incErr := m.repo.IncrementOutboxRetry(ctx, eventID)
+	if incErr != nil {
+		// Fall back to a plain status update if the increment helper is
+		// unavailable so the failure is still recorded.
+		return m.repo.UpdateOutboxEvent(ctx, eventID, map[string]any{
+			"status":      StatusFailed,
+			"last_error":  err.Error(),
+			"next_run_at": m.now().Add(time.Minute),
+		})
+	}
+	status := StatusFailed
+	nextRun := m.now().Add(time.Minute)
+	if updated != nil && updated.RetryCount >= data.MaxOutboxRetries {
+		// Dead-letter: stop retrying automatically. next_run_at is cleared so
+		// ListOutboxEventsForRetry (which also filters retry_count < budget)
+		// never returns it again.
+		status = data.StatusDead
+		nextRun = time.Time{}
+	}
 	return m.repo.UpdateOutboxEvent(ctx, eventID, map[string]any{
-		"status":      StatusFailed,
+		"status":      status,
 		"last_error":  err.Error(),
-		"retry_count": 1,
-		"next_run_at": m.now().Add(time.Minute),
+		"next_run_at": nextRun,
 	})
+}
+
+// RetryOnce re-dispatches up to limit due outbox events (pending, submitted,
+// or failed whose next_run_at has elapsed and that have not exhausted their
+// retry budget).  It mirrors IdentityProjectionDispatcher.RetryOnce so the
+// iam_outbox_events projection layer gains the same automatic recovery as the
+// directory projection layer.
+func (m *Manager) RetryOnce(ctx context.Context, limit int) (int, error) {
+	if m == nil || m.repo == nil {
+		return 0, nil
+	}
+	if limit <= 0 || limit > 200 {
+		limit = 50
+	}
+	events, err := m.repo.ListOutboxEventsForRetry(ctx, limit)
+	if err != nil {
+		return 0, err
+	}
+	processed := 0
+	for i := range events {
+		event := events[i]
+		if _, err := m.Dispatch(ctx, &event); err != nil {
+			_ = m.markFailed(ctx, event.ID, err)
+			continue
+		}
+		processed++
+	}
+	return processed, nil
+}
+
+// StartRetryWorker polls the outbox at interval and re-dispatches due events
+// until ctx is cancelled.  It is the iam_outbox_events counterpart to
+// IdentityProjectionDispatcher.StartRetryWorker.
+func (m *Manager) StartRetryWorker(ctx context.Context, interval time.Duration) {
+	if m == nil || m.repo == nil {
+		return
+	}
+	if interval <= 0 {
+		interval = time.Minute
+	}
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			_, _ = m.RetryOnce(ctx, 100)
+		}
+	}
 }

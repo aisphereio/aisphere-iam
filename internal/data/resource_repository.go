@@ -18,6 +18,20 @@ const (
 	StatusDeleted  = "deleted"
 	StatusPending  = "pending"
 	StatusSynced   = "synced"
+	// StatusSubmitted / StatusProjecting / StatusFailed mirror the projection
+	// manager's lifecycle for iam_outbox_events and are used by the retry worker.
+	StatusSubmitted = "submitted"
+	StatusProjecting = "projecting"
+	StatusFailed     = "failed"
+
+	// StatusDead marks an outbox event that has exhausted MaxOutboxRetries and
+	// must no longer be retried automatically. It requires manual intervention.
+	StatusDead = "dead"
+
+	// MaxOutboxRetries caps automatic retry attempts for iam_outbox_events.
+	// Once exceeded the event is dead-lettered (StatusDead) so the retry worker
+	// stops spinning on a permanently failing saga.
+	MaxOutboxRetries = 10
 )
 
 type ListOptions struct {
@@ -88,6 +102,8 @@ type ControlPlaneRepository interface {
 	GetOutboxEvent(ctx context.Context, id string) (*OutboxEventModel, error)
 	UpdateOutboxEvent(ctx context.Context, id string, columns map[string]any) error
 	ListOutboxEvents(ctx context.Context, opts ListOptions) ([]OutboxEventModel, error)
+	ListOutboxEventsForRetry(ctx context.Context, limit int) ([]OutboxEventModel, error)
+	IncrementOutboxRetry(ctx context.Context, id string) (*OutboxEventModel, error)
 }
 
 type DBControlPlaneRepository struct {
@@ -423,6 +439,32 @@ func (r *DBControlPlaneRepository) ListOutboxEvents(ctx context.Context, opts Li
 	var out []OutboxEventModel
 	query, args := whereBuilder().eq("topic", opts.Type).eq("status", opts.Status).build()
 	return out, r.db.FindMany(ctx, &out, query, args...)
+}
+
+// ListOutboxEventsForRetry returns up to limit outbox events that are due for
+// (re)dispatch: pending, submitted, or failed rows whose next_run_at has
+// elapsed. Failed rows that have exhausted their retry budget are excluded so
+// the worker does not spin on dead-lettered events.
+func (r *DBControlPlaneRepository) ListOutboxEventsForRetry(ctx context.Context, limit int) ([]OutboxEventModel, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	var out []OutboxEventModel
+	err := r.db.GORM(ctx).Where(
+		"status IN ? AND (next_run_at IS NULL OR next_run_at <= ?) AND retry_count < ?",
+		[]string{StatusPending, StatusSubmitted, StatusFailed}, time.Now().UTC(), MaxOutboxRetries,
+	).Order("created_at ASC").Limit(limit).Find(&out).Error
+	return out, err
+}
+
+// IncrementOutboxRetry atomically bumps retry_count by one for the event and
+// returns the updated row so the caller can apply dead-lettering once the
+// budget is exhausted.
+func (r *DBControlPlaneRepository) IncrementOutboxRetry(ctx context.Context, id string) (*OutboxEventModel, error) {
+	if err := r.db.Increment(ctx, &OutboxEventModel{}, "id = ?", []any{id}, "retry_count", 1); err != nil {
+		return nil, err
+	}
+	return r.GetOutboxEvent(ctx, id)
 }
 
 // ─── Local Users ───────────────────────────────────────────────────────

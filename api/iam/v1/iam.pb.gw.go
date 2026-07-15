@@ -732,60 +732,6 @@ func local_request_IAMAuthorizationAdminService_ListRelationships_0(ctx context.
 	return msg, metadata, err
 }
 
-func request_IAMAuthorizationAdminService_WriteRelationships_0(ctx context.Context, marshaler runtime.Marshaler, client IAMAuthorizationAdminServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq WriteRelationshipsRequest
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	msg, err := client.WriteRelationships(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_IAMAuthorizationAdminService_WriteRelationships_0(ctx context.Context, marshaler runtime.Marshaler, server IAMAuthorizationAdminServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq WriteRelationshipsRequest
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.WriteRelationships(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_IAMAuthorizationAdminService_DeleteRelationships_0(ctx context.Context, marshaler runtime.Marshaler, client IAMAuthorizationAdminServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq DeleteRelationshipsRequest
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	msg, err := client.DeleteRelationships(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_IAMAuthorizationAdminService_DeleteRelationships_0(ctx context.Context, marshaler runtime.Marshaler, server IAMAuthorizationAdminServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq DeleteRelationshipsRequest
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.DeleteRelationships(ctx, &protoReq)
-	return msg, metadata, err
-}
-
 func request_IAMAuthorizationAdminService_CheckAuthorization_0(ctx context.Context, marshaler runtime.Marshaler, client IAMAuthorizationAdminServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CheckPermissionRequest
@@ -1340,46 +1286,6 @@ func RegisterIAMAuthorizationAdminServiceHandlerServer(ctx context.Context, mux 
 			return
 		}
 		forward_IAMAuthorizationAdminService_ListRelationships_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPost, pattern_IAMAuthorizationAdminService_WriteRelationships_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMAuthorizationAdminService/WriteRelationships", runtime.WithHTTPPathPattern("/v1/iam/authz/relationships"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_IAMAuthorizationAdminService_WriteRelationships_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_IAMAuthorizationAdminService_WriteRelationships_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPost, pattern_IAMAuthorizationAdminService_DeleteRelationships_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships", runtime.WithHTTPPathPattern("/v1/iam/authz/relationships:delete"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_IAMAuthorizationAdminService_DeleteRelationships_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_IAMAuthorizationAdminService_DeleteRelationships_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_IAMAuthorizationAdminService_CheckAuthorization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -2052,40 +1958,6 @@ func RegisterIAMAuthorizationAdminServiceHandlerClient(ctx context.Context, mux 
 		}
 		forward_IAMAuthorizationAdminService_ListRelationships_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_IAMAuthorizationAdminService_WriteRelationships_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMAuthorizationAdminService/WriteRelationships", runtime.WithHTTPPathPattern("/v1/iam/authz/relationships"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_IAMAuthorizationAdminService_WriteRelationships_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_IAMAuthorizationAdminService_WriteRelationships_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPost, pattern_IAMAuthorizationAdminService_DeleteRelationships_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships", runtime.WithHTTPPathPattern("/v1/iam/authz/relationships:delete"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_IAMAuthorizationAdminService_DeleteRelationships_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_IAMAuthorizationAdminService_DeleteRelationships_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	mux.Handle(http.MethodPost, pattern_IAMAuthorizationAdminService_CheckAuthorization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -2145,8 +2017,6 @@ var (
 	pattern_IAMAuthorizationAdminService_ValidateAuthorizationSchema_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "authz", "schema"}, "validate"))
 	pattern_IAMAuthorizationAdminService_PublishAuthorizationSchema_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "authz", "schema"}, "publish"))
 	pattern_IAMAuthorizationAdminService_ListRelationships_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "authz", "relationships"}, ""))
-	pattern_IAMAuthorizationAdminService_WriteRelationships_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "authz", "relationships"}, ""))
-	pattern_IAMAuthorizationAdminService_DeleteRelationships_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "authz", "relationships"}, "delete"))
 	pattern_IAMAuthorizationAdminService_CheckAuthorization_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "authz", "permissions"}, "check"))
 	pattern_IAMAuthorizationAdminService_ExplainAuthorization_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "authz", "permissions"}, "explain"))
 	pattern_IAMAuthorizationAdminService_GetEffectivePermissions_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "iam", "authz", "effective-permissions"}, ""))
@@ -2157,8 +2027,6 @@ var (
 	forward_IAMAuthorizationAdminService_ValidateAuthorizationSchema_0 = runtime.ForwardResponseMessage
 	forward_IAMAuthorizationAdminService_PublishAuthorizationSchema_0  = runtime.ForwardResponseMessage
 	forward_IAMAuthorizationAdminService_ListRelationships_0           = runtime.ForwardResponseMessage
-	forward_IAMAuthorizationAdminService_WriteRelationships_0          = runtime.ForwardResponseMessage
-	forward_IAMAuthorizationAdminService_DeleteRelationships_0         = runtime.ForwardResponseMessage
 	forward_IAMAuthorizationAdminService_CheckAuthorization_0          = runtime.ForwardResponseMessage
 	forward_IAMAuthorizationAdminService_ExplainAuthorization_0        = runtime.ForwardResponseMessage
 	forward_IAMAuthorizationAdminService_GetEffectivePermissions_0     = runtime.ForwardResponseMessage

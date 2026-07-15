@@ -6,6 +6,8 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/aisphereio/kernel/authz"
+
 	"github.com/aisphereio/aisphere-iam/internal/data"
 )
 
@@ -109,7 +111,42 @@ func (s *Service) ArchiveProject(ctx context.Context, req ArchiveProjectRequest)
 	if err := s.repo.UpsertProject(ctx, project); err != nil {
 		return nil, err
 	}
+	// Purge the project's SpiceDB relationships so an archived project
+	// immediately loses all grants (project#owner/developer/etc. and any
+	// edges where the project is a subject).  Compensation data is captured
+	// so a future un-archive could restore authorization.
+	filters := []authz.RelationshipFilter{
+		{ResourceType: ResourceTypeProject, ResourceID: project.ID},
+		{SubjectType: ResourceTypeProject, SubjectID: project.ID},
+	}
+	rels, _ := s.captureRelationships(ctx, filters)
+	if event, err := s.projection.NewBatchDeleteEvent("project", project.ID, filters, rels...); err == nil && event != nil {
+		if err := s.repo.CreateOutboxEvents(ctx, event); err == nil {
+			_, _ = s.projection.Dispatch(ctx, event)
+		}
+	}
 	return project, nil
+}
+
+// captureRelationships reads current SpiceDB relationships for the given
+// filters so they can be attached as compensation data to delete events.
+// Best-effort: a missing reader or read error yields nil compensation.
+func (s *Service) captureRelationships(ctx context.Context, filters []authz.RelationshipFilter) ([]authz.Relationship, error) {
+	if s.reader == nil {
+		return nil, nil
+	}
+	var captured []authz.Relationship
+	for _, filter := range filters {
+		if strings.TrimSpace(filter.ResourceType) == "" {
+			continue
+		}
+		rels, err := s.reader.ReadRelationships(ctx, filter)
+		if err != nil {
+			return captured, err
+		}
+		captured = append(captured, rels...)
+	}
+	return captured, nil
 }
 
 func (s *Service) loadProjectInZone(ctx context.Context, id, zoneID string) (*data.ProjectModel, error) {

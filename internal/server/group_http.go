@@ -81,7 +81,7 @@ func createIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
 			if displayName == "" {
 				displayName = payload.Name // keep the user's original text visible
 			}
-			group, err := resources.Identity.CreateGroup(ctx, authn.CreateGroupRequest{Group: authn.Group{
+			group, err := resources.Identity.CreateGroup(data.WithGroupOwner(ctx, principalSubject(principal)), authn.CreateGroupRequest{Group: authn.Group{
 				OrgID:       orgID,
 				ParentID:    payload.ParentID,
 				Name:        uniqueName,
@@ -90,10 +90,6 @@ func createIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
 				Users:       cleanStrings(payload.Users),
 			}})
 			if err != nil {
-				return nil, err
-			}
-			ownerSubj := principalSubject(principal)
-			if err := writeGroupStructure(ctx, resources.AuthzAdmin, orgID, group, &ownerSubj); err != nil {
 				return nil, err
 			}
 			return groupToReply(group), nil
@@ -117,25 +113,18 @@ func updateIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
 		if orgID == "" || groupID == "" {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "org_id and group_id are required"})
 		}
+		// Group Name is the immutable primary key backing both Casdoor's
+		// (Owner, Name) key and the SpiceDB object ID (e.g.
+		// "group:aisphere/platform").  Renaming would desync authorization
+		// topology, so reject any request that tries to change it.  An empty
+		// name (caller omitted the field) is allowed — it means "keep current".
+		if name := strings.TrimSpace(payload.Name); name != "" && !strings.EqualFold(name, groupID) {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("group name is immutable and cannot be changed from %q", groupID)})
+		}
 
 		result, err := runWithGatewayPrincipal(c, func(ctx context.Context, principal authn.Principal) (any, error) {
 			if err := requireAuthz(ctx, resources.Authz, principal, groupObject(orgID, groupID), "manage"); err != nil {
 				return nil, err
-			}
-			name := payload.Name
-			if name == "" {
-				name = groupID
-			}
-			// When the caller is actually renaming the group (new name differs
-			// from the current ID), slugify and de-duplicate just like on
-			// create.  Keeping the same name is a no-op and must not trigger a
-			// collision check against itself.
-			if name != groupID {
-				existingNames, err := collectExistingGroupNames(ctx, resources.Identity, orgID)
-				if err != nil {
-					return nil, err
-				}
-				name = generateUniqueGroupName(name, existingNames, groupID)
 			}
 			displayName := payload.DisplayName
 			if displayName == "" {
@@ -145,15 +134,12 @@ func updateIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
 				ID:          groupID,
 				OrgID:       orgID,
 				ParentID:    payload.ParentID,
-				Name:        name,
+				Name:        groupID,
 				DisplayName: displayName,
 				Type:        defaultGroupType(payload.Type),
 				Users:       cleanStrings(payload.Users),
 			}})
 			if err != nil {
-				return nil, err
-			}
-			if err := writeGroupStructure(ctx, resources.AuthzAdmin, orgID, group, nil); err != nil {
 				return nil, err
 			}
 			return groupToReply(group), nil
@@ -183,11 +169,6 @@ func deleteIdentityGroupHandler(resources *data.Resources) khttp.HandlerFunc {
 				Recursive: recursive,
 			}); err != nil {
 				return nil, err
-			}
-			if resources.AuthzAdmin != nil {
-				if _, err := resources.AuthzAdmin.DeleteRelationships(ctx, authz.RelationshipFilter{ResourceType: "group", ResourceID: groupResourceID(orgID, groupID)}); err != nil {
-					return nil, err
-				}
 			}
 			return map[string]bool{"success": true}, nil
 		})
@@ -237,43 +218,6 @@ func principalSubject(principal authn.Principal) authz.SubjectRef {
 	default:
 		return authz.SubjectRef{Type: authz.SubjectTypeUser, ID: principal.SubjectID}
 	}
-}
-
-func writeGroupStructure(ctx context.Context, writer authz.RelationshipWriter, zoneID string, group authn.Group, ownerSubject *authz.SubjectRef) error {
-	if writer == nil {
-		return nil
-	}
-	groupID := firstNonEmptyString(group.ID, group.Name)
-	if strings.TrimSpace(zoneID) == "" || strings.TrimSpace(groupID) == "" {
-		return nil
-	}
-	rels := []authz.Relationship{
-		{
-			Resource: authz.ObjectRef{Type: "group", ID: groupResourceID(zoneID, groupID)},
-			Relation: "zone",
-			Subject:  authz.SubjectRef{Type: "zone", ID: data.SanitizeObjectID(zoneID)},
-		},
-	}
-	if parentID := strings.TrimSpace(group.ParentID); parentID != "" {
-		rels = append(rels, authz.Relationship{
-			Resource: authz.ObjectRef{Type: "group", ID: groupResourceID(zoneID, groupID)},
-			Relation: "parent",
-			Subject:  authz.SubjectRef{Type: "group", ID: groupResourceID(zoneID, parentID)},
-		})
-	}
-	// Grant the creating principal an owner relationship so they can manage
-	// the group and create child groups beneath it.  Only written on create
-	// (ownerSubject != nil); the update path passes nil to preserve existing
-	// ownership rather than re-assigning it to whoever happens to be editing.
-	if ownerSubject != nil && ownerSubject.Type != "" && ownerSubject.ID != "" {
-		rels = append(rels, authz.Relationship{
-			Resource: authz.ObjectRef{Type: "group", ID: groupResourceID(zoneID, groupID)},
-			Relation: "owner",
-			Subject:  *ownerSubject,
-		})
-	}
-	_, err := writer.WriteRelationships(ctx, rels...)
-	return err
 }
 
 func groupObject(zoneID, groupID string) authz.ObjectRef {

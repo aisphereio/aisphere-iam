@@ -217,24 +217,6 @@ service IAMAuthorizationAdminService {
     };
   }
 
-  rpc WriteRelationships(WriteRelationshipsRequest) returns (WriteRelationshipsReply) {
-    option (google.api.http) = { post: "/v1/iam/authz/relationships" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "repair_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
-      audit: { enabled: true event: "iam.authz.relationship.write" risk: "critical" }
-    };
-  }
-
-  rpc DeleteRelationships(DeleteRelationshipsRequest) returns (DeleteRelationshipsReply) {
-    option (google.api.http) = { post: "/v1/iam/authz/relationships:delete" body: "*" };
-    option (aisphere.access.v1.policy) = {
-      exposure: AUTHORIZED
-      authz: { action: "repair_relationships" resource: "iam_authz:global" audience: "iam-service" mode: SELF_CHECK }
-      audit: { enabled: true event: "iam.authz.relationship.delete" risk: "critical" }
-    };
-  }
-
   rpc CheckAuthorization(CheckPermissionRequest) returns (CheckPermissionReply) {
     option (google.api.http) = { post: "/v1/iam/authz/permissions:check" body: "*" };
     option (aisphere.access.v1.policy) = {

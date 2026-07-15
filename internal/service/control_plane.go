@@ -178,30 +178,26 @@ func (s *ResourceService) ListResources(ctx context.Context, req *resourcev1.Lis
 }
 
 func (s *ResourceService) MoveResource(ctx context.Context, req *resourcev1.MoveResourceRequest) (*resourcev1.Resource, error) {
-	resource, err := s.repo.GetResource(ctx, req.GetResourceType(), req.GetResourceId())
-	if err != nil {
-		return nil, err
+	ref := resourceRef(&resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()})
+	var newParent resourcebiz.ResourceRef
+	if p := req.GetNewParent(); p != nil {
+		newParent = resourceRef(p)
 	}
-	newParent := req.GetNewParent()
-	if newParent != nil {
-		resource.ParentType = newParent.GetType()
-		resource.ParentID = newParent.GetId()
-	}
-	if err := s.repo.UpsertResource(ctx, resource); err != nil {
+	if _, err := s.biz.MoveResource(ctx, ref, newParent); err != nil {
 		return nil, err
 	}
 	return s.GetResource(ctx, &resourcev1.GetResourceRequest{ResourceType: req.GetResourceType(), ResourceId: req.GetResourceId()})
 }
 
 func (s *ResourceService) ArchiveResource(ctx context.Context, req *resourcev1.ArchiveResourceRequest) (*resourcev1.Resource, error) {
-	if err := s.repo.ArchiveResource(ctx, req.GetResourceType(), req.GetResourceId()); err != nil {
+	if err := s.biz.ArchiveResource(ctx, resourceRef(&resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()})); err != nil {
 		return nil, err
 	}
 	return s.GetResource(ctx, &resourcev1.GetResourceRequest{ResourceType: req.GetResourceType(), ResourceId: req.GetResourceId()})
 }
 
 func (s *ResourceService) DeleteResource(ctx context.Context, req *resourcev1.DeleteResourceRequest) (*resourcev1.DeleteResourceReply, error) {
-	if err := s.repo.DeleteResource(ctx, req.GetResourceType(), req.GetResourceId()); err != nil {
+	if err := s.biz.DeleteResource(ctx, resourceRef(&resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()})); err != nil {
 		return nil, err
 	}
 	return &resourcev1.DeleteResourceReply{Ref: &resourcev1.ResourceRef{Type: req.GetResourceType(), Id: req.GetResourceId()}, Deleted: true}, nil
@@ -221,7 +217,7 @@ func (s *ResourceService) BindResource(ctx context.Context, req *resourcev1.Bind
 }
 
 func (s *ResourceService) UnbindResource(ctx context.Context, req *resourcev1.UnbindResourceRequest) (*resourcev1.UnbindResourceReply, error) {
-	if err := s.repo.UnbindResource(ctx, req.GetBindingId()); err != nil {
+	if err := s.biz.UnbindResource(ctx, req.GetBindingId()); err != nil {
 		return nil, err
 	}
 	return &resourcev1.UnbindResourceReply{BindingId: req.GetBindingId(), Unbound: true}, nil

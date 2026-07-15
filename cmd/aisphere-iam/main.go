@@ -76,6 +76,11 @@ func main() {
 	defer cleanup()
 
 	projectionManager := projection.NewManager(resources.ControlPlane, resources.AuthzAdmin, resources.DTM)
+	// Start the outbox projection retry worker so failed/pending iam_outbox_events
+	// are re-dispatched automatically, mirroring the directory projection worker.
+	outboxRetryCtx, outboxRetryCancel := context.WithCancel(context.Background())
+	defer outboxRetryCancel()
+	go projectionManager.StartRetryWorker(outboxRetryCtx, time.Minute)
 	projectUsecase := projectbiz.NewService(resources.ControlPlane, resources.AuthzAdmin, projectionManager)
 	resourceUsecase := resourcebiz.NewService(resources.ControlPlane, resources.AuthzAdmin, projectionManager)
 	grantUsecase := grantbiz.NewService(resources.ControlPlane, resources.Authz, resources.AuthzAdmin, projectionManager)
