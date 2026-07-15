@@ -98,6 +98,7 @@ func (ResourceModel) TableName() string { return "iam_resources" }
 
 type ResourceBindingModel struct {
 	ID         string    `gorm:"column:id;primaryKey" json:"id"`
+	OrgID      string    `gorm:"column:org_id;not null;index" json:"org_id"`
 	SourceType string    `gorm:"column:source_type;not null;uniqueIndex:idx_iam_resource_binding_unique" json:"source_type"`
 	SourceID   string    `gorm:"column:source_id;not null;uniqueIndex:idx_iam_resource_binding_unique" json:"source_id"`
 	Relation   string    `gorm:"column:relation;not null;uniqueIndex:idx_iam_resource_binding_unique" json:"relation"`
@@ -113,6 +114,7 @@ func (ResourceBindingModel) TableName() string { return "iam_resource_bindings" 
 
 type ExternalResourceBindingModel struct {
 	ID           string     `gorm:"column:id;primaryKey" json:"id"`
+	OrgID        string     `gorm:"column:org_id;not null;index" json:"org_id"`
 	ResourceType string     `gorm:"column:resource_type;not null;index" json:"resource_type"`
 	ResourceID   string     `gorm:"column:resource_id;not null;index" json:"resource_id"`
 	Provider     string     `gorm:"column:provider;not null;uniqueIndex:idx_iam_external_binding_unique" json:"provider"`
@@ -132,6 +134,7 @@ func (ExternalResourceBindingModel) TableName() string { return "iam_external_re
 
 type RoleTemplateModel struct {
 	ID           string    `gorm:"column:id;primaryKey" json:"id"`
+	OrgID        string    `gorm:"column:org_id;index" json:"org_id"`
 	ResourceType string    `gorm:"column:resource_type;not null;uniqueIndex:idx_iam_role_template_resource_role" json:"resource_type"`
 	RoleKey      string    `gorm:"column:role_key;not null;uniqueIndex:idx_iam_role_template_resource_role" json:"role_key"`
 	DisplayName  string    `gorm:"column:display_name;not null" json:"display_name"`
@@ -176,6 +179,7 @@ func (RoleTemplateAuditModel) TableName() string { return "iam_role_template_aud
 
 type GrantModel struct {
 	ID              string     `gorm:"column:id;primaryKey" json:"id"`
+	OrgID           string     `gorm:"column:org_id;not null;index" json:"org_id"`
 	ResourceType    string     `gorm:"column:resource_type;not null;index:idx_iam_grant_resource" json:"resource_type"`
 	ResourceID      string     `gorm:"column:resource_id;not null;index:idx_iam_grant_resource" json:"resource_id"`
 	RoleKey         string     `gorm:"column:role_key;not null" json:"role_key"`
@@ -197,6 +201,7 @@ func (GrantModel) TableName() string { return "iam_grants" }
 
 type GrantAuditModel struct {
 	ID              string    `gorm:"column:id;primaryKey" json:"id"`
+	OrgID           string    `gorm:"column:org_id;not null;index" json:"org_id"`
 	GrantID         string    `gorm:"column:grant_id;index" json:"grant_id"`
 	Action          string    `gorm:"column:action;not null;index" json:"action"`
 	ResourceType    string    `gorm:"column:resource_type;not null;index" json:"resource_type"`
@@ -216,6 +221,7 @@ func (GrantAuditModel) TableName() string { return "iam_grant_audits" }
 
 type OutboxEventModel struct {
 	ID            string     `gorm:"column:id;primaryKey" json:"id"`
+	OrgID         string     `gorm:"column:org_id;index" json:"org_id"`
 	Topic         string     `gorm:"column:topic;not null;index" json:"topic"`
 	AggregateType string     `gorm:"column:aggregate_type;not null;index" json:"aggregate_type"`
 	AggregateID   string     `gorm:"column:aggregate_id;not null;index" json:"aggregate_id"`

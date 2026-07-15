@@ -291,7 +291,7 @@ func (r *MemoryControlPlaneRepository) ListResourceBindings(ctx context.Context,
 	defer r.mu.RUnlock()
 	var out []ResourceBindingModel
 	for _, v := range r.bindings {
-		if (opts.ResourceType == "" || v.SourceType == opts.ResourceType) && (opts.ResourceID == "" || v.SourceID == opts.ResourceID) && statusOK(v.Status, opts.Status) {
+		if (opts.OrgID == "" || v.OrgID == opts.OrgID) && (opts.ResourceType == "" || v.SourceType == opts.ResourceType) && (opts.ResourceID == "" || v.SourceID == opts.ResourceID) && statusOK(v.Status, opts.Status) {
 			out = append(out, *clone(v))
 		}
 	}
@@ -308,7 +308,7 @@ func (r *MemoryControlPlaneRepository) ListExternalResourceBindings(ctx context.
 	defer r.mu.RUnlock()
 	var out []ExternalResourceBindingModel
 	for _, v := range r.externalBindings {
-		if (opts.ResourceType == "" || v.ResourceType == opts.ResourceType) && (opts.ResourceID == "" || v.ResourceID == opts.ResourceID) && statusOK(v.SyncStatus, opts.Status) {
+		if (opts.OrgID == "" || v.OrgID == opts.OrgID) && (opts.ResourceType == "" || v.ResourceType == opts.ResourceType) && (opts.ResourceID == "" || v.ResourceID == opts.ResourceID) && statusOK(v.SyncStatus, opts.Status) {
 			out = append(out, *clone(v))
 		}
 	}
@@ -474,19 +474,19 @@ func (r *MemoryControlPlaneRepository) RevokeGrant(ctx context.Context, id strin
 	return nil
 }
 func (r *MemoryControlPlaneRepository) ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	var out []GrantModel
-	for _, v := range r.grants {
-		if v.RevokedAt != nil {
-			continue
+		r.mu.RLock()
+		defer r.mu.RUnlock()
+		var out []GrantModel
+		for _, v := range r.grants {
+			if v.RevokedAt != nil {
+				continue
+			}
+			if (opts.OrgID == "" || v.OrgID == opts.OrgID) && (opts.ResourceType == "" || v.ResourceType == opts.ResourceType) && (opts.ResourceID == "" || v.ResourceID == opts.ResourceID) && (opts.SubjectType == "" || v.SubjectType == opts.SubjectType) && (opts.SubjectID == "" || v.SubjectID == opts.SubjectID) {
+				out = append(out, *clone(v))
+			}
 		}
-		if (opts.ResourceType == "" || v.ResourceType == opts.ResourceType) && (opts.ResourceID == "" || v.ResourceID == opts.ResourceID) && (opts.SubjectType == "" || v.SubjectType == opts.SubjectType) && (opts.SubjectID == "" || v.SubjectID == opts.SubjectID) {
-			out = append(out, *clone(v))
-		}
+		return pageOf(out, opts.Page, opts.Size), nil
 	}
-	return pageOf(out, opts.Page, opts.Size), nil
-}
 
 func (r *MemoryControlPlaneRepository) ListDueExpiringGrants(ctx context.Context, limit int) ([]GrantModel, error) {
 	r.mu.RLock()

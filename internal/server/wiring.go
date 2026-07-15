@@ -19,3 +19,14 @@ func IAMBindings(resources *data.Resources, authSvc *service.IAMAuthService, dir
 		{Module: modules[7], Implementation: grantSvc},
 	}
 }
+
+func newIdentityAdminService(resources *data.Resources) *service.IAMIdentityAdminService {
+	if resources == nil || resources.Identity == nil {
+		return nil
+	}
+	return service.NewIAMIdentityAdminService(service.IAMDeps{
+		Tokens:   resources.Tokens,
+		Identity: resources.Identity,
+		Authz:    resources.AuthzAdmin,
+	})
+}

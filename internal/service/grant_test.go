@@ -65,7 +65,7 @@ func TestGrantServiceRegisterCustomRoleUsesPermissionsInsteadOfRelation(t *testi
 	store := authz.NewMemoryRelationshipStore()
 	biz := grantbiz.NewService(repo, memoryAuthorizer{MemoryRelationshipStore: store}, store)
 	svc := NewGrantService(biz, repo)
-	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{SubjectID: "admin", SubjectType: "user"})
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{SubjectID: "admin", SubjectType: "user", OrgID: "org-a"})
 	if err := repo.UpsertResourceType(ctx, &data.ResourceTypeModel{
 		Type: "test_skill", SpiceDBType: "test_skill", Grantable: true,
 		RelationsJSON: `["owner","custom_binding"]`, PermissionsJSON: `["view","review"]`,
@@ -93,7 +93,7 @@ func TestGrantServiceUpdatesCustomRoleWithImpactPreviewAndVersionCheck(t *testin
 	store := authz.NewMemoryRelationshipStore()
 	biz := grantbiz.NewService(repo, memoryAuthorizer{MemoryRelationshipStore: store}, store)
 	svc := NewGrantService(biz, repo)
-	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{SubjectID: "admin", SubjectType: "user"})
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{SubjectID: "admin", SubjectType: "user", OrgID: "org-a"})
 	if err := repo.UpsertResourceType(ctx, &data.ResourceTypeModel{
 		Type: "test_skill", SpiceDBType: "test_skill", Grantable: true,
 		RelationsJSON: `["custom_binding"]`, PermissionsJSON: `["view","review","edit"]`,
@@ -134,7 +134,7 @@ func TestGrantServiceCustomRoleGrantUsesRoleBindingAndRevokesAllBindingEdges(t *
 	store := authz.NewMemoryRelationshipStore()
 	biz := grantbiz.NewService(repo, memoryAuthorizer{MemoryRelationshipStore: store}, store)
 	svc := NewGrantService(biz, repo)
-	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{SubjectID: "admin", SubjectType: "user"})
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{SubjectID: "admin", SubjectType: "user", OrgID: "org-a"})
 	if err := repo.UpsertResourceType(ctx, &data.ResourceTypeModel{
 		Type: "test_skill", SpiceDBType: "test_skill", Grantable: true,
 		RelationsJSON: `["custom_binding"]`, PermissionsJSON: `["view","review"]`,

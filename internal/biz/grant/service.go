@@ -23,6 +23,7 @@ type SubjectRef struct{ Type, ID, Relation string }
 
 type RegisterRoleTemplateRequest struct {
 	ID           string
+	OrgID        string
 	ResourceType string
 	RoleKey      string
 	DisplayName  string
@@ -59,6 +60,7 @@ type RoleTemplateImpact struct {
 }
 
 type GrantAccessRequest struct {
+	OrgID     string
 	Resource  ResourceRef
 	RoleKey   string
 	Subject   SubjectRef
@@ -127,9 +129,10 @@ func (s *Service) RegisterRoleTemplate(ctx context.Context, req RegisterRoleTemp
 		id = req.ResourceType + "_" + req.RoleKey
 	}
 	now := s.now()
-	role := &data.RoleTemplateModel{
-		ID:           id,
-		ResourceType: req.ResourceType,
+role := &data.RoleTemplateModel{
+			ID:           id,
+			OrgID:        req.OrgID,
+			ResourceType: req.ResourceType,
 		RoleKey:      req.RoleKey,
 		DisplayName:  nonEmpty(req.DisplayName, req.RoleKey),
 		Description:  strings.TrimSpace(req.Description),
@@ -395,6 +398,7 @@ func (s *Service) GrantAccess(ctx context.Context, req GrantAccessRequest) (*dat
 	now := s.now()
 	grant := &data.GrantModel{
 		ID:              id,
+		OrgID:           req.OrgID,
 		ResourceType:    req.Resource.Type,
 		ResourceID:      req.Resource.ID,
 		RoleKey:         role.RoleKey,
@@ -537,9 +541,10 @@ func (s *Service) spiceType(ctx context.Context, typ string) (string, error) {
 }
 
 func auditForGrant(id, action string, g *data.GrantModel, actor SubjectRef, reason string, at time.Time) *data.GrantAuditModel {
-	return &data.GrantAuditModel{
-		ID:              id,
-		GrantID:         g.ID,
+		return &data.GrantAuditModel{
+			ID:              id,
+			OrgID:           g.OrgID,
+			GrantID:         g.ID,
 		Action:          action,
 		ResourceType:    g.ResourceType,
 		ResourceID:      g.ResourceID,
@@ -676,9 +681,10 @@ func (s *Service) expireOne(ctx context.Context, grant *data.GrantModel) error {
 		Subject:   graph.Subject(grant.SubjectType, grant.SubjectID, grant.SubjectRelation),
 		ExpiresAt: derefTime(grant.ExpiresAt),
 	}
-	audit := &data.GrantAuditModel{
-		ID:              idgen.New("gaudit"),
-		GrantID:         grant.ID,
+audit := &data.GrantAuditModel{
+			ID:              idgen.New("gaudit"),
+			OrgID:           grant.OrgID,
+			GrantID:         grant.ID,
 		Action:          "expire",
 		ResourceType:    grant.ResourceType,
 		ResourceID:      grant.ResourceID,

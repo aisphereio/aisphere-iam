@@ -60,6 +60,7 @@ type UpsertResourceRequest struct {
 
 type BindResourceRequest struct {
 	ID        string
+	OrgID     string
 	Source    ResourceRef
 	Relation  string
 	Target    ResourceRef
@@ -68,6 +69,7 @@ type BindResourceRequest struct {
 
 type BindExternalResourceRequest struct {
 	ID           string
+	OrgID        string
 	Resource     ResourceRef
 	Provider     string
 	ExternalType string
@@ -242,9 +244,10 @@ func (s *Service) BindResource(ctx context.Context, req BindResourceRequest) (*d
 		id = idgen.New("binding")
 	}
 	now := s.now()
-	binding := &data.ResourceBindingModel{
-		ID:         id,
-		SourceType: req.Source.Type,
+binding := &data.ResourceBindingModel{
+			ID:         id,
+			OrgID:      req.OrgID,
+			SourceType: req.Source.Type,
 		SourceID:   req.Source.ID,
 		Relation:   req.Relation,
 		TargetType: req.Target.Type,
@@ -495,9 +498,10 @@ func (s *Service) BindExternalResource(ctx context.Context, req BindExternalReso
 		id = idgen.New("extbind")
 	}
 	now := s.now()
-	b := &data.ExternalResourceBindingModel{
-		ID:           id,
-		ResourceType: strings.TrimSpace(req.Resource.Type),
+b := &data.ExternalResourceBindingModel{
+			ID:           id,
+			OrgID:        req.OrgID,
+			ResourceType: strings.TrimSpace(req.Resource.Type),
 		ResourceID:   strings.TrimSpace(req.Resource.ID),
 		Provider:     strings.TrimSpace(req.Provider),
 		ExternalType: strings.TrimSpace(req.ExternalType),

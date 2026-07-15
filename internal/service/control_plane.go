@@ -205,50 +205,66 @@ func (s *ResourceService) DeleteResource(ctx context.Context, req *resourcev1.De
 }
 
 func (s *ResourceService) BindResource(ctx context.Context, req *resourcev1.BindResourceRequest) (*resourcev1.ResourceBinding, error) {
-	actor, err := currentResourceSubject(ctx)
-	if err != nil {
-		return nil, err
+		actor, err := currentResourceSubject(ctx)
+		if err != nil {
+			return nil, err
+		}
+		orgID, err := currentOrgID(ctx)
+		if err != nil {
+			return nil, err
+		}
+		in := req.GetBinding()
+		model, _, err := s.biz.BindResource(ctx, resourcebiz.BindResourceRequest{ID: in.GetId(), OrgID: orgID, Source: resourceRef(in.GetSource()), Relation: in.GetRelation(), Target: resourceRef(in.GetTarget()), CreatedBy: actor})
+		if err != nil {
+			return nil, err
+		}
+		return resourceBindingModelToProto(model), nil
 	}
-	in := req.GetBinding()
-	model, _, err := s.biz.BindResource(ctx, resourcebiz.BindResourceRequest{ID: in.GetId(), Source: resourceRef(in.GetSource()), Relation: in.GetRelation(), Target: resourceRef(in.GetTarget()), CreatedBy: actor})
-	if err != nil {
-		return nil, err
-	}
-	return resourceBindingModelToProto(model), nil
-}
 
 func (s *ResourceService) UnbindResource(ctx context.Context, req *resourcev1.UnbindResourceRequest) (*resourcev1.UnbindResourceReply, error) {
-	if err := s.biz.UnbindResource(ctx, req.GetBindingId()); err != nil {
-		return nil, err
+		if err := s.biz.UnbindResource(ctx, req.GetBindingId()); err != nil {
+			return nil, err
+		}
+		return &resourcev1.UnbindResourceReply{BindingId: req.GetBindingId(), Unbound: true}, nil
 	}
-	return &resourcev1.UnbindResourceReply{BindingId: req.GetBindingId(), Unbound: true}, nil
-}
 
 func (s *ResourceService) ListResourceBindings(ctx context.Context, req *resourcev1.ListResourceBindingsRequest) (*resourcev1.ListResourceBindingsReply, error) {
-	source := req.GetSource()
-	items, err := s.repo.ListResourceBindings(ctx, data.ListOptions{ResourceType: source.GetType(), ResourceID: source.GetId(), Status: req.GetStatus()})
-	if err != nil {
-		return nil, err
+		source := req.GetSource()
+		orgID, err := currentOrgID(ctx)
+		if err != nil {
+			return nil, err
+		}
+		items, err := s.repo.ListResourceBindings(ctx, data.ListOptions{OrgID: orgID, ResourceType: source.GetType(), ResourceID: source.GetId(), Status: req.GetStatus()})
+		if err != nil {
+			return nil, err
+		}
+		out := make([]*resourcev1.ResourceBinding, 0, len(items))
+		for i := range items {
+			out = append(out, resourceBindingModelToProto(&items[i]))
+		}
+		return &resourcev1.ListResourceBindingsReply{Bindings: out, TotalSize: int64(len(out))}, nil
 	}
-	out := make([]*resourcev1.ResourceBinding, 0, len(items))
-	for i := range items {
-		out = append(out, resourceBindingModelToProto(&items[i]))
-	}
-	return &resourcev1.ListResourceBindingsReply{Bindings: out, TotalSize: int64(len(out))}, nil
-}
 
 func (s *ResourceService) BindExternalResource(ctx context.Context, req *resourcev1.BindExternalResourceRequest) (*resourcev1.ExternalResourceBinding, error) {
-	in := req.GetBinding()
-	model, err := s.biz.BindExternalResource(ctx, resourcebiz.BindExternalResourceRequest{ID: in.GetId(), Resource: resourceRef(in.GetResource()), Provider: in.GetProvider(), ExternalType: in.GetExternalType(), ExternalID: in.GetExternalId(), ExternalPath: in.GetExternalPath(), ExternalURL: in.GetExternalUrl(), SyncMode: in.GetSyncMode(), MetadataJSON: structToJSON(in.GetMetadata(), "{}")})
-	if err != nil {
-		return nil, err
+		in := req.GetBinding()
+		orgID, err := currentOrgID(ctx)
+		if err != nil {
+			return nil, err
+		}
+		model, err := s.biz.BindExternalResource(ctx, resourcebiz.BindExternalResourceRequest{ID: in.GetId(), OrgID: orgID, Resource: resourceRef(in.GetResource()), Provider: in.GetProvider(), ExternalType: in.GetExternalType(), ExternalID: in.GetExternalId(), ExternalPath: in.GetExternalPath(), ExternalURL: in.GetExternalUrl(), SyncMode: in.GetSyncMode(), MetadataJSON: structToJSON(in.GetMetadata(), "{}")})
+		if err != nil {
+			return nil, err
+		}
+		return externalBindingModelToProto(model), nil
 	}
-	return externalBindingModelToProto(model), nil
-}
 
 func (s *ResourceService) ListExternalResourceBindings(ctx context.Context, req *resourcev1.ListExternalResourceBindingsRequest) (*resourcev1.ListExternalResourceBindingsReply, error) {
-	source := req.GetResource()
-	items, err := s.repo.ListExternalResourceBindings(ctx, data.ListOptions{ResourceType: source.GetType(), ResourceID: source.GetId(), Type: req.GetProvider(), Status: req.GetSyncStatus()})
+source := req.GetResource()
+		orgID, err := currentOrgID(ctx)
+		if err != nil {
+			return nil, err
+		}
+		items, err := s.repo.ListExternalResourceBindings(ctx, data.ListOptions{OrgID: orgID, ResourceType: source.GetType(), ResourceID: source.GetId(), Type: req.GetProvider(), Status: req.GetSyncStatus()})
 	if err != nil {
 		return nil, err
 	}
@@ -270,14 +286,18 @@ func NewGrantService(biz *grantbiz.Service, repo data.ControlPlaneRepository) *G
 }
 
 func (s *GrantService) RegisterRoleTemplate(ctx context.Context, req *grantv1.RegisterRoleTemplateRequest) (*grantv1.RoleTemplate, error) {
-	in := req.GetRoleTemplate()
-	actor, _ := currentGrantSubject(ctx)
-	role, err := s.biz.RegisterRoleTemplate(ctx, grantbiz.RegisterRoleTemplateRequest{ID: in.GetId(), ResourceType: in.GetResourceType(), RoleKey: in.GetRoleKey(), DisplayName: in.GetDisplayName(), Description: in.GetDescription(), Relation: in.GetRelation(), BuiltIn: in.GetBuiltIn(), Enabled: in.GetEnabled(), SortOrder: int(in.GetSortOrder()), MetadataJSON: structToJSON(in.GetMetadata(), "{}"), Permissions: in.GetPermissions(), Actor: actor})
-	if err != nil {
-		return nil, err
+		in := req.GetRoleTemplate()
+		actor, _ := currentGrantSubject(ctx)
+		orgID, _ := currentOrgID(ctx)
+		if in.GetBuiltIn() {
+			orgID = ""
+		}
+		role, err := s.biz.RegisterRoleTemplate(ctx, grantbiz.RegisterRoleTemplateRequest{ID: in.GetId(), OrgID: orgID, ResourceType: in.GetResourceType(), RoleKey: in.GetRoleKey(), DisplayName: in.GetDisplayName(), Description: in.GetDescription(), Relation: in.GetRelation(), BuiltIn: in.GetBuiltIn(), Enabled: in.GetEnabled(), SortOrder: int(in.GetSortOrder()), MetadataJSON: structToJSON(in.GetMetadata(), "{}"), Permissions: in.GetPermissions(), Actor: actor})
+		if err != nil {
+			return nil, err
+		}
+		return roleTemplateModelToProto(role), nil
 	}
-	return roleTemplateModelToProto(role), nil
-}
 
 func (s *GrantService) UpdateRoleTemplate(ctx context.Context, req *grantv1.UpdateRoleTemplateRequest) (*grantv1.RoleTemplate, error) {
 	actor, _ := currentGrantSubject(ctx)
@@ -325,18 +345,22 @@ func (s *GrantService) ListRoleTemplates(ctx context.Context, req *grantv1.ListR
 }
 
 func (s *GrantService) GrantAccess(ctx context.Context, req *grantv1.GrantAccessRequest) (*grantv1.Grant, error) {
-	actor, err := currentGrantSubject(ctx)
-	if err != nil {
-		return nil, err
+		actor, err := currentGrantSubject(ctx)
+		if err != nil {
+			return nil, err
+		}
+		orgID, err := currentOrgID(ctx)
+		if err != nil {
+			return nil, err
+		}
+		grant, wr, err := s.biz.GrantAccess(ctx, grantbiz.GrantAccessRequest{OrgID: orgID, Resource: grantResource(req.GetResource()), RoleKey: req.GetRoleKey(), Subject: grantSubject(req.GetSubject()), Source: req.GetSource(), Reason: req.GetReason(), ExpiresAt: timestampPtr(req.GetExpiresAt()), CreatedBy: actor})
+		if err != nil {
+			return nil, err
+		}
+		out := grantModelToProto(grant)
+		out.ConsistencyToken = wr.ConsistencyToken
+		return out, nil
 	}
-	grant, wr, err := s.biz.GrantAccess(ctx, grantbiz.GrantAccessRequest{Resource: grantResource(req.GetResource()), RoleKey: req.GetRoleKey(), Subject: grantSubject(req.GetSubject()), Source: req.GetSource(), Reason: req.GetReason(), ExpiresAt: timestampPtr(req.GetExpiresAt()), CreatedBy: actor})
-	if err != nil {
-		return nil, err
-	}
-	out := grantModelToProto(grant)
-	out.ConsistencyToken = wr.ConsistencyToken
-	return out, nil
-}
 
 func (s *GrantService) RevokeAccess(ctx context.Context, req *grantv1.RevokeAccessRequest) (*grantv1.RevokeAccessReply, error) {
 	actor, err := currentGrantSubject(ctx)
@@ -351,18 +375,22 @@ func (s *GrantService) RevokeAccess(ctx context.Context, req *grantv1.RevokeAcce
 }
 
 func (s *GrantService) ListGrants(ctx context.Context, req *grantv1.ListGrantsRequest) (*grantv1.ListGrantsReply, error) {
-	res := req.GetResource()
-	sub := req.GetSubject()
-	page, err := s.repo.ListGrants(ctx, data.ListOptions{ResourceType: res.GetType(), ResourceID: res.GetId(), SubjectType: sub.GetType(), SubjectID: sub.GetId(), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
-	if err != nil {
-		return nil, err
+		res := req.GetResource()
+		sub := req.GetSubject()
+		orgID, err := currentOrgID(ctx)
+		if err != nil {
+			return nil, err
+		}
+		page, err := s.repo.ListGrants(ctx, data.ListOptions{OrgID: orgID, ResourceType: res.GetType(), ResourceID: res.GetId(), SubjectType: sub.GetType(), SubjectID: sub.GetId(), Page: pageFromToken(req.GetPageToken()), Size: int(req.GetPageSize())})
+		if err != nil {
+			return nil, err
+		}
+		out := make([]*grantv1.Grant, 0, len(page.Items))
+		for i := range page.Items {
+			out = append(out, grantModelToProto(&page.Items[i]))
+		}
+		return &grantv1.ListGrantsReply{Grants: out, TotalSize: page.Total, NextPageToken: nextPage(page)}, nil
 	}
-	out := make([]*grantv1.Grant, 0, len(page.Items))
-	for i := range page.Items {
-		out = append(out, grantModelToProto(&page.Items[i]))
-	}
-	return &grantv1.ListGrantsReply{Grants: out, TotalSize: page.Total, NextPageToken: nextPage(page)}, nil
-}
 
 func (s *GrantService) ExplainAccess(ctx context.Context, req *grantv1.ExplainAccessRequest) (*grantv1.ExplainAccessReply, error) {
 	reply, err := s.biz.ExplainAccess(ctx, grantbiz.ExplainAccessRequest{Resource: grantResource(req.GetResource()), Permission: req.GetPermission(), Subject: grantSubject(req.GetSubject())})
@@ -461,16 +489,28 @@ func grantResource(in *resourcev1.ResourceRef) grantbiz.ResourceRef {
 }
 
 func currentPrincipalSubject(ctx context.Context) (string, string, error) {
-	principal, ok := authn.PrincipalFromContext(ctx)
-	if !ok || !principal.IsAuthenticated() {
-		return "", "", authn.ErrMissingCredential("kernel principal is required")
+		principal, ok := authn.PrincipalFromContext(ctx)
+		if !ok || !principal.IsAuthenticated() {
+			return "", "", authn.ErrMissingCredential("kernel principal is required")
+		}
+		subjectType := strings.TrimSpace(principal.SubjectType)
+		if subjectType == "" {
+			subjectType = authn.SubjectTypeUser
+		}
+		return subjectType, strings.TrimSpace(principal.SubjectID), nil
 	}
-	subjectType := strings.TrimSpace(principal.SubjectType)
-	if subjectType == "" {
-		subjectType = authn.SubjectTypeUser
+
+func currentOrgID(ctx context.Context) (string, error) {
+		principal, ok := authn.PrincipalFromContext(ctx)
+		if !ok || !principal.IsAuthenticated() {
+			return "", authn.ErrMissingCredential("kernel principal is required")
+		}
+		orgID := strings.TrimSpace(principal.OrgID)
+		if orgID == "" {
+			return "", authn.ErrMissingCredential("kernel principal org_id is required")
+		}
+		return orgID, nil
 	}
-	return subjectType, strings.TrimSpace(principal.SubjectID), nil
-}
 
 func currentProjectContext(ctx context.Context, pathOrgIDs ...string) (string, projectbiz.SubjectRef, error) {
 	principal, ok := authn.PrincipalFromContext(ctx)

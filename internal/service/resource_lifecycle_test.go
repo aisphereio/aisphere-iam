@@ -185,24 +185,24 @@ func TestResourceServiceExternalBindings(t *testing.T) {
 		t.Fatalf("UpsertResource: %v", err)
 	}
 
-	// Bind external resource
-	_, err = service.BindExternalResource(ctx, &resourcev1.BindExternalResourceRequest{
-		Binding: &resourcev1.ExternalResourceBinding{
-			Resource:     &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"},
-			Provider:     "github",
-			ExternalType: "repository",
-			ExternalId:   "aisphereio/demo",
-			ExternalUrl:  "https://github.com/aisphereio/demo",
-		},
-	})
-	if err != nil {
-		t.Fatalf("BindExternalResource: %v", err)
-	}
+// Bind external resource
+		_, err = service.BindExternalResource(ctx2, &resourcev1.BindExternalResourceRequest{
+			Binding: &resourcev1.ExternalResourceBinding{
+				Resource:     &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"},
+				Provider:     "github",
+				ExternalType: "repository",
+				ExternalId:   "aisphereio/demo",
+				ExternalUrl:  "https://github.com/aisphereio/demo",
+			},
+		})
+		if err != nil {
+			t.Fatalf("BindExternalResource: %v", err)
+		}
 
-	// List external bindings
-	bindings, err := service.ListExternalResourceBindings(ctx, &resourcev1.ListExternalResourceBindingsRequest{
-		Resource: &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"},
-	})
+		// List external bindings
+		bindings, err := service.ListExternalResourceBindings(ctx2, &resourcev1.ListExternalResourceBindingsRequest{
+			Resource: &resourcev1.ResourceRef{Type: "test_skill", Id: "skill-1"},
+		})
 	if err != nil {
 		t.Fatalf("ListExternalResourceBindings: %v", err)
 	}

@@ -228,10 +228,10 @@ func (r *DBControlPlaneRepository) BindResource(ctx context.Context, binding *Re
 }
 
 func (r *DBControlPlaneRepository) ListResourceBindings(ctx context.Context, opts ListOptions) ([]ResourceBindingModel, error) {
-	var out []ResourceBindingModel
-	query, args := whereBuilder().eq("source_type", opts.ResourceType).eq("source_id", opts.ResourceID).eq("status", opts.Status).build()
-	return out, r.db.FindMany(ctx, &out, query, args...)
-}
+		var out []ResourceBindingModel
+		query, args := whereBuilder().eq("org_id", opts.OrgID).eq("source_type", opts.ResourceType).eq("source_id", opts.ResourceID).eq("status", opts.Status).build()
+		return out, r.db.FindMany(ctx, &out, query, args...)
+	}
 
 func (r *DBControlPlaneRepository) UnbindResource(ctx context.Context, bindingID string) error {
 	return r.db.Delete(ctx, &ResourceBindingModel{}, "id = ?", bindingID)
@@ -242,10 +242,10 @@ func (r *DBControlPlaneRepository) BindExternalResource(ctx context.Context, bin
 }
 
 func (r *DBControlPlaneRepository) ListExternalResourceBindings(ctx context.Context, opts ListOptions) ([]ExternalResourceBindingModel, error) {
-	var out []ExternalResourceBindingModel
-	query, args := whereBuilder().eq("resource_type", opts.ResourceType).eq("resource_id", opts.ResourceID).eq("provider", opts.Type).eq("sync_status", opts.Status).build()
-	return out, r.db.FindMany(ctx, &out, query, args...)
-}
+		var out []ExternalResourceBindingModel
+		query, args := whereBuilder().eq("org_id", opts.OrgID).eq("resource_type", opts.ResourceType).eq("resource_id", opts.ResourceID).eq("provider", opts.Type).eq("sync_status", opts.Status).build()
+		return out, r.db.FindMany(ctx, &out, query, args...)
+	}
 
 func (r *DBControlPlaneRepository) UpsertRoleTemplate(ctx context.Context, role *RoleTemplateModel) error {
 	return r.db.SafeUpsert(ctx, role, []string{"display_name", "description", "relation", "built_in", "enabled", "sort_order", "metadata_json", "version", "updated_at"})
@@ -398,11 +398,11 @@ func (r *DBControlPlaneRepository) RevokeGrant(ctx context.Context, id string, r
 }
 
 func (r *DBControlPlaneRepository) ListGrants(ctx context.Context, opts ListOptions) (*Page[GrantModel], error) {
-	var out []GrantModel
-	query, args := whereBuilder().eq("resource_type", opts.ResourceType).eq("resource_id", opts.ResourceID).eq("subject_type", opts.SubjectType).eq("subject_id", opts.SubjectID).build()
-	res, err := r.db.Paginate(ctx, &out, &GrantModel{}, query, args, opts.Page, opts.Size)
-	return pageFrom(out, res, err)
-}
+		var out []GrantModel
+		query, args := whereBuilder().eq("org_id", opts.OrgID).eq("resource_type", opts.ResourceType).eq("resource_id", opts.ResourceID).eq("subject_type", opts.SubjectType).eq("subject_id", opts.SubjectID).build()
+		res, err := r.db.Paginate(ctx, &out, &GrantModel{}, query, args, opts.Page, opts.Size)
+		return pageFrom(out, res, err)
+	}
 
 func (r *DBControlPlaneRepository) ListDueExpiringGrants(ctx context.Context, limit int) ([]GrantModel, error) {
 	if limit <= 0 || limit > 500 {
