@@ -834,25 +834,21 @@ func (c *IAMPermissionServiceHTTPClientImpl) WriteRelationships(ctx context.Cont
 }
 
 const OperationIAMAuthorizationAdminServiceCheckAuthorization = "/iam.v1.IAMAuthorizationAdminService/CheckAuthorization"
-const OperationIAMAuthorizationAdminServiceDeleteRelationships = "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships"
 const OperationIAMAuthorizationAdminServiceExplainAuthorization = "/iam.v1.IAMAuthorizationAdminService/ExplainAuthorization"
 const OperationIAMAuthorizationAdminServiceGetAuthorizationSchema = "/iam.v1.IAMAuthorizationAdminService/GetAuthorizationSchema"
 const OperationIAMAuthorizationAdminServiceGetEffectivePermissions = "/iam.v1.IAMAuthorizationAdminService/GetEffectivePermissions"
 const OperationIAMAuthorizationAdminServiceListRelationships = "/iam.v1.IAMAuthorizationAdminService/ListRelationships"
 const OperationIAMAuthorizationAdminServicePublishAuthorizationSchema = "/iam.v1.IAMAuthorizationAdminService/PublishAuthorizationSchema"
 const OperationIAMAuthorizationAdminServiceValidateAuthorizationSchema = "/iam.v1.IAMAuthorizationAdminService/ValidateAuthorizationSchema"
-const OperationIAMAuthorizationAdminServiceWriteRelationships = "/iam.v1.IAMAuthorizationAdminService/WriteRelationships"
 
 type IAMAuthorizationAdminServiceHTTPServer interface {
 	CheckAuthorization(context.Context, *CheckPermissionRequest) (*CheckPermissionReply, error)
-	DeleteRelationships(context.Context, *DeleteRelationshipsRequest) (*DeleteRelationshipsReply, error)
 	ExplainAuthorization(context.Context, *CheckPermissionRequest) (*ExplainAuthorizationReply, error)
 	GetAuthorizationSchema(context.Context, *GetAuthorizationSchemaRequest) (*AuthorizationSchema, error)
 	GetEffectivePermissions(context.Context, *GetEffectivePermissionsRequest) (*GetEffectivePermissionsReply, error)
 	ListRelationships(context.Context, *ListRelationshipsRequest) (*ListRelationshipsReply, error)
 	PublishAuthorizationSchema(context.Context, *PublishAuthorizationSchemaRequest) (*PublishAuthorizationSchemaReply, error)
 	ValidateAuthorizationSchema(context.Context, *ValidateAuthorizationSchemaRequest) (*ValidateAuthorizationSchemaReply, error)
-	WriteRelationships(context.Context, *WriteRelationshipsRequest) (*WriteRelationshipsReply, error)
 }
 
 func RegisterIAMAuthorizationAdminServiceHTTPServer(s *http.Server, srv IAMAuthorizationAdminServiceHTTPServer) {
@@ -862,8 +858,6 @@ func RegisterIAMAuthorizationAdminServiceHTTPServer(s *http.Server, srv IAMAutho
 	r.Handle("GET", "/v1/iam/authz/schema", _IAMAuthorizationAdminService_GetAuthorizationSchema0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/authz/permissions:check", _IAMAuthorizationAdminService_CheckAuthorization0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/authz/permissions:explain", _IAMAuthorizationAdminService_ExplainAuthorization0_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/authz/relationships", _IAMAuthorizationAdminService_WriteRelationships1_HTTP_Handler(srv))
-	r.Handle("POST", "/v1/iam/authz/relationships:delete", _IAMAuthorizationAdminService_DeleteRelationships1_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/authz/schema:publish", _IAMAuthorizationAdminService_PublishAuthorizationSchema0_HTTP_Handler(srv))
 	r.Handle("POST", "/v1/iam/authz/schema:validate", _IAMAuthorizationAdminService_ValidateAuthorizationSchema0_HTTP_Handler(srv))
 }
@@ -978,50 +972,6 @@ func _IAMAuthorizationAdminService_ExplainAuthorization0_HTTP_Handler(srv IAMAut
 	}
 }
 
-func _IAMAuthorizationAdminService_WriteRelationships1_HTTP_Handler(srv IAMAuthorizationAdminServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in WriteRelationshipsRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationIAMAuthorizationAdminServiceWriteRelationships)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.WriteRelationships(ctx, req.(*WriteRelationshipsRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*WriteRelationshipsReply)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _IAMAuthorizationAdminService_DeleteRelationships1_HTTP_Handler(srv IAMAuthorizationAdminServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteRelationshipsRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := http.ValidateRequest(ctx, &in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationIAMAuthorizationAdminServiceDeleteRelationships)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteRelationships(ctx, req.(*DeleteRelationshipsRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*DeleteRelationshipsReply)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _IAMAuthorizationAdminService_PublishAuthorizationSchema0_HTTP_Handler(srv IAMAuthorizationAdminServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in PublishAuthorizationSchemaRequest
@@ -1068,14 +1018,12 @@ func _IAMAuthorizationAdminService_ValidateAuthorizationSchema0_HTTP_Handler(srv
 
 type IAMAuthorizationAdminServiceHTTPClient interface {
 	CheckAuthorization(ctx context.Context, req *CheckPermissionRequest, opts ...http.CallOption) (rsp *CheckPermissionReply, err error)
-	DeleteRelationships(ctx context.Context, req *DeleteRelationshipsRequest, opts ...http.CallOption) (rsp *DeleteRelationshipsReply, err error)
 	ExplainAuthorization(ctx context.Context, req *CheckPermissionRequest, opts ...http.CallOption) (rsp *ExplainAuthorizationReply, err error)
 	GetAuthorizationSchema(ctx context.Context, req *GetAuthorizationSchemaRequest, opts ...http.CallOption) (rsp *AuthorizationSchema, err error)
 	GetEffectivePermissions(ctx context.Context, req *GetEffectivePermissionsRequest, opts ...http.CallOption) (rsp *GetEffectivePermissionsReply, err error)
 	ListRelationships(ctx context.Context, req *ListRelationshipsRequest, opts ...http.CallOption) (rsp *ListRelationshipsReply, err error)
 	PublishAuthorizationSchema(ctx context.Context, req *PublishAuthorizationSchemaRequest, opts ...http.CallOption) (rsp *PublishAuthorizationSchemaReply, err error)
 	ValidateAuthorizationSchema(ctx context.Context, req *ValidateAuthorizationSchemaRequest, opts ...http.CallOption) (rsp *ValidateAuthorizationSchemaReply, err error)
-	WriteRelationships(ctx context.Context, req *WriteRelationshipsRequest, opts ...http.CallOption) (rsp *WriteRelationshipsReply, err error)
 }
 
 type IAMAuthorizationAdminServiceHTTPClientImpl struct {
@@ -1094,23 +1042,6 @@ func (c *IAMAuthorizationAdminServiceHTTPClientImpl) CheckAuthorization(ctx cont
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationIAMAuthorizationAdminServiceCheckAuthorization),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *IAMAuthorizationAdminServiceHTTPClientImpl) DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...http.CallOption) (*DeleteRelationshipsReply, error) {
-	var out DeleteRelationshipsReply
-	pattern := "/v1/iam/authz/relationships:delete"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationIAMAuthorizationAdminServiceDeleteRelationships),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
@@ -1210,23 +1141,6 @@ func (c *IAMAuthorizationAdminServiceHTTPClientImpl) ValidateAuthorizationSchema
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationIAMAuthorizationAdminServiceValidateAuthorizationSchema),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-func (c *IAMAuthorizationAdminServiceHTTPClientImpl) WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...http.CallOption) (*WriteRelationshipsReply, error) {
-	var out WriteRelationshipsReply
-	pattern := "/v1/iam/authz/relationships"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationIAMAuthorizationAdminServiceWriteRelationships),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)

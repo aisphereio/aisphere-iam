@@ -162,4 +162,13 @@ metrics:
   runtime: true
 
 dtm:
-  enabled: false
+  enabled: true
+  driver: dtm
+  protocol: http
+  server: http://36.138.61.152:30897/api/dtmsvr
+  service_base_url: http://127.0.0.1:18080
+  branch_prefix: /internal/dtm
+  branch_secret: "aisphere-dtm-branch-secret-2026"
+  wait_result: true
+  timeout_ns: 10000000000
+  metrics_enabled: true

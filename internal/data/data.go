@@ -179,7 +179,7 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 			return nil, nil, err
 		}
 		if r.Identity != nil {
-			r.IdentityProjection = NewIdentityProjectionDispatcher(provider, r.DTM, r.DB)
+			r.IdentityProjection = NewIdentityProjectionDispatcher(provider, provider, r.DTM, r.DB)
 			if err := r.IdentityProjection.EnsureStore(ctx); err != nil {
 				r.Close()
 				return nil, nil, err
@@ -189,7 +189,7 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 				r.closers = append(r.closers, func() error { cancel(); return nil })
 				go r.IdentityProjection.StartRetryWorker(retryCtx, time.Minute)
 			}
-			r.Identity = BindIdentityAuthZ(r.Identity, provider, WithIdentityProjectionDispatcher(r.IdentityProjection))
+			r.Identity = BindIdentityAuthZ(r.Identity, provider, WithIdentityProjectionDispatcher(r.IdentityProjection), WithIdentityProjectionReader(provider))
 		}
 		if closeFn != nil {
 			r.closers = append(r.closers, closeFn)

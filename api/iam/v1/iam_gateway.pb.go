@@ -474,20 +474,6 @@ func IAMAuthorizationAdminServiceGatewayManifest() gatewayx.Manifest {
 				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
 			},
 			{
-				ID:       "i.a.m.authorization.admin.write.relationships",
-				Method:   "POST",
-				Path:     "/v1/iam/authz/relationships",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/WriteRelationships"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
-				ID:       "i.a.m.authorization.admin.delete.relationships",
-				Method:   "POST",
-				Path:     "/v1/iam/authz/relationships:delete",
-				Upstream: gatewayx.UpstreamRef{Service: "iam-service", Namespace: "aisphere", Protocol: "grpc", Operation: "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships"},
-				Gateway:  gatewayx.GatewayPolicy{Exposure: v1.Exposure_AUTHORIZED, AuthnMode: gatewayx.AuthnModePassive, ForwardAuthorization: true},
-			},
-			{
 				ID:       "i.a.m.authorization.admin.check.authorization",
 				Method:   "POST",
 				Path:     "/v1/iam/authz/permissions:check",
@@ -556,28 +542,6 @@ func IAMAuthorizationAdminServiceGatewayBindListRelationships(req gatewayx.Dispa
 	return out, nil
 }
 
-func IAMAuthorizationAdminServiceGatewayBindWriteRelationships(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*WriteRelationshipsRequest, error) {
-	out := &WriteRelationshipsRequest{}
-	if v, ok := req.Body.(*WriteRelationshipsRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(WriteRelationshipsRequest); ok {
-		out = &v
-	}
-	return out, nil
-}
-
-func IAMAuthorizationAdminServiceGatewayBindDeleteRelationships(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*DeleteRelationshipsRequest, error) {
-	out := &DeleteRelationshipsRequest{}
-	if v, ok := req.Body.(*DeleteRelationshipsRequest); ok && v != nil {
-		out = v
-	}
-	if v, ok := req.Body.(DeleteRelationshipsRequest); ok {
-		out = &v
-	}
-	return out, nil
-}
-
 func IAMAuthorizationAdminServiceGatewayBindCheckAuthorization(req gatewayx.DispatchRequest, match gatewayx.RouteMatch) (*CheckPermissionRequest, error) {
 	out := &CheckPermissionRequest{}
 	if v, ok := req.Body.(*CheckPermissionRequest); ok && v != nil {
@@ -622,12 +586,6 @@ func RegisterIAMAuthorizationAdminServiceGatewayInvokers(registry *gatewayx.Invo
 		return err
 	}
 	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/ListRelationships", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindListRelationships, client.ListRelationships)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/WriteRelationships", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindWriteRelationships, client.WriteRelationships)); err != nil {
-		return err
-	}
-	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/DeleteRelationships", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindDeleteRelationships, client.DeleteRelationships)); err != nil {
 		return err
 	}
 	if err := registry.Register("/iam.v1.IAMAuthorizationAdminService/CheckAuthorization", gatewayx.GRPCUnaryInvoker(IAMAuthorizationAdminServiceGatewayBindCheckAuthorization, client.CheckAuthorization)); err != nil {

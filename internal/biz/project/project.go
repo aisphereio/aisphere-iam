@@ -71,6 +71,7 @@ type SetProjectCapabilityRequest struct {
 type Service struct {
 	repo       data.ControlPlaneRepository
 	projection *projection.Manager
+	reader     authz.RelationshipReader
 	now        func() time.Time
 }
 
@@ -79,7 +80,11 @@ func NewService(repo data.ControlPlaneRepository, writer authz.RelationshipWrite
 	if pm == nil {
 		pm = projection.NewManager(repo, writer, nil)
 	}
-	return &Service{repo: repo, projection: pm, now: func() time.Time { return time.Now().UTC() }}
+	var reader authz.RelationshipReader
+	if r, ok := writer.(authz.RelationshipReader); ok {
+		reader = r
+	}
+	return &Service{repo: repo, projection: pm, reader: reader, now: func() time.Time { return time.Now().UTC() }}
 }
 
 func (s *Service) CreateProject(ctx context.Context, req CreateProjectRequest) (*data.ProjectModel, authz.WriteResult, error) {

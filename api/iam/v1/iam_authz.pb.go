@@ -769,28 +769,6 @@ var IAMAuthorizationAdminServiceAuthzRules = authz.Rules{
 		AuditEvent: "iam.authz.relationship.list",
 		AuditRisk:  "medium",
 	},
-	"/iam.v1.IAMAuthorizationAdminService/WriteRelationships": {
-		Service:    "iam.v1.IAMAuthorizationAdminService",
-		Method:     "WriteRelationships",
-		FullMethod: "/iam.v1.IAMAuthorizationAdminService/WriteRelationships",
-		Action:     "repair_relationships",
-		Resource:   "iam_authz:global",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.authz.relationship.write",
-		AuditRisk:  "critical",
-	},
-	"/iam.v1.IAMAuthorizationAdminService/DeleteRelationships": {
-		Service:    "iam.v1.IAMAuthorizationAdminService",
-		Method:     "DeleteRelationships",
-		FullMethod: "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships",
-		Action:     "repair_relationships",
-		Resource:   "iam_authz:global",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.authz.relationship.delete",
-		AuditRisk:  "critical",
-	},
 	"/iam.v1.IAMAuthorizationAdminService/CheckAuthorization": {
 		Service:    "iam.v1.IAMAuthorizationAdminService",
 		Method:     "CheckAuthorization",
@@ -871,28 +849,6 @@ const IAMAuthorizationAdminServiceAuthzManifestJSON = `{
       "mode": "SELF_CHECK",
       "audit_event": "iam.authz.relationship.list",
       "audit_risk": "medium"
-    },
-    {
-      "service": "iam.v1.IAMAuthorizationAdminService",
-      "method": "WriteRelationships",
-      "full_method": "/iam.v1.IAMAuthorizationAdminService/WriteRelationships",
-      "action": "repair_relationships",
-      "resource": "iam_authz:global",
-      "audience": "iam-service",
-      "mode": "SELF_CHECK",
-      "audit_event": "iam.authz.relationship.write",
-      "audit_risk": "critical"
-    },
-    {
-      "service": "iam.v1.IAMAuthorizationAdminService",
-      "method": "DeleteRelationships",
-      "full_method": "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships",
-      "action": "repair_relationships",
-      "resource": "iam_authz:global",
-      "audience": "iam-service",
-      "mode": "SELF_CHECK",
-      "audit_event": "iam.authz.relationship.delete",
-      "audit_risk": "critical"
     },
     {
       "service": "iam.v1.IAMAuthorizationAdminService",
@@ -1002,10 +958,6 @@ func _IAMAuthorizationAdminServiceNormalizeOperation(operation string) string {
 		return "/iam.v1.IAMAuthorizationAdminService/PublishAuthorizationSchema"
 	case "ListRelationships", "iam.v1.IAMAuthorizationAdminService/ListRelationships":
 		return "/iam.v1.IAMAuthorizationAdminService/ListRelationships"
-	case "WriteRelationships", "iam.v1.IAMAuthorizationAdminService/WriteRelationships":
-		return "/iam.v1.IAMAuthorizationAdminService/WriteRelationships"
-	case "DeleteRelationships", "iam.v1.IAMAuthorizationAdminService/DeleteRelationships":
-		return "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships"
 	case "CheckAuthorization", "iam.v1.IAMAuthorizationAdminService/CheckAuthorization":
 		return "/iam.v1.IAMAuthorizationAdminService/CheckAuthorization"
 	case "ExplainAuthorization", "iam.v1.IAMAuthorizationAdminService/ExplainAuthorization":
@@ -1183,84 +1135,6 @@ func (c *IAMAuthorizationAdminServiceSecureClient) ListRelationships(ctx context
 		}
 	}
 	return c.raw.ListRelationships(ctx, in, opts...)
-}
-
-func (c *IAMAuthorizationAdminServiceSecureClient) WriteRelationships(ctx context.Context, in *WriteRelationshipsRequest, opts ...grpc.CallOption) (*WriteRelationshipsReply, error) {
-	if c != nil && c.guard != nil {
-		rule := IAMAuthorizationAdminServiceAuthzRules["/iam.v1.IAMAuthorizationAdminService/WriteRelationships"]
-		resource, err := c.resolver.ResolveResource(rule, in)
-		if err != nil {
-			return nil, err
-		}
-		subject := _IAMAuthorizationAdminServiceAuthzSubjectFromContext(ctx)
-		switch rule.Mode {
-		case authz.RuleModeScopedToken:
-			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-			if token != "" {
-				ctx = contextx.WithScopedToken(ctx, token)
-			}
-		case authz.RuleModeCheckOnly:
-			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-		case authz.RuleModeSelfCheck:
-		// SELF_CHECK means the target resource service performs the final check.
-		case authz.RuleModeUnspecified:
-			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
-		default:
-			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
-		}
-	}
-	return c.raw.WriteRelationships(ctx, in, opts...)
-}
-
-func (c *IAMAuthorizationAdminServiceSecureClient) DeleteRelationships(ctx context.Context, in *DeleteRelationshipsRequest, opts ...grpc.CallOption) (*DeleteRelationshipsReply, error) {
-	if c != nil && c.guard != nil {
-		rule := IAMAuthorizationAdminServiceAuthzRules["/iam.v1.IAMAuthorizationAdminService/DeleteRelationships"]
-		resource, err := c.resolver.ResolveResource(rule, in)
-		if err != nil {
-			return nil, err
-		}
-		subject := _IAMAuthorizationAdminServiceAuthzSubjectFromContext(ctx)
-		switch rule.Mode {
-		case authz.RuleModeScopedToken:
-			token, decision, err := c.guard.RequireScopedToken(ctx, authz.ScopedTokenRequest{Subject: subject, Action: rule.Action, Resource: resource, Audience: rule.Audience, Rule: rule, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-			if token != "" {
-				ctx = contextx.WithScopedToken(ctx, token)
-			}
-		case authz.RuleModeCheckOnly:
-			decision, err := c.guard.Require(ctx, authz.CheckRequest{Subject: subject, Resource: resource, Permission: rule.Action, TenantID: contextx.TenantFromContext(ctx)})
-			if err != nil {
-				return nil, err
-			}
-			if decision.ConsistencyToken != "" {
-				ctx = contextx.WithAuthzDecisionID(ctx, decision.ConsistencyToken)
-			}
-		case authz.RuleModeSelfCheck:
-		// SELF_CHECK means the target resource service performs the final check.
-		case authz.RuleModeUnspecified:
-			return nil, authz.ErrInvalidRequest("authz rule mode must not be UNSPECIFIED")
-		default:
-			return nil, authz.ErrInvalidRequest("unsupported authz rule mode: " + string(rule.Mode))
-		}
-	}
-	return c.raw.DeleteRelationships(ctx, in, opts...)
 }
 
 func (c *IAMAuthorizationAdminServiceSecureClient) CheckAuthorization(ctx context.Context, in *CheckPermissionRequest, opts ...grpc.CallOption) (*CheckPermissionReply, error) {

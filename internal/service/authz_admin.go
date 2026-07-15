@@ -86,46 +86,6 @@ func (s *IAMAuthorizationAdminService) ListRelationships(ctx context.Context, re
 	return &v1.ListRelationshipsReply{Relationships: out}, nil
 }
 
-func (s *IAMAuthorizationAdminService) WriteRelationships(ctx context.Context, req *v1.WriteRelationshipsRequest) (*v1.WriteRelationshipsReply, error) {
-	if err := s.requireGlobalAuthz(ctx, "repair_relationships"); err != nil {
-		return nil, err
-	}
-	if s.deps.Authz == nil {
-		return nil, authz.ErrBackendFailed("authz provider is not configured", nil)
-	}
-	inputs := req.GetRelationships()
-	if len(inputs) == 0 {
-		return nil, authn.ErrInvalidTokenRequest("at least one relationship is required")
-	}
-	rels := make([]authz.Relationship, 0, len(inputs))
-	for _, input := range inputs {
-		rel := relationshipFromProto(input)
-		if rel.Resource.IsZero() || strings.TrimSpace(rel.Relation) == "" || rel.Subject.IsZero() {
-			return nil, authn.ErrInvalidTokenRequest("resource, relation and subject are required")
-		}
-		rels = append(rels, rel)
-	}
-	result, err := s.deps.Authz.WriteRelationships(ctx, rels...)
-	if err != nil {
-		return nil, err
-	}
-	return &v1.WriteRelationshipsReply{Written: int32(result.Written), ConsistencyToken: result.ConsistencyToken}, nil
-}
-
-func (s *IAMAuthorizationAdminService) DeleteRelationships(ctx context.Context, req *v1.DeleteRelationshipsRequest) (*v1.DeleteRelationshipsReply, error) {
-	if err := s.requireGlobalAuthz(ctx, "repair_relationships"); err != nil {
-		return nil, err
-	}
-	if s.deps.Authz == nil {
-		return nil, authz.ErrBackendFailed("authz provider is not configured", nil)
-	}
-	result, err := s.deps.Authz.DeleteRelationships(ctx, relationshipFilterFromProto(req.GetFilter()))
-	if err != nil {
-		return nil, err
-	}
-	return &v1.DeleteRelationshipsReply{Deleted: int32(result.Deleted), ConsistencyToken: result.ConsistencyToken}, nil
-}
-
 func (s *IAMAuthorizationAdminService) CheckAuthorization(ctx context.Context, req *v1.CheckPermissionRequest) (*v1.CheckPermissionReply, error) {
 	if err := s.requireGlobalAuthz(ctx, "view_relationships"); err != nil {
 		return nil, err

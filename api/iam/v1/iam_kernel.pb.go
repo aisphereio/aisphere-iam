@@ -876,28 +876,6 @@ var IAMAuthorizationAdminServiceKernelAuthzRules = authz.Rules{
 		AuditEvent: "iam.authz.relationship.list",
 		AuditRisk:  "medium",
 	},
-	"/iam.v1.IAMAuthorizationAdminService/WriteRelationships": {
-		Service:    "iam.v1.IAMAuthorizationAdminService",
-		Method:     "WriteRelationships",
-		FullMethod: "/iam.v1.IAMAuthorizationAdminService/WriteRelationships",
-		Action:     "repair_relationships",
-		Resource:   "iam_authz:global",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.authz.relationship.write",
-		AuditRisk:  "critical",
-	},
-	"/iam.v1.IAMAuthorizationAdminService/DeleteRelationships": {
-		Service:    "iam.v1.IAMAuthorizationAdminService",
-		Method:     "DeleteRelationships",
-		FullMethod: "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships",
-		Action:     "repair_relationships",
-		Resource:   "iam_authz:global",
-		Audience:   "iam-service",
-		Mode:       authz.RuleMode("SELF_CHECK"),
-		AuditEvent: "iam.authz.relationship.delete",
-		AuditRisk:  "critical",
-	},
 	"/iam.v1.IAMAuthorizationAdminService/CheckAuthorization": {
 		Service:    "iam.v1.IAMAuthorizationAdminService",
 		Method:     "CheckAuthorization",
@@ -998,36 +976,6 @@ func IAMAuthorizationAdminServiceKernelRequestInfoResolver(ctx context.Context, 
 		info.Labels["audit_event"] = "iam.authz.relationship.list"
 		info.Labels["audit_risk"] = "medium"
 		return info.Normalize(), true, nil
-	case "/iam.v1.IAMAuthorizationAdminService/WriteRelationships":
-		info := requestx.Info{
-			Service:       "iam.v1.IAMAuthorizationAdminService",
-			Method:        "WriteRelationships",
-			Operation:     "/iam.v1.IAMAuthorizationAdminService/WriteRelationships",
-			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "repair_relationships",
-			Resource:      "iam_authz:global",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "SELF_CHECK"
-		info.Labels["audit_event"] = "iam.authz.relationship.write"
-		info.Labels["audit_risk"] = "critical"
-		return info.Normalize(), true, nil
-	case "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships":
-		info := requestx.Info{
-			Service:       "iam.v1.IAMAuthorizationAdminService",
-			Method:        "DeleteRelationships",
-			Operation:     "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships",
-			Exposure:      v1.Exposure_AUTHORIZED,
-			Action:        "repair_relationships",
-			Resource:      "iam_authz:global",
-			TargetService: "iam-service",
-			Labels:        map[string]string{},
-		}
-		info.Labels["authz_mode"] = "SELF_CHECK"
-		info.Labels["audit_event"] = "iam.authz.relationship.delete"
-		info.Labels["audit_risk"] = "critical"
-		return info.Normalize(), true, nil
 	case "/iam.v1.IAMAuthorizationAdminService/CheckAuthorization":
 		info := requestx.Info{
 			Service:       "iam.v1.IAMAuthorizationAdminService",
@@ -1111,10 +1059,6 @@ func _IAMAuthorizationAdminServiceKernelNormalizeOperation(operation string) str
 		return "/iam.v1.IAMAuthorizationAdminService/PublishAuthorizationSchema"
 	case "ListRelationships", "iam.v1.IAMAuthorizationAdminService/ListRelationships":
 		return "/iam.v1.IAMAuthorizationAdminService/ListRelationships"
-	case "WriteRelationships", "iam.v1.IAMAuthorizationAdminService/WriteRelationships":
-		return "/iam.v1.IAMAuthorizationAdminService/WriteRelationships"
-	case "DeleteRelationships", "iam.v1.IAMAuthorizationAdminService/DeleteRelationships":
-		return "/iam.v1.IAMAuthorizationAdminService/DeleteRelationships"
 	case "CheckAuthorization", "iam.v1.IAMAuthorizationAdminService/CheckAuthorization":
 		return "/iam.v1.IAMAuthorizationAdminService/CheckAuthorization"
 	case "ExplainAuthorization", "iam.v1.IAMAuthorizationAdminService/ExplainAuthorization":

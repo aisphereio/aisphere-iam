@@ -4156,7 +4156,7 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x0fLookupResources\x12\x1e.iam.v1.LookupResourcesRequest\x1a\x1c.iam.v1.LookupResourcesReply\"\xc2\x01\x92\xf4\x18\x9a\x01\b\x04\x12%\n" +
 	"\x06lookup\x12\fiam:resource\x1a\viam-service \x03\x1a\x1f\b\x01\x12\x13iam.resource.lookup\x1a\x06medium2NAuthorization graph resource lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/iam/resources/lookup\x12\x8d\x02\n" +
 	"\x0eLookupSubjects\x12\x1d.iam.v1.LookupSubjectsRequest\x1a\x1b.iam.v1.LookupSubjectsReply\"\xbe\x01\x92\xf4\x18\x97\x01\b\x04\x12$\n" +
-	"\x06lookup\x12\viam:subject\x1a\viam-service \x03\x1a\x1e\b\x01\x12\x12iam.subject.lookup\x1a\x06medium2MAuthorization graph subject lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/iam/subjects/lookup2\x98\x11\n" +
+	"\x06lookup\x12\viam:subject\x1a\viam-service \x03\x1a\x1e\b\x01\x12\x12iam.subject.lookup\x1a\x06medium2MAuthorization graph subject lookup is restricted to trusted backend services.\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/iam/subjects/lookup2\xaf\r\n" +
 	"\x1cIAMAuthorizationAdminService\x12\xd2\x01\n" +
 	"\x16GetAuthorizationSchema\x12%.iam.v1.GetAuthorizationSchemaRequest\x1a\x1b.iam.v1.AuthorizationSchema\"t\x92\xf4\x18T\b\x03\x12.\n" +
 	"\vview_schema\x12\x10iam_authz:global\x1a\viam-service \x03\x1a \b\x01\x12\x14iam.authz.schema.get\x1a\x06medium\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/iam/authz/schema\x12\xfc\x01\n" +
@@ -4165,11 +4165,7 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x1aPublishAuthorizationSchema\x12).iam.v1.PublishAuthorizationSchemaRequest\x1a'.iam.v1.PublishAuthorizationSchemaReply\"\x88\x01\x92\xf4\x18]\b\x03\x121\n" +
 	"\x0epublish_schema\x12\x10iam_authz:global\x1a\viam-service \x03\x1a&\b\x01\x12\x18iam.authz.schema.publish\x1a\bcritical\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/iam/authz/schema:publish\x12\xe1\x01\n" +
 	"\x11ListRelationships\x12 .iam.v1.ListRelationshipsRequest\x1a\x1e.iam.v1.ListRelationshipsReply\"\x89\x01\x92\xf4\x18b\b\x03\x125\n" +
-	"\x12view_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a'\b\x01\x12\x1biam.authz.relationship.list\x1a\x06medium\x82\xd3\xe4\x93\x02\x1d\x12\x1b/v1/iam/authz/relationships\x12\xec\x01\n" +
-	"\x12WriteRelationships\x12!.iam.v1.WriteRelationshipsRequest\x1a\x1f.iam.v1.WriteRelationshipsReply\"\x91\x01\x92\xf4\x18g\b\x03\x127\n" +
-	"\x14repair_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a*\b\x01\x12\x1ciam.authz.relationship.write\x1a\bcritical\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/iam/authz/relationships\x12\xf7\x01\n" +
-	"\x13DeleteRelationships\x12\".iam.v1.DeleteRelationshipsRequest\x1a .iam.v1.DeleteRelationshipsReply\"\x99\x01\x92\xf4\x18h\b\x03\x127\n" +
-	"\x14repair_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a+\b\x01\x12\x1diam.authz.relationship.delete\x1a\bcritical\x82\xd3\xe4\x93\x02':\x01*\"\"/v1/iam/authz/relationships:delete\x12\xe4\x01\n" +
+	"\x12view_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a'\b\x01\x12\x1biam.authz.relationship.list\x1a\x06medium\x82\xd3\xe4\x93\x02\x1d\x12\x1b/v1/iam/authz/relationships\x12\xe4\x01\n" +
 	"\x12CheckAuthorization\x12\x1e.iam.v1.CheckPermissionRequest\x1a\x1c.iam.v1.CheckPermissionReply\"\x8f\x01\x92\xf4\x18a\b\x03\x125\n" +
 	"\x12view_relationships\x12\x10iam_authz:global\x1a\viam-service \x03\x1a&\b\x01\x12\x1aiam.authz.permission.check\x1a\x06medium\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/iam/authz/permissions:check\x12\xef\x01\n" +
 	"\x14ExplainAuthorization\x12\x1e.iam.v1.CheckPermissionRequest\x1a!.iam.v1.ExplainAuthorizationReply\"\x93\x01\x92\xf4\x18c\b\x03\x125\n" +
@@ -4306,39 +4302,35 @@ var file_iam_v1_iam_proto_depIdxs = []int32{
 	35, // 49: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:input_type -> iam.v1.ValidateAuthorizationSchemaRequest
 	37, // 50: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:input_type -> iam.v1.PublishAuthorizationSchemaRequest
 	39, // 51: iam.v1.IAMAuthorizationAdminService.ListRelationships:input_type -> iam.v1.ListRelationshipsRequest
-	41, // 52: iam.v1.IAMAuthorizationAdminService.WriteRelationships:input_type -> iam.v1.WriteRelationshipsRequest
-	43, // 53: iam.v1.IAMAuthorizationAdminService.DeleteRelationships:input_type -> iam.v1.DeleteRelationshipsRequest
-	21, // 54: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:input_type -> iam.v1.CheckPermissionRequest
-	21, // 55: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:input_type -> iam.v1.CheckPermissionRequest
-	46, // 56: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:input_type -> iam.v1.GetEffectivePermissionsRequest
-	50, // 57: iam.v1.IAMAuthService.VerifyToken:output_type -> iam.v1.Principal
-	2,  // 58: iam.v1.IAMAuthService.GetMe:output_type -> iam.v1.GetMeReply
-	51, // 59: iam.v1.IAMDirectoryService.GetUser:output_type -> iam.v1.User
-	5,  // 60: iam.v1.IAMDirectoryService.ListUsers:output_type -> iam.v1.ListUsersReply
-	52, // 61: iam.v1.IAMDirectoryService.GetOrganization:output_type -> iam.v1.Organization
-	8,  // 62: iam.v1.IAMDirectoryService.ListGroups:output_type -> iam.v1.ListGroupsReply
-	53, // 63: iam.v1.IAMDirectoryService.GetGroup:output_type -> iam.v1.Group
-	16, // 64: iam.v1.IAMDirectoryProjectionService.RetryDirectoryProjection:output_type -> iam.v1.RetryDirectoryProjectionReply
-	18, // 65: iam.v1.IAMDirectoryProjectionService.ReconcileDirectoryProjection:output_type -> iam.v1.ReconcileDirectoryProjectionReply
-	20, // 66: iam.v1.IAMDirectoryProjectionService.CheckDirectoryProjectionDrift:output_type -> iam.v1.CheckDirectoryProjectionDriftReply
-	22, // 67: iam.v1.IAMPermissionService.CheckPermission:output_type -> iam.v1.CheckPermissionReply
-	24, // 68: iam.v1.IAMPermissionService.BatchCheckPermissions:output_type -> iam.v1.BatchCheckPermissionsReply
-	42, // 69: iam.v1.IAMPermissionService.WriteRelationships:output_type -> iam.v1.WriteRelationshipsReply
-	44, // 70: iam.v1.IAMPermissionService.DeleteRelationships:output_type -> iam.v1.DeleteRelationshipsReply
-	40, // 71: iam.v1.IAMPermissionService.ReadRelationships:output_type -> iam.v1.ListRelationshipsReply
-	30, // 72: iam.v1.IAMPermissionService.LookupResources:output_type -> iam.v1.LookupResourcesReply
-	32, // 73: iam.v1.IAMPermissionService.LookupSubjects:output_type -> iam.v1.LookupSubjectsReply
-	34, // 74: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:output_type -> iam.v1.AuthorizationSchema
-	36, // 75: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:output_type -> iam.v1.ValidateAuthorizationSchemaReply
-	38, // 76: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:output_type -> iam.v1.PublishAuthorizationSchemaReply
-	40, // 77: iam.v1.IAMAuthorizationAdminService.ListRelationships:output_type -> iam.v1.ListRelationshipsReply
-	42, // 78: iam.v1.IAMAuthorizationAdminService.WriteRelationships:output_type -> iam.v1.WriteRelationshipsReply
-	44, // 79: iam.v1.IAMAuthorizationAdminService.DeleteRelationships:output_type -> iam.v1.DeleteRelationshipsReply
-	22, // 80: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:output_type -> iam.v1.CheckPermissionReply
-	45, // 81: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:output_type -> iam.v1.ExplainAuthorizationReply
-	47, // 82: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:output_type -> iam.v1.GetEffectivePermissionsReply
-	57, // [57:83] is the sub-list for method output_type
-	31, // [31:57] is the sub-list for method input_type
+	21, // 52: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:input_type -> iam.v1.CheckPermissionRequest
+	21, // 53: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:input_type -> iam.v1.CheckPermissionRequest
+	46, // 54: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:input_type -> iam.v1.GetEffectivePermissionsRequest
+	50, // 55: iam.v1.IAMAuthService.VerifyToken:output_type -> iam.v1.Principal
+	2,  // 56: iam.v1.IAMAuthService.GetMe:output_type -> iam.v1.GetMeReply
+	51, // 57: iam.v1.IAMDirectoryService.GetUser:output_type -> iam.v1.User
+	5,  // 58: iam.v1.IAMDirectoryService.ListUsers:output_type -> iam.v1.ListUsersReply
+	52, // 59: iam.v1.IAMDirectoryService.GetOrganization:output_type -> iam.v1.Organization
+	8,  // 60: iam.v1.IAMDirectoryService.ListGroups:output_type -> iam.v1.ListGroupsReply
+	53, // 61: iam.v1.IAMDirectoryService.GetGroup:output_type -> iam.v1.Group
+	16, // 62: iam.v1.IAMDirectoryProjectionService.RetryDirectoryProjection:output_type -> iam.v1.RetryDirectoryProjectionReply
+	18, // 63: iam.v1.IAMDirectoryProjectionService.ReconcileDirectoryProjection:output_type -> iam.v1.ReconcileDirectoryProjectionReply
+	20, // 64: iam.v1.IAMDirectoryProjectionService.CheckDirectoryProjectionDrift:output_type -> iam.v1.CheckDirectoryProjectionDriftReply
+	22, // 65: iam.v1.IAMPermissionService.CheckPermission:output_type -> iam.v1.CheckPermissionReply
+	24, // 66: iam.v1.IAMPermissionService.BatchCheckPermissions:output_type -> iam.v1.BatchCheckPermissionsReply
+	42, // 67: iam.v1.IAMPermissionService.WriteRelationships:output_type -> iam.v1.WriteRelationshipsReply
+	44, // 68: iam.v1.IAMPermissionService.DeleteRelationships:output_type -> iam.v1.DeleteRelationshipsReply
+	40, // 69: iam.v1.IAMPermissionService.ReadRelationships:output_type -> iam.v1.ListRelationshipsReply
+	30, // 70: iam.v1.IAMPermissionService.LookupResources:output_type -> iam.v1.LookupResourcesReply
+	32, // 71: iam.v1.IAMPermissionService.LookupSubjects:output_type -> iam.v1.LookupSubjectsReply
+	34, // 72: iam.v1.IAMAuthorizationAdminService.GetAuthorizationSchema:output_type -> iam.v1.AuthorizationSchema
+	36, // 73: iam.v1.IAMAuthorizationAdminService.ValidateAuthorizationSchema:output_type -> iam.v1.ValidateAuthorizationSchemaReply
+	38, // 74: iam.v1.IAMAuthorizationAdminService.PublishAuthorizationSchema:output_type -> iam.v1.PublishAuthorizationSchemaReply
+	40, // 75: iam.v1.IAMAuthorizationAdminService.ListRelationships:output_type -> iam.v1.ListRelationshipsReply
+	22, // 76: iam.v1.IAMAuthorizationAdminService.CheckAuthorization:output_type -> iam.v1.CheckPermissionReply
+	45, // 77: iam.v1.IAMAuthorizationAdminService.ExplainAuthorization:output_type -> iam.v1.ExplainAuthorizationReply
+	47, // 78: iam.v1.IAMAuthorizationAdminService.GetEffectivePermissions:output_type -> iam.v1.GetEffectivePermissionsReply
+	55, // [55:79] is the sub-list for method output_type
+	31, // [31:55] is the sub-list for method input_type
 	31, // [31:31] is the sub-list for extension type_name
 	31, // [31:31] is the sub-list for extension extendee
 	0,  // [0:31] is the sub-list for field type_name

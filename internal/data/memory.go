@@ -528,6 +528,49 @@ func (r *MemoryControlPlaneRepository) UpdateOutboxEvent(ctx context.Context, id
 	return nil
 }
 
+func (r *MemoryControlPlaneRepository) ListOutboxEventsForRetry(ctx context.Context, limit int) ([]OutboxEventModel, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	now := time.Now().UTC()
+	out := make([]OutboxEventModel, 0, limit)
+	for _, v := range r.events {
+		if v == nil {
+			continue
+		}
+		if v.RetryCount >= MaxOutboxRetries {
+			continue
+		}
+		switch v.Status {
+		case StatusPending, StatusSubmitted, StatusFailed:
+		default:
+			continue
+		}
+		if v.NextRunAt != nil && v.NextRunAt.After(now) {
+			continue
+		}
+		out = append(out, *clone(v))
+		if len(out) >= limit {
+			break
+		}
+	}
+	return out, nil
+}
+
+func (r *MemoryControlPlaneRepository) IncrementOutboxRetry(ctx context.Context, id string) (*OutboxEventModel, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	v := r.events[id]
+	if v == nil {
+		return nil, fmt.Errorf("%w: outbox %s", ErrNotFound, id)
+	}
+	v.RetryCount++
+	v.UpdatedAt = time.Now().UTC()
+	return clone(v), nil
+}
+
 func applyColumns(ptr any, columns map[string]any) {
 	if ptr == nil {
 		return
