@@ -113,15 +113,29 @@ func (s *IAMDirectoryService) ListGroups(ctx context.Context, req *v1.ListGroups
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
 
-	// When filtering by user, the Casdoor group.Users field may be stale or empty.
-	// Fetch the user and use their Groups field to filter, which is more reliable.
+	// When filtering by user, the Casdoor group.Users field is not persisted
+	// (the column doesn't exist), so matchesGroupFilter can never match.
+	// Instead, look up the user's Groups field and intersect with org groups.
+	//
+	// Note: the kernel's GetUser/FindUsers by ID both call the Casdoor SDK's
+	// GetUser(name), which looks up by username — NOT by the UUID that the
+	// frontend sends as user.id.  To handle both UUIDs and usernames, we list
+	// all users in the org and find the one whose ID or username matches.
 	if uid := req.GetUserId(); uid != "" {
-		user, err := s.deps.Identity.GetUser(ctx, req.GetOrgId(), uid)
+		users, err := s.deps.Identity.FindUsers(ctx, authn.UserFilter{
+			OrgID: req.GetOrgId(),
+			Limit: 500,
+		})
 		if err != nil {
 			return nil, err
 		}
-		// Fetch all groups for the org (optionally narrowed by parentId/type),
-		// then keep only those the user belongs to.
+		var userGroups []string
+		for _, u := range users {
+			if u.ID == uid || u.Username == uid {
+				userGroups = u.Groups
+				break
+			}
+		}
 		allGroups, err := s.deps.Identity.ListGroups(ctx, authn.GroupFilter{
 			OrgID:    req.GetOrgId(),
 			ParentID: req.GetParentId(),
@@ -130,8 +144,8 @@ func (s *IAMDirectoryService) ListGroups(ctx context.Context, req *v1.ListGroups
 		if err != nil {
 			return nil, err
 		}
-		userGroupSet := make(map[string]bool, len(user.Groups))
-		for _, g := range user.Groups {
+		userGroupSet := make(map[string]bool, len(userGroups))
+		for _, g := range userGroups {
 			userGroupSet[g] = true
 		}
 		var out []authn.Group
