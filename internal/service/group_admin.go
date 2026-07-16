@@ -83,15 +83,16 @@ func (s *IAMGroupAdminService) UpdateGroup(ctx context.Context, req *v1.UpdateGr
 	}
 	incoming := req.GetGroup()
 	group := groupFromProto(incoming)
-	if req.ParentId != nil {
-		group.ParentID = req.GetParentId()
-	} else if incoming == nil || incoming.ParentId == nil {
-		existing, err := s.deps.Identity.GetGroup(ctx, orgID, req.GetGroupId())
-		if err != nil {
-			return nil, err
+if req.ParentId != nil {
+			// An empty string means "clear the parent" (make it a top-level group).
+			group.ParentID = req.GetParentId()
+		} else if incoming == nil || incoming.ParentId == nil {
+			existing, err := s.deps.Identity.GetGroup(ctx, orgID, req.GetGroupId())
+			if err != nil {
+				return nil, err
+			}
+			group.ParentID = existing.ParentID
 		}
-		group.ParentID = existing.ParentID
-	}
 	group.ID = firstNonEmptyString(group.ID, req.GetGroupId())
 	group.OrgID = orgID
 	updated, err := s.deps.Identity.UpdateGroup(ctx, authn.UpdateGroupRequest{Group: group})
