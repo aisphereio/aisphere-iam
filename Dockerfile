@@ -13,11 +13,11 @@ RUN go mod download
 COPY . .
 ARG VERSION=dev
 RUN CGO_ENABLED=0 GOOS=linux go build \
-      -mod=vendor \
-      -trimpath \
-      -ldflags "-s -w -X main.Name=aisphere-iam -X main.Version=${VERSION}" \
-      -o /app/server \
-      ./cmd/aisphere-iam
+	      -mod=mod \
+	      -trimpath \
+	      -ldflags "-s -w -X main.Name=aisphere-iam -X main.Version=${VERSION}" \
+	      -o /app/server \
+	      ./cmd/aisphere-iam
 
 FROM alpine:3.20
 RUN apk add --no-cache ca-certificates tzdata wget \
