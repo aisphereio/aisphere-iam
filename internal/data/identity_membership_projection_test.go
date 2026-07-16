@@ -11,7 +11,9 @@ import (
 func TestAuthzProjectingIdentityAdminRemovesQualifiedGroupMembership(t *testing.T) {
 	ctx := context.Background()
 	store := authz.NewMemoryRelationshipStore()
-	membership := groupMemberRelationship("aisphere/platform", "user-1")
+	// With the stable-ID model, qualifiedGroupID returns the group ID directly
+	// (no orgID prefix). Seed relationships use the bare group ID.
+	membership := groupMemberRelationship("platform", "user-1")
 	zoneMembership := zoneMemberRelationship("aisphere", "user-1")
 	if _, err := store.WriteRelationships(ctx, membership, zoneMembership); err != nil {
 		t.Fatalf("seed relationships: %v", err)
@@ -49,7 +51,7 @@ func TestAuthzProjectingIdentityAdminRemovesQualifiedGroupMembership(t *testing.
 func TestAuthzProjectingIdentityAdminPreservesZoneMembershipWithMultipleGroups(t *testing.T) {
 	ctx := context.Background()
 	store := authz.NewMemoryRelationshipStore()
-	groupAMembership := groupMemberRelationship("aisphere/engineering", "user-1")
+	groupAMembership := groupMemberRelationship("engineering", "user-1")
 	zoneMembership := zoneMemberRelationship("aisphere", "user-1")
 	if _, err := store.WriteRelationships(ctx, groupAMembership, zoneMembership); err != nil {
 		t.Fatalf("seed relationships: %v", err)

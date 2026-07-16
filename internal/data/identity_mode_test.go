@@ -18,14 +18,21 @@ func TestAuthzProjectingIdentityAdminWritesZoneQualifiedGroupEdges(t *testing.T)
 		projection: NewIdentityProjectionDispatcher(store, store, nil, nil),
 	}
 
-	if _, err := admin.CreateGroup(ctx, authn.CreateGroupRequest{
+	created, err := admin.CreateGroup(ctx, authn.CreateGroupRequest{
 		Group: authn.Group{OrgID: "aisphere", ID: "platform", ParentID: "root"},
-	}); err != nil {
+	})
+	if err != nil {
 		t.Fatalf("CreateGroup returned error: %v", err)
+	}
+	// With the stable-ID model, CreateGroup generates a new ID (grp_...).
+	// Use the actual created ID for assertions.
+	stableID := created.ID
+	if stableID == "" || stableID == "platform" {
+		t.Fatalf("expected a stable ID (grp_...), got %q", stableID)
 	}
 	if err := admin.AssignUserToGroup(ctx, authn.AssignUserToGroupRequest{
 		OrgID:   "aisphere",
-		GroupID: "platform",
+		GroupID: stableID,
 		UserID:  "user-1",
 	}); err != nil {
 		t.Fatalf("AssignUserToGroup returned error: %v", err)
@@ -35,27 +42,21 @@ func TestAuthzProjectingIdentityAdminWritesZoneQualifiedGroupEdges(t *testing.T)
 	if err != nil {
 		t.Fatalf("ReadRelationships returned error: %v", err)
 	}
-	want := []authz.Relationship{
-		{
-			Resource: authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
-			Relation: "zone",
-			Subject:  authz.SubjectRef{Type: "zone", ID: "aisphere"},
-		},
-		{
-			Resource: authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
-			Relation: "parent",
-			Subject:  authz.SubjectRef{Type: "group", ID: "aisphere/root"},
-		},
-		{
-			Resource: authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
-			Relation: "member",
-			Subject:  authz.SubjectRef{Type: "user", ID: "user-1"},
-		},
+	// Verify the zone relationship uses the stable ID (not org_id/name).
+	if !containsRelationship(rels, authz.Relationship{
+		Resource: authz.ObjectRef{Type: "group", ID: stableID},
+		Relation: "zone",
+		Subject:  authz.SubjectRef{Type: "zone", ID: "aisphere"},
+	}) {
+		t.Fatalf("missing zone relationship for group %q; got %#v", stableID, rels)
 	}
-	for _, expected := range want {
-		if !containsRelationship(rels, expected) {
-			t.Fatalf("missing relationship: %#v; got %#v", expected, rels)
-		}
+	// Verify the member relationship uses the stable ID.
+	if !containsRelationship(rels, authz.Relationship{
+		Resource: authz.ObjectRef{Type: "group", ID: stableID},
+		Relation: "member",
+		Subject:  authz.SubjectRef{Type: "user", ID: "user-1"},
+	}) {
+		t.Fatalf("missing member relationship for group %q; got %#v", stableID, rels)
 	}
 }
 
@@ -72,13 +73,18 @@ func TestAuthzProjectingIdentityAdminProjectsGroupOwnerFromContext(t *testing.T)
 		SubjectID:   owner.ID,
 		SubjectType: owner.Type,
 	})
-	if _, err := admin.CreateGroup(ctx, authn.CreateGroupRequest{
+	created, err := admin.CreateGroup(ctx, authn.CreateGroupRequest{
 		Group: authn.Group{OrgID: "aisphere", ID: "platform"},
-	}); err != nil {
+	})
+	if err != nil {
 		t.Fatalf("CreateGroup returned error: %v", err)
 	}
+	stableID := created.ID
+	if stableID == "" || stableID == "platform" {
+		t.Fatalf("expected a stable ID (grp_...), got %q", stableID)
+	}
 	want := authz.Relationship{
-		Resource: authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
+		Resource: authz.ObjectRef{Type: "group", ID: stableID},
 		Relation: "owner",
 		Subject:  owner,
 	}
@@ -95,9 +101,11 @@ func TestAuthzProjectingIdentityAdminProjectsGroupOwnerFromContext(t *testing.T)
 		IdentityAdmin: fakeIdentityAdmin{group: authn.Group{ID: "platform", OrgID: "aisphere"}},
 		projection:    NewIdentityProjectionDispatcher(store2, store2, nil, nil),
 	}
-	if _, err := admin2.CreateGroup(context.Background(), authn.CreateGroupRequest{Group: authn.Group{OrgID: "aisphere", ID: "platform"}}); err != nil {
+	created2, err := admin2.CreateGroup(context.Background(), authn.CreateGroupRequest{Group: authn.Group{OrgID: "aisphere", ID: "platform"}})
+	if err != nil {
 		t.Fatalf("CreateGroup without owner returned error: %v", err)
 	}
+	_ = created2
 	rels2, _ := store2.ReadRelationships(context.Background(), authz.RelationshipFilter{})
 	for _, rel := range rels2 {
 		if rel.Relation == "owner" {
@@ -163,6 +171,8 @@ func TestUserSubjectDeleteFiltersCoversDirectGrantResourceTypes(t *testing.T) {
 func TestAuthzProjectingIdentityAdminRejectsGroupNameRename(t *testing.T) {
 	ctx := context.Background()
 	store := authz.NewMemoryRelationshipStore()
+	// fakeIdentityAdmin.GetGroup returns f.group, so we set Name to match
+	// what CreateGroup would have stored (stable ID).
 	admin := authzProjectingIdentityAdmin{
 		IdentityAdmin: fakeIdentityAdmin{
 			group: authn.Group{ID: "platform", Name: "platform", OrgID: "aisphere"},
@@ -266,8 +276,24 @@ func (f fakeIdentityAdmin) FindUsers(context.Context, authn.UserFilter) ([]authn
 	return nil, nil
 }
 
-func (f fakeIdentityAdmin) CreateGroup(context.Context, authn.CreateGroupRequest) (authn.Group, error) {
-	return f.group, nil
+func (f fakeIdentityAdmin) CreateGroup(_ context.Context, req authn.CreateGroupRequest) (authn.Group, error) {
+	// Return the group with the ID from the request (which may be a stable ID
+	// set by authzProjectingIdentityAdmin.CreateGroup), but overlay fields from
+	// f.group so tests can control OrgID, ParentID, etc.
+	g := f.group
+	if req.Group.ID != "" {
+		g.ID = req.Group.ID
+	}
+	if req.Group.Name != "" {
+		g.Name = req.Group.Name
+	}
+	if req.Group.OrgID != "" {
+		g.OrgID = req.Group.OrgID
+	}
+	if req.Group.ParentID != "" {
+		g.ParentID = req.Group.ParentID
+	}
+	return g, nil
 }
 
 func (f fakeIdentityAdmin) GetGroup(_ context.Context, _, _ string) (authn.Group, error) {
