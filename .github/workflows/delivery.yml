@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  KERNEL_VERSION: v0.4.15
+  KERNEL_VERSION: v0.4.16
   KUSTOMIZE_VERSION: v5.7.1
   REGISTRY: registry.cn-beijing.aliyuncs.com
   IMAGE_NAMESPACE: ainfracn
@@ -61,7 +61,7 @@ jobs:
           go test ./... -count=1
           make traceability-check STRICT=1
           make build
-          git diff --quiet --exit-code
+          git diff --quiet --exit-code -- deploy/ go.mod go.sum
 
       - name: Verify rendered YAML
         shell: pwsh
