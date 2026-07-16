@@ -13,9 +13,11 @@ func IAMModules() []serverx.ServiceModule {
 	return []serverx.ServiceModule{
 		v1.IAMAuthServiceKernelModule(),
 		v1.IAMDirectoryServiceKernelModule(),
+		v1.IAMDirectoryProjectionServiceKernelModule(),
 		v1.IAMIdentityAdminServiceKernelModule(),
 		v1.IAMGroupAdminServiceKernelModule(),
 		v1.IAMPermissionServiceKernelModule(),
+		v1.IAMAuthorizationAdminServiceKernelModule(),
 		projectv1.ProjectServiceKernelModule(),
 		resourcev1.ResourceServiceKernelModule(),
 		grantv1.GrantServiceKernelModule(),

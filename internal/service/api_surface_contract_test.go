@@ -13,8 +13,11 @@ func TestIAMP0APIBoundaries(t *testing.T) {
 	root := filepath.Join("..", "..")
 	iamProto := readAPISurfaceContract(t, filepath.Join(root, "api", "iam", "v1", "iam.proto"))
 	identityProto := readAPISurfaceContract(t, filepath.Join(root, "api", "iam", "v1", "identity_admin.proto"))
-	if !strings.Contains(iamProto, "optional string parent_id = 4;") {
-		t.Fatal("Group parent_id must preserve field presence for PATCH updates")
+	if !strings.Contains(iamProto, "message Group { string id = 1; string external_id = 2; string org_id = 3; optional string parent_id = 4;") {
+		t.Fatal("Group parent_id must preserve field presence")
+	}
+	if !strings.Contains(iamProto, "optional string parent_id = 4 [(google.api.field_behavior) = OPTIONAL];") {
+		t.Fatal("UpdateGroupRequest must carry parent_id presence for PATCH updates")
 	}
 
 	directory := protoServiceBlock(t, iamProto, "IAMDirectoryService")
@@ -50,30 +53,30 @@ func TestIAMP0APIBoundaries(t *testing.T) {
 		}
 	}
 
-groupAdmin := protoServiceBlock(t, readFile(t, filepath.Join(root, "api", "iam", "v1", "group_admin.proto")), "IAMGroupAdminService")
-		for _, required := range []string{
-			"rpc CreateGroup(",
-			"rpc UpdateGroup(",
-			"rpc DeleteGroup(",
-			"rpc AssignUserToGroup(",
-			"rpc RemoveUserFromGroup(",
-		} {
-			if !strings.Contains(groupAdmin, required) {
-				t.Fatalf("group admin service is missing canonical group write contract %q", required)
-			}
+	groupAdmin := protoServiceBlock(t, readFile(t, filepath.Join(root, "api", "iam", "v1", "group_admin.proto")), "IAMGroupAdminService")
+	for _, required := range []string{
+		"rpc CreateGroup(",
+		"rpc UpdateGroup(",
+		"rpc DeleteGroup(",
+		"rpc AssignUserToGroup(",
+		"rpc RemoveUserFromGroup(",
+	} {
+		if !strings.Contains(groupAdmin, required) {
+			t.Fatalf("group admin service is missing canonical group write contract %q", required)
 		}
-		identityAdmin := protoServiceBlock(t, identityProto, "IAMIdentityAdminService")
-		for _, forbidden := range []string{
-			"rpc CreateGroup(",
-			"rpc UpdateGroup(",
-			"rpc DeleteGroup(",
-			"rpc AssignUserToGroup(",
-			"rpc RemoveUserFromGroup(",
-		} {
-			if strings.Contains(identityAdmin, forbidden) {
-				t.Fatalf("identity admin service still contains group write RPC %q", forbidden)
-			}
+	}
+	identityAdmin := protoServiceBlock(t, identityProto, "IAMIdentityAdminService")
+	for _, forbidden := range []string{
+		"rpc CreateGroup(",
+		"rpc UpdateGroup(",
+		"rpc DeleteGroup(",
+		"rpc AssignUserToGroup(",
+		"rpc RemoveUserFromGroup(",
+	} {
+		if strings.Contains(identityAdmin, forbidden) {
+			t.Fatalf("identity admin service still contains group write RPC %q", forbidden)
 		}
+	}
 }
 
 func readFile(t *testing.T, path string) string {

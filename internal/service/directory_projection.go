@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authz"
@@ -12,9 +13,8 @@ import (
 // DirectoryProjectionOps is the service-layer implementation behind the
 // proto-first IAMDirectoryProjectionService contract.
 //
-// Until api/iam/v1/iam.proto is regenerated, HTTP compatibility shims call this
-// type directly. After running `make api && make deploy`, generated handlers
-// should delegate to these methods and the compatibility shims can be removed.
+// Generated HTTP and gRPC handlers delegate to this type through
+// IAMDirectoryProjectionService.
 type DirectoryProjectionOps struct {
 	Identity   authn.IdentityAdmin
 	Authz      authz.AdminProvider
@@ -35,6 +35,63 @@ type CheckDirectoryProjectionDriftResult struct {
 	Missing              int                  `json:"missing"`
 	MissingRelationships []string             `json:"missing_relationships"`
 	MissingObjects       []authz.Relationship `json:"missing_relationship_objects"`
+}
+
+// IAMDirectoryProjectionService adapts projection operations to the generated
+// proto service contract. Transport registration remains owned by Kernel's
+// generated service module.
+type IAMDirectoryProjectionService struct {
+	v1.UnimplementedIAMDirectoryProjectionServiceServer
+	ops *DirectoryProjectionOps
+}
+
+func NewIAMDirectoryProjectionService(ops *DirectoryProjectionOps) *IAMDirectoryProjectionService {
+	return &IAMDirectoryProjectionService{ops: ops}
+}
+
+func (s *IAMDirectoryProjectionService) RetryDirectoryProjection(ctx context.Context, req *v1.RetryDirectoryProjectionRequest) (*v1.RetryDirectoryProjectionReply, error) {
+	limit := int32(0)
+	if req != nil {
+		limit = req.GetLimit()
+	}
+	result, err := s.ops.Retry(ctx, int(limit))
+	if err != nil {
+		return nil, err
+	}
+	return &v1.RetryDirectoryProjectionReply{Processed: int32(result.Processed)}, nil
+}
+
+func (s *IAMDirectoryProjectionService) ReconcileDirectoryProjection(ctx context.Context, req *v1.ReconcileDirectoryProjectionRequest) (*v1.ReconcileDirectoryProjectionReply, error) {
+	orgID := ""
+	if req != nil {
+		orgID = req.GetOrgId()
+	}
+	result, err := s.ops.Reconcile(ctx, orgID, "reconcile")
+	if err != nil {
+		return nil, err
+	}
+	return &v1.ReconcileDirectoryProjectionReply{Status: result.Status, Relationships: int32(result.Relationships)}, nil
+}
+
+func (s *IAMDirectoryProjectionService) CheckDirectoryProjectionDrift(ctx context.Context, req *v1.CheckDirectoryProjectionDriftRequest) (*v1.CheckDirectoryProjectionDriftReply, error) {
+	orgID := ""
+	if req != nil {
+		orgID = req.GetOrgId()
+	}
+	result, err := s.ops.Drift(ctx, orgID)
+	if err != nil {
+		return nil, err
+	}
+	objects := make([]*v1.Relationship, 0, len(result.MissingObjects))
+	for _, relationship := range result.MissingObjects {
+		objects = append(objects, relationshipToProto(relationship))
+	}
+	return &v1.CheckDirectoryProjectionDriftReply{
+		Desired:                    int32(result.Desired),
+		Missing:                    int32(result.Missing),
+		MissingRelationships:       result.MissingRelationships,
+		MissingRelationshipObjects: objects,
+	}, nil
 }
 
 func NewDirectoryProjectionOps(resources interface {
@@ -117,3 +174,6 @@ func relationshipStrings(rels []authz.Relationship) []string {
 	}
 	return out
 }
+
+var _ v1.IAMDirectoryProjectionServiceServer = (*IAMDirectoryProjectionService)(nil)
+var _ v1.IAMDirectoryProjectionServiceHTTPServer = (*IAMDirectoryProjectionService)(nil)

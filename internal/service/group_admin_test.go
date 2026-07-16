@@ -9,64 +9,93 @@ import (
 )
 
 func TestIAMGroupAdminServiceCreateUpdateDelete(t *testing.T) {
-		deps := IAMDeps{
-			Identity: newFakeIdentityAdmin(),
-		}
-		svc := NewIAMGroupAdminService(deps)
-		ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{
-			SubjectID: "test-user",
-			OrgID:     "aisphere",
-		})
-
-		// Create group
-		created, err := svc.CreateGroup(ctx, &v1.CreateGroupRequest{
-			OrgId: "aisphere",
-			Group: &v1.Group{Id: "dev-team", Name: "Dev Team", DisplayName: "Development Team"},
-		})
-		if err != nil {
-			t.Fatalf("CreateGroup: %v", err)
-		}
-		if created.GetId() != "dev-team" {
-			t.Fatalf("unexpected group id: %s", created.GetId())
-		}
-
-		// Update group
-		updated, err := svc.UpdateGroup(ctx, &v1.UpdateGroupRequest{
-			OrgId:   "aisphere",
-			GroupId: "dev-team",
-			Group:   &v1.Group{Id: "dev-team", Name: "Dev Team", DisplayName: "Development Team v2"},
-		})
-		if err != nil {
-			t.Fatalf("UpdateGroup: %v", err)
-		}
-		if updated.GetDisplayName() != "Development Team v2" {
-			t.Fatalf("unexpected display name: %s", updated.GetDisplayName())
-		}
-
-		// Assign user to group
-		_, err = svc.AssignUserToGroup(ctx, &v1.AssignUserToGroupRequest{
-			OrgId: "aisphere", GroupId: "dev-team", UserId: "user-1",
-		})
-		if err != nil {
-			t.Fatalf("AssignUserToGroup: %v", err)
-		}
-
-		// Remove user from group
-		_, err = svc.RemoveUserFromGroup(ctx, &v1.RemoveUserFromGroupRequest{
-			OrgId: "aisphere", GroupId: "dev-team", UserId: "user-1",
-		})
-		if err != nil {
-			t.Fatalf("RemoveUserFromGroup: %v", err)
-		}
-
-		// Delete group
-		_, err = svc.DeleteGroup(ctx, &v1.DeleteGroupRequest{
-			OrgId: "aisphere", GroupId: "dev-team",
-		})
-		if err != nil {
-			t.Fatalf("DeleteGroup: %v", err)
-		}
+	deps := IAMDeps{
+		Identity: newFakeIdentityAdmin(),
 	}
+	svc := NewIAMGroupAdminService(deps)
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{
+		SubjectID: "test-user",
+		OrgID:     "aisphere",
+	})
+
+	// Create group
+	created, err := svc.CreateGroup(ctx, &v1.CreateGroupRequest{
+		OrgId: "aisphere",
+		Group: &v1.Group{Id: "dev-team", Name: "Dev Team", DisplayName: "Development Team"},
+	})
+	if err != nil {
+		t.Fatalf("CreateGroup: %v", err)
+	}
+	if created.GetId() != "dev-team" {
+		t.Fatalf("unexpected group id: %s", created.GetId())
+	}
+
+	// Update group
+	updated, err := svc.UpdateGroup(ctx, &v1.UpdateGroupRequest{
+		OrgId:   "aisphere",
+		GroupId: "dev-team",
+		Group:   &v1.Group{Id: "dev-team", Name: "Dev Team", DisplayName: "Development Team v2"},
+	})
+	if err != nil {
+		t.Fatalf("UpdateGroup: %v", err)
+	}
+	if updated.GetDisplayName() != "Development Team v2" {
+		t.Fatalf("unexpected display name: %s", updated.GetDisplayName())
+	}
+
+	// Assign user to group
+	_, err = svc.AssignUserToGroup(ctx, &v1.AssignUserToGroupRequest{
+		OrgId: "aisphere", GroupId: "dev-team", UserId: "user-1",
+	})
+	if err != nil {
+		t.Fatalf("AssignUserToGroup: %v", err)
+	}
+
+	// Remove user from group
+	_, err = svc.RemoveUserFromGroup(ctx, &v1.RemoveUserFromGroupRequest{
+		OrgId: "aisphere", GroupId: "dev-team", UserId: "user-1",
+	})
+	if err != nil {
+		t.Fatalf("RemoveUserFromGroup: %v", err)
+	}
+
+	// Delete group
+	_, err = svc.DeleteGroup(ctx, &v1.DeleteGroupRequest{
+		OrgId: "aisphere", GroupId: "dev-team",
+	})
+	if err != nil {
+		t.Fatalf("DeleteGroup: %v", err)
+	}
+}
+
+func TestIAMGroupAdminServiceUpdateGroupClearsExplicitGroupParent(t *testing.T) {
+	identity := newFakeIdentityAdmin()
+	identity.groups["child"] = authn.Group{
+		ID:       "child",
+		OrgID:    "aisphere",
+		ParentID: "parent",
+		Name:     "child",
+	}
+	svc := NewIAMGroupAdminService(IAMDeps{Identity: identity})
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{
+		SubjectID: "test-user",
+		OrgID:     "aisphere",
+	})
+	emptyParent := ""
+
+	updated, err := svc.UpdateGroup(ctx, &v1.UpdateGroupRequest{
+		OrgId:    "aisphere",
+		GroupId:  "child",
+		Group:    &v1.Group{},
+		ParentId: &emptyParent,
+	})
+	if err != nil {
+		t.Fatalf("UpdateGroup: %v", err)
+	}
+	if updated.GetParentId() != "" {
+		t.Fatalf("parent_id = %q, want empty", updated.GetParentId())
+	}
+}
 
 func TestIAMGroupAdminServiceUpdateGroupPreservesOmittedParent(t *testing.T) {
 	identity := newFakeIdentityAdmin()

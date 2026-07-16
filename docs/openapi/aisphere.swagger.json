@@ -1,0 +1,5207 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "definitions": {
+    "AccessQueryServiceListResourceAccessBody": {
+      "properties": {
+        "pageSize": {
+          "description": "page_size for pagination.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "pageToken": {
+          "description": "page_token for pagination.",
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef",
+          "description": "resource is the resource to query access for."
+        },
+        "subjectType": {
+          "description": "subject_type is optional to filter by subject type (e.g., \"user\", \"group\").",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource"
+      ],
+      "title": "ListResourceAccessRequest",
+      "type": "object"
+    },
+    "AccessQueryServiceListSubjectEntitlementsBody": {
+      "properties": {
+        "pageSize": {
+          "description": "page_size controls the maximum number of entitlements to return.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "pageToken": {
+          "description": "page_token for pagination.",
+          "type": "string"
+        },
+        "resourceType": {
+          "description": "resource_type optionally filters to a specific resource type.",
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef",
+          "description": "subject is the subject to query entitlements for."
+        }
+      },
+      "required": [
+        "subject"
+      ],
+      "title": "ListSubjectEntitlementsRequest",
+      "type": "object"
+    },
+    "AccessQueryServicePreviewGrantBody": {
+      "properties": {
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef",
+          "description": "resource is the target resource."
+        },
+        "roleKey": {
+          "description": "role_key identifies the role template to preview.",
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef",
+          "description": "subject is the subject that would receive the grant."
+        }
+      },
+      "required": [
+        "resource",
+        "roleKey",
+        "subject"
+      ],
+      "title": "PreviewGrantRequest",
+      "type": "object"
+    },
+    "GrantServiceDisableRoleTemplateBody": {
+      "properties": {
+        "confirmActiveGrants": {
+          "type": "boolean"
+        },
+        "expectedVersion": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "GrantServiceExplainAccessBody": {
+      "properties": {
+        "permission": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "subject": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef"
+        }
+      },
+      "required": [
+        "resource",
+        "permission",
+        "subject"
+      ],
+      "type": "object"
+    },
+    "GrantServiceGrantAccessBody": {
+      "properties": {
+        "expiresAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "roleKey": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef"
+        }
+      },
+      "required": [
+        "resource",
+        "roleKey",
+        "subject"
+      ],
+      "type": "object"
+    },
+    "GrantServicePreviewRoleTemplateImpactBody": {
+      "properties": {
+        "permissions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "GrantServiceRevokeAccessBody": {
+      "properties": {
+        "deleteGraphRelationship": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "GrantServiceUpdateRoleTemplateBody": {
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "expectedVersion": {
+          "format": "int64",
+          "type": "string"
+        },
+        "permissions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "IAMGroupAdminServiceCreateGroupBody": {
+      "properties": {
+        "group": {
+          "$ref": "#/definitions/v1Group"
+        },
+        "idempotencyKey": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "group"
+      ],
+      "type": "object"
+    },
+    "IAMGroupAdminServiceUpdateGroupBody": {
+      "properties": {
+        "group": {
+          "$ref": "#/definitions/v1Group"
+        },
+        "parentId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "group"
+      ],
+      "type": "object"
+    },
+    "IAMIdentityAdminServiceCreateUserBody": {
+      "properties": {
+        "idempotencyKey": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/v1User"
+        }
+      },
+      "required": [
+        "user"
+      ],
+      "type": "object"
+    },
+    "IAMIdentityAdminServiceDisableUserBody": {
+      "type": "object"
+    },
+    "IAMIdentityAdminServiceUpdateUserBody": {
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/v1User"
+        }
+      },
+      "required": [
+        "user"
+      ],
+      "type": "object"
+    },
+    "KernelErrorResponse": {
+      "properties": {
+        "code": {
+          "description": "Stable business error code.",
+          "type": "string"
+        },
+        "message": {
+          "description": "Safe error message.",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {},
+          "description": "Safe structured error metadata.",
+          "type": "object"
+        },
+        "request_id": {
+          "description": "Request correlation identifier.",
+          "type": "string"
+        },
+        "trace_id": {
+          "description": "Distributed trace identifier.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "type": "object"
+    },
+    "ProjectServiceArchiveProjectBody": {
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectServiceCreateProjectBody": {
+      "properties": {
+        "annotations": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "enableCapabilities": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "visibility": {
+          "$ref": "#/definitions/v1ProjectVisibility"
+        }
+      },
+      "required": [
+        "slug",
+        "displayName"
+      ],
+      "type": "object"
+    },
+    "ProjectServiceDisableProjectCapabilityBody": {
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectServiceEnableProjectCapabilityBody": {
+      "properties": {
+        "config": {
+          "type": "object"
+        },
+        "quota": {
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectServiceUpdateProjectBody": {
+      "properties": {
+        "annotations": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "updateMask": {
+          "type": "string"
+        },
+        "visibility": {
+          "$ref": "#/definitions/v1ProjectVisibility"
+        }
+      },
+      "type": "object"
+    },
+    "ResourceServiceArchiveResourceBody": {
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ResourceServiceBindExternalResourceBody": {
+      "properties": {
+        "binding": {
+          "$ref": "#/definitions/v1ExternalResourceBinding"
+        }
+      },
+      "required": [
+        "binding"
+      ],
+      "type": "object"
+    },
+    "ResourceServiceBindResourceBody": {
+      "properties": {
+        "binding": {
+          "$ref": "#/definitions/v1ResourceBinding"
+        },
+        "writeGraphRelationship": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "binding"
+      ],
+      "type": "object"
+    },
+    "ResourceServiceMoveResourceBody": {
+      "properties": {
+        "newParent": {
+          "$ref": "#/definitions/v1ResourceRef"
+        }
+      },
+      "required": [
+        "newParent"
+      ],
+      "type": "object"
+    },
+    "ResourceServiceUnbindResourceBody": {
+      "properties": {
+        "deleteGraphRelationship": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "ResourceServiceUpsertResourceBody": {
+      "properties": {
+        "createDefaultOwnerGrant": {
+          "type": "boolean"
+        },
+        "owner": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1Resource"
+        },
+        "writeParentRelationship": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "resource"
+      ],
+      "type": "object"
+    },
+    "iamResourceV1SubjectRef": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "relation": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "type": "object"
+    },
+    "iamV1SubjectRef": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "relation": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "protobufAny": {
+      "additionalProperties": {},
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "protobufNullValue": {
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value.",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "type": "string"
+    },
+    "rpcStatus": {
+      "properties": {
+        "code": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "details": {
+          "items": {
+            "$ref": "#/definitions/protobufAny",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1Application": {
+      "properties": {
+        "clientId": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "enablePassword": {
+          "type": "boolean"
+        },
+        "enableSignup": {
+          "type": "boolean"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "grantTypes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "orgId": {
+          "type": "string"
+        },
+        "providers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "redirectUris": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "scopes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1AuthorizationSchema": {
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1BatchCheckPermissionsReply": {
+      "properties": {
+        "decisions": {
+          "items": {
+            "$ref": "#/definitions/v1CheckPermissionReply",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1BatchCheckPermissionsRequest": {
+      "properties": {
+        "checks": {
+          "items": {
+            "$ref": "#/definitions/v1CheckPermissionRequest",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "checks"
+      ],
+      "type": "object"
+    },
+    "v1Capability": {
+      "properties": {
+        "configSchema": {
+          "type": "object"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "ownerService": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/v1LifecycleStatus"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1CheckDirectoryProjectionDriftReply": {
+      "properties": {
+        "desired": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "missing": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "missingRelationshipObjects": {
+          "items": {
+            "$ref": "#/definitions/v1Relationship",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "missingRelationships": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1CheckDirectoryProjectionDriftRequest": {
+      "properties": {
+        "orgId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "orgId"
+      ],
+      "type": "object"
+    },
+    "v1CheckPermissionReply": {
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "consistencyToken": {
+          "type": "string"
+        },
+        "effect": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1CheckPermissionRequest": {
+      "properties": {
+        "orgId": {
+          "type": "string"
+        },
+        "permission": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ObjectRef"
+        },
+        "subject": {
+          "$ref": "#/definitions/iamV1SubjectRef"
+        }
+      },
+      "required": [
+        "subject",
+        "resource",
+        "permission"
+      ],
+      "type": "object"
+    },
+    "v1DeleteRelationshipsReply": {
+      "properties": {
+        "consistencyToken": {
+          "type": "string"
+        },
+        "deleted": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "v1DeleteRelationshipsRequest": {
+      "properties": {
+        "filter": {
+          "$ref": "#/definitions/v1RelationshipFilter"
+        }
+      },
+      "required": [
+        "filter"
+      ],
+      "type": "object"
+    },
+    "v1DeleteResourceReply": {
+      "properties": {
+        "deleted": {
+          "type": "boolean"
+        },
+        "ref": {
+          "$ref": "#/definitions/v1ResourceRef"
+        }
+      },
+      "type": "object"
+    },
+    "v1Entitlement": {
+      "description": "Entitlement represents a single effective permission entry for a subject\non a resource, with its derivation source.",
+      "properties": {
+        "consistencyToken": {
+          "description": "consistency_token is an opaque token for consistency checking.",
+          "type": "string"
+        },
+        "expiresAt": {
+          "description": "expires_at is the expiration time of the grant, if any.",
+          "format": "date-time",
+          "type": "string"
+        },
+        "grantId": {
+          "description": "grant_id is the ID of the grant record that can be revoked.\nEmpty for inherited entitlements that cannot be revoked here.",
+          "type": "string"
+        },
+        "id": {
+          "description": "id is a unique identifier for this entitlement entry.\nFor direct grants, this is the grant_id.\nFor inherited entitlements, this is \"inherited:{hash}\".",
+          "type": "string"
+        },
+        "permissions": {
+          "description": "permissions is the resolved list of permission strings from the role template.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef",
+          "description": "resource is the resource this entitlement applies to."
+        },
+        "revocableHere": {
+          "description": "revocable_here indicates whether this entitlement can be revoked from\nthe current context. Only DIRECT_GRANT entitlements are revocable here.",
+          "type": "boolean"
+        },
+        "roleKey": {
+          "description": "role_key identifies the role template that defines the permissions.",
+          "type": "string"
+        },
+        "sourceResource": {
+          "$ref": "#/definitions/v1ResourceRef",
+          "description": "source_resource points to the resource that actually has the grant.\nFor PARENT_INHERITANCE, this is the parent resource.\nFor ORG_INHERITANCE, this is the zone."
+        },
+        "sourceSubject": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef",
+          "description": "source_subject points to the entity that actually holds the grant.\nFor GROUP_GRANT, this is the group. For DIRECT_GRANT, this is the subject itself."
+        },
+        "sourceType": {
+          "$ref": "#/definitions/v1EntitlementSourceType",
+          "description": "source_type indicates how this entitlement was derived."
+        },
+        "subject": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef",
+          "description": "subject is the subject (user, group, service account) that holds this entitlement."
+        }
+      },
+      "required": [
+        "subject",
+        "resource"
+      ],
+      "type": "object"
+    },
+    "v1EntitlementSourceType": {
+      "default": "ENTITLEMENT_SOURCE_TYPE_UNSPECIFIED",
+      "description": "EntitlementSourceType describes how an entitlement was derived.\n\n - DIRECT_GRANT: DIRECT_GRANT: A direct grant record exists in Postgres (iam_grants).\n - GROUP_GRANT: GROUP_GRANT: The subject inherits via group membership.\n - PARENT_INHERITANCE: PARENT_INHERITANCE: The subject has permissions on a parent resource.\n - ORG_INHERITANCE: ORG_INHERITANCE: The subject has zone-level (org) permissions.\n - PLATFORM_INHERITANCE: PLATFORM_INHERITANCE: The subject has platform-level permissions.",
+      "enum": [
+        "ENTITLEMENT_SOURCE_TYPE_UNSPECIFIED",
+        "DIRECT_GRANT",
+        "GROUP_GRANT",
+        "PARENT_INHERITANCE",
+        "ORG_INHERITANCE",
+        "PLATFORM_INHERITANCE"
+      ],
+      "type": "string"
+    },
+    "v1ExplainAccessReply": {
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "consistencyToken": {
+          "type": "string"
+        },
+        "effect": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/definitions/v1ExplainStep",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1ExplainAuthorizationReply": {
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "consistencyToken": {
+          "type": "string"
+        },
+        "effect": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1ExplainStep": {
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "relation": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "source": {
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef"
+        }
+      },
+      "type": "object"
+    },
+    "v1ExternalResourceBinding": {
+      "properties": {
+        "externalId": {
+          "type": "string"
+        },
+        "externalPath": {
+          "type": "string"
+        },
+        "externalType": {
+          "type": "string"
+        },
+        "externalUrl": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "lastSyncedAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "syncMode": {
+          "type": "string"
+        },
+        "syncStatus": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1GetEffectivePermissionsReply": {
+      "properties": {
+        "permissions": {
+          "additionalProperties": {
+            "$ref": "#/definitions/v1PermissionDecision"
+          },
+          "type": "object"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ObjectRef"
+        },
+        "subject": {
+          "$ref": "#/definitions/iamV1SubjectRef"
+        }
+      },
+      "type": "object"
+    },
+    "v1GetMeReply": {
+      "properties": {
+        "application": {
+          "$ref": "#/definitions/v1Application"
+        },
+        "groups": {
+          "items": {
+            "$ref": "#/definitions/v1Group",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "principal": {
+          "$ref": "#/definitions/v1Principal"
+        },
+        "user": {
+          "$ref": "#/definitions/v1User"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1Grant": {
+      "properties": {
+        "consistencyToken": {
+          "type": "string"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "createdBy": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef"
+        },
+        "expiresAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "relation": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "revokedAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "roleKey": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef"
+        }
+      },
+      "type": "object"
+    },
+    "v1Group": {
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "orgId": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "users": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1LifecycleStatus": {
+      "default": "LIFECYCLE_STATUS_UNSPECIFIED",
+      "enum": [
+        "LIFECYCLE_STATUS_UNSPECIFIED",
+        "ACTIVE",
+        "ARCHIVED",
+        "DELETED",
+        "DISABLED"
+      ],
+      "type": "string"
+    },
+    "v1ListCapabilitiesReply": {
+      "properties": {
+        "capabilities": {
+          "items": {
+            "$ref": "#/definitions/v1Capability",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListExternalResourceBindingsReply": {
+      "properties": {
+        "bindings": {
+          "items": {
+            "$ref": "#/definitions/v1ExternalResourceBinding",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "nextPageToken": {
+          "type": "string"
+        },
+        "totalSize": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListGrantsReply": {
+      "properties": {
+        "grants": {
+          "items": {
+            "$ref": "#/definitions/v1Grant",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "nextPageToken": {
+          "type": "string"
+        },
+        "totalSize": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListGroupsReply": {
+      "properties": {
+        "groups": {
+          "items": {
+            "$ref": "#/definitions/v1Group",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListProjectCapabilitiesReply": {
+      "properties": {
+        "capabilities": {
+          "items": {
+            "$ref": "#/definitions/v1ProjectCapability",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListProjectsReply": {
+      "properties": {
+        "nextPageToken": {
+          "type": "string"
+        },
+        "projects": {
+          "items": {
+            "$ref": "#/definitions/v1Project",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "totalSize": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListRelationshipsReply": {
+      "properties": {
+        "relationships": {
+          "items": {
+            "$ref": "#/definitions/v1Relationship",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListRelationshipsRequest": {
+      "properties": {
+        "relation": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "subjectRelation": {
+          "type": "string"
+        },
+        "subjectType": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListResourceAccessReply": {
+      "properties": {
+        "entitlements": {
+          "description": "entitlements is the list of subjects with effective access to the resource.",
+          "items": {
+            "$ref": "#/definitions/v1Entitlement",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "nextPageToken": {
+          "description": "next_page_token for pagination.",
+          "type": "string"
+        },
+        "totalSize": {
+          "description": "total_size is the total number of entitlements matching the query.",
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "title": "ListResourceAccessReply",
+      "type": "object"
+    },
+    "v1ListResourceBindingsReply": {
+      "properties": {
+        "bindings": {
+          "items": {
+            "$ref": "#/definitions/v1ResourceBinding",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "nextPageToken": {
+          "type": "string"
+        },
+        "totalSize": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListResourceTypesReply": {
+      "properties": {
+        "resourceTypes": {
+          "items": {
+            "$ref": "#/definitions/v1ResourceType",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListResourcesReply": {
+      "properties": {
+        "nextPageToken": {
+          "type": "string"
+        },
+        "resources": {
+          "items": {
+            "$ref": "#/definitions/v1Resource",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "totalSize": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListRoleTemplatesReply": {
+      "properties": {
+        "roleTemplates": {
+          "items": {
+            "$ref": "#/definitions/v1RoleTemplate",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1ListSubjectEntitlementsReply": {
+      "properties": {
+        "entitlements": {
+          "description": "entitlements is the list of effective permissions for the subject.",
+          "items": {
+            "$ref": "#/definitions/v1Entitlement",
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "nextPageToken": {
+          "description": "next_page_token for pagination.",
+          "type": "string"
+        },
+        "totalSize": {
+          "description": "total_size is the total number of entitlements matching the query.",
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "title": "ListSubjectEntitlementsReply",
+      "type": "object"
+    },
+    "v1ListUsersReply": {
+      "properties": {
+        "nextPageToken": {
+          "type": "string"
+        },
+        "users": {
+          "items": {
+            "$ref": "#/definitions/v1User",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1LookupResourcesReply": {
+      "properties": {
+        "consistencyToken": {
+          "type": "string"
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "resources": {
+          "items": {
+            "$ref": "#/definitions/v1ObjectRef",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1LookupResourcesRequest": {
+      "properties": {
+        "cursor": {
+          "type": "string"
+        },
+        "limit": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "permission": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/definitions/iamV1SubjectRef"
+        }
+      },
+      "required": [
+        "subject",
+        "resourceType",
+        "permission"
+      ],
+      "type": "object"
+    },
+    "v1LookupSubjectsReply": {
+      "properties": {
+        "consistencyToken": {
+          "type": "string"
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "subjects": {
+          "items": {
+            "$ref": "#/definitions/iamV1SubjectRef",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1LookupSubjectsRequest": {
+      "properties": {
+        "cursor": {
+          "type": "string"
+        },
+        "limit": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "permission": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ObjectRef"
+        },
+        "subjectType": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource",
+        "permission",
+        "subjectType"
+      ],
+      "type": "object"
+    },
+    "v1ObjectRef": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1Organization": {
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "ownerId": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1PermissionDecision": {
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "effect": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1PreviewGrantReply": {
+      "properties": {
+        "alreadyGranted": {
+          "description": "already_granted indicates if the subject already has this grant.",
+          "type": "boolean"
+        },
+        "consistencyToken": {
+          "description": "consistency_token for consistency checking.",
+          "type": "string"
+        },
+        "existingGrantId": {
+          "description": "existing_grant_id is the ID of the existing grant if already_granted is true.",
+          "type": "string"
+        },
+        "permissions": {
+          "description": "permissions is the list of permissions the subject would gain.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "title": "PreviewGrantReply",
+      "type": "object"
+    },
+    "v1PreviewRoleTemplateImpactReply": {
+      "properties": {
+        "activeGrantCount": {
+          "format": "int64",
+          "type": "string"
+        },
+        "addedPermissions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "removedPermissions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "v1Principal": {
+      "properties": {
+        "appId": {
+          "type": "string"
+        },
+        "audience": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "authMethod": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "expiresAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "groups": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "issuedAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "issuer": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "orgId": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "roles": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "scopes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "subjectType": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1Project": {
+      "properties": {
+        "annotations": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "canManage": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "createdBy": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef"
+        },
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "joined": {
+          "type": "boolean"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "orgId": {
+          "type": "string"
+        },
+        "owners": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "stats": {
+          "$ref": "#/definitions/v1ProjectStats"
+        },
+        "status": {
+          "$ref": "#/definitions/v1LifecycleStatus"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "visibility": {
+          "$ref": "#/definitions/v1ProjectVisibility"
+        }
+      },
+      "type": "object"
+    },
+    "v1ProjectCapability": {
+      "properties": {
+        "capabilityId": {
+          "type": "string"
+        },
+        "config": {
+          "type": "object"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "quota": {
+          "type": "object"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ProjectStats": {
+      "properties": {
+        "countAgents": {
+          "format": "int64",
+          "type": "string"
+        },
+        "countMembers": {
+          "format": "int64",
+          "type": "string"
+        },
+        "countRepositories": {
+          "format": "int64",
+          "type": "string"
+        },
+        "countResources": {
+          "format": "int64",
+          "type": "string"
+        },
+        "countSandboxes": {
+          "format": "int64",
+          "type": "string"
+        },
+        "countSkills": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ProjectVisibility": {
+      "default": "PROJECT_VISIBILITY_UNSPECIFIED",
+      "enum": [
+        "PROJECT_VISIBILITY_UNSPECIFIED",
+        "PRIVATE",
+        "ORG",
+        "PUBLIC"
+      ],
+      "type": "string"
+    },
+    "v1PublishAuthorizationSchemaReply": {
+      "properties": {
+        "published": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "v1PublishAuthorizationSchemaRequest": {
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
+    "v1ReconcileDirectoryProjectionReply": {
+      "properties": {
+        "relationships": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ReconcileDirectoryProjectionRequest": {
+      "properties": {
+        "orgId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "orgId"
+      ],
+      "type": "object"
+    },
+    "v1RegisterCapabilityRequest": {
+      "properties": {
+        "capability": {
+          "$ref": "#/definitions/v1Capability"
+        }
+      },
+      "required": [
+        "capability"
+      ],
+      "type": "object"
+    },
+    "v1RegisterResourceTypeRequest": {
+      "properties": {
+        "resourceType": {
+          "$ref": "#/definitions/v1ResourceType"
+        }
+      },
+      "required": [
+        "resourceType"
+      ],
+      "type": "object"
+    },
+    "v1RegisterRoleTemplateRequest": {
+      "properties": {
+        "roleTemplate": {
+          "$ref": "#/definitions/v1RoleTemplate"
+        }
+      },
+      "required": [
+        "roleTemplate"
+      ],
+      "type": "object"
+    },
+    "v1Relationship": {
+      "properties": {
+        "relation": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ObjectRef"
+        },
+        "subject": {
+          "$ref": "#/definitions/iamV1SubjectRef"
+        }
+      },
+      "type": "object"
+    },
+    "v1RelationshipFilter": {
+      "properties": {
+        "relation": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "subjectRelation": {
+          "type": "string"
+        },
+        "subjectType": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1Resource": {
+      "properties": {
+        "annotations": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "createdBy": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef"
+        },
+        "deletedAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "grantable": {
+          "type": "boolean"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "orgId": {
+          "type": "string"
+        },
+        "ownerResourceId": {
+          "type": "string"
+        },
+        "ownerService": {
+          "type": "string"
+        },
+        "parent": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "path": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "ref": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "visibility": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ResourceBinding": {
+      "properties": {
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "createdBy": {
+          "$ref": "#/definitions/iamResourceV1SubjectRef"
+        },
+        "id": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "relation": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "status": {
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ResourceRef": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "type": "object"
+    },
+    "v1ResourceType": {
+      "properties": {
+        "auditable": {
+          "type": "boolean"
+        },
+        "capabilityId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "grantable": {
+          "type": "boolean"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "ownerService": {
+          "type": "string"
+        },
+        "parentTypes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "permissions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "relations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "spicedbType": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1RetryDirectoryProjectionReply": {
+      "properties": {
+        "processed": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "v1RetryDirectoryProjectionRequest": {
+      "properties": {
+        "limit": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "v1RevokeAccessReply": {
+      "properties": {
+        "consistencyToken": {
+          "type": "string"
+        },
+        "grantId": {
+          "type": "string"
+        },
+        "revoked": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "v1RoleTemplate": {
+      "properties": {
+        "activeGrantCount": {
+          "format": "int64",
+          "type": "string"
+        },
+        "builtIn": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "permissions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "relation": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "roleKey": {
+          "type": "string"
+        },
+        "sortOrder": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "version": {
+          "format": "int64",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1UnbindResourceReply": {
+      "properties": {
+        "bindingId": {
+          "type": "string"
+        },
+        "unbound": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "v1User": {
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "groups": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "orgId": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "roles": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "username": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "v1ValidateAuthorizationSchemaReply": {
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "valid": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "v1ValidateAuthorizationSchemaRequest": {
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
+    "v1VerifyTokenRequest": {
+      "properties": {
+        "appId": {
+          "type": "string"
+        },
+        "orgId": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "tokenType": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "token"
+      ],
+      "type": "object"
+    },
+    "v1WriteRelationshipsReply": {
+      "properties": {
+        "consistencyToken": {
+          "type": "string"
+        },
+        "written": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "v1WriteRelationshipsRequest": {
+      "properties": {
+        "relationships": {
+          "items": {
+            "$ref": "#/definitions/v1Relationship",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "relationships"
+      ],
+      "type": "object"
+    }
+  },
+  "info": {
+    "title": "Aisphere IAM API",
+    "version": "v1"
+  },
+  "paths": {
+    "/v1/iam/auth/verify": {
+      "post": {
+        "operationId": "IAMAuthService_VerifyToken",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1VerifyTokenRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Principal"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMAuthService"
+        ]
+      }
+    },
+    "/v1/iam/authz/effective-permissions": {
+      "get": {
+        "operationId": "IAMAuthorizationAdminService_GetEffectivePermissions",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "subjectType",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "subjectId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "subjectRelation",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "resourceType",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "resourceId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "collectionFormat": "multi",
+            "in": "query",
+            "items": {
+              "type": "string"
+            },
+            "name": "permissions",
+            "required": false,
+            "type": "array"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetEffectivePermissionsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMAuthorizationAdminService"
+        ]
+      }
+    },
+    "/v1/iam/authz/permissions:check": {
+      "post": {
+        "operationId": "IAMAuthorizationAdminService_CheckAuthorization",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CheckPermissionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CheckPermissionReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMAuthorizationAdminService"
+        ]
+      }
+    },
+    "/v1/iam/authz/permissions:explain": {
+      "post": {
+        "operationId": "IAMAuthorizationAdminService_ExplainAuthorization",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CheckPermissionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ExplainAuthorizationReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMAuthorizationAdminService"
+        ]
+      }
+    },
+    "/v1/iam/authz/relationships": {
+      "get": {
+        "operationId": "IAMAuthorizationAdminService_ListRelationships",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "resourceType",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "resourceId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "relation",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "subjectType",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "subjectId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "subjectRelation",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRelationshipsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMAuthorizationAdminService"
+        ]
+      }
+    },
+    "/v1/iam/authz/schema": {
+      "get": {
+        "operationId": "IAMAuthorizationAdminService_GetAuthorizationSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AuthorizationSchema"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMAuthorizationAdminService"
+        ]
+      }
+    },
+    "/v1/iam/authz/schema:publish": {
+      "post": {
+        "operationId": "IAMAuthorizationAdminService_PublishAuthorizationSchema",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1PublishAuthorizationSchemaRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PublishAuthorizationSchemaReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMAuthorizationAdminService"
+        ]
+      }
+    },
+    "/v1/iam/authz/schema:validate": {
+      "post": {
+        "operationId": "IAMAuthorizationAdminService_ValidateAuthorizationSchema",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ValidateAuthorizationSchemaRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ValidateAuthorizationSchemaReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMAuthorizationAdminService"
+        ]
+      }
+    },
+    "/v1/iam/control-plane/capabilities": {
+      "get": {
+        "operationId": "ProjectService_ListCapabilities",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ownerService",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "default": "LIFECYCLE_STATUS_UNSPECIFIED",
+            "enum": [
+              "LIFECYCLE_STATUS_UNSPECIFIED",
+              "ACTIVE",
+              "ARCHIVED",
+              "DELETED",
+              "DISABLED"
+            ],
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListCapabilitiesReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ProjectService"
+        ]
+      },
+      "post": {
+        "operationId": "ProjectService_RegisterCapability",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RegisterCapabilityRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Capability"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ProjectService"
+        ]
+      }
+    },
+    "/v1/iam/control-plane/resource-types": {
+      "get": {
+        "operationId": "ResourceService_ListResourceTypes",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "capabilityId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "ownerService",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "grantable",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListResourceTypesReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      },
+      "post": {
+        "operationId": "ResourceService_RegisterResourceType",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RegisterResourceTypeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ResourceType"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      }
+    },
+    "/v1/iam/control-plane/resource-types/{type}": {
+      "get": {
+        "operationId": "ResourceService_GetResourceType",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "type",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ResourceType"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      }
+    },
+    "/v1/iam/control-plane/role-templates": {
+      "get": {
+        "operationId": "GrantService_ListRoleTemplates",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "resourceType",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "roleKey",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "enabled",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRoleTemplatesReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "GrantService"
+        ]
+      },
+      "post": {
+        "operationId": "GrantService_RegisterRoleTemplate",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RegisterRoleTemplateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RoleTemplate"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "GrantService"
+        ]
+      }
+    },
+    "/v1/iam/control-plane/role-templates/{id}": {
+      "patch": {
+        "operationId": "GrantService_UpdateRoleTemplate",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GrantServiceUpdateRoleTemplateBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RoleTemplate"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "GrantService"
+        ]
+      }
+    },
+    "/v1/iam/control-plane/role-templates/{id}:disable": {
+      "post": {
+        "operationId": "GrantService_DisableRoleTemplate",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GrantServiceDisableRoleTemplateBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RoleTemplate"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "GrantService"
+        ]
+      }
+    },
+    "/v1/iam/control-plane/role-templates/{id}:preview-impact": {
+      "post": {
+        "operationId": "GrantService_PreviewRoleTemplateImpact",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GrantServicePreviewRoleTemplateImpactBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PreviewRoleTemplateImpactReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "GrantService"
+        ]
+      }
+    },
+    "/v1/iam/directory/projections:drift": {
+      "post": {
+        "operationId": "IAMDirectoryProjectionService_CheckDirectoryProjectionDrift",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CheckDirectoryProjectionDriftRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CheckDirectoryProjectionDriftReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMDirectoryProjectionService"
+        ]
+      }
+    },
+    "/v1/iam/directory/projections:reconcile": {
+      "post": {
+        "operationId": "IAMDirectoryProjectionService_ReconcileDirectoryProjection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ReconcileDirectoryProjectionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ReconcileDirectoryProjectionReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMDirectoryProjectionService"
+        ]
+      }
+    },
+    "/v1/iam/directory/projections:retry": {
+      "post": {
+        "operationId": "IAMDirectoryProjectionService_RetryDirectoryProjection",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RetryDirectoryProjectionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RetryDirectoryProjectionReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMDirectoryProjectionService"
+        ]
+      }
+    },
+    "/v1/iam/me": {
+      "get": {
+        "operationId": "IAMAuthService_GetMe",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "includeProfile",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMeReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMAuthService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}": {
+      "get": {
+        "operationId": "IAMDirectoryService_GetOrganization",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Organization"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMDirectoryService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/access:explain": {
+      "post": {
+        "operationId": "GrantService_ExplainAccess",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GrantServiceExplainAccessBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ExplainAccessReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "GrantService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/access:preview-grant": {
+      "post": {
+        "operationId": "AccessQueryService_PreviewGrant",
+        "parameters": [
+          {
+            "description": "org_id is the organization context.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AccessQueryServicePreviewGrantBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PreviewGrantReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "summary": "PreviewGrant checks what permissions a subject would receive if granted\na given role on a resource, without actually creating the grant.",
+        "tags": [
+          "AccessQueryService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/access:resource-access": {
+      "post": {
+        "operationId": "AccessQueryService_ListResourceAccess",
+        "parameters": [
+          {
+            "description": "org_id is the organization context.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AccessQueryServiceListResourceAccessBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListResourceAccessReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "summary": "ListResourceAccess returns all subjects that have effective permissions\non a given resource, including inherited access.",
+        "tags": [
+          "AccessQueryService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/access:subject-entitlements": {
+      "post": {
+        "operationId": "AccessQueryService_ListSubjectEntitlements",
+        "parameters": [
+          {
+            "description": "org_id is the organization context.",
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AccessQueryServiceListSubjectEntitlementsBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListSubjectEntitlementsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "summary": "ListSubjectEntitlements returns all effective permissions for a subject\nacross all resources, including inherited permissions from groups,\nparent resources, zone-level, and platform-level grants.",
+        "tags": [
+          "AccessQueryService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/external-resource-bindings": {
+      "get": {
+        "operationId": "ResourceService_ListExternalResourceBindings",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "resource.type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "resource.id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "provider",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "externalType",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "externalId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "syncStatus",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "format": "int32",
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "pageToken",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListExternalResourceBindingsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      },
+      "post": {
+        "operationId": "ResourceService_BindExternalResource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceServiceBindExternalResourceBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ExternalResourceBinding"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/grants": {
+      "get": {
+        "operationId": "GrantService_ListGrants",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "resource.type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "resource.id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "subject.type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "subject.id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "subject.relation",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "relation",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "roleKey",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "active",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "format": "int32",
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "pageToken",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListGrantsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "GrantService"
+        ]
+      },
+      "post": {
+        "operationId": "GrantService_GrantAccess",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GrantServiceGrantAccessBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Grant"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "GrantService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/grants/{grantId}/revoke": {
+      "post": {
+        "operationId": "GrantService_RevokeAccess",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "grantId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GrantServiceRevokeAccessBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RevokeAccessReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "GrantService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/groups": {
+      "get": {
+        "operationId": "IAMDirectoryService_ListGroups",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "parentId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "userId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "includeInherited",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListGroupsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMDirectoryService"
+        ]
+      },
+      "post": {
+        "operationId": "IAMGroupAdminService_CreateGroup",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IAMGroupAdminServiceCreateGroupBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Group"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMGroupAdminService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/groups/{groupId}": {
+      "delete": {
+        "operationId": "IAMGroupAdminService_DeleteGroup",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "recursive",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {},
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMGroupAdminService"
+        ]
+      },
+      "get": {
+        "operationId": "IAMDirectoryService_GetGroup",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Group"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMDirectoryService"
+        ]
+      },
+      "patch": {
+        "operationId": "IAMGroupAdminService_UpdateGroup",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IAMGroupAdminServiceUpdateGroupBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Group"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMGroupAdminService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/groups/{groupId}/users/{userId}": {
+      "delete": {
+        "operationId": "IAMGroupAdminService_RemoveUserFromGroup",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {},
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMGroupAdminService"
+        ]
+      },
+      "post": {
+        "operationId": "IAMGroupAdminService_AssignUserToGroup",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {},
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMGroupAdminService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/projects": {
+      "get": {
+        "operationId": "ProjectService_ListProjects",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "joined",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "default": "LIFECYCLE_STATUS_UNSPECIFIED",
+            "enum": [
+              "LIFECYCLE_STATUS_UNSPECIFIED",
+              "ACTIVE",
+              "ARCHIVED",
+              "DELETED",
+              "DISABLED"
+            ],
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "default": "PROJECT_VISIBILITY_UNSPECIFIED",
+            "enum": [
+              "PROJECT_VISIBILITY_UNSPECIFIED",
+              "PRIVATE",
+              "ORG",
+              "PUBLIC"
+            ],
+            "in": "query",
+            "name": "visibility",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "labels",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "format": "int32",
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "pageToken",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListProjectsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ProjectService"
+        ]
+      },
+      "post": {
+        "operationId": "ProjectService_CreateProject",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProjectServiceCreateProjectBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Project"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ProjectService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/projects/{projectId}": {
+      "get": {
+        "operationId": "ProjectService_GetProject",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Project"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ProjectService"
+        ]
+      },
+      "patch": {
+        "operationId": "ProjectService_UpdateProject",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProjectServiceUpdateProjectBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Project"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ProjectService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/projects/{projectId}/archive": {
+      "post": {
+        "operationId": "ProjectService_ArchiveProject",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProjectServiceArchiveProjectBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Project"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ProjectService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/projects/{projectId}/capabilities": {
+      "get": {
+        "operationId": "ProjectService_ListProjectCapabilities",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "enabled",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListProjectCapabilitiesReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ProjectService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/projects/{projectId}/capabilities/{capabilityId}:disable": {
+      "post": {
+        "operationId": "ProjectService_DisableProjectCapability",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "capabilityId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProjectServiceDisableProjectCapabilityBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ProjectCapability"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ProjectService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/projects/{projectId}/capabilities/{capabilityId}:enable": {
+      "post": {
+        "operationId": "ProjectService_EnableProjectCapability",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "capabilityId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProjectServiceEnableProjectCapabilityBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ProjectCapability"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ProjectService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/resource-bindings": {
+      "get": {
+        "operationId": "ResourceService_ListResourceBindings",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "source.type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "source.id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "target.type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "target.id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "relation",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "format": "int32",
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "pageToken",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListResourceBindingsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      },
+      "post": {
+        "operationId": "ResourceService_BindResource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceServiceBindResourceBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ResourceBinding"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/resource-bindings/{bindingId}/unbind": {
+      "post": {
+        "operationId": "ResourceService_UnbindResource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "bindingId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceServiceUnbindResourceBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UnbindResourceReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/resources": {
+      "get": {
+        "operationId": "ResourceService_ListResources",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "projectId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "parent.type",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "parent.id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "ownerService",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "visibility",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "labels",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "format": "int32",
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "pageToken",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListResourcesReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      },
+      "put": {
+        "operationId": "ResourceService_UpsertResource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceServiceUpsertResourceBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Resource"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/resources/{resourceType}/{resourceId}": {
+      "delete": {
+        "operationId": "ResourceService_DeleteResource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "resourceType",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "resourceId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "hardDelete",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "in": "query",
+            "name": "reason",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteResourceReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      },
+      "get": {
+        "operationId": "ResourceService_GetResource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "resourceType",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "resourceId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Resource"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/resources/{resourceType}/{resourceId}/archive": {
+      "post": {
+        "operationId": "ResourceService_ArchiveResource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "resourceType",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "resourceId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceServiceArchiveResourceBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Resource"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/resources/{resourceType}/{resourceId}/move": {
+      "post": {
+        "operationId": "ResourceService_MoveResource",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "resourceType",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "resourceId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceServiceMoveResourceBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Resource"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "ResourceService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/users": {
+      "get": {
+        "operationId": "IAMDirectoryService_ListUsers",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "groupId",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "role",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "format": "int32",
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "pageToken",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListUsersReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMDirectoryService"
+        ]
+      },
+      "post": {
+        "operationId": "IAMIdentityAdminService_CreateUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IAMIdentityAdminServiceCreateUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1User"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMIdentityAdminService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/users/{userId}": {
+      "delete": {
+        "operationId": "IAMIdentityAdminService_DeleteUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "hard",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {},
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMIdentityAdminService"
+        ]
+      },
+      "get": {
+        "operationId": "IAMDirectoryService_GetUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1User"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMDirectoryService"
+        ]
+      },
+      "put": {
+        "operationId": "IAMIdentityAdminService_UpdateUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IAMIdentityAdminServiceUpdateUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1User"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMIdentityAdminService"
+        ]
+      }
+    },
+    "/v1/iam/orgs/{orgId}/users/{userId}:disable": {
+      "post": {
+        "operationId": "IAMIdentityAdminService_DisableUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orgId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IAMIdentityAdminServiceDisableUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {},
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMIdentityAdminService"
+        ]
+      }
+    },
+    "/v1/iam/permissions/check": {
+      "post": {
+        "operationId": "IAMPermissionService_CheckPermission",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CheckPermissionRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CheckPermissionReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMPermissionService"
+        ]
+      }
+    },
+    "/v1/iam/permissions:batch-check": {
+      "post": {
+        "operationId": "IAMPermissionService_BatchCheckPermissions",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1BatchCheckPermissionsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1BatchCheckPermissionsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMPermissionService"
+        ]
+      }
+    },
+    "/v1/iam/relationships:delete": {
+      "post": {
+        "operationId": "IAMPermissionService_DeleteRelationships",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteRelationshipsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteRelationshipsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMPermissionService"
+        ]
+      }
+    },
+    "/v1/iam/relationships:read": {
+      "post": {
+        "operationId": "IAMPermissionService_ReadRelationships",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListRelationshipsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRelationshipsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMPermissionService"
+        ]
+      }
+    },
+    "/v1/iam/relationships:write": {
+      "post": {
+        "operationId": "IAMPermissionService_WriteRelationships",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1WriteRelationshipsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1WriteRelationshipsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMPermissionService"
+        ]
+      }
+    },
+    "/v1/iam/resources/lookup": {
+      "post": {
+        "operationId": "IAMPermissionService_LookupResources",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1LookupResourcesRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1LookupResourcesReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMPermissionService"
+        ]
+      }
+    },
+    "/v1/iam/subjects/lookup": {
+      "post": {
+        "operationId": "IAMPermissionService_LookupSubjects",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1LookupSubjectsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1LookupSubjectsReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/KernelErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "IAMPermissionService"
+        ]
+      }
+    }
+  },
+  "produces": [
+    "application/json"
+  ],
+  "swagger": "2.0",
+  "tags": [
+    {
+      "name": "ResourceService"
+    },
+    {
+      "name": "AccessQueryService"
+    },
+    {
+      "name": "GrantService"
+    },
+    {
+      "name": "ProjectService"
+    },
+    {
+      "name": "IAMAuthService"
+    },
+    {
+      "name": "IAMDirectoryService"
+    },
+    {
+      "name": "IAMDirectoryProjectionService"
+    },
+    {
+      "name": "IAMPermissionService"
+    },
+    {
+      "name": "IAMAuthorizationAdminService"
+    },
+    {
+      "name": "IAMGroupAdminService"
+    },
+    {
+      "name": "IAMIdentityAdminService"
+    }
+  ]
+}

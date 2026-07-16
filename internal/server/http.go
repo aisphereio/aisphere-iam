@@ -3,11 +3,9 @@ package server
 import (
 	"encoding/json"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
-	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	"github.com/aisphereio/aisphere-iam/internal/biz/projection"
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
@@ -41,17 +39,13 @@ func NewHTTPServer(cfg conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Me
 		opts = append(opts, khttp.Middleware(m...))
 	}
 	srv := khttp.NewServer(opts...)
-	if err := serverx.RegisterHTTPServices(srv, IAMBindings(resources, authSvc, dirSvc, groupSvc, permSvc, projectSvc, resourceSvc, grantSvc, accessQuerySvc)...); err != nil {
+	if err := serverx.RegisterHTTPServices(srv, IAMBindings(resources, authSvc, dirSvc, groupSvc, permSvc, authzAdminSvc, projectSvc, resourceSvc, grantSvc, accessQuerySvc)...); err != nil {
 		panic(err)
 	}
-v1.RegisterIAMAuthorizationAdminServiceHTTPServer(srv, authzAdminSvc)
-		registerProjectionBranches(srv, projections)
-		registerIdentityAuthZBranches(srv, resources)
-		registerDirectoryProjectionCompatibilityRoutes(srv, service.NewDirectoryProjectionOpsFromDeps(resources.Identity, resources.AuthzAdmin, resources.IdentityProjection))
+	registerProjectionBranches(srv, projections)
+	registerIdentityAuthZBranches(srv, resources)
+	registerCasdoorWebhookRoute(srv, newDirectoryProjectionOps(resources))
 
-	srv.HandleFunc("/v1/iam/ui/login", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, safeUILoginReturnURL(r.URL.Query().Get("return_to")), http.StatusFound)
-	})
 	srv.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
@@ -63,23 +57,6 @@ v1.RegisterIAMAuthorizationAdminServiceHTTPServer(srv, authzAdminSvc)
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ready"})
 	})
 	return srv
-}
-
-func safeUILoginReturnURL(raw string) string {
-	const fallback = "http://localhost:3001/"
-	u, err := url.Parse(raw)
-	if err != nil || u == nil || !u.IsAbs() {
-		return fallback
-	}
-	if u.Scheme != "http" && u.Scheme != "https" {
-		return fallback
-	}
-	switch u.Host {
-	case "localhost:3000", "localhost:3001", "127.0.0.1:3000", "127.0.0.1:3001":
-		return u.String()
-	default:
-		return fallback
-	}
 }
 
 func registerProjectionBranches(srv *khttp.Server, projections *projection.Manager) {
@@ -142,65 +119,10 @@ func registerIdentityAuthZBranches(srv *khttp.Server, resources *data.Resources)
 	})
 }
 
-type directoryProjectionRequest struct {
-	OrgID string `json:"org_id"`
-	Limit int    `json:"limit"`
-}
-
-// registerDirectoryProjectionCompatibilityRoutes keeps the existing HTTP paths
-// alive until api/iam/v1/iam.proto is regenerated and the generated
-// IAMDirectoryProjectionService HTTP server is registered. Business logic lives
-// in internal/service; this function is only a temporary HTTP shim.
-func registerDirectoryProjectionCompatibilityRoutes(srv *khttp.Server, ops *service.DirectoryProjectionOps) {
+func registerCasdoorWebhookRoute(srv *khttp.Server, ops *service.DirectoryProjectionOps) {
 	if ops == nil {
 		return
 	}
-	srv.HandleFunc("/v1/iam/directory/projections:retry", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
-			return
-		}
-		var req directoryProjectionRequest
-		_ = json.NewDecoder(r.Body).Decode(&req)
-		result, err := ops.Retry(r.Context(), req.Limit)
-		if err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
-			return
-		}
-		writeJSON(w, http.StatusOK, result)
-	})
-	srv.HandleFunc("/v1/iam/directory/projections:reconcile", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
-			return
-		}
-		orgID, ok := readProjectionOrgID(w, r)
-		if !ok {
-			return
-		}
-		result, err := ops.Reconcile(r.Context(), orgID, "reconcile")
-		if err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
-			return
-		}
-		writeJSON(w, http.StatusOK, result)
-	})
-	srv.HandleFunc("/v1/iam/directory/projections:drift", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
-			return
-		}
-		orgID, ok := readProjectionOrgID(w, r)
-		if !ok {
-			return
-		}
-		result, err := ops.Drift(r.Context(), orgID)
-		if err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
-			return
-		}
-		writeJSON(w, http.StatusOK, result)
-	})
 	srv.HandleFunc("/v1/iam/casdoor/webhooks", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
@@ -225,20 +147,6 @@ func registerDirectoryProjectionCompatibilityRoutes(srv *khttp.Server, ops *serv
 		}
 		writeJSON(w, http.StatusAccepted, result)
 	})
-}
-
-func readProjectionOrgID(w http.ResponseWriter, r *http.Request) (string, bool) {
-	var req directoryProjectionRequest
-	_ = json.NewDecoder(r.Body).Decode(&req)
-	orgID := strings.TrimSpace(req.OrgID)
-	if orgID == "" {
-		orgID = strings.TrimSpace(r.URL.Query().Get("org_id"))
-	}
-	if orgID == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "org_id is required"})
-		return "", false
-	}
-	return orgID, true
 }
 
 func writeJSON(w http.ResponseWriter, status int, body any) {

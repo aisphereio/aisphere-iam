@@ -682,6 +682,7 @@ type UpdateGroupRequest struct {
 	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	Group         *Group                 `protobuf:"bytes,3,opt,name=group,proto3" json:"group,omitempty"`
+	ParentId      *string                `protobuf:"bytes,4,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -735,6 +736,13 @@ func (x *UpdateGroupRequest) GetGroup() *Group {
 		return x.Group
 	}
 	return nil
+}
+
+func (x *UpdateGroupRequest) GetParentId() string {
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
+	}
+	return ""
 }
 
 type DeleteGroupRequest struct {
@@ -3840,13 +3848,16 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\x06org_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12.\n" +
 	"\x05group\x18\x02 \x01(\v2\r.iam.v1.GroupB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x05group\x12'\n" +
-	"\x0fidempotency_key\x18\x03 \x01(\tR\x0eidempotencyKey\"\x8e\x01\n" +
+	"\x0fidempotency_key\x18\x03 \x01(\tR\x0eidempotencyKey\"\xc3\x01\n" +
 	"\x12UpdateGroupRequest\x12!\n" +
 	"\x06org_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12%\n" +
 	"\bgroup_id\x18\x02 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\agroupId\x12.\n" +
-	"\x05group\x18\x03 \x01(\v2\r.iam.v1.GroupB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x05group\"|\n" +
+	"\x05group\x18\x03 \x01(\v2\r.iam.v1.GroupB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x05group\x12%\n" +
+	"\tparent_id\x18\x04 \x01(\tB\x03\xe0A\x01H\x00R\bparentId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_parent_id\"|\n" +
 	"\x12DeleteGroupRequest\x12!\n" +
 	"\x06org_id\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x05orgId\x12%\n" +
@@ -4343,6 +4354,7 @@ func file_iam_v1_iam_proto_init() {
 	if File_iam_v1_iam_proto != nil {
 		return
 	}
+	file_iam_v1_iam_proto_msgTypes[11].OneofWrappers = []any{}
 	file_iam_v1_iam_proto_msgTypes[53].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
