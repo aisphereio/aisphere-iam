@@ -34,7 +34,7 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 export PATH := $(LOCAL_BIN):$(PATH)
 endif
 
-.PHONY: help init tools tools-local check-tools api deploy spicedb-schema-configmap deploy-apply proto-check breaking-check openapi-check contract-check permission-manifest-check config wire generate build docker run test tidy verify clean
+.PHONY: help init tools tools-local check-tools api api-generate deploy spicedb-schema-configmap deploy-apply proto-check breaking-check openapi-check contract-check permission-manifest-check config wire generate build docker run test tidy verify clean
 
 help:
 	@echo "Aisphere IAM targets:"
@@ -127,7 +127,9 @@ else
 	@test -x "$(LOCAL_BIN)/buf-check-aisphere" || (echo "missing $(LOCAL_BIN)/buf-check-aisphere"; exit 1)
 endif
 
-api: check-tools
+api: api-generate openapi-check
+
+api-generate: check-tools
 ifeq ($(OS),Windows_NT)
 	@cmd /c "set PATH=$(LOCAL_BIN);%PATH%&& .bin\buf.exe generate --template buf.gen.yaml"
 else
@@ -192,7 +194,7 @@ endif
 openapi-check:
 	$(GO) run ./cmd/openapi-contract-check --input docs/openapi/aisphere.swagger.json --output docs/openapi/aisphere.swagger.json --title "Aisphere IAM API" --version "$(OPENAPI_VERSION)"
 
-contract-check: proto-check breaking-check api openapi-check
+contract-check: proto-check breaking-check api
 
 permission-manifest-check:
 	$(GO) run ./cmd/permission-manifest-check --manifest $(PERMISSION_MANIFEST) --schema $(SPICEDB_SCHEMA)
