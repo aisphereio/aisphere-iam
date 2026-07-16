@@ -197,7 +197,7 @@ endif
 openapi-check:
 	$(GO) run ./cmd/openapi-contract-check --input docs/openapi/aisphere.swagger.json --output docs/openapi/aisphere.swagger.json --title "Aisphere IAM API" --version "$(OPENAPI_VERSION)"
 
-contract-check: proto-check breaking-check api
+contract-check: proto-check breaking-check api generated-check
 
 generated-check: api
 	git diff --exit-code -- api docs/openapi

@@ -92,14 +92,14 @@ jobs:
           kustomize build deploy > $env:RUNNER_TEMP/aisphere-iam.yaml
           ./scripts/verify-kustomize-delivery.ps1
 
-      - name: Check generated and module files are committed
+      - name: Check deploy and module files are committed
         shell: bash
         run: |
           set -euo pipefail
-          if ! git diff --quiet --exit-code; then
-            echo "Generated contract, deploy, or module files are stale."
-            git status --short
-            git diff --stat
+          if ! git diff --quiet --exit-code -- deploy/ go.mod go.sum; then
+            echo "Deploy manifests or module files are stale."
+            git status --short -- deploy/ go.mod go.sum
+            git diff --stat -- deploy/ go.mod go.sum
             exit 1
           fi
 
