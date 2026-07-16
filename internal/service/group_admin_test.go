@@ -68,6 +68,35 @@ func TestIAMGroupAdminServiceCreateUpdateDelete(t *testing.T) {
 	}
 }
 
+func TestIAMGroupAdminServiceUpdateGroupClearsExplicitGroupParent(t *testing.T) {
+	identity := newFakeIdentityAdmin()
+	identity.groups["child"] = authn.Group{
+		ID:       "child",
+		OrgID:    "aisphere",
+		ParentID: "parent",
+		Name:     "child",
+	}
+	svc := NewIAMGroupAdminService(IAMDeps{Identity: identity})
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{
+		SubjectID: "test-user",
+		OrgID:     "aisphere",
+	})
+	emptyParent := ""
+
+	updated, err := svc.UpdateGroup(ctx, &v1.UpdateGroupRequest{
+		OrgId:    "aisphere",
+		GroupId:  "child",
+		Group:    &v1.Group{},
+		ParentId: &emptyParent,
+	})
+	if err != nil {
+		t.Fatalf("UpdateGroup: %v", err)
+	}
+	if updated.GetParentId() != "" {
+		t.Fatalf("parent_id = %q, want empty", updated.GetParentId())
+	}
+}
+
 func TestIAMGroupAdminServiceUpdateGroupPreservesOmittedParent(t *testing.T) {
 	identity := newFakeIdentityAdmin()
 	identity.groups["child"] = authn.Group{
@@ -113,10 +142,9 @@ func TestIAMGroupAdminServiceUpdateGroupClearsExplicitParent(t *testing.T) {
 	emptyParent := ""
 
 	updated, err := svc.UpdateGroup(ctx, &v1.UpdateGroupRequest{
-		OrgId:    "aisphere",
-		GroupId:  "child",
-		Group:    &v1.Group{},
-		ParentId: &emptyParent,
+		OrgId:   "aisphere",
+		GroupId: "child",
+		Group:   &v1.Group{ParentId: &emptyParent},
 	})
 	if err != nil {
 		t.Fatalf("UpdateGroup: %v", err)

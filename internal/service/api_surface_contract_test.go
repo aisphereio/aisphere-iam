@@ -13,8 +13,8 @@ func TestIAMP0APIBoundaries(t *testing.T) {
 	root := filepath.Join("..", "..")
 	iamProto := readAPISurfaceContract(t, filepath.Join(root, "api", "iam", "v1", "iam.proto"))
 	identityProto := readAPISurfaceContract(t, filepath.Join(root, "api", "iam", "v1", "identity_admin.proto"))
-	if strings.Contains(iamProto, "message Group { string id = 1; string external_id = 2; string org_id = 3; optional string parent_id = 4;") {
-		t.Fatal("Group parent_id must remain wire-compatible with the released model")
+	if !strings.Contains(iamProto, "message Group { string id = 1; string external_id = 2; string org_id = 3; optional string parent_id = 4;") {
+		t.Fatal("Group parent_id must preserve field presence")
 	}
 	if !strings.Contains(iamProto, "optional string parent_id = 4 [(google.api.field_behavior) = OPTIONAL];") {
 		t.Fatal("UpdateGroupRequest must carry parent_id presence for PATCH updates")

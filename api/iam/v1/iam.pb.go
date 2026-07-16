@@ -3298,7 +3298,7 @@ type Group struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	ExternalId    string                 `protobuf:"bytes,2,opt,name=external_id,json=externalId,proto3" json:"external_id,omitempty"`
 	OrgId         string                 `protobuf:"bytes,3,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	ParentId      string                 `protobuf:"bytes,4,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	ParentId      *string                `protobuf:"bytes,4,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
 	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
 	DisplayName   string                 `protobuf:"bytes,6,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	Type          string                 `protobuf:"bytes,7,opt,name=type,proto3" json:"type,omitempty"`
@@ -3360,8 +3360,8 @@ func (x *Group) GetOrgId() string {
 }
 
 func (x *Group) GetParentId() string {
-	if x != nil {
-		return x.ParentId
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
 	}
 	return ""
 }
@@ -4076,18 +4076,20 @@ const file_iam_v1_iam_proto_rawDesc = "" +
 	"\bowner_id\x18\x05 \x01(\tR\aownerId\x12\x1b\n" +
 	"\tparent_id\x18\x06 \x01(\tR\bparentId\x12\x12\n" +
 	"\x04tags\x18\a \x03(\tR\x04tags\x12\x18\n" +
-	"\aenabled\x18\b \x01(\bR\aenabled\"\xe1\x01\n" +
+	"\aenabled\x18\b \x01(\bR\aenabled\"\xf4\x01\n" +
 	"\x05Group\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vexternal_id\x18\x02 \x01(\tR\n" +
 	"externalId\x12\x15\n" +
-	"\x06org_id\x18\x03 \x01(\tR\x05orgId\x12\x1b\n" +
-	"\tparent_id\x18\x04 \x01(\tR\bparentId\x12\x12\n" +
+	"\x06org_id\x18\x03 \x01(\tR\x05orgId\x12 \n" +
+	"\tparent_id\x18\x04 \x01(\tH\x00R\bparentId\x88\x01\x01\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12!\n" +
 	"\fdisplay_name\x18\x06 \x01(\tR\vdisplayName\x12\x12\n" +
 	"\x04type\x18\a \x01(\tR\x04type\x12\x12\n" +
 	"\x04path\x18\b \x01(\tR\x04path\x12\x14\n" +
-	"\x05users\x18\t \x03(\tR\x05users\"\xf3\x02\n" +
+	"\x05users\x18\t \x03(\tR\x05usersB\f\n" +
+	"\n" +
+	"_parent_id\"\xf3\x02\n" +
 	"\vApplication\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vexternal_id\x18\x02 \x01(\tR\n" +
@@ -4353,6 +4355,7 @@ func file_iam_v1_iam_proto_init() {
 		return
 	}
 	file_iam_v1_iam_proto_msgTypes[11].OneofWrappers = []any{}
+	file_iam_v1_iam_proto_msgTypes[53].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
