@@ -15,6 +15,7 @@ concurrency:
 
 env:
   KERNEL_VERSION: v0.4.15
+  KUSTOMIZE_VERSION: v5.7.1
 
 jobs:
   verify:
@@ -22,7 +23,7 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - name: Checkout
+      - name: Checkout full history
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -43,32 +44,25 @@ jobs:
             exit 1
           }
 
-      - name: Install code generators
-        run: make KERNEL_VERSION=${KERNEL_VERSION} tools
-
-      - name: Generate API and deploy manifests
+      - name: Install pinned generators and renderer
+        shell: bash
         run: |
-          make KERNEL_VERSION=${KERNEL_VERSION} api
+          set -euo pipefail
+          make KERNEL_VERSION="${KERNEL_VERSION}" tools
+          mkdir -p "${RUNNER_TEMP}/bin"
+          GOBIN="${RUNNER_TEMP}/bin" go install "sigs.k8s.io/kustomize/kustomize/v5@${KUSTOMIZE_VERSION}"
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
+
+      - name: Check protobuf compatibility and OpenAPI contract
+        run: make KERNEL_VERSION=${KERNEL_VERSION} BASE_REF=${{ github.base_ref || 'main' }} contract-check
+
+      - name: Generate deploy manifests and normalize module graph
+        run: |
           make KERNEL_VERSION=${KERNEL_VERSION} deploy
+          go mod tidy
 
-      - name: Normalize module graph
-        run: go mod tidy
-
-      - name: Upload normalized module files
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: iam-module-files
-          path: |
-            go.mod
-            go.sum
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Contract checks
-        run: |
-          make permission-manifest-check
-          make KERNEL_VERSION=${KERNEL_VERSION} proto-check
+      - name: Check permission manifest
+        run: make permission-manifest-check
 
       - name: Test
         shell: bash
@@ -76,10 +70,42 @@ jobs:
           set -o pipefail
           go test ./... -count=1 -v 2>&1 | tee go-test.log
 
-      - name: Traceability check
+      - name: Check traceability
+        run: make traceability-check STRICT=1
+
+      - name: Build binary
+        run: make build
+
+      - name: Render and verify delivery YAML
+        shell: pwsh
+        run: |
+          kustomize build deploy > $env:RUNNER_TEMP/aisphere-iam.yaml
+          ./scripts/verify-kustomize-delivery.ps1
+
+      - name: Check generated and module files are committed
         shell: bash
         run: |
-          make traceability-check STRICT=1
+          set -euo pipefail
+          if ! git diff --quiet --exit-code; then
+            echo "Generated contract, deploy, or module files are stale."
+            git status --short
+            git diff --stat
+            exit 1
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build container without publishing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: aisphere-iam:ci-${{ github.sha }}
+          build-args: VERSION=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Upload Go test log
         if: always()
@@ -89,17 +115,3 @@ jobs:
           path: go-test.log
           if-no-files-found: warn
           retention-days: 7
-
-      - name: Build binary
-        run: make build
-
-      - name: Check generated and module files are committed
-        shell: bash
-        run: |
-          set -euo pipefail
-          if ! git diff --quiet --exit-code; then
-            echo "Generated or module files are stale. Run: make tools api deploy && go mod tidy"
-            git status --short
-            git diff --stat
-            exit 1
-          fi

@@ -4,11 +4,28 @@ kind: Kustomization
 namespace: aisphere
 
 resources:
+  - namespace.yaml
   - configmap.yaml
   - deployment.yaml
   - service.yaml
+  - networkpolicy.yaml
+  - generated/gateway/authenticated/access-query-service-authenticated.yaml
+  - generated/gateway/authenticated/grant-service-authenticated.yaml
+  - generated/gateway/authenticated/i-a-m-auth-service-authenticated.yaml
+  - generated/gateway/authenticated/i-a-m-authorization-admin-service-authenticated.yaml
+  - generated/gateway/authenticated/i-a-m-directory-projection-service-authenticated.yaml
+  - generated/gateway/authenticated/i-a-m-directory-service-authenticated.yaml
+  - generated/gateway/authenticated/i-a-m-group-admin-service-authenticated.yaml
+  - generated/gateway/authenticated/i-a-m-identity-admin-service-authenticated.yaml
+  - generated/gateway/authenticated/project-service-authenticated.yaml
+  - generated/gateway/authenticated/resource-service-authenticated.yaml
+  - generated/gateway/internal/i-a-m-auth-service-internal.yaml
+  - generated/gateway/internal/i-a-m-permission-service-internal.yaml
+  - generated/gateway/internal/resource-service-internal.yaml
 
-commonLabels:
-  app.kubernetes.io/name: aisphere-iam
-  app.kubernetes.io/part-of: aisphere
-  app.kubernetes.io/managed-by: kustomize
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/name: aisphere-iam
+      app.kubernetes.io/part-of: aisphere
+      app.kubernetes.io/managed-by: kustomize

@@ -26,6 +26,7 @@ PERMISSION_MANIFEST ?= ./configs/resource/defaults.yaml
 ifeq ($(OS),Windows_NT)
 LOCAL_BIN := $(CURDIR)\.bin
 BIN_DIR := $(CURDIR)\bin
+GENERATED_DEPLOY_DIR := $(DEPLOY_DIR)\generated
 VERSION ?= $(shell git describe --tags --always --dirty 2>NUL || echo dev)
 export PATH := $(LOCAL_BIN);$(PATH)
 else
