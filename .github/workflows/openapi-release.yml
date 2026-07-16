@@ -1,0 +1,131 @@
+name: Publish OpenAPI Contract
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing GitHub release tag to receive the OpenAPI assets
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  KERNEL_VERSION: v0.4.15
+  FRONTEND_SYNC_TOKEN: ${{ secrets.IAM_FRONTEND_SYNC_TOKEN }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Resolve release tag
+        id: release
+        shell: bash
+        env:
+          EVENT_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          tag="${EVENT_TAG:-${INPUT_TAG:-}}"
+          test -n "$tag" || { echo "release tag is required"; exit 1; }
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout released source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install generators and build contract
+        run: |
+          make KERNEL_VERSION=${KERNEL_VERSION} tools
+          make KERNEL_VERSION=${KERNEL_VERSION} openapi
+          make KERNEL_VERSION=${KERNEL_VERSION} openapi-check
+
+      - name: Build release bundle
+        id: bundle
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p release/openapi
+          cp docs/openapi/iam.full.swagger.json release/openapi/
+          cp docs/openapi/iam.console.swagger.json release/openapi/
+          cp docs/openapi/openapi.lock.json release/openapi/
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          lock = json.loads(Path('docs/openapi/openapi.lock.json').read_text())
+          manifest = {
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'releaseTag': os.environ['RELEASE_TAG'],
+              'gitCommit': os.environ['GITHUB_SHA'],
+              'contract': lock,
+          }
+          Path('release/openapi/release-manifest.json').write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2) + '\n'
+          )
+          PY
+          bundle="iam-openapi-${RELEASE_TAG}.tar.gz"
+          tar -C release -czf "$bundle" openapi
+          echo "bundle=$bundle" >> "$GITHUB_OUTPUT"
+
+      - name: Upload contract assets to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          BUNDLE: ${{ steps.bundle.outputs.bundle }}
+        run: |
+          gh release upload "$RELEASE_TAG" \
+            docs/openapi/iam.full.swagger.json \
+            docs/openapi/iam.console.swagger.json \
+            docs/openapi/openapi.lock.json \
+            release/openapi/release-manifest.json \
+            "$BUNDLE" \
+            --clobber
+
+      - name: Notify IAM frontend repository
+        if: ${{ env.FRONTEND_SYNC_TOKEN != '' }}
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          GH_TOKEN: ${{ env.FRONTEND_SYNC_TOKEN }}
+        run: |
+          set -euo pipefail
+          payload="$(python3 - <<'PY'
+          import json, os
+          print(json.dumps({
+              'event_type': 'iam-openapi-released',
+              'client_payload': {
+                  'backend_repository': os.environ['GITHUB_REPOSITORY'],
+                  'backend_ref': os.environ['RELEASE_TAG'],
+                  'backend_sha': os.environ['GITHUB_SHA'],
+              },
+          }))
+          PY
+          )"
+          curl --fail-with-body \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/aisphereio/aisphere-iam-frontend/dispatches \
+            -d "$payload"
+
+      - name: Explain disabled frontend sync
+        if: ${{ env.FRONTEND_SYNC_TOKEN == '' }}
+        run: |
+          echo "OpenAPI assets were published, but frontend dispatch is disabled."
+          echo "Configure repository secret IAM_FRONTEND_SYNC_TOKEN with access to aisphereio/aisphere-iam-frontend."

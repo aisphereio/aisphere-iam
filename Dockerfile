@@ -29,6 +29,7 @@ COPY --from=builder /app/server /app/server
 COPY --from=builder /src/configs /app/configs
 COPY --from=builder /src/migrations /app/migrations
 COPY --from=builder /src/deploy/generated /app/deploy/generated
+COPY --from=builder /src/docs/openapi /app/docs/openapi
 RUN chown -R app:app /app
 
 USER app
