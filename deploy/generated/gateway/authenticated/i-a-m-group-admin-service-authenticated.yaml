@@ -100,7 +100,7 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "manage"
+                value: "manage_members"
               - name: X-Aisphere-Authz-Resource
                 value: "group:{org_id}/{group_id}"
       backendRefs:
@@ -123,7 +123,7 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "manage"
+                value: "manage_members"
               - name: X-Aisphere-Authz-Resource
                 value: "group:{org_id}/{group_id}"
       backendRefs:
