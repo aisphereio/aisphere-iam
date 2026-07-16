@@ -104,8 +104,14 @@ type AuthzConfig struct {
 }
 
 type ControlPlaneConfig struct {
-	Defaults        ControlPlaneDefaultsConfig        `json:"defaults" yaml:"defaults"`
-	BootstrapAdmins ControlPlaneBootstrapAdminsConfig `json:"bootstrap_admins" yaml:"bootstrap_admins"`
+	Defaults            ControlPlaneDefaultsConfig            `json:"defaults" yaml:"defaults"`
+	BootstrapAdmins     ControlPlaneBootstrapAdminsConfig     `json:"bootstrap_admins" yaml:"bootstrap_admins"`
+	DirectoryProjection ControlPlaneDirectoryProjectionConfig `json:"directory_projection" yaml:"directory_projection"`
+}
+
+type ControlPlaneDirectoryProjectionConfig struct {
+	ReconcileOnStartup bool     `json:"reconcile_on_startup" yaml:"reconcile_on_startup"`
+	OrgIDs             []string `json:"org_ids" yaml:"org_ids"`
 }
 
 type ControlPlaneDefaultsConfig struct {

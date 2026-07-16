@@ -386,27 +386,30 @@ type authzProjectingIdentityAdmin struct {
 	projection *IdentityProjectionDispatcher
 }
 
-// groupOwnerCtxKey carries the principal that should receive a group#owner
-// relationship when a group is created.  HTTP handlers set it via
-// WithGroupOwner so the owner grant flows through the DTM projection layer
-// instead of a separate direct SpiceDB write.
-type groupOwnerCtxKey struct{}
-
-// WithGroupOwner attaches a group owner subject to the context so that
-// authzProjectingIdentityAdmin.CreateGroup projects a group#owner relationship
-// for that subject.  Passing an empty subject clears it.
-func WithGroupOwner(ctx context.Context, owner authz.SubjectRef) context.Context {
-	if owner.Type == "" || owner.ID == "" {
-		return ctx
+// groupOwnerFromPrincipal derives a group#owner subject from the authenticated
+// Kernel principal in the request context.  This replaces the previous
+// WithGroupOwner context-seam approach so that every production caller
+// (HTTP handler, gRPC handler) automatically receives a group#owner
+// relationship without manual wiring.
+//
+// Subject type mapping:
+//   - service / service_account → preserved as-is
+//   - all other authenticated principals → user
+//   - missing or anonymous → nil (no owner relationship)
+func groupOwnerFromPrincipal(ctx context.Context) *authz.SubjectRef {
+	principal, ok := authn.PrincipalFromContext(ctx)
+	if !ok || !principal.IsAuthenticated() {
+		return nil
 	}
-	return context.WithValue(ctx, groupOwnerCtxKey{}, owner)
-}
-
-// groupOwnerFromContext returns the group owner subject attached to the
-// context, if any.
-func groupOwnerFromContext(ctx context.Context) (authz.SubjectRef, bool) {
-	owner, ok := ctx.Value(groupOwnerCtxKey{}).(authz.SubjectRef)
-	return owner, ok
+	subjectType := principal.SubjectType
+	if subjectType != "service" && subjectType != "service_account" {
+		subjectType = "user"
+	}
+	subjectID := principal.SubjectID
+	if subjectID == "" {
+		return nil
+	}
+	return &authz.SubjectRef{Type: subjectType, ID: subjectID}
 }
 
 func (a authzProjectingIdentityAdmin) CreateOrganization(ctx context.Context, req authn.CreateOrganizationRequest) (authn.Organization, error) {
@@ -422,31 +425,30 @@ func (a authzProjectingIdentityAdmin) CreateOrganization(ctx context.Context, re
 }
 
 func (a authzProjectingIdentityAdmin) CreateGroup(ctx context.Context, req authn.CreateGroupRequest) (authn.Group, error) {
-	group, err := a.IdentityAdmin.CreateGroup(ctx, req)
-	if err != nil {
-		return authn.Group{}, err
-	}
-	rels := groupTopologyRelationships(group, req.Group)
-	// Grant the creating principal a group#owner relationship so they can
-	// manage the group and create child groups beneath it.  The owner subject
-	// is injected via WithGroupOwner by the HTTP handler so this grant is
-	// projected through the DTM/outbox layer rather than written directly to
-	// SpiceDB (which would bypass compensation and retry).
-	if owner, ok := groupOwnerFromContext(ctx); ok && owner.Type != "" && owner.ID != "" {
-		groupID := qualifiedGroupID(firstNonEmpty(group.OrgID, req.Group.OrgID), firstNonEmpty(group.ID, req.Group.ID))
-		if groupID != "" {
-			rels = append(rels, authz.Relationship{
-				Resource: authz.ObjectRef{Type: "group", ID: groupID},
-				Relation: "owner",
-				Subject:  owner,
-			})
+		group, err := a.IdentityAdmin.CreateGroup(ctx, req)
+		if err != nil {
+			return authn.Group{}, err
 		}
+		rels := groupTopologyRelationships(group, req.Group)
+		// Infer the creator from the authenticated Kernel principal in context.
+		// This replaces the previous WithGroupOwner context-seam approach so that
+		// every production caller (HTTP handler, gRPC handler) automatically
+		// receives a group#owner relationship without manual wiring.
+		if owner := groupOwnerFromPrincipal(ctx); owner != nil {
+			groupID := qualifiedGroupID(firstNonEmpty(group.OrgID, req.Group.OrgID), firstNonEmpty(group.ID, req.Group.ID))
+			if groupID != "" {
+				rels = append(rels, authz.Relationship{
+					Resource: authz.ObjectRef{Type: "group", ID: groupID},
+					Relation: "owner",
+					Subject:  *owner,
+				})
+			}
+		}
+		if err := a.projectWrite(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), rels...); err != nil {
+			return authn.Group{}, err
+		}
+		return group, nil
 	}
-	if err := a.projectWrite(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), rels...); err != nil {
-		return authn.Group{}, err
-	}
-	return group, nil
-}
 func (a authzProjectingIdentityAdmin) UpdateGroup(ctx context.Context, req authn.UpdateGroupRequest) (authn.Group, error) {
 	var oldGroup authn.Group
 	if req.Group.OrgID != "" && req.Group.ID != "" {

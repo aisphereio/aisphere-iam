@@ -50,7 +50,7 @@ service IAMGroupAdminService {
     option (google.api.http) = { post: "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "group:{org_id}/{group_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage_members" resource: "group:{org_id}/{group_id}" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.group.user.assign" risk: "high" }
     };
   }
@@ -59,7 +59,7 @@ service IAMGroupAdminService {
     option (google.api.http) = { delete: "/v1/iam/orgs/{org_id}/groups/{group_id}/users/{user_id}" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "manage" resource: "group:{org_id}/{group_id}" audience: "iam-service" mode: CHECK_ONLY }
+      authz: { action: "manage_members" resource: "group:{org_id}/{group_id}" audience: "iam-service" mode: CHECK_ONLY }
       audit: { enabled: true event: "iam.group.user.remove" risk: "high" }
     };
   }

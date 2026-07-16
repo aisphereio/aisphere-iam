@@ -109,7 +109,7 @@ definition group {
   permission view = member + viewer + manager + owner + zone->view_groups + parent->view + custom_binding->view
   permission manage = owner + manager + zone->manage_groups + parent->manage + custom_binding->manage
   permission create_child_groups = owner + manager + zone->create_groups + parent->create_child_groups + custom_binding->create_child_groups
-  permission manage_members = owner + manager + zone->manage_users + parent->manage_members + custom_binding->manage_members
+  permission manage_members = owner + manager + zone->manage_groups + zone->manage_users + parent->manage_members + custom_binding->manage_members
   permission view_permissions = owner + permission_admin + zone->view_permissions + parent->view_permissions + custom_binding->view_permissions
   permission manage_permissions = owner + permission_admin + zone->manage_permissions + parent->manage_permissions + custom_binding->manage_permissions
 }

@@ -190,6 +190,17 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 				go r.IdentityProjection.StartRetryWorker(retryCtx, time.Minute)
 			}
 			r.Identity = BindIdentityAuthZ(r.Identity, provider, WithIdentityProjectionDispatcher(r.IdentityProjection), WithIdentityProjectionReader(provider))
+
+			// Startup directory convergence: reconcile configured zones so that
+			// existing groups receive zone-qualified relationships (zone, parent,
+			// owner) even if they were created before the projection layer was
+			// introduced.  This is idempotent and safe to run on every startup.
+			if cfg.ControlPlane.DirectoryProjection.ReconcileOnStartup {
+				if err := reconcileDirectoryOnStartup(ctx, r.Identity, r.IdentityProjection, cfg.ControlPlane.DirectoryProjection.OrgIDs); err != nil {
+					r.Close()
+					return nil, nil, err
+				}
+			}
 		}
 		if closeFn != nil {
 			r.closers = append(r.closers, closeFn)
@@ -423,4 +434,37 @@ func (r *Resources) Close() error {
 		}
 	}
 	return out
+}
+
+// reconcileDirectoryOnStartup converges the directory projection for the
+// configured organization IDs so that existing groups receive zone-qualified
+// relationships (zone, parent, owner) even if they were created before the
+// projection layer was introduced.
+//
+// This is idempotent and safe to run on every startup.  When a database-backed
+// retry store exists, dispatch failures are non-fatal (the retry worker owns
+// recovery).  Without a retry store, dispatch failure is fatal.
+func reconcileDirectoryOnStartup(ctx context.Context, identity authn.IdentityAdmin, dispatcher *IdentityProjectionDispatcher, orgIDs []string) error {
+	if identity == nil || dispatcher == nil || len(orgIDs) == 0 {
+		return nil
+	}
+	hasDB := dispatcher.db != nil
+	for _, orgID := range orgIDs {
+		orgID = strings.TrimSpace(orgID)
+		if orgID == "" {
+			continue
+		}
+		rels, err := BuildDirectoryProjectionRelationships(ctx, identity, orgID)
+		if err != nil {
+			return fmt.Errorf("startup directory reconcile: build relationships for %q: %w", orgID, err)
+		}
+		if err := dispatcher.Dispatch(ctx, "startup_reconcile", "zone", orgID, IdentityAuthZProjectionPayload{Operation: "write", Relationships: rels}); err != nil {
+			if hasDB {
+				// Event durably persisted; retry worker owns recovery.
+				continue
+			}
+			return fmt.Errorf("startup directory reconcile for %q: %w", orgID, err)
+		}
+	}
+	return nil
 }

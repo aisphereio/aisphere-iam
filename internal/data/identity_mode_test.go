@@ -60,7 +60,6 @@ func TestAuthzProjectingIdentityAdminWritesZoneQualifiedGroupEdges(t *testing.T)
 }
 
 func TestAuthzProjectingIdentityAdminProjectsGroupOwnerFromContext(t *testing.T) {
-	ctx := context.Background()
 	store := authz.NewMemoryRelationshipStore()
 	admin := authzProjectingIdentityAdmin{
 		IdentityAdmin: fakeIdentityAdmin{
@@ -69,7 +68,11 @@ func TestAuthzProjectingIdentityAdminProjectsGroupOwnerFromContext(t *testing.T)
 		projection: NewIdentityProjectionDispatcher(store, store, nil, nil),
 	}
 	owner := authz.SubjectRef{Type: "user", ID: "creator-1"}
-	if _, err := admin.CreateGroup(WithGroupOwner(ctx, owner), authn.CreateGroupRequest{
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{
+		SubjectID:   owner.ID,
+		SubjectType: owner.Type,
+	})
+	if _, err := admin.CreateGroup(ctx, authn.CreateGroupRequest{
 		Group: authn.Group{OrgID: "aisphere", ID: "platform"},
 	}); err != nil {
 		t.Fatalf("CreateGroup returned error: %v", err)
@@ -86,19 +89,19 @@ func TestAuthzProjectingIdentityAdminProjectsGroupOwnerFromContext(t *testing.T)
 	if !containsRelationship(rels, want) {
 		t.Fatalf("group#owner was not projected for the creator; got %#v", rels)
 	}
-	// Without an owner in context, no owner relationship is projected.
+	// Without an authenticated principal in context, no owner relationship is projected.
 	store2 := authz.NewMemoryRelationshipStore()
 	admin2 := authzProjectingIdentityAdmin{
 		IdentityAdmin: fakeIdentityAdmin{group: authn.Group{ID: "platform", OrgID: "aisphere"}},
 		projection:    NewIdentityProjectionDispatcher(store2, store2, nil, nil),
 	}
-	if _, err := admin2.CreateGroup(ctx, authn.CreateGroupRequest{Group: authn.Group{OrgID: "aisphere", ID: "platform"}}); err != nil {
+	if _, err := admin2.CreateGroup(context.Background(), authn.CreateGroupRequest{Group: authn.Group{OrgID: "aisphere", ID: "platform"}}); err != nil {
 		t.Fatalf("CreateGroup without owner returned error: %v", err)
 	}
-	rels2, _ := store2.ReadRelationships(ctx, authz.RelationshipFilter{})
+	rels2, _ := store2.ReadRelationships(context.Background(), authz.RelationshipFilter{})
 	for _, rel := range rels2 {
 		if rel.Relation == "owner" {
-			t.Fatalf("unexpected owner relationship projected without context owner: %#v", rel)
+			t.Fatalf("unexpected owner relationship projected without context principal: %#v", rel)
 		}
 	}
 }
