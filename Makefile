@@ -20,6 +20,11 @@ KUBE_NAMESPACE ?= aisphere
 SPICEDB_SCHEMA ?= ./configs/spicedb/aisphere.schema.zed
 SPICEDB_SCHEMA_CONFIGMAP ?= aisphere-iam-spicedb-schema
 PERMISSION_MANIFEST ?= ./configs/resource/defaults.yaml
+OPENAPI_DIR ?= docs/openapi
+OPENAPI_RAW ?= $(OPENAPI_DIR)/aisphere.swagger.json
+OPENAPI_FULL ?= $(OPENAPI_DIR)/iam.full.swagger.json
+OPENAPI_CONSOLE ?= $(OPENAPI_DIR)/iam.console.swagger.json
+OPENAPI_LOCK ?= $(OPENAPI_DIR)/openapi.lock.json
 
 ifeq ($(OS),Windows_NT)
 LOCAL_BIN := $(CURDIR)\.bin
@@ -31,20 +36,22 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 export PATH := $(LOCAL_BIN):$(PATH)
 endif
 
-.PHONY: help init tools tools-local check-tools api deploy spicedb-schema-configmap deploy-apply proto-check permission-manifest-check config wire generate build docker run test tidy verify clean
+.PHONY: help init tools tools-local check-tools api openapi openapi-check deploy spicedb-schema-configmap deploy-apply proto-check permission-manifest-check config wire generate build docker run test tidy verify clean
 
 help:
 	@echo "Aisphere IAM targets:"
 	@echo "  make tools                   install released Kernel v$(KERNEL_VERSION) codegen tools into .bin"
 	@echo "  make tools-local             install codegen tools from local KERNEL_LOCAL=../kernel"
 	@echo "  make api                     generate API proto code by buf.gen.yaml"
+	@echo "  make openapi                 generate versioned full and IAM Console OpenAPI contracts"
+	@echo "  make openapi-check           verify committed OpenAPI contracts match the proto source"
 	@echo "  make deploy                  generate Gateway API manifests under deploy/generated"
 	@echo "  make spicedb-schema-configmap generate/apply SpiceDB schema ConfigMap from $(SPICEDB_SCHEMA)"
 	@echo "  make deploy-apply            generate and apply app manifests plus generated Gateway API manifests"
 	@echo "  make proto-check             run buf lint and aisphere proto contract checks"
 	@echo "  make permission-manifest-check validate IAM permission manifest against SpiceDB schema"
 	@echo "  make traceability-check      validate REQ->ART->TC traceability chain"
-	@echo "  make verify                  run api, deploy, checks, config, wire, generate, tidy, test, build, traceability"
+	@echo "  make verify                  run OpenAPI/API generation, deploy generation, checks, tests and build"
 	@echo ""
 	@echo "Variables: KERNEL_VERSION=$(KERNEL_VERSION) APP_NAME=$(APP_NAME) CONF=$(CONF) KUBE_NAMESPACE=$(KUBE_NAMESPACE)"
 
@@ -127,6 +134,23 @@ ifeq ($(OS),Windows_NT)
 else
 	@PATH="$(LOCAL_BIN):$$PATH" $(LOCAL_BIN)/buf generate --template buf.gen.yaml
 endif
+
+openapi: api
+	$(GO) run ./cmd/openapi-contract \
+		--input $(OPENAPI_RAW) \
+		--api-root api \
+		--full-output $(OPENAPI_FULL) \
+		--console-output $(OPENAPI_CONSOLE) \
+		--lock-output $(OPENAPI_LOCK)
+
+openapi-check: api
+	$(GO) run ./cmd/openapi-contract \
+		--check \
+		--input $(OPENAPI_RAW) \
+		--api-root api \
+		--full-output $(OPENAPI_FULL) \
+		--console-output $(OPENAPI_CONSOLE) \
+		--lock-output $(OPENAPI_LOCK)
 
 deploy: check-tools
 ifeq ($(OS),Windows_NT)
@@ -211,14 +235,16 @@ run:
 traceability-check:
 	$(GO) run ./cmd/traceability-check/ $(if $(STRICT),--strict)
 
-verify: api deploy proto-check permission-manifest-check config wire generate tidy test build traceability-check
+verify: openapi deploy proto-check permission-manifest-check config wire generate tidy test build traceability-check
 
 clean:
 ifeq ($(OS),Windows_NT)
 	@cmd /c "if exist .bin rmdir /s /q .bin"
 	@cmd /c "if exist bin rmdir /s /q bin"
 	@cmd /c "if exist $(GENERATED_DEPLOY_DIR) rmdir /s /q $(GENERATED_DEPLOY_DIR)"
+	@cmd /c "if exist $(OPENAPI_RAW) del /q $(OPENAPI_RAW)"
 	@cmd /c "if exist $(COVERPROFILE) del /q $(COVERPROFILE)"
 else
 	rm -rf $(LOCAL_BIN) $(BIN_DIR) $(GENERATED_DEPLOY_DIR) $(COVERPROFILE)
+	rm -f $(OPENAPI_RAW)
 endif
