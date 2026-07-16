@@ -15,14 +15,9 @@ data:
         addr: 0.0.0.0:18080
         timeout_ns: 5000000000
         cors:
-          enabled: true
-          allowed_origins:
-            - https://iam.weagent.cc
-          allowed_methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
-          allowed_headers: [Authorization, Content-Type, X-Request-ID, X-Trace-ID, Traceparent, Tracestate]
-          exposed_headers: [X-Request-ID]
-          allow_credentials: true
-          max_age_ns: 3600000000000
+          # Browser traffic is same-origin through Envoy Gateway. Keep CORS at
+          # the edge; direct backend CORS is only a local-development option.
+          enabled: false
       grpc:
         addr: 0.0.0.0:19080
         timeout_ns: 5000000000

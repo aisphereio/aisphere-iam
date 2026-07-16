@@ -67,4 +67,13 @@ foreach ($entry in $deliveryRequirements.GetEnumerator()) {
     }
 }
 
+$httpServer = Get-Content -Raw -LiteralPath (Join-Path $root "internal\server\http.go")
+if ($httpServer -match "/v1/iam/ui/login") {
+    throw "Browser login redirects belong to Envoy Gateway, not the IAM backend"
+}
+$productionConfig = Get-Content -Raw -LiteralPath (Join-Path $root "deploy\configmap.yaml")
+if ($productionConfig -match "(?ms)cors:\s*\r?\n\s+enabled:\s*true") {
+    throw "Production backend CORS must remain disabled; Envoy Gateway owns the browser edge"
+}
+
 Write-Host "GitHub Actions delivery safety checks passed."
