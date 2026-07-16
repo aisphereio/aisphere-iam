@@ -197,42 +197,49 @@ func (s *Service) ListSubjectEntitlements(ctx context.Context, req ListSubjectEn
 			s.traceParentInheritance(ctx, req, e.Resource, &result)
 		}
 
-		// 4. Zone-level (org) permissions
-		zoneRels, err := s.relationshipStore.ReadRelationships(ctx, authz.RelationshipFilter{
-			ResourceType: "zone",
-			SubjectType:  req.Subject.Type,
-			SubjectID:    req.Subject.ID,
-		})
-		if err == nil {
-			for _, zr := range zoneRels {
-				zoneGrants, err := s.repo.ListGrants(ctx, data.ListOptions{
-					OrgID:        req.OrgID,
-					ResourceType: "zone",
-					ResourceID:   zr.Resource.ID,
-					Active:       boolPtr(true),
-					Size:         1000,
-				})
-				if err != nil {
-					continue
-				}
-				for j := range zoneGrants.Items {
-					zg := &zoneGrants.Items[j]
-					perms := s.getPermissions(ctx, zg.RoleTemplateID, zg.ResourceType, zg.RoleKey)
-					result = append(result, Entitlement{
-						ID:             inheritedID("zone", zg.ID, req.Subject.ID),
-						Subject:        SubjectRef{Type: req.Subject.Type, ID: req.Subject.ID},
-						Resource:       ResourceRef{Type: "zone", ID: zr.Resource.ID},
-						RoleKey:        zg.RoleKey,
-						Permissions:    perms,
-						SourceType:     SourceOrgInheritance,
-						SourceResource: ResourceRef{Type: "zone", ID: zr.Resource.ID},
-						GrantID:        zg.ID,
-						RevocableHere:  false,
-						ExpiresAt:      zg.ExpiresAt,
+// 4. Zone-level (org) permissions
+			// Only subjects with owner or admin relation on the zone should inherit
+			// zone-level grants.  All zone members (member relation) get view_zone
+			// via SpiceDB permission computation, not via Postgres grant inheritance.
+			zoneRels, err := s.relationshipStore.ReadRelationships(ctx, authz.RelationshipFilter{
+				ResourceType: "zone",
+				SubjectType:  req.Subject.Type,
+				SubjectID:    req.Subject.ID,
+			})
+			if err == nil {
+				for _, zr := range zoneRels {
+					// Skip member-only relationships — zone grants are for admins/owners only.
+					if zr.Relation != "owner" && zr.Relation != "admin" {
+						continue
+					}
+					zoneGrants, err := s.repo.ListGrants(ctx, data.ListOptions{
+						OrgID:        req.OrgID,
+						ResourceType: "zone",
+						ResourceID:   zr.Resource.ID,
+						Active:       boolPtr(true),
+						Size:         1000,
 					})
+					if err != nil {
+						continue
+					}
+					for j := range zoneGrants.Items {
+						zg := &zoneGrants.Items[j]
+						perms := s.getPermissions(ctx, zg.RoleTemplateID, zg.ResourceType, zg.RoleKey)
+						result = append(result, Entitlement{
+							ID:             inheritedID("zone", zg.ID, req.Subject.ID),
+							Subject:        SubjectRef{Type: req.Subject.Type, ID: req.Subject.ID},
+							Resource:       ResourceRef{Type: "zone", ID: zr.Resource.ID},
+							RoleKey:        zg.RoleKey,
+							Permissions:    perms,
+							SourceType:     SourceOrgInheritance,
+							SourceResource: ResourceRef{Type: "zone", ID: zr.Resource.ID},
+							GrantID:        zg.ID,
+							RevocableHere:  false,
+							ExpiresAt:      zg.ExpiresAt,
+						})
+					}
 				}
 			}
-		}
 
 		// 5. Platform-level permissions
 		platformRels, err := s.relationshipStore.ReadRelationships(ctx, authz.RelationshipFilter{
