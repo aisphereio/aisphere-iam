@@ -34,7 +34,7 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 export PATH := $(LOCAL_BIN):$(PATH)
 endif
 
-.PHONY: help init tools tools-local check-tools api api-generate deploy spicedb-schema-configmap deploy-apply proto-check breaking-check openapi-check contract-check generated-check permission-manifest-check config wire generate build docker run test tidy verify clean
+.PHONY: help init tools tools-local check-tools api api-generate deploy spicedb-schema-configmap deploy-apply proto-check breaking-check openapi-check contract-check generated-check contract-bundle permission-manifest-check config wire generate build docker run test tidy verify clean
 
 help:
 	@echo "Aisphere IAM targets:"
@@ -50,6 +50,7 @@ help:
 	@echo "  make openapi-check           normalize and validate the tracked IAM OpenAPI contract"
 	@echo "  make contract-check          run protobuf, compatibility, generation, and OpenAPI gates"
 	@echo "  make generated-check         verify generated files are committed (no drift)"
+	@echo "  make contract-bundle         build contract bundle (swagger + lock) under dist/api-contract/"
 	@echo "  make permission-manifest-check validate IAM permission manifest against SpiceDB schema"
 	@echo "  make traceability-check      validate REQ->ART->TC traceability chain"
 	@echo "  make verify                  run contract-check, deploy, checks, config, wire, generate, tidy, test, build, traceability"
@@ -200,6 +201,19 @@ contract-check: proto-check breaking-check api
 
 generated-check: api
 	git diff --exit-code -- api docs/openapi
+
+CONTRACT_BUNDLE_DIR ?= dist/api-contract
+
+contract-bundle: api
+	@mkdir -p $(CONTRACT_BUNDLE_DIR)
+	cp docs/openapi/aisphere.swagger.json $(CONTRACT_BUNDLE_DIR)/
+	@GIT_SHA=$$(git rev-parse HEAD 2>/dev/null || echo "unknown"); \
+	GIT_REF=$$(git symbolic-ref --short HEAD 2>/dev/null || echo "unknown"); \
+	SHA256=$$(sha256sum $(CONTRACT_BUNDLE_DIR)/aisphere.swagger.json 2>/dev/null | cut -d' ' -f1 || \
+	         certutil -hashfile $(CONTRACT_BUNDLE_DIR)/aisphere.swagger.json SHA256 2>/dev/null | findstr /v ":" | findstr /v "SHA" | tr -d ' \r\n' || echo "unknown"); \
+	printf '{\n  "repository": "https://github.com/aisphereio/aisphere-iam.git",\n  "git_sha": "%s",\n  "ref": "%s",\n  "sha256": "%s",\n  "kernel_version": "%s",\n  "generator": "protoc-gen-openapiv2@v2.29.0"\n}\n' \
+		"$$GIT_SHA" "$$GIT_REF" "$$SHA256" "$(KERNEL_VERSION)" > $(CONTRACT_BUNDLE_DIR)/contract-lock.json
+	@echo "✓ contract bundle generated under $(CONTRACT_BUNDLE_DIR)/"
 
 permission-manifest-check:
 	$(GO) run ./cmd/permission-manifest-check --manifest $(PERMISSION_MANIFEST) --schema $(SPICEDB_SCHEMA)
