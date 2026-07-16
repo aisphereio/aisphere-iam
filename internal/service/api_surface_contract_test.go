@@ -13,6 +13,9 @@ func TestIAMP0APIBoundaries(t *testing.T) {
 	root := filepath.Join("..", "..")
 	iamProto := readAPISurfaceContract(t, filepath.Join(root, "api", "iam", "v1", "iam.proto"))
 	identityProto := readAPISurfaceContract(t, filepath.Join(root, "api", "iam", "v1", "identity_admin.proto"))
+	if !strings.Contains(iamProto, "optional string parent_id = 4;") {
+		t.Fatal("Group parent_id must preserve field presence for PATCH updates")
+	}
 
 	directory := protoServiceBlock(t, iamProto, "IAMDirectoryService")
 	for _, forbidden := range []string{

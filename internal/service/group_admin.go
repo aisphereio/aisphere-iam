@@ -81,7 +81,15 @@ func (s *IAMGroupAdminService) UpdateGroup(ctx context.Context, req *v1.UpdateGr
 	if err != nil {
 		return nil, err
 	}
-	group := groupFromProto(req.GetGroup())
+	incoming := req.GetGroup()
+	group := groupFromProto(incoming)
+	if incoming != nil && incoming.ParentId == nil {
+		existing, err := s.deps.Identity.GetGroup(ctx, orgID, req.GetGroupId())
+		if err != nil {
+			return nil, err
+		}
+		group.ParentID = existing.ParentID
+	}
 	group.ID = firstNonEmptyString(group.ID, req.GetGroupId())
 	group.OrgID = orgID
 	updated, err := s.deps.Identity.UpdateGroup(ctx, authn.UpdateGroupRequest{Group: group})
