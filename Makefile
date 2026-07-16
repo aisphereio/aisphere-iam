@@ -34,23 +34,25 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 export PATH := $(LOCAL_BIN):$(PATH)
 endif
 
-.PHONY: help init tools tools-local check-tools api api-generate deploy spicedb-schema-configmap deploy-apply proto-check breaking-check openapi-check contract-check permission-manifest-check config wire generate build docker run test tidy verify clean
+.PHONY: help init tools tools-local check-tools api api-generate deploy spicedb-schema-configmap deploy-apply proto-check breaking-check openapi-check contract-check generated-check permission-manifest-check config wire generate build docker run test tidy verify clean
 
 help:
 	@echo "Aisphere IAM targets:"
 	@echo "  make tools                   install released Kernel v$(KERNEL_VERSION) codegen tools into .bin"
 	@echo "  make tools-local             install codegen tools from local KERNEL_LOCAL=../kernel"
-	@echo "  make api                     generate API proto code by buf.gen.yaml"
+	@echo "  make api                     generate API proto code + openapi-check by buf.gen.yaml"
+	@echo "  make api-generate            generate API proto code only (skip openapi-check)"
 	@echo "  make deploy                  generate Gateway API manifests under deploy/generated"
 	@echo "  make spicedb-schema-configmap generate/apply SpiceDB schema ConfigMap from $(SPICEDB_SCHEMA)"
 	@echo "  make deploy-apply            generate and apply app manifests plus generated Gateway API manifests"
-	@echo "  make proto-check             run buf lint and aisphere proto contract checks"
+@echo "  make proto-check             run buf lint and aisphere proto contract checks"
 	@echo "  make breaking-check          reject protobuf changes incompatible with BASE_REF=$(BASE_REF)"
 	@echo "  make openapi-check           normalize and validate the tracked IAM OpenAPI contract"
 	@echo "  make contract-check          run protobuf, compatibility, generation, and OpenAPI gates"
+	@echo "  make generated-check         verify generated files are committed (no drift)"
 	@echo "  make permission-manifest-check validate IAM permission manifest against SpiceDB schema"
 	@echo "  make traceability-check      validate REQ->ART->TC traceability chain"
-	@echo "  make verify                  run api, deploy, checks, config, wire, generate, tidy, test, build, traceability"
+	@echo "  make verify                  run contract-check, deploy, checks, config, wire, generate, tidy, test, build, traceability"
 	@echo ""
 	@echo "Variables: KERNEL_VERSION=$(KERNEL_VERSION) APP_NAME=$(APP_NAME) CONF=$(CONF) KUBE_NAMESPACE=$(KUBE_NAMESPACE)"
 
@@ -196,6 +198,9 @@ openapi-check:
 
 contract-check: proto-check breaking-check api
 
+generated-check: api
+	git diff --exit-code -- api docs/openapi
+
 permission-manifest-check:
 	$(GO) run ./cmd/permission-manifest-check --manifest $(PERMISSION_MANIFEST) --schema $(SPICEDB_SCHEMA)
 
@@ -231,7 +236,7 @@ run:
 traceability-check:
 	$(GO) run ./cmd/traceability-check/ $(if $(STRICT),--strict)
 
-verify: api deploy proto-check permission-manifest-check config wire generate tidy test build traceability-check
+verify: contract-check deploy permission-manifest-check config wire generate tidy test build traceability-check
 
 clean:
 ifeq ($(OS),Windows_NT)
