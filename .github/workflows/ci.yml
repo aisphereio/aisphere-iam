@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  KERNEL_VERSION: v0.4.15
+  KERNEL_VERSION: v0.4.16
   KUSTOMIZE_VERSION: v5.7.1
 
 jobs:
