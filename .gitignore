@@ -2,7 +2,7 @@
 bin/
 coverage.out
 coverage.html
-docs/openapi/
+docs/openapi/aisphere.swagger.json
 *.log
 *.exe
 # Build outputs
@@ -65,4 +65,3 @@ temp/
 *.exe
 .bin/
 bin/
-
