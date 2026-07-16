@@ -33,6 +33,7 @@ $delivery = Get-Content -Raw -LiteralPath $deliveryPath
 
 $ciRequirements = [ordered]@{
     "full Git history" = "fetch-depth:\s*0"
+    "PR base branch materialization" = "git branch --force.*origin/"
     "protobuf breaking check" = "breaking-check|buf breaking|contract-check"
     "OpenAPI normalization" = "openapi-check|contract-check"
     "generated diff" = "git diff --quiet --exit-code"
