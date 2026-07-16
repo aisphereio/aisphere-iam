@@ -398,20 +398,17 @@ func organizationToProto(in authn.Organization) *v1.Organization {
 }
 
 func groupToProto(in authn.Group) *v1.Group {
-	out := &v1.Group{
+	return &v1.Group{
 		Id:          in.ID,
 		ExternalId:  in.ExternalID,
 		OrgId:       in.OrgID,
+		ParentId:    in.ParentID,
 		Name:        in.Name,
 		DisplayName: in.DisplayName,
 		Type:        in.Type,
 		Path:        in.Path,
 		Users:       append([]string(nil), in.Users...),
 	}
-	if in.ParentID != "" {
-		out.ParentId = &in.ParentID
-	}
-	return out
 }
 
 func groupsToProto(in []authn.Group) []*v1.Group {

@@ -5,6 +5,8 @@ KUBECTL ?= kubectl
 KERNEL_MODULE ?= github.com/aisphereio/kernel
 KERNEL_VERSION ?= v0.4.15
 KERNEL_LOCAL ?= ../kernel
+BASE_REF ?= main
+OPENAPI_VERSION ?= v1
 
 APP_NAME ?= aisphere-iam
 APP_CMD ?= ./cmd/$(APP_NAME)
@@ -31,7 +33,7 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 export PATH := $(LOCAL_BIN):$(PATH)
 endif
 
-.PHONY: help init tools tools-local check-tools api deploy spicedb-schema-configmap deploy-apply proto-check permission-manifest-check config wire generate build docker run test tidy verify clean
+.PHONY: help init tools tools-local check-tools api deploy spicedb-schema-configmap deploy-apply proto-check breaking-check openapi-check contract-check permission-manifest-check config wire generate build docker run test tidy verify clean
 
 help:
 	@echo "Aisphere IAM targets:"
@@ -42,6 +44,9 @@ help:
 	@echo "  make spicedb-schema-configmap generate/apply SpiceDB schema ConfigMap from $(SPICEDB_SCHEMA)"
 	@echo "  make deploy-apply            generate and apply app manifests plus generated Gateway API manifests"
 	@echo "  make proto-check             run buf lint and aisphere proto contract checks"
+	@echo "  make breaking-check          reject protobuf changes incompatible with BASE_REF=$(BASE_REF)"
+	@echo "  make openapi-check           normalize and validate the tracked IAM OpenAPI contract"
+	@echo "  make contract-check          run protobuf, compatibility, generation, and OpenAPI gates"
 	@echo "  make permission-manifest-check validate IAM permission manifest against SpiceDB schema"
 	@echo "  make traceability-check      validate REQ->ART->TC traceability chain"
 	@echo "  make verify                  run api, deploy, checks, config, wire, generate, tidy, test, build, traceability"
@@ -175,6 +180,18 @@ else
 	@PATH="$(LOCAL_BIN):$$PATH" $(LOCAL_BIN)/buf lint
 	@PATH="$(LOCAL_BIN):$$PATH" $(LOCAL_BIN)/buf build -o - | $(LOCAL_BIN)/buf-check-aisphere
 endif
+
+breaking-check: check-tools
+ifeq ($(OS),Windows_NT)
+	@cmd /c "set PATH=$(LOCAL_BIN);%PATH%&& .bin\buf.exe breaking --against .git#branch=$(BASE_REF)"
+else
+	@PATH="$(LOCAL_BIN):$$PATH" $(LOCAL_BIN)/buf breaking --against '.git#branch=$(BASE_REF)'
+endif
+
+openapi-check:
+	$(GO) run ./cmd/openapi-contract-check --input docs/openapi/aisphere.swagger.json --output docs/openapi/aisphere.swagger.json --title "Aisphere IAM API" --version "$(OPENAPI_VERSION)"
+
+contract-check: proto-check breaking-check api openapi-check
 
 permission-manifest-check:
 	$(GO) run ./cmd/permission-manifest-check --manifest $(PERMISSION_MANIFEST) --schema $(SPICEDB_SCHEMA)

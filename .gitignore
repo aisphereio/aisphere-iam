@@ -2,7 +2,6 @@
 bin/
 coverage.out
 coverage.html
-docs/openapi/
 *.log
 *.exe
 # Build outputs
@@ -65,4 +64,3 @@ temp/
 *.exe
 .bin/
 bin/
-
