@@ -45,7 +45,7 @@ help:
 	@echo "  make deploy                  generate Gateway API manifests under deploy/generated"
 	@echo "  make spicedb-schema-configmap generate/apply SpiceDB schema ConfigMap from $(SPICEDB_SCHEMA)"
 	@echo "  make deploy-apply            generate and apply app manifests plus generated Gateway API manifests"
-@echo "  make proto-check             run buf lint and aisphere proto contract checks"
+	@echo "  make proto-check             run buf lint and aisphere proto contract checks"
 	@echo "  make breaking-check          reject protobuf changes incompatible with BASE_REF=$(BASE_REF)"
 	@echo "  make openapi-check           normalize and validate the tracked IAM OpenAPI contract"
 	@echo "  make contract-check          run protobuf, compatibility, generation, and OpenAPI gates"
