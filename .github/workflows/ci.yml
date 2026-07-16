@@ -46,10 +46,21 @@ jobs:
       - name: Install code generators
         run: make KERNEL_VERSION=${KERNEL_VERSION} tools
 
-      - name: Generate API and deploy manifests
+      - name: Generate API, OpenAPI and deploy manifests
         run: |
-          make KERNEL_VERSION=${KERNEL_VERSION} api
+          make KERNEL_VERSION=${KERNEL_VERSION} openapi
           make KERNEL_VERSION=${KERNEL_VERSION} deploy
+
+      - name: Upload OpenAPI contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: iam-openapi-contract
+          path: |
+            docs/openapi/iam.full.swagger.json
+            docs/openapi/iam.console.swagger.json
+            docs/openapi/openapi.lock.json
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Normalize module graph
         run: go mod tidy
@@ -69,6 +80,7 @@ jobs:
         run: |
           make permission-manifest-check
           make KERNEL_VERSION=${KERNEL_VERSION} proto-check
+          make KERNEL_VERSION=${KERNEL_VERSION} openapi-check
 
       - name: Test
         shell: bash
@@ -97,8 +109,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if ! git diff --quiet --exit-code; then
-            echo "Generated or module files are stale. Run: make tools api deploy && go mod tidy"
+          if [[ -n "$(git status --porcelain --untracked-files=all)" ]]; then
+            echo "Generated, OpenAPI, deploy or module files are stale. Run: make tools openapi deploy && go mod tidy"
             git status --short
             git diff --stat
             exit 1
