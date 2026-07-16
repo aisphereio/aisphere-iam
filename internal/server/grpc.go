@@ -1,7 +1,6 @@
 package server
 
 import (
-	v1 "github.com/aisphereio/aisphere-iam/api/iam/v1"
 	"github.com/aisphereio/aisphere-iam/internal/conf"
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/aisphere-iam/internal/service"
@@ -30,9 +29,8 @@ func NewGRPCServer(c conf.ServerConfig, logCfg logx.Config, metricsCfg conf.Metr
 		opts = append(opts, kgrpc.Middleware(m...))
 	}
 	srv := kgrpc.NewServer(opts...)
-	if err := serverx.RegisterGRPCServices(srv, IAMBindings(resources, authSvc, dirSvc, groupSvc, permSvc, projectSvc, resourceSvc, grantSvc, accessQuerySvc)...); err != nil {
+	if err := serverx.RegisterGRPCServices(srv, IAMBindings(resources, authSvc, dirSvc, groupSvc, permSvc, authzAdminSvc, projectSvc, resourceSvc, grantSvc, accessQuerySvc)...); err != nil {
 		panic(err)
 	}
-	v1.RegisterIAMAuthorizationAdminServiceServer(srv, authzAdminSvc)
 	return srv
 }
