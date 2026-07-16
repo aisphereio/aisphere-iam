@@ -38,20 +38,20 @@ func TestGroupAdminGeneratedAccessUsesGroupManagementModel(t *testing.T) {
 				resource:   authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
 				permission: "manage",
 			},
-			{
-				name:       "assign group member checks group manage",
-				operation:  "/iam.v1.IAMGroupAdminService/AssignUserToGroup",
-				req:        &v1.AssignUserToGroupRequest{OrgId: "aisphere", GroupId: "platform", UserId: "user-1"},
-				resource:   authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
-				permission: "manage",
-			},
-			{
-				name:       "remove group member checks group manage",
-				operation:  "/iam.v1.IAMGroupAdminService/RemoveUserFromGroup",
-				req:        &v1.RemoveUserFromGroupRequest{OrgId: "aisphere", GroupId: "platform", UserId: "user-1"},
-				resource:   authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
-				permission: "manage",
-			},
+{
+					name:       "assign group member checks group manage_members",
+					operation:  "/iam.v1.IAMGroupAdminService/AssignUserToGroup",
+					req:        &v1.AssignUserToGroupRequest{OrgId: "aisphere", GroupId: "platform", UserId: "user-1"},
+					resource:   authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
+					permission: "manage_members",
+				},
+				{
+					name:       "remove group member checks group manage_members",
+					operation:  "/iam.v1.IAMGroupAdminService/RemoveUserFromGroup",
+					req:        &v1.RemoveUserFromGroupRequest{OrgId: "aisphere", GroupId: "platform", UserId: "user-1"},
+					resource:   authz.ObjectRef{Type: "group", ID: "aisphere/platform"},
+					permission: "manage_members",
+				},
 	}
 
 	for _, tt := range tests {
