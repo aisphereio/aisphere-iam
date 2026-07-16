@@ -112,6 +112,37 @@ func (s *IAMDirectoryService) ListGroups(ctx context.Context, req *v1.ListGroups
 	if s.deps.Identity == nil {
 		return nil, authn.ErrIdentityBackendFailed("identity provider is not configured", nil)
 	}
+
+	// When filtering by user, the Casdoor group.Users field may be stale or empty.
+	// Fetch the user and use their Groups field to filter, which is more reliable.
+	if uid := req.GetUserId(); uid != "" {
+		user, err := s.deps.Identity.GetUser(ctx, req.GetOrgId(), uid)
+		if err != nil {
+			return nil, err
+		}
+		// Fetch all groups for the org (optionally narrowed by parentId/type),
+		// then keep only those the user belongs to.
+		allGroups, err := s.deps.Identity.ListGroups(ctx, authn.GroupFilter{
+			OrgID:    req.GetOrgId(),
+			ParentID: req.GetParentId(),
+			Type:     req.GetType(),
+		})
+		if err != nil {
+			return nil, err
+		}
+		userGroupSet := make(map[string]bool, len(user.Groups))
+		for _, g := range user.Groups {
+			userGroupSet[g] = true
+		}
+		var out []authn.Group
+		for _, g := range allGroups {
+			if userGroupSet[g.Name] || userGroupSet[g.ID] {
+				out = append(out, g)
+			}
+		}
+		return &v1.ListGroupsReply{Groups: groupsToProto(out)}, nil
+	}
+
 	groups, err := s.deps.Identity.ListGroups(ctx, authn.GroupFilter{
 		OrgID:    req.GetOrgId(),
 		ParentID: req.GetParentId(),
