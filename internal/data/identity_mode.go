@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -425,15 +424,25 @@ func (a authzProjectingIdentityAdmin) CreateOrganization(ctx context.Context, re
 }
 
 func (a authzProjectingIdentityAdmin) CreateGroup(ctx context.Context, req authn.CreateGroupRequest) (authn.Group, error) {
+		// Generate a stable, SpiceDB-safe group ID before creating in Casdoor.
+		// The ID is stored in Casdoor's Name field (which is the Casdoor primary key).
+		stableID := newGroupID()
+		req.Group.ID = stableID
+		req.Group.Name = stableID
+		// req.Group.ExternalID already holds the user-supplied machine-readable name
+		// (set by groupFromProto in the service layer).  req.Group.DisplayName holds
+		// the user-visible display name.
+
 		group, err := a.IdentityAdmin.CreateGroup(ctx, req)
 		if err != nil {
 			return authn.Group{}, err
 		}
+		// Preserve the ExternalID (machine-readable name) through the Casdoor round-trip
+		// since groupFromSDK does not populate it.
+		group.ExternalID = req.Group.ExternalID
+
 		rels := groupTopologyRelationships(group, req.Group)
-		// Infer the creator from the authenticated Kernel principal in context.
-		// This replaces the previous WithGroupOwner context-seam approach so that
-		// every production caller (HTTP handler, gRPC handler) automatically
-		// receives a group#owner relationship without manual wiring.
+		// Infer the owner from the authenticated Casdoor principal in context.
 		if owner := groupOwnerFromPrincipal(ctx); owner != nil {
 			groupID := qualifiedGroupID(firstNonEmpty(group.OrgID, req.Group.OrgID), firstNonEmpty(group.ID, req.Group.ID))
 			if groupID != "" {
@@ -461,17 +470,19 @@ func (a authzProjectingIdentityAdmin) UpdateGroup(ctx context.Context, req authn
 	if newName := strings.TrimSpace(req.Group.Name); newName != "" && oldGroup.Name != "" && !strings.EqualFold(newName, oldGroup.Name) {
 		return authn.Group{}, authn.ErrInvalidTokenRequest(fmt.Sprintf("group name is immutable: cannot rename %q to %q", oldGroup.Name, newName))
 	}
-	group, err := a.IdentityAdmin.UpdateGroup(ctx, req)
-	if err != nil {
-		return authn.Group{}, err
-	}
-	if err := a.projectDelete(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), groupTopologyDeleteFilters(oldGroup, req.Group), nil); err != nil {
-		return authn.Group{}, err
-	}
-	if err := a.projectWrite(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), groupTopologyRelationships(group, req.Group)...); err != nil {
-		return authn.Group{}, err
-	}
-	return group, nil
+group, err := a.IdentityAdmin.UpdateGroup(ctx, req)
+		if err != nil {
+			return authn.Group{}, err
+		}
+		// Preserve the machine-readable name (ExternalID) through the Casdoor round-trip.
+		group.ExternalID = req.Group.ExternalID
+		if err := a.projectDelete(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), groupTopologyDeleteFilters(oldGroup, req.Group), nil); err != nil {
+			return authn.Group{}, err
+		}
+		if err := a.projectWrite(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), groupTopologyRelationships(group, req.Group)...); err != nil {
+			return authn.Group{}, err
+		}
+		return group, nil
 }
 func (a authzProjectingIdentityAdmin) DeleteGroup(ctx context.Context, req authn.DeleteGroupRequest) error {
 	if err := a.IdentityAdmin.DeleteGroup(ctx, req); err != nil {
@@ -814,36 +825,33 @@ func userSubjectDeleteFilters(userID string) []authz.RelationshipFilter {
 		{ResourceType: "role_binding", SubjectType: "user", SubjectID: uid},
 	}
 }
+// qualifiedGroupID returns the SpiceDB object ID for a group.
+//
+// With the stable-ID model, the group ID is already a SpiceDB-safe identifier
+// (e.g. "grp_01AR...3K7M") and does NOT need orgID prefixing or sanitization.
+// This function exists to minimize diff churn; new code should use group.ID directly.
 func qualifiedGroupID(orgID, groupID string) string {
-	orgID = strings.Trim(strings.TrimSpace(orgID), "/")
-	groupID = strings.Trim(strings.TrimSpace(groupID), "/")
-	if groupID == "" {
-		return ""
-	}
-	if orgID == "" || strings.HasPrefix(groupID, orgID+"/") {
-		return groupID
-	}
-	return orgID + "/" + groupID
+	return strings.TrimSpace(groupID)
 }
 
-// spicedbObjectIDAllowedRe matches characters that SpiceDB's default object_id
-// regex (`^(([a-zA-Z0-9/_|\-=+]{1,})|\*)$`) permits. Any character outside this
-// set is replaced with "_" so that free-form Casdoor group/user/org names
-// (which may contain spaces, dots, colons, Chinese characters, emoji, etc.)
-// never reach SpiceDB and cause InvalidArgument errors that retry forever in
-// DTM sagas.
-var spicedbObjectIDAllowedRe = regexp.MustCompile(`[^a-zA-Z0-9/_|\-=+]`)
-
-// SanitizeObjectID normalizes a SpiceDB object_id so it matches the allowed
-// character set. The wildcard "*" is returned as-is.
-func SanitizeObjectID(id string) string {
-	id = strings.TrimSpace(id)
-	if id == "*" {
-		return id
+// newGroupID generates a stable, SpiceDB-safe group identifier.
+// Format: "grp_" + 32 lowercase hex chars (UUID v4 without dashes).
+func newGroupID() string {
+	var b [16]byte
+	if _, err := rand.Read(b[:]); err == nil {
+		// Set version 4 bits
+		b[6] = (b[6] & 0x0f) | 0x40
+		b[8] = (b[8] & 0x3f) | 0x80
+		return "grp_" + hex.EncodeToString(b[:])
 	}
-	return spicedbObjectIDAllowedRe.ReplaceAllString(id, "_")
+	// Fallback: timestamp-based
+	return fmt.Sprintf("grp_%016x", time.Now().UnixNano())
 }
 
+// normalizeProjectionPayload validates and deduplicates projection payloads.
+// With the new stable-ID model, resource/subject IDs are already SpiceDB-safe
+// and do NOT need sanitization.  This function only trims whitespace and
+// deduplicates.
 func normalizeProjectionPayload(payload IdentityAuthZProjectionPayload) IdentityAuthZProjectionPayload {
 	payload.Operation = strings.TrimSpace(payload.Operation)
 	if payload.Operation == "" {
@@ -854,8 +862,8 @@ func normalizeProjectionPayload(payload IdentityAuthZProjectionPayload) Identity
 		if rel.Resource.IsZero() || strings.TrimSpace(rel.Relation) == "" || rel.Subject.IsZero() {
 			continue
 		}
-		rel.Resource.ID = SanitizeObjectID(rel.Resource.ID)
-		rel.Subject.ID = SanitizeObjectID(rel.Subject.ID)
+		rel.Resource.ID = strings.TrimSpace(rel.Resource.ID)
+		rel.Subject.ID = strings.TrimSpace(rel.Subject.ID)
 		rels = append(rels, rel)
 	}
 	payload.Relationships = dedupeRelationships(rels)
@@ -864,8 +872,8 @@ func normalizeProjectionPayload(payload IdentityAuthZProjectionPayload) Identity
 		if filter.ResourceType == "" && filter.ResourceID == "" && filter.Relation == "" && filter.SubjectType == "" && filter.SubjectID == "" && filter.SubjectRel == "" {
 			continue
 		}
-		filter.ResourceID = SanitizeObjectID(filter.ResourceID)
-		filter.SubjectID = SanitizeObjectID(filter.SubjectID)
+		filter.ResourceID = strings.TrimSpace(filter.ResourceID)
+		filter.SubjectID = strings.TrimSpace(filter.SubjectID)
 		filters = append(filters, filter)
 	}
 	payload.Filters = filters

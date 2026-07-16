@@ -197,6 +197,27 @@ type GrantModel struct {
 	RevokedAt       *time.Time `gorm:"column:revoked_at;index" json:"revoked_at,omitempty"`
 }
 
+// GroupModel maps IAM-managed Group metadata.
+//
+// Groups are created in Casdoor with Name=stableID, DisplayName=display_name.
+// This table stores the IAM-side mapping so that machine-readable name (slug)
+// and display_name are decoupled from the Casdoor primary key.
+type GroupModel struct {
+	ID          string     `gorm:"column:id;primaryKey" json:"id"`
+	OrgID       string     `gorm:"column:org_id;not null;index:idx_iam_group_org;uniqueIndex:uq_iam_groups_org_name" json:"org_id"`
+	ParentID    string     `gorm:"column:parent_id;index" json:"parent_id"`
+	Name        string     `gorm:"column:name;not null;uniqueIndex:uq_iam_groups_org_name" json:"name"`
+	DisplayName string     `gorm:"column:display_name;not null;default:''" json:"display_name"`
+	CasdoorName string     `gorm:"column:casdoor_name;not null;index" json:"casdoor_name"`
+	Type        string     `gorm:"column:type;not null;default:'Physical'" json:"type"`
+	Status      string     `gorm:"column:status;not null;default:'active';index" json:"status"`
+	CreatedAt   time.Time  `gorm:"column:created_at;autoCreateTime" json:"created_at"`
+	UpdatedAt   time.Time  `gorm:"column:updated_at;autoUpdateTime" json:"updated_at"`
+	DeletedAt   *time.Time `gorm:"column:deleted_at;index" json:"deleted_at,omitempty"`
+}
+
+func (GroupModel) TableName() string { return "iam_groups" }
+
 func (GrantModel) TableName() string { return "iam_grants" }
 
 type GrantAuditModel struct {

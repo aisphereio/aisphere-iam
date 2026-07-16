@@ -105,21 +105,28 @@ func userFromProto(in *v1.User) authn.User {
 }
 
 func groupFromProto(in *v1.Group) authn.Group {
-	if in == nil {
-		return authn.Group{}
+		if in == nil {
+			return authn.Group{}
+		}
+		// With the stable-ID model:
+		//   - in.GetId()       → stable ID (e.g. "grp_01AR...") — may be empty on create
+		//   - in.GetName()     → user-supplied machine-readable name (slug)
+		//   - in.GetDisplayName() → user-visible display name (may contain Chinese)
+		//
+		// ExternalID stores the machine-readable name so it survives the Casdoor
+		// round-trip (Casdoor's Name field holds the stable ID, not the slug).
+		return authn.Group{
+			ID:          in.GetId(),
+			ExternalID:  in.GetName(),
+			OrgID:       in.GetOrgId(),
+			ParentID:    in.GetParentId(),
+			Name:        in.GetId(), // Casdoor Name = stable ID (set by CreateGroup)
+			DisplayName: in.GetDisplayName(),
+			Type:        in.GetType(),
+			Path:        in.GetPath(),
+			Users:       append([]string(nil), in.GetUsers()...),
+		}
 	}
-	return authn.Group{
-		ID:          in.GetId(),
-		ExternalID:  in.GetExternalId(),
-		OrgID:       in.GetOrgId(),
-		ParentID:    in.GetParentId(),
-		Name:        in.GetName(),
-		DisplayName: in.GetDisplayName(),
-		Type:        in.GetType(),
-		Path:        in.GetPath(),
-		Users:       append([]string(nil), in.GetUsers()...),
-	}
-}
 
 func firstNonEmptyString(values ...string) string {
 	for _, value := range values {
