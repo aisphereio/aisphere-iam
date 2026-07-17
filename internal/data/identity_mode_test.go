@@ -156,7 +156,7 @@ func TestAuthzProjectingIdentityAdminDeleteCapturesCompensationRelationships(t *
 
 func TestUserSubjectDeleteFiltersCoversDirectGrantResourceTypes(t *testing.T) {
 	filters := userSubjectDeleteFilters("user-1")
-	wantTypes := []string{"platform", "zone", "group", "project", "skill", "git_repository", "role_binding"}
+	wantTypes := []string{"platform", "zone", "group", "project", "skill", "role_binding"}
 	have := map[string]bool{}
 	for _, f := range filters {
 		have[f.ResourceType] = true
@@ -164,6 +164,11 @@ func TestUserSubjectDeleteFiltersCoversDirectGrantResourceTypes(t *testing.T) {
 	for _, ty := range wantTypes {
 		if !have[ty] {
 			t.Fatalf("userSubjectDeleteFilters missing resource type %q (direct grants would survive user delete)", ty)
+		}
+	}
+	for _, removed := range []string{"git_namespace", "git_repository"} {
+		if have[removed] {
+			t.Fatalf("userSubjectDeleteFilters still includes removed resource type %q", removed)
 		}
 	}
 }
@@ -253,9 +258,9 @@ func containsRelationship(rels []authz.Relationship, want authz.Relationship) bo
 
 type fakeIdentityAdmin struct {
 	authn.IdentityAdmin
-	group          authn.Group
-	organization   authn.Organization
-	groupsForUser  []authn.Group // returned by ListGroups when filtering by UserID
+	group         authn.Group
+	organization  authn.Organization
+	groupsForUser []authn.Group // returned by ListGroups when filtering by UserID
 }
 
 func (f fakeIdentityAdmin) CreateOrganization(context.Context, authn.CreateOrganizationRequest) (authn.Organization, error) {

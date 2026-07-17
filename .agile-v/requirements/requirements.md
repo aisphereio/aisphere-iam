@@ -453,6 +453,14 @@ Evidence qualifiers:
 - **Verification criteria:** provider uniqueness, sync mode/status and stale external identity are covered.
 - **Done criteria:** read lifecycle and synchronization policy are implemented.
 
+## REQ-IAM-RESOURCE-008 — Use Skill as the canonical Git authorization resource
+- **Priority:** P0
+- **Status:** `OBSERVED_IMPLEMENTED`
+- **Requirement:** IAM shall use `skill:<name>` as the sole authorization resource for Skill metadata and its native Git/LFS repository; repository name and Skill name are identical.
+- **Constraint:** no `git_namespace`, `git_repository`, `backing_repo` or `backing_skill` authorization model may coexist. Ordinary branch writes require `edit`; formal publication to `main` or release tags requires `publish`.
+- **Verification criteria:** committed schema, permission manifest, identity cleanup filters and default role templates expose the canonical Skill model and reject the removed Git resource model.
+- **Done criteria:** contract and identity-mode tests pass and Hub can check all Git operations through IAM using only the Skill reference.
+
 ---
 
 # 11. Grant control-plane requirements

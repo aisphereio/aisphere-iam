@@ -3,6 +3,7 @@ package permissionmanifest
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -57,6 +58,57 @@ func TestCommittedManifestMatchesSpiceDBSchema(t *testing.T) {
 	manifest, schema := loadCommittedManifestAndSchema(t)
 	if err := Validate(manifest, schema); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestCommittedSkillModelIsCanonicalGitAuthorizationResource(t *testing.T) {
+	manifest, schema := loadCommittedManifestAndSchema(t)
+	for _, removed := range []string{"git_namespace", "git_repository"} {
+		if _, ok := schema.Definitions[removed]; ok {
+			t.Fatalf("removed SpiceDB definition %s is still present", removed)
+		}
+		for _, resourceType := range manifest.ResourceTypes {
+			if resourceType.Type == removed || resourceType.SpiceDBType == removed {
+				t.Fatalf("removed resource type %s is still registered", removed)
+			}
+		}
+	}
+
+	skill, ok := schema.Definitions["skill"]
+	if !ok {
+		t.Fatal("skill definition is missing")
+	}
+	wantRelations := map[string]string{
+		"owner":     "user|service|service_account|group#member",
+		"editor":    "user|service|service_account|group#member",
+		"reviewer":  "user|service|service_account|group#member",
+		"publisher": "user|service|service_account|group#member",
+		"viewer":    "user|user:*|service|service:*|service_account|service_account:*|group#member",
+	}
+	for relation, want := range wantRelations {
+		if got := skill.Relations[relation]; got != want {
+			t.Fatalf("skill relation %s = %q, want %q", relation, got, want)
+		}
+	}
+	if got, want := skill.Permissions["publish"], "manage+publisher+custom_binding->publish"; got != want {
+		t.Fatalf("skill publish permission = %q, want %q", got, want)
+	}
+	if strings.Contains(skill.Permissions["publish"], "reviewer") {
+		t.Fatal("reviewer must not imply publish")
+	}
+
+	var skillResource *ResourceType
+	for i := range manifest.ResourceTypes {
+		if manifest.ResourceTypes[i].Type == "skill" {
+			skillResource = &manifest.ResourceTypes[i]
+			break
+		}
+	}
+	if skillResource == nil {
+		t.Fatal("skill resource type is missing")
+	}
+	if !slices.Contains(skillResource.Relations, "publisher") {
+		t.Fatal("skill resource type does not expose publisher relation")
 	}
 }
 

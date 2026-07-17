@@ -47,6 +47,7 @@
 | TC-0060 | GRANT-007 | Custom role registration, versioned update, impact preview, binding grant and revoke | unit | `internal/service/grant_test.go` | ✅ |
 | TC-0061 | GRANT-007 | Every grantable schema resource exposes dynamic role bindings | unit | `internal/permissionmanifest/manifest_test.go` | ✅ |
 | TC-0062 | GRANT-007 | Permission-expression migration requires an explicit flag and still rejects removals | unit | `internal/data/authz_bootstrap_test.go` | ✅ |
+| TC-0065 | RESOURCE-008 | Skill is the sole Git authorization resource and removed Git resource types are not reconciled | contract | `internal/permissionmanifest/manifest_test.go`, `internal/data/identity_mode_test.go`, `cmd/permission-manifest-check/main_test.go` | ✅ |
 
 ## 2. Missing Test Coverage (P0 Priority)
 

@@ -97,6 +97,7 @@
 | ART-0046 | RESOURCE-005 | Move/Delete Resource | `internal/service/control_plane.go::MoveResource/DeleteResource` |
 | ART-0047 | RESOURCE-006 | Bind/Unbind Resource | `internal/service/control_plane.go::BindResource/UnbindResource` |
 | ART-0048 | RESOURCE-007 | External Resource bindings | `internal/service/control_plane.go::BindExternalResource/ListExternalResourceBindings` |
+| ART-0073 | RESOURCE-008 | Canonical Skill Git authorization schema, defaults and cleanup policy | `configs/spicedb/aisphere.schema.zed`, `configs/resource/defaults.yaml`, `internal/permissionmanifest`, `internal/data/identity_mode.go`, `internal/biz/resource/service.go` |
 
 ### Grant Control Plane (P1)
 

@@ -51,21 +51,21 @@ func TestManagerApplyDelete(t *testing.T) {
 	ctx := context.Background()
 	store := authz.NewMemoryRelationshipStore()
 	_, _ = store.WriteRelationships(ctx, authz.Relationship{
-		Resource: authz.ObjectRef{Type: "git_repository", ID: "r1"},
-		Relation: "writer",
+		Resource: authz.ObjectRef{Type: "skill", ID: "s1"},
+		Relation: "editor",
 		Subject:  authz.SubjectRef{Type: "user", ID: "u1"},
 	})
 	repo := newProjectionRepo()
 	manager := NewManager(repo, store, nil)
 	event, err := manager.NewDeleteEvent("grant", "grant-1", authz.RelationshipFilter{
-		ResourceType: "git_repository",
-		ResourceID:   "r1",
-		Relation:     "writer",
+		ResourceType: "skill",
+		ResourceID:   "s1",
+		Relation:     "editor",
 		SubjectType:  "user",
 		SubjectID:    "u1",
 	}, authz.Relationship{
-		Resource: authz.ObjectRef{Type: "git_repository", ID: "r1"},
-		Relation: "writer",
+		Resource: authz.ObjectRef{Type: "skill", ID: "s1"},
+		Relation: "editor",
 		Subject:  authz.SubjectRef{Type: "user", ID: "u1"},
 	})
 	if err != nil {
@@ -76,7 +76,7 @@ func TestManagerApplyDelete(t *testing.T) {
 	if _, err := manager.ApplyEvent(ctx, event.ID); err != nil {
 		t.Fatalf("ApplyEvent returned error: %v", err)
 	}
-	rels, err := store.ReadRelationships(ctx, authz.RelationshipFilter{ResourceType: "git_repository", ResourceID: "r1", Relation: "writer", SubjectType: "user", SubjectID: "u1"})
+	rels, err := store.ReadRelationships(ctx, authz.RelationshipFilter{ResourceType: "skill", ResourceID: "s1", Relation: "editor", SubjectType: "user", SubjectID: "u1"})
 	if err != nil {
 		t.Fatalf("ReadRelationships returned error: %v", err)
 	}

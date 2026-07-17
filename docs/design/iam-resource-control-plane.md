@@ -236,11 +236,13 @@ create table iam_resource_bindings (
 示例：
 
 ```text
-skill:s1 --backing_repo--> git_repository:r1
 agent:a1 --uses_skill--> skill:s1
 agent:a1 --uses_tool--> tool:t1
 deployment:d1 --runs_agent--> agent:a1
 ```
+
+Skill 不再通过 binding 指向第二个 Git 权限资源。`skill:<name>` 本身就是
+Git 仓库与权限检查对象；仓库名和 Skill 名保持一致。
 
 ### role_templates
 

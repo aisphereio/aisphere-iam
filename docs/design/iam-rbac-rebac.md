@@ -111,16 +111,14 @@ project:p1#developer@group:backend#member
 Aisphere 资源之间存在关系推导：
 
 - project -> skill_space -> skill
-- project -> git_namespace -> repository
-- skill -> backing_repo
 - agent -> uses_skill
 - deployment -> runs_agent
 
 例如：
 
 ```text
-如果用户能 edit skill，则可以 write backing repo。
-如果用户是 project developer，则默认可以编辑 project 下的 skill 和 repo。
+如果用户能 edit skill，则可以修改该 Skill 仓库的普通分支。
+如果用户能 publish skill，则可以合并到 main 或创建发布 tag。
 ```
 
 这类规则用 ReBAC/SpiceDB 更自然。

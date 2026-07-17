@@ -48,9 +48,8 @@ Casdoor Organization
 └── zone（内部 1:1 映射，前端显示为“Casdoor 组织”）
     ├── group（多级）
     └── project
-        ├── skill_space / skill
+        ├── skill_space / skill（skill 同时是 Git 仓库和唯一授权资源）
         ├── agent_space / agent
-        ├── git_namespace / git_repository
         ├── tool_space / tool
         ├── sandbox_space / sandbox
         └── runtime_environment / deployment
@@ -82,6 +81,8 @@ Casdoor Organization
 ### 授权不变量
 
 - Grant 是高层控制面事实；Relationship 是 SpiceDB 查询投影；
+- Skill 名称就是 Git 仓库名称；Git clone/fetch/push、评审、合并和发布均检查同一个 `skill:<name>`，不得再创建 `git_repository` 权限资源；
+- `main` 是正式发布分支；普通分支需要 `skill#edit`，合并到 `main` 或创建发布 tag 需要 `skill#publish`；
 - 普通业务页面不直接暴露 Tuple、relation key 或 UUID；
 - Schema 发布、授权、撤销和投影修复必须审计；
 - 权限依赖不可用时默认 fail-closed。

@@ -109,13 +109,14 @@
 Hub：
 
 - CreateSkill -> UpsertResource(skill)
-- BindSkillRepo -> BindResource(skill, backing_repo, repository)
-- Edit/Publish -> CheckPermission(skill, edit/publish)
+- Skill 名称直接作为 Git 仓库名称
+- Clone/Fetch -> CheckPermission(skill, view)
+- Push 普通分支 -> CheckPermission(skill, edit)
+- Merge main/创建 release tag -> CheckPermission(skill, publish)
 
 Git：
 
-- CreateRepo -> UpsertResource(git_repository)
-- Push -> CheckPermission(repository, write)
+- Git/LFS 由 Hub 内嵌引擎实现，不注册第二个 `git_repository` 资源
 
 Agent/Sandbox/Runtime 后续接入。
 

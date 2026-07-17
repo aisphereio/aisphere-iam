@@ -424,40 +424,40 @@ func (a authzProjectingIdentityAdmin) CreateOrganization(ctx context.Context, re
 }
 
 func (a authzProjectingIdentityAdmin) CreateGroup(ctx context.Context, req authn.CreateGroupRequest) (authn.Group, error) {
-		// Generate a stable, SpiceDB-safe group ID before creating in Casdoor.
-		// The ID is stored in Casdoor's Name field (which is the Casdoor primary key).
-		stableID := newGroupID()
-		req.Group.ID = stableID
-		req.Group.Name = stableID
-		// req.Group.ExternalID already holds the user-supplied machine-readable name
-		// (set by groupFromProto in the service layer).  req.Group.DisplayName holds
-		// the user-visible display name.
+	// Generate a stable, SpiceDB-safe group ID before creating in Casdoor.
+	// The ID is stored in Casdoor's Name field (which is the Casdoor primary key).
+	stableID := newGroupID()
+	req.Group.ID = stableID
+	req.Group.Name = stableID
+	// req.Group.ExternalID already holds the user-supplied machine-readable name
+	// (set by groupFromProto in the service layer).  req.Group.DisplayName holds
+	// the user-visible display name.
 
-		group, err := a.IdentityAdmin.CreateGroup(ctx, req)
-		if err != nil {
-			return authn.Group{}, err
-		}
-		// Preserve the ExternalID (machine-readable name) through the Casdoor round-trip
-		// since groupFromSDK does not populate it.
-		group.ExternalID = req.Group.ExternalID
-
-		rels := groupTopologyRelationships(group, req.Group)
-		// Infer the owner from the authenticated Casdoor principal in context.
-		if owner := groupOwnerFromPrincipal(ctx); owner != nil {
-			groupID := qualifiedGroupID(firstNonEmpty(group.OrgID, req.Group.OrgID), firstNonEmpty(group.ID, req.Group.ID))
-			if groupID != "" {
-				rels = append(rels, authz.Relationship{
-					Resource: authz.ObjectRef{Type: "group", ID: groupID},
-					Relation: "owner",
-					Subject:  *owner,
-				})
-			}
-		}
-		if err := a.projectWrite(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), rels...); err != nil {
-			return authn.Group{}, err
-		}
-		return group, nil
+	group, err := a.IdentityAdmin.CreateGroup(ctx, req)
+	if err != nil {
+		return authn.Group{}, err
 	}
+	// Preserve the ExternalID (machine-readable name) through the Casdoor round-trip
+	// since groupFromSDK does not populate it.
+	group.ExternalID = req.Group.ExternalID
+
+	rels := groupTopologyRelationships(group, req.Group)
+	// Infer the owner from the authenticated Casdoor principal in context.
+	if owner := groupOwnerFromPrincipal(ctx); owner != nil {
+		groupID := qualifiedGroupID(firstNonEmpty(group.OrgID, req.Group.OrgID), firstNonEmpty(group.ID, req.Group.ID))
+		if groupID != "" {
+			rels = append(rels, authz.Relationship{
+				Resource: authz.ObjectRef{Type: "group", ID: groupID},
+				Relation: "owner",
+				Subject:  *owner,
+			})
+		}
+	}
+	if err := a.projectWrite(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), rels...); err != nil {
+		return authn.Group{}, err
+	}
+	return group, nil
+}
 func (a authzProjectingIdentityAdmin) UpdateGroup(ctx context.Context, req authn.UpdateGroupRequest) (authn.Group, error) {
 	var oldGroup authn.Group
 	if req.Group.OrgID != "" && req.Group.ID != "" {
@@ -470,19 +470,19 @@ func (a authzProjectingIdentityAdmin) UpdateGroup(ctx context.Context, req authn
 	if newName := strings.TrimSpace(req.Group.Name); newName != "" && oldGroup.Name != "" && !strings.EqualFold(newName, oldGroup.Name) {
 		return authn.Group{}, authn.ErrInvalidTokenRequest(fmt.Sprintf("group name is immutable: cannot rename %q to %q", oldGroup.Name, newName))
 	}
-group, err := a.IdentityAdmin.UpdateGroup(ctx, req)
-		if err != nil {
-			return authn.Group{}, err
-		}
-		// Preserve the machine-readable name (ExternalID) through the Casdoor round-trip.
-		group.ExternalID = req.Group.ExternalID
-		if err := a.projectDelete(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), groupTopologyDeleteFilters(oldGroup, req.Group), nil); err != nil {
-			return authn.Group{}, err
-		}
-		if err := a.projectWrite(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), groupTopologyRelationships(group, req.Group)...); err != nil {
-			return authn.Group{}, err
-		}
-		return group, nil
+	group, err := a.IdentityAdmin.UpdateGroup(ctx, req)
+	if err != nil {
+		return authn.Group{}, err
+	}
+	// Preserve the machine-readable name (ExternalID) through the Casdoor round-trip.
+	group.ExternalID = req.Group.ExternalID
+	if err := a.projectDelete(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), groupTopologyDeleteFilters(oldGroup, req.Group), nil); err != nil {
+		return authn.Group{}, err
+	}
+	if err := a.projectWrite(ctx, "iam_api", "group", firstNonEmpty(group.ID, req.Group.ID), groupTopologyRelationships(group, req.Group)...); err != nil {
+		return authn.Group{}, err
+	}
+	return group, nil
 }
 func (a authzProjectingIdentityAdmin) DeleteGroup(ctx context.Context, req authn.DeleteGroupRequest) error {
 	if err := a.IdentityAdmin.DeleteGroup(ctx, req); err != nil {
@@ -795,7 +795,7 @@ func (a authzProjectingIdentityAdmin) captureRelationships(ctx context.Context, 
 // enumerate the IAM-managed resource types rather than issuing a single
 // subject-only filter.  This covers direct grants on every resource type
 // whose schema permits a user subject (project#developer, skill#editor,
-// git_repository#writer, role_binding#grantee, etc.) so a deleted/disabled
+// role_binding#grantee, etc.) so a deleted/disabled
 // user loses all authorization immediately rather than relying on group/zone
 // membership to "naturally" fail to resolve.
 func userSubjectDeleteFilters(userID string) []authz.RelationshipFilter {
@@ -812,8 +812,6 @@ func userSubjectDeleteFilters(userID string) []authz.RelationshipFilter {
 		{ResourceType: "project", SubjectType: "user", SubjectID: uid},
 		{ResourceType: "skill_space", SubjectType: "user", SubjectID: uid},
 		{ResourceType: "skill", SubjectType: "user", SubjectID: uid},
-		{ResourceType: "git_namespace", SubjectType: "user", SubjectID: uid},
-		{ResourceType: "git_repository", SubjectType: "user", SubjectID: uid},
 		{ResourceType: "agent_space", SubjectType: "user", SubjectID: uid},
 		{ResourceType: "agent", SubjectType: "user", SubjectID: uid},
 		{ResourceType: "tool_space", SubjectType: "user", SubjectID: uid},
@@ -825,6 +823,7 @@ func userSubjectDeleteFilters(userID string) []authz.RelationshipFilter {
 		{ResourceType: "role_binding", SubjectType: "user", SubjectID: uid},
 	}
 }
+
 // qualifiedGroupID returns the SpiceDB object ID for a group.
 //
 // With the stable-ID model, the group ID is already a SpiceDB-safe identifier
