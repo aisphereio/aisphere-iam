@@ -35,6 +35,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Materialize compatibility base branch
+        if: github.ref_name != 'main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git branch --force main origin/main
+          git show-ref --verify refs/heads/main
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
