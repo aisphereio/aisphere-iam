@@ -28,6 +28,8 @@
 | TC-0020 | GRANT-006 | Grant expiry — no expiry grants | unit | `grant_test.go` | ✅ |
 | TC-0021 | DIR-005 | Group CRUD via IAMGroupAdminService | unit | `group_admin_test.go` | ✅ |
 | TC-0022 | DIR-006 | User membership assign/remove | unit | `group_admin_test.go` | ✅ |
+| TC-0063 | DIR-005 | Persist and restore Group machine-name metadata across Casdoor round trips | unit | `internal/data/group_metadata_test.go` | ✅ |
+| TC-0064 | DIR-004 | Resolve legacy User aliases and provider-side Group members to stable Group IDs | unit | `internal/service/directory_test.go` | ✅ |
 | TC-0023 | PROJECT-001~008 | Project full lifecycle | unit | `project_lifecycle_test.go` | ✅ |
 | TC-0024 | RESOURCE-001~007 | Resource full lifecycle | unit | `resource_lifecycle_test.go` | ✅ |
 | TC-0025 | RESOURCE-006 | Bind/Unbind Resource | unit | `resource_lifecycle_test.go` | ✅ |

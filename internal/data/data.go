@@ -38,6 +38,7 @@ type ResourceOptions struct {
 type Resources struct {
 	DB                 dbx.DB
 	ControlPlane       ControlPlaneRepository
+	GroupMetadata      GroupMetadataRepository
 	Cache              cachex.Cache
 	ObjectStore        objectstorex.Client
 	Audit              auditx.Recorder
@@ -94,6 +95,7 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 		}
 		r.DB = db
 		r.ControlPlane = NewControlPlaneRepository(db)
+		r.GroupMetadata = NewGroupMetadataRepository(db)
 		r.closers = append(r.closers, db.Close)
 
 		// Use PostgreSQL audit store when database is available
@@ -152,6 +154,7 @@ func NewResources(ctx context.Context, cfg conf.Bootstrap, opts ResourceOptions)
 			r.Close()
 			return nil, nil, err
 		}
+		identity = BindGroupMetadata(identity, r.GroupMetadata)
 		r.Authn = provider
 		r.Tokens = provider
 		r.Identity = identity

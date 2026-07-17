@@ -129,10 +129,11 @@ func (s *IAMDirectoryService) ListGroups(ctx context.Context, req *v1.ListGroups
 		if err != nil {
 			return nil, err
 		}
-		var userGroups []string
+		var matchedUser *authn.User
 		for _, u := range users {
 			if u.ID == uid || u.Username == uid {
-				userGroups = u.Groups
+				copy := u
+				matchedUser = &copy
 				break
 			}
 		}
@@ -144,13 +145,35 @@ func (s *IAMDirectoryService) ListGroups(ctx context.Context, req *v1.ListGroups
 		if err != nil {
 			return nil, err
 		}
-		userGroupSet := make(map[string]bool, len(userGroups))
+		userGroupSet := make(map[string]bool)
+		userAliasSet := make(map[string]bool)
+		for _, alias := range []string{uid} {
+			if alias != "" {
+				userAliasSet[alias] = true
+			}
+		}
+		var userGroups []string
+		if matchedUser != nil {
+			userGroups = matchedUser.Groups
+			for _, alias := range []string{matchedUser.ID, matchedUser.ExternalID, matchedUser.Username} {
+				if alias != "" {
+					userAliasSet[alias] = true
+				}
+			}
+		}
 		for _, g := range userGroups {
 			userGroupSet[g] = true
 		}
 		var out []authn.Group
 		for _, g := range allGroups {
-			if userGroupSet[g.Name] || userGroupSet[g.ID] {
+			isMember := userGroupSet[g.Name] || userGroupSet[g.ID] || userGroupSet[g.ExternalID]
+			for _, memberID := range g.Users {
+				if userAliasSet[memberID] {
+					isMember = true
+					break
+				}
+			}
+			if isMember {
 				out = append(out, g)
 			}
 		}
@@ -443,34 +466,34 @@ func organizationToProto(in authn.Organization) *v1.Organization {
 }
 
 func groupToProto(in authn.Group) *v1.Group {
-		// With the stable-ID model:
-		//   - in.ID          → stable ID (e.g. "grp_01AR...")
-		//   - in.ExternalID  → user-supplied machine-readable name (slug)
-		//   - in.DisplayName → user-visible display name
-		//   - in.Name        → Casdoor Name (same as stable ID)
-		//
-		// The machine-readable name (ExternalID) is not persisted in Casdoor, so
-		// it may be empty after a Casdoor read.  In that case we fall back to the
-		// stable ID so the frontend always has a non-empty name field.
-		name := in.ExternalID
-		if name == "" {
-			name = in.ID
-		}
-		out := &v1.Group{
-			Id:          in.ID,
-			ExternalId:  in.ExternalID,
-			OrgId:       in.OrgID,
-			Name:        name,
-			DisplayName: in.DisplayName,
-			Type:        in.Type,
-			Path:        in.Path,
-			Users:       append([]string(nil), in.Users...),
-		}
-		if in.ParentID != "" {
-			out.ParentId = &in.ParentID
-		}
-		return out
+	// With the stable-ID model:
+	//   - in.ID          → stable ID (e.g. "grp_01AR...")
+	//   - in.ExternalID  → user-supplied machine-readable name (slug)
+	//   - in.DisplayName → user-visible display name
+	//   - in.Name        → Casdoor Name (same as stable ID)
+	//
+	// The machine-readable name (ExternalID) is not persisted in Casdoor, so
+	// it may be empty after a Casdoor read.  In that case we fall back to the
+	// stable ID so the frontend always has a non-empty name field.
+	name := in.ExternalID
+	if name == "" {
+		name = in.ID
 	}
+	out := &v1.Group{
+		Id:          in.ID,
+		ExternalId:  in.ExternalID,
+		OrgId:       in.OrgID,
+		Name:        name,
+		DisplayName: in.DisplayName,
+		Type:        in.Type,
+		Path:        in.Path,
+		Users:       append([]string(nil), in.Users...),
+	}
+	if in.ParentID != "" {
+		out.ParentId = &in.ParentID
+	}
+	return out
+}
 
 func groupsToProto(in []authn.Group) []*v1.Group {
 	out := make([]*v1.Group, 0, len(in))
