@@ -26,9 +26,9 @@ RUN apk add --no-cache ca-certificates tzdata wget \
 
 WORKDIR /app
 COPY --from=builder /app/server /app/server
-COPY --from=builder /src/configs /app/configs
-COPY --from=builder /src/migrations /app/migrations
-COPY --from=builder /src/deploy/generated /app/deploy/generated
+COPY configs /app/configs
+COPY migrations /app/migrations
+COPY deploy/generated /app/deploy/generated
 RUN chown -R app:app /app
 
 USER app
