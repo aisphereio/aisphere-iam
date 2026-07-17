@@ -65,6 +65,43 @@ func TestIAMDirectoryServiceListGroups(t *testing.T) {
 	t.Logf("Groups: %d", len(groups.GetGroups()))
 }
 
+func TestIAMDirectoryServiceListGroupsMatchesUserMembershipByExternalID(t *testing.T) {
+	deps := newDirectoryTestDeps()
+	deps.Identity = directoryAliasIdentity{}
+	svc := NewIAMDirectoryService(deps)
+
+	groups, err := svc.ListGroups(newDirectoryContext(), &v1.ListGroupsRequest{
+		OrgId:  "aisphere",
+		UserId: "user-1",
+	})
+	if err != nil {
+		t.Fatalf("ListGroups: %v", err)
+	}
+	if len(groups.GetGroups()) != 1 {
+		t.Fatalf("groups = %#v, want the stable group resolved through external_id", groups.GetGroups())
+	}
+	if got := groups.GetGroups()[0].GetId(); got != "grp_stable" {
+		t.Fatalf("group id = %q, want grp_stable", got)
+	}
+}
+
+func TestIAMDirectoryServiceListGroupsMatchesProviderGroupMembersWhenUserAliasIsStale(t *testing.T) {
+	deps := newDirectoryTestDeps()
+	deps.Identity = directoryStaleAliasIdentity{}
+	svc := NewIAMDirectoryService(deps)
+
+	groups, err := svc.ListGroups(newDirectoryContext(), &v1.ListGroupsRequest{
+		OrgId:  "aisphere",
+		UserId: "user-1",
+	})
+	if err != nil {
+		t.Fatalf("ListGroups: %v", err)
+	}
+	if len(groups.GetGroups()) != 1 || groups.GetGroups()[0].GetId() != "grp_stable" {
+		t.Fatalf("groups = %#v, want provider-side membership to recover the stable group", groups.GetGroups())
+	}
+}
+
 func TestIAMDirectoryServiceGetGroup(t *testing.T) {
 	svc := NewIAMDirectoryService(newDirectoryTestDeps())
 	group, err := svc.GetGroup(newDirectoryContext(), &v1.GetGroupRequest{OrgId: "aisphere", GroupId: "dev-team"})
@@ -72,4 +109,48 @@ func TestIAMDirectoryServiceGetGroup(t *testing.T) {
 		t.Fatalf("GetGroup: %v", err)
 	}
 	t.Logf("Group: %s", group.GetName())
+}
+
+type directoryAliasIdentity struct {
+	authn.IdentityAdmin
+}
+
+func (directoryAliasIdentity) FindUsers(context.Context, authn.UserFilter) ([]authn.User, error) {
+	return []authn.User{{
+		ID:       "user-1",
+		Username: "alice",
+		Groups:   []string{"engineering"},
+	}}, nil
+}
+
+func (directoryAliasIdentity) ListGroups(context.Context, authn.GroupFilter) ([]authn.Group, error) {
+	return []authn.Group{{
+		ID:          "grp_stable",
+		ExternalID:  "engineering",
+		OrgID:       "aisphere",
+		Name:        "grp_stable",
+		DisplayName: "Engineering",
+	}}, nil
+}
+
+type directoryStaleAliasIdentity struct {
+	authn.IdentityAdmin
+}
+
+func (directoryStaleAliasIdentity) FindUsers(context.Context, authn.UserFilter) ([]authn.User, error) {
+	return []authn.User{{
+		ID:       "user-1",
+		Username: "alice",
+		Groups:   []string{"legacy-engineering"},
+	}}, nil
+}
+
+func (directoryStaleAliasIdentity) ListGroups(context.Context, authn.GroupFilter) ([]authn.Group, error) {
+	return []authn.Group{{
+		ID:          "grp_stable",
+		OrgID:       "aisphere",
+		Name:        "grp_stable",
+		DisplayName: "Engineering",
+		Users:       []string{"user-1"},
+	}}, nil
 }

@@ -142,16 +142,16 @@ Evidence qualifiers:
 - **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** listing the multi-level Group tree shall require `zone:<org_id>#view_groups` and support parent/type/user filtering.
-- **Verification criteria:** root, child, user-membership and unauthorized listing scenarios pass.
+- **Verification criteria:** root, child, user-membership and unauthorized listing scenarios pass; membership filtering resolves both stable IDs and persisted machine-name aliases.
 - **Done criteria:** real Casdoor Group-tree tests and pagination/empty-tree tests pass.
 
 ## REQ-IAM-DIR-005 — Manage Groups through one canonical API
 - **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** IAM shall provide one canonical contract for creating, updating and deleting Casdoor-backed Groups.
-- **Constraint:** the contract shall define Organization-qualified Group identifiers, parent semantics, recursive deletion behavior, idempotency and required permissions.
+- **Constraint:** the contract shall define stable Group identifiers, parent semantics, recursive deletion behavior, idempotency and required permissions; IAM shall durably preserve the user-facing machine name that Casdoor cannot store separately from its primary key.
 - **Implementation:** `IAMGroupAdminService` (`api/iam/v1/group_admin.proto`) is the canonical Group management surface. Routes: `/v1/iam/groups/...`. Permissions: `zone:*` for create, `group:*` for manage. Group writes removed from `IAMDirectoryService` and `IAMIdentityAdminService`.
-- **Verification criteria:** only the approved surface is externally registered; duplicate routes do not exist; permission and audit behavior is consistent.
+- **Verification criteria:** only the approved surface is externally registered; duplicate routes do not exist; permission and audit behavior is consistent; create/read/update preserve the stable-ID-to-machine-name mapping.
 - **Done criteria:** contract tests enforce the canonical service.
 
 ## REQ-IAM-DIR-006 — Assign and remove User membership

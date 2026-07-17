@@ -34,6 +34,9 @@
 | ART-0011 | DIR-006 | `internal/service/group_admin.go::AssignUserToGroup` | Membership assignment |
 | ART-0012 | DIR-006 | `internal/service/group_admin.go::RemoveUserFromGroup` | Membership removal |
 | ART-0013 | DIR-007 | `internal/data/identity_mode.go::externalOIDCIdentityAdmin` | Identity mode boundary enforcement |
+| ART-0073 | DIR-005 | `internal/data/group_metadata.go` | IAM-owned stable-ID-to-machine-name repository and identity decorator |
+| ART-0074 | DIR-005 | `migrations/000011_iam_groups_widen_id.sql` | Stable group ID persistence width migration |
+| ART-0075 | DIR-004 | `internal/service/iam.go::ListGroups` | Membership filtering through stable ID, provider name, or IAM external alias |
 
 ### Directory Projection (P1)
 
