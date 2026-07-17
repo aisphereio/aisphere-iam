@@ -122,6 +122,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=${{ inputs.image_tag }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.image_tag != '' }}
 
+      - name: Verify immutable image inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'relations: \[parent, owner, editor, reviewer, publisher, viewer, custom_binding\]' configs/resource/defaults.yaml
+          ! grep -q '^definition git_repository' configs/spicedb/aisphere.schema.zed
+          sha256sum configs/resource/defaults.yaml configs/spicedb/aisphere.schema.zed
+
       - name: Build and publish immutable image
         id: build
         uses: docker/build-push-action@v6
@@ -132,6 +140,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: VERSION=${{ github.ref_name }}-${{ github.sha }}
+          no-cache: ${{ github.event_name == 'workflow_dispatch' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
