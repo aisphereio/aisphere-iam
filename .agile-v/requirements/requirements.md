@@ -278,13 +278,13 @@ Evidence qualifiers:
 - **Verification criteria:** User, Group memberset and service subjects are covered.
 - **Done criteria:** real lookup-subject tests pass.
 
-## REQ-IAM-AUTHZ-RT-008 — Propagate trusted user or service identity over gRPC
+## REQ-IAM-AUTHZ-RT-008 — Propagate stable authorization identity over gRPC
 - **Priority:** P0
 - **Status:** `OBSERVED_IMPLEMENTED`, `UNIT_EVIDENCE`
-- **Requirement:** the IAM runtime client shall propagate the current Kernel Principal; background work shall use an explicitly supplied service Principal.
-- **Constraint:** unauthenticated callers must not be silently promoted to a privileged identity.
-- **Verification criteria:** user, service, missing and spoofed metadata cases are tested through a real gRPC server.
-- **Done criteria:** internal service-token/mTLS policy and metadata sanitization tests pass.
+- **Requirement:** the IAM runtime client shall propagate the current Principal's stable subject, subject type, provider, organization and project identifiers; background work shall use an explicitly supplied service Principal.
+- **Constraint:** profile attributes such as name, username, email and phone must not enter authorization gRPC metadata, and unauthenticated callers must not be silently promoted to a privileged identity.
+- **Verification criteria:** user UUID and service identities propagate while Unicode profile attributes cannot produce non-printable gRPC metadata.
+- **Done criteria:** stable-identity propagation and metadata-safety tests pass.
 
 ---
 

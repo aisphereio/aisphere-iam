@@ -72,8 +72,18 @@ func outgoingPrincipalContext(ctx context.Context, fallback authn.Principal) con
 	if !principal.IsAuthenticated() {
 		return ctx
 	}
-	headers := map[string]string{}
-	authn.InjectTrustedHeaders(headers, principal)
+	principal = principal.Normalize()
+	// IAM authorization is keyed by stable identifiers. Profile attributes such
+	// as name, username, email, and phone are neither required for a SpiceDB
+	// decision nor valid gRPC metadata when they contain non-ASCII characters.
+	headers := map[string]string{
+		authn.TrustedHeaderVerified:    "true",
+		authn.TrustedHeaderSubject:     principal.SubjectID,
+		authn.TrustedHeaderSubjectType: principal.SubjectType,
+		authn.TrustedHeaderProvider:    principal.Provider,
+		authn.TrustedHeaderOrgID:       principal.OrgID,
+		authn.TrustedHeaderProjectID:   principal.ProjectID,
+	}
 	md, _ := metadata.FromOutgoingContext(ctx)
 	md = md.Copy()
 	for _, name := range authn.TrustedHeaderNames() {

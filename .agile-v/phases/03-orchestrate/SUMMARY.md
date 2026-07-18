@@ -61,7 +61,7 @@
 | ART-0025 | AUTHZ-RT-005 | Relationship read | `internal/service/iam.go::ReadRelationships` |
 | ART-0026 | AUTHZ-RT-006 | Resource lookup | `internal/service/iam.go::LookupResources` |
 | ART-0027 | AUTHZ-RT-007 | Subject lookup | `internal/service/iam.go::LookupSubjects` |
-| ART-0028 | AUTHZ-RT-008 | gRPC identity propagation | `client/authzgrpc/client.go` |
+| ART-0028 | AUTHZ-RT-008 | Stable-ID-only gRPC authorization identity propagation | `client/authzgrpc/client.go` |
 
 ### 2.5 Authorization administration (P1)
 
@@ -138,7 +138,7 @@
 | TC-0006 | AUTHZ-RT-002 | Batch check adapter | unit | ✅ `client/authzgrpc/client_test.go` |
 | TC-0007 | AUTHZ-RT-003 | Batch write adapter | unit | ✅ `client/authzgrpc/client_test.go` |
 | TC-0008 | AUTHZ-RT-005 | Relationship read adapter | unit | ✅ `client/authzgrpc/client_test.go` |
-| TC-0009 | AUTHZ-RT-008 | gRPC identity propagation | unit | ✅ `client/authzgrpc/client_test.go` |
+| TC-0009 | AUTHZ-RT-008 | UUID propagation and Unicode profile metadata exclusion | unit | ✅ `client/authzgrpc/client_test.go` |
 | TC-0010 | PROJECT-001 | Single-root Organization model | contract | ✅ `model_contract_test.go` |
 | TC-0011 | PROJECT-002 | Project scope from Principal | unit | ✅ `principal_context_test.go` |
 | TC-0012 | PROJECT-003 | Creator ownership from Principal | unit | ✅ `principal_context_test.go` |
