@@ -22,6 +22,37 @@ func TestOutgoingPrincipalContextPropagatesTrustedIdentity(t *testing.T) {
 	}
 }
 
+func TestOutgoingPrincipalContextUsesStableIdentityWithoutUnicodeProfileMetadata(t *testing.T) {
+	const subjectID = "496333c7-7acc-4717-8596-056544fc0a68"
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{
+		SubjectID:   subjectID,
+		SubjectType: authn.SubjectTypeUser,
+		Provider:    "casdoor",
+		OrgID:       "aisphere",
+		ProjectID:   "project_20260717010759_000000000_98b0e94c",
+		Username:    "中文用户",
+		Name:        "中文显示名",
+	})
+
+	ctx = outgoingPrincipalContext(ctx, authn.Principal{})
+	md, ok := metadata.FromOutgoingContext(ctx)
+	if !ok {
+		t.Fatal("outgoing principal metadata is missing")
+	}
+	if got := md.Get("x-aisphere-subject"); len(got) != 1 || got[0] != subjectID {
+		t.Fatalf("x-aisphere-subject = %#v, want UUID %q", got, subjectID)
+	}
+	for key, values := range md {
+		for _, value := range values {
+			for i := 0; i < len(value); i++ {
+				if value[i] < 0x20 || value[i] > 0x7e {
+					t.Fatalf("gRPC metadata %q contains non-printable ASCII value %q", key, value)
+				}
+			}
+		}
+	}
+}
+
 func TestOutgoingPrincipalContextUsesServiceIdentityForBackgroundWork(t *testing.T) {
 	ctx := outgoingPrincipalContext(context.Background(), authn.Principal{
 		SubjectID: "aisphere-hub", SubjectType: authn.SubjectTypeService, Provider: "internal",

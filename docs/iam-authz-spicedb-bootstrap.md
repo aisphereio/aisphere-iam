@@ -29,6 +29,13 @@ Every sensitive operation is checked as:
 subject + resource + permission
 ```
 
+When a business service calls IAM over gRPC, the trusted caller metadata carries
+only stable authorization identity fields: subject ID, subject type, provider,
+organization ID and project ID. Display profile fields such as name, username,
+email and phone are not authorization facts and are not forwarded as gRPC
+metadata. This keeps SpiceDB checks keyed by the Casdoor subject UUID and avoids
+transport failures for non-ASCII display names.
+
 Examples:
 
 ```text
