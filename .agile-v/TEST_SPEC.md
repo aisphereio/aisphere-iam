@@ -14,7 +14,7 @@
 | TC-0006 | AUTHZ-RT-002 | Batch check adapter | unit | `client/authzgrpc/client_test.go` | ✅ |
 | TC-0007 | AUTHZ-RT-003 | Batch write adapter | unit | `client/authzgrpc/client_test.go` | ✅ |
 | TC-0008 | AUTHZ-RT-005 | Relationship read adapter | unit | `client/authzgrpc/client_test.go` | ✅ |
-| TC-0009 | AUTHZ-RT-008 | gRPC identity propagation | unit | `client/authzgrpc/client_test.go` | ✅ |
+| TC-0009 | AUTHZ-RT-008 | UUID propagation and Unicode profile metadata exclusion | unit | `client/authzgrpc/client_test.go` | ✅ |
 | TC-0010 | PROJECT-001 | Single-root Organization model | contract | `model_contract_test.go` | ✅ |
 | TC-0011 | PROJECT-002 | Project scope from Principal | unit | `principal_context_test.go` | ✅ |
 | TC-0012 | PROJECT-003 | Creator ownership from Principal | unit | `principal_context_test.go` | ✅ |
@@ -47,6 +47,7 @@
 | TC-0060 | GRANT-007 | Custom role registration, versioned update, impact preview, binding grant and revoke | unit | `internal/service/grant_test.go` | ✅ |
 | TC-0061 | GRANT-007 | Every grantable schema resource exposes dynamic role bindings | unit | `internal/permissionmanifest/manifest_test.go` | ✅ |
 | TC-0062 | GRANT-007 | Permission-expression migration requires an explicit flag and still rejects removals | unit | `internal/data/authz_bootstrap_test.go` | ✅ |
+| TC-0065 | RESOURCE-008 | Skill is the sole Git authorization resource and removed Git resource types are not reconciled | contract | `internal/permissionmanifest/manifest_test.go`, `internal/data/identity_mode_test.go`, `cmd/permission-manifest-check/main_test.go` | ✅ |
 
 ## 2. Missing Test Coverage (P0 Priority)
 

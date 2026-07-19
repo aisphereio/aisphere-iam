@@ -93,10 +93,12 @@ ListExternalResourceBindings
 - `ResourceBinding` 表达跨域关系，例如：
 
 ```text
-skill:s1 --backing_repo--> git_repository:r1
 agent:a1 --uses_skill--> skill:s1
 deployment:d1 --runs_agent--> agent:a1
 ```
+
+Skill 本身就是 Git 仓库授权对象，仓库名等于 Skill 名；不再维护
+`skill -> git_repository` 的映射或第二套权限。
 
 - `ExternalResourceBinding` 用于 Forgejo/Gitea/GitLab/K8s 等外部资源映射。
 
@@ -130,9 +132,9 @@ configs/resource/defaults.yaml
 
 包含：
 
-- 默认 capabilities：hub、git、agent、tools、sandbox、runtime。
-- 默认 resource types：skill、git_repository、agent、tool、sandbox、runtime_environment 等。
-- 默认 role templates：project developer、skill editor、repo writer 等。
+- 默认 capabilities：hub、agent、tools、sandbox、runtime。
+- 默认 resource types：skill、agent、tool、sandbox、runtime_environment 等。
+- 默认 role templates：project developer，以及 skill owner/editor/reviewer/publisher/viewer 等。
 
 Phase 5 会实现 loader/reconciler，将该文件写入 IAM DB，并确保 SpiceDB schema/relationship 投影一致。
 
@@ -164,4 +166,3 @@ iam_grants
 iam_grant_audits
 iam_outbox_events
 ```
-

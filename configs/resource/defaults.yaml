@@ -12,11 +12,6 @@ capabilities:
     display_name: Aisphere Hub
     owner_service: aisphere-hub
     status: active
-  - id: git
-    name: git
-    display_name: Git Service
-    owner_service: aisphere-git-server
-    status: active
   - id: agent
     name: agent
     display_name: Agent Service
@@ -86,28 +81,8 @@ resource_types:
     grantable: true
     auditable: true
     spicedb_type: skill
-    relations: [parent, owner, editor, reviewer, viewer, custom_binding]
+    relations: [parent, owner, editor, reviewer, publisher, viewer, custom_binding]
     permissions: [manage, edit, review, publish, view]
-    status: active
-  - type: git_namespace
-    capability_id: git
-    owner_service: aisphere-git-server
-    parent_types: [project]
-    grantable: true
-    auditable: true
-    spicedb_type: git_namespace
-    relations: [parent, owner, developer, viewer, custom_binding]
-    permissions: [manage, write, read]
-    status: active
-  - type: git_repository
-    capability_id: git
-    owner_service: aisphere-git-server
-    parent_types: [git_namespace]
-    grantable: true
-    auditable: true
-    spicedb_type: git_repository
-    relations: [parent, owner, maintainer, writer, reader, backing_skill, custom_binding]
-    permissions: [admin, write, read]
     status: active
   - type: agent_space
     capability_id: agent
@@ -324,27 +299,20 @@ role_templates:
     built_in: true
     enabled: true
     sort_order: 30
-  - resource_type: git_repository
-    role_key: maintainer
-    display_name: Repository Maintainer
-    relation: maintainer
+  - resource_type: skill
+    role_key: publisher
+    display_name: Skill Publisher
+    relation: publisher
     built_in: true
     enabled: true
-    sort_order: 10
-  - resource_type: git_repository
-    role_key: writer
-    display_name: Repository Writer
-    relation: writer
+    sort_order: 40
+  - resource_type: skill
+    role_key: viewer
+    display_name: Skill Viewer
+    relation: viewer
     built_in: true
     enabled: true
-    sort_order: 20
-  - resource_type: git_repository
-    role_key: reader
-    display_name: Repository Reader
-    relation: reader
-    built_in: true
-    enabled: true
-    sort_order: 30
+    sort_order: 50
   - resource_type: agent
     role_key: operator
     display_name: Agent Operator

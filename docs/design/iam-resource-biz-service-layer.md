@@ -89,18 +89,14 @@ resource.Service.BindResource
   -> SpiceDB relationship projection
 ```
 
-The first special cross-domain alias is implemented explicitly:
-
-```text
-skill:s1 --backing_repo--> git_repository:r1
-  -> git_repository:r1#backing_skill@skill:s1
-```
-
-Default behavior for other bindings is:
+Bindings use one uniform projection rule:
 
 ```text
 source#relation@target
 ```
+
+Skill Git access is not modeled as a binding. The Skill resource itself is the
+repository authorization object, so no `backing_repo` inversion exists.
 
 ### GrantAccess
 
