@@ -136,20 +136,18 @@ definition zone {
 
 permission view_zone = member + owner + admin + platform->manage_identity + custom_binding->view_zone
 
-  permission create_skill = member + owner + admin + platform->manage_control_plane + custom_binding->create_skill
+	  permission create_skill = member + owner + admin + platform->manage_control_plane + custom_binding->create_skill
 
-  permission view_users = owner + admin + user_viewer + user_manager + platform->manage_identity + custom_binding->view_users
-	permission manage_users = owner + admin + user_manager + platform->manage_identity + custom_binding->manage_users
+	  permission view_users = owner + admin + user_viewer + user_manager + platform->manage_identity + custom_binding->view_users
+		permission manage_users = owner + admin + user_manager + platform->manage_identity + custom_binding->manage_users
 
-	permission view_groups = owner + admin + group_viewer + group_manager + platform->manage_identity + custom_binding->view_groups
-	permission create_groups = owner + admin + group_manager + platform->manage_identity + custom_binding->create_groups
-	permission manage_groups = owner + admin + group_manager + platform->manage_identity + custom_binding->manage_groups
+		permission view_groups = owner + admin + group_viewer + group_manager + platform->manage_identity + custom_binding->view_groups
+		permission create_groups = owner + admin + group_manager + platform->manage_identity + custom_binding->create_groups
+		permission manage_groups = owner + admin + group_manager + platform->manage_identity + custom_binding->manage_groups
 
-	permission view_permissions = owner + admin + permission_admin + platform->manage_permissions + custom_binding->view_permissions
-	permission manage_permissions = owner + admin + permission_admin + platform->manage_permissions + custom_binding->manage_permissions
-
-	permission create_skill = member + owner + admin + platform->manage_control_plane + custom_binding->create_skill
-}
+		permission view_permissions = owner + admin + permission_admin + platform->manage_permissions + custom_binding->view_permissions
+		permission manage_permissions = owner + admin + permission_admin + platform->manage_permissions + custom_binding->manage_permissions
+	}
 
 definition iam_authz {
   relation platform: platform
