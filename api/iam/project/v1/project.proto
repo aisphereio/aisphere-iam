@@ -39,7 +39,7 @@ service ProjectService {
     option (google.api.http) = { get: "/v1/iam/orgs/{org_id}/projects" };
     option (aisphere.access.v1.policy) = {
       exposure: AUTHORIZED
-      authz: { action: "list" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
+      authz: { action: "view_zone" resource: "zone:{org_id}" audience: "iam-service" mode: SELF_CHECK }
       audit: { enabled: true event: "iam.project.list" risk: "medium" }
     };
   }

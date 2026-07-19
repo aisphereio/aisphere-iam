@@ -86,6 +86,7 @@
 | TC-0052 | ENG-006 | Audit persistence | integration | P2 |
 | TC-0053 | ENG-007 | Observability | integration | P2 |
 | TC-0054 | ENG-008 | Release gate | integration | P2 |
+| TC-0066 | PROJECT-004 | ListProjects contract requires `view_zone` on the requested Zone | contract | P0 | ✅ `api/iam/project/v1/project_policy_test.go` |
 
 ## 5. Summary
 

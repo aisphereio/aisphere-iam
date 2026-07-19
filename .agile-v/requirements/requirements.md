@@ -361,7 +361,7 @@ Evidence qualifiers:
 - **Status:** `OBSERVED_IMPLEMENTED`
 - **Requirement:** Project reads and lists shall be authorization-aware and default to the authenticated Principal's Zone.
 - **Constraint:** a list filter shall not expose another Zone without an explicit cross-domain administrative requirement.
-- **Implementation:** `ListProjects` filters by `orgID` from `currentProjectContext`; `GetProject` reads by ID.
+- **Implementation:** `ListProjects` requires `view_zone` on `zone:{org_id}` and filters by `orgID` from `currentProjectContext`; every projected Zone member therefore can select a Project in their own Zone without receiving platform-wide privileges. `GetProject` reads by ID.
 - **Verification criteria:** own Zone, other Zone, joined-only and pagination scenarios are tested.
 - **Done criteria:** cross-Zone authorization integration test is still needed.
 

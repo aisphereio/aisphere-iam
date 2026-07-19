@@ -231,33 +231,6 @@ permission manage = owner + parent->manage + custom_binding->manage
 	permission view = edit + reviewer + viewer + parent->view + custom_binding->view
 }
 
-definition git_namespace {
-  relation parent: project
-  relation custom_binding: role_binding
-
-  relation owner: user | group#member
-  relation developer: user | group#member
-  relation viewer: user | group#member
-
-	permission manage = owner + parent->manage + custom_binding->manage
-  permission write = manage + developer + parent->write + custom_binding->write
-	permission read = write + viewer + parent->read + custom_binding->read
-}
-
-definition git_repository {
-  relation parent: git_namespace
-  relation backing_skill: skill
-  relation custom_binding: role_binding
-
-  relation owner: user | group#member
-  relation maintainer: user | group#member
-  relation writer: user | group#member
-  relation reader: user | group#member
-
-	permission admin = owner + maintainer + parent->manage + custom_binding->admin
-  permission write = admin + writer + parent->write + backing_skill->edit + custom_binding->write
-	permission read = write + reader + parent->read + backing_skill->view + custom_binding->read
-}
 definition agent_space {
   relation parent: project
   relation custom_binding: role_binding

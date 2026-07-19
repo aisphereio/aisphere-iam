@@ -77,7 +77,7 @@ spec:
               - name: X-Aisphere-Route-Authn-Mode
                 value: "verify_jwt"
               - name: X-Aisphere-Authz-Action
-                value: "list"
+                value: "view_zone"
               - name: X-Aisphere-Authz-Resource
                 value: "zone:{org_id}"
       backendRefs:

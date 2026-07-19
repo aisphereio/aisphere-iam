@@ -1645,15 +1645,15 @@ const file_iam_project_v1_project_proto_rawDesc = "" +
 	"\aPRIVATE\x10\x01\x12\a\n" +
 	"\x03ORG\x10\x02\x12\n" +
 	"\n" +
-	"\x06PUBLIC\x10\x032\xa3\x13\n" +
+	"\x06PUBLIC\x10\x032\xa8\x13\n" +
 	"\x0eProjectService\x12\xcd\x01\n" +
 	"\rCreateProject\x12$.iam.project.v1.CreateProjectRequest\x1a\x17.iam.project.v1.Project\"}\x92\xf4\x18P\b\x03\x12.\n" +
 	"\x0ecreate_project\x12\rzone:{org_id}\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x12iam.project.create\x1a\x04high\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/iam/orgs/{org_id}/projects\x12\xd4\x01\n" +
 	"\n" +
 	"GetProject\x12!.iam.project.v1.GetProjectRequest\x1a\x17.iam.project.v1.Project\"\x89\x01\x92\xf4\x18R\b\x03\x124\n" +
-	"\x04read\x12\x1dproject:{org_id}/{project_id}\x1a\viam-service \x03\x1a\x18\b\x01\x12\x0fiam.project.get\x1a\x03low\x82\xd3\xe4\x93\x02-\x12+/v1/iam/orgs/{org_id}/projects/{project_id}\x12\xc8\x01\n" +
-	"\fListProjects\x12#.iam.project.v1.ListProjectsRequest\x1a!.iam.project.v1.ListProjectsReply\"p\x92\xf4\x18F\b\x03\x12$\n" +
-	"\x04list\x12\rzone:{org_id}\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x10iam.project.list\x1a\x06medium\x82\xd3\xe4\x93\x02 \x12\x1e/v1/iam/orgs/{org_id}/projects\x12\xe3\x01\n" +
+	"\x04read\x12\x1dproject:{org_id}/{project_id}\x1a\viam-service \x03\x1a\x18\b\x01\x12\x0fiam.project.get\x1a\x03low\x82\xd3\xe4\x93\x02-\x12+/v1/iam/orgs/{org_id}/projects/{project_id}\x12\xcd\x01\n" +
+	"\fListProjects\x12#.iam.project.v1.ListProjectsRequest\x1a!.iam.project.v1.ListProjectsReply\"u\x92\xf4\x18K\b\x03\x12)\n" +
+	"\tview_zone\x12\rzone:{org_id}\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x10iam.project.list\x1a\x06medium\x82\xd3\xe4\x93\x02 \x12\x1e/v1/iam/orgs/{org_id}/projects\x12\xe3\x01\n" +
 	"\rUpdateProject\x12$.iam.project.v1.UpdateProjectRequest\x1a\x17.iam.project.v1.Project\"\x92\x01\x92\xf4\x18X\b\x03\x126\n" +
 	"\x06manage\x12\x1dproject:{org_id}/{project_id}\x1a\viam-service \x03\x1a\x1c\b\x01\x12\x12iam.project.update\x1a\x04high\x82\xd3\xe4\x93\x020:\x01*2+/v1/iam/orgs/{org_id}/projects/{project_id}\x12\xee\x01\n" +
 	"\x0eArchiveProject\x12%.iam.project.v1.ArchiveProjectRequest\x1a\x17.iam.project.v1.Project\"\x9b\x01\x92\xf4\x18Y\b\x03\x126\n" +

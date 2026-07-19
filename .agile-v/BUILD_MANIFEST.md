@@ -80,7 +80,7 @@
 | ART-0034 | PROJECT-001 | Casdoor Organization → Zone root | `internal/biz/project/project.go` |
 | ART-0035 | PROJECT-002 | CreateProject from Principal | `internal/service/control_plane.go::CreateProject` |
 | ART-0036 | PROJECT-003 | Creator ownership | `internal/biz/project/project.go::CreateProject` |
-| ART-0037 | PROJECT-004 | Get/List Projects scoped to Zone | `internal/service/control_plane.go::GetProject/ListProjects` |
+| ART-0037 | PROJECT-004 | Get/List Projects scoped to Zone and guarded by Zone visibility | `api/iam/project/v1/project.proto`, `internal/service/control_plane.go::GetProject/ListProjects` |
 | ART-0038 | PROJECT-005 | UpdateProject | `internal/service/control_plane.go::UpdateProject` |
 | ART-0039 | PROJECT-006 | ArchiveProject | `internal/service/control_plane.go::ArchiveProject` |
 | ART-0040 | PROJECT-007 | Register/list Capabilities | `internal/service/control_plane.go::RegisterCapability/ListCapabilities` |
