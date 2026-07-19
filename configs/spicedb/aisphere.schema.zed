@@ -134,9 +134,11 @@ definition zone {
   relation permission_admin: user | service | service_account | group#member
   relation custom_binding: role_binding
 
-	permission view_zone = member + owner + admin + platform->manage_identity + custom_binding->view_zone
+permission view_zone = member + owner + admin + platform->manage_identity + custom_binding->view_zone
 
-	permission view_users = owner + admin + user_viewer + user_manager + platform->manage_identity + custom_binding->view_users
+		permission create_skill = member + owner + admin + platform->manage_control_plane + custom_binding->create_skill
+
+		permission view_users = owner + admin + user_viewer + user_manager + platform->manage_identity + custom_binding->view_users
 	permission manage_users = owner + admin + user_manager + platform->manage_identity + custom_binding->manage_users
 
 	permission view_groups = owner + admin + group_viewer + group_manager + platform->manage_identity + custom_binding->view_groups
@@ -193,10 +195,11 @@ definition project {
   relation operator: user | group#member
   relation viewer: user | group#member
 
-	permission manage = owner + admin + zone->manage_permissions + custom_binding->manage
-	permission write = manage + developer + custom_binding->write
-	permission operate = manage + operator + custom_binding->operate
-	permission read = write + operate + viewer + zone->view_zone + custom_binding->read
+permission manage = owner + admin + zone->manage_permissions + custom_binding->manage
+		permission write = manage + developer + custom_binding->write
+		permission create_skill = owner + admin + developer + zone->create_skill + custom_binding->create_skill
+		permission operate = manage + operator + custom_binding->operate
+		permission read = write + operate + viewer + zone->view_zone + custom_binding->read
 	permission list = read + custom_binding->list
 	permission create_skill = owner + admin + developer + zone->create_skill + custom_binding->create_skill
 }
