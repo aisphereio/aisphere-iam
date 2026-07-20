@@ -2,11 +2,14 @@ package service
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	projectv1 "github.com/aisphereio/aisphere-iam/api/iam/project/v1"
 	resourcev1 "github.com/aisphereio/aisphere-iam/api/iam/resource/v1"
 	projectbiz "github.com/aisphereio/aisphere-iam/internal/biz/project"
+	"github.com/aisphereio/aisphere-iam/internal/data"
+	"github.com/aisphereio/kernel/dbx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -18,6 +21,12 @@ func (s *ProjectService) GetProject(ctx context.Context, req *projectv1.GetProje
 		}
 		project, err := s.biz.GetProject(ctx, req.GetProjectId(), zoneID)
 		if err != nil {
+			// Map not-found sentinels (memory repo + DB repo) to gRPC NOT_FOUND so
+			// downstream callers (e.g. Hub) can return 404 instead of 503. Other
+			// errors pass through unchanged.
+			if errors.Is(err, data.ErrNotFound) || errors.Is(err, dbx.ErrNoRows) {
+				return nil, status.Errorf(codes.NotFound, "project %q not found", req.GetProjectId())
+			}
 			return nil, err
 		}
 		return projectModelToProto(project), nil
