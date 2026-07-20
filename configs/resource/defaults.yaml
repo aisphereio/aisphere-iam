@@ -80,9 +80,9 @@ resource_types:
     parent_types: [skill_space]
     grantable: true
     auditable: true
-    spicedb_type: skill
-relations: [parent, zone, owner, editor, reviewer, publisher, viewer, custom_binding]
-	    permissions: [manage, edit, review, publish, view]
+spicedb_type: skill
+    relations: [parent, zone, owner, editor, reviewer, publisher, viewer, custom_binding]
+    permissions: [manage, edit, review, publish, view]
     status: active
   - type: agent_space
     capability_id: agent
