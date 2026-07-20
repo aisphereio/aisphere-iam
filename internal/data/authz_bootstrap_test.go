@@ -115,6 +115,38 @@ func TestBootstrapAuthzSchemaFailsClosedWhenReadFails(t *testing.T) {
 	}
 }
 
+func TestBootstrapAuthzSchemaPublishesRemovedDefinitionWhenDeletionsEnabled(t *testing.T) {
+	current := "definition user {}\ndefinition legacy {}"
+	desired := "definition user {}"
+	manager := &fakeSchemaManager{current: authz.Schema{Text: current}}
+	cfg := schemaConfig(t, desired)
+	cfg.AllowSchemaDeletions = true
+
+	if err := BootstrapAuthzSchema(context.Background(), cfg, manager, logx.Noop()); err != nil {
+		t.Fatal(err)
+	}
+	if manager.validateCalls != 1 || manager.writeCalls != 1 || manager.written.Text != desired {
+		t.Fatalf("validate=%d write=%d schema=%q", manager.validateCalls, manager.writeCalls, manager.written.Text)
+	}
+}
+
+func TestBootstrapAuthzSchemaRejectsRemovedDefinitionWhenOnlyPermissionMigrationsEnabled(t *testing.T) {
+	current := "definition user {}\ndefinition legacy {}"
+	desired := "definition user {}"
+	manager := &fakeSchemaManager{current: authz.Schema{Text: current}}
+	cfg := schemaConfig(t, desired)
+	cfg.AllowPermissionMigrations = true
+	// AllowPermissionMigrations alone must not permit definition deletions.
+
+	if err := BootstrapAuthzSchema(context.Background(), cfg, manager, logx.Noop()); err == nil ||
+		!strings.Contains(err.Error(), "definition legacy exists only in active schema") {
+		t.Fatalf("error = %v", err)
+	}
+	if manager.writeCalls != 0 {
+		t.Fatalf("write calls = %d", manager.writeCalls)
+	}
+}
+
 func schemaConfig(t *testing.T, desired string) conf.AuthzConfig {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "schema.zed")

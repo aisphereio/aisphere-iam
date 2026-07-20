@@ -99,6 +99,7 @@ type AuthzConfig struct {
 	DevAllowAll               bool           `json:"dev_allow_all" yaml:"dev_allow_all"`
 	InstallDefaultSchema      bool           `json:"install_default_schema" yaml:"install_default_schema"`
 	AllowPermissionMigrations bool           `json:"allow_permission_migrations" yaml:"allow_permission_migrations"`
+	AllowSchemaDeletions      bool           `json:"allow_schema_deletions" yaml:"allow_schema_deletions"`
 	SchemaPath                string         `json:"schema_path" yaml:"schema_path"`
 	SpiceDB                   spicedb.Config `json:"spicedb" yaml:"spicedb"`
 }

@@ -66,8 +66,8 @@ func BootstrapAuthzSchema(ctx context.Context, cfg conf.AuthzConfig, manager aut
 	}
 	diff := permissionmanifest.CompareSchemas(active, desired)
 	if len(diff.Conflicts) > 0 {
-		if !cfg.AllowPermissionMigrations || !onlyChangedSchemaExpressions(diff.Conflicts) {
-			return authz.ErrBackendFailed("authz schema drift requires explicit migration: "+strings.Join(diff.Conflicts, "; "), nil)
+		if err := authorizeSchemaConflicts(diff.Conflicts, cfg); err != nil {
+			return err
 		}
 	}
 	if diff.Identical() {
@@ -83,18 +83,53 @@ func BootstrapAuthzSchema(ctx context.Context, cfg conf.AuthzConfig, manager aut
 		log.WithContext(ctx).Error("authz schema bootstrap failed", logx.Err(err), logx.String("schema_path", path))
 		return err
 	}
-	log.WithContext(ctx).Info("authz schema applied", logx.Int("additions", len(diff.Additions)), logx.Int("permission_migrations", len(diff.Conflicts)), logx.String("schema_path", path))
+	log.WithContext(ctx).Info("authz schema applied", logx.Int("additions", len(diff.Additions)), logx.Int("permission_migrations", countChangedConflicts(diff.Conflicts)), logx.Int("schema_deletions", countDeletedConflicts(diff.Conflicts)), logx.String("schema_path", path))
 	return nil
 }
 
-func onlyChangedSchemaExpressions(conflicts []string) bool {
-	if len(conflicts) == 0 {
-		return false
-	}
+// authorizeSchemaConflicts enforces the additive-only policy with two opt-in
+// escape hatches. Expression changes ("X changed") require AllowPermissionMigrations;
+// removed declarations ("X exists only in active schema") require AllowSchemaDeletions.
+// Each gate is independent: opening one never permits the other class of conflict.
+func authorizeSchemaConflicts(conflicts []string, cfg conf.AuthzConfig) error {
+	var blocked []string
 	for _, conflict := range conflicts {
-		if !strings.HasSuffix(strings.TrimSpace(conflict), " changed") {
-			return false
+		trimmed := strings.TrimSpace(conflict)
+		switch {
+		case strings.HasSuffix(trimmed, " changed"):
+			if !cfg.AllowPermissionMigrations {
+				blocked = append(blocked, conflict)
+			}
+		case strings.HasSuffix(trimmed, " exists only in active schema"):
+			if !cfg.AllowSchemaDeletions {
+				blocked = append(blocked, conflict)
+			}
+		default:
+			blocked = append(blocked, conflict)
 		}
 	}
-	return true
+	if len(blocked) > 0 {
+		return authz.ErrBackendFailed("authz schema drift requires explicit migration: "+strings.Join(blocked, "; "), nil)
+	}
+	return nil
+}
+
+func countChangedConflicts(conflicts []string) int {
+	n := 0
+	for _, conflict := range conflicts {
+		if strings.HasSuffix(strings.TrimSpace(conflict), " changed") {
+			n++
+		}
+	}
+	return n
+}
+
+func countDeletedConflicts(conflicts []string) int {
+	n := 0
+	for _, conflict := range conflicts {
+		if strings.HasSuffix(strings.TrimSpace(conflict), " exists only in active schema") {
+			n++
+		}
+	}
+	return n
 }

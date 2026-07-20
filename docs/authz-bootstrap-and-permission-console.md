@@ -142,7 +142,7 @@ Before startup writes relationships, IAM validates the manifest against `configs
 make permission-manifest-check
 ```
 
-Schema bootstrap automatically publishes missing definitions, relations, and permissions. Existing permission expressions change only when `security.authz.allow_permission_migrations` is explicitly enabled. Removed active declarations still fail closed.
+Schema bootstrap automatically publishes missing definitions, relations, and permissions. Existing permission expressions change only when `security.authz.allow_permission_migrations` is explicitly enabled. Removed active declarations change only when `security.authz.allow_schema_deletions` is explicitly enabled. The two flags are independent and both default to `false`; any conflict whose gate is closed fails closed.
 
 ## 5. Permission Console resource
 
@@ -238,8 +238,8 @@ This supports fine-grained sharing such as “share `skill:skill-a` with `user:a
 Use this order for an existing environment:
 
 1. Deploy the additive schema containing `platform`, hierarchy links, `custom_role`, and `role_binding`.
-2. For the reviewed schema rollout only, set `security.authz.allow_permission_migrations: true`; start IAM and verify representative platform, zone, group, and resource checks.
-3. Return `allow_permission_migrations` to `false` immediately after the schema is installed.
+2. For the reviewed schema rollout only, set `security.authz.allow_permission_migrations: true` (expression changes) and/or `security.authz.allow_schema_deletions: true` (removed declarations) as needed; start IAM and verify representative platform, zone, group, and resource checks.
+3. Return each enabled flag to `false` immediately after the schema is installed.
 4. Keep `control_plane.bootstrap_admins.cleanup_legacy_expansions: false` while confirming each administrator has the expected single platform or zone relationship.
 5. Enable `cleanup_legacy_expansions: true` for one controlled restart. Review planned/deleted relationship counts and representative access checks, then return it to `false`.
 6. Deploy the role-first frontend only after the new GrantService API is reachable.

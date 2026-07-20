@@ -38,9 +38,10 @@ definition custom_role {
   relation view_groups: user:*
   relation view_permissions: user:*
   relation view_users: user:*
-relation write: user:*
-		relation create_skill: user:*
-		relation manage_skills: user:*
+  relation view_zone: user:*
+  relation write: user:*
+  relation create_skill: user:*
+  relation manage_skills: user:*
 
 		permission can_admin = admin
 		permission can_create_child_groups = create_child_groups
