@@ -38,34 +38,35 @@ definition custom_role {
   relation view_groups: user:*
   relation view_permissions: user:*
   relation view_users: user:*
-	relation view_zone: user:*
-	relation write: user:*
-	relation create_skill: user:*
+relation write: user:*
+		relation create_skill: user:*
+		relation manage_skills: user:*
 
-	permission can_admin = admin
-	permission can_create_child_groups = create_child_groups
-	permission can_create_groups = create_groups
-	permission can_deploy = deploy
-	permission can_edit = edit
-	permission can_execute = execute
-	permission can_list = list
-	permission can_manage = manage
-	permission can_manage_groups = manage_groups
-	permission can_manage_members = manage_members
-	permission can_manage_permissions = manage_permissions
-	permission can_manage_users = manage_users
-	permission can_operate = operate
-	permission can_publish = publish
-	permission can_read = read
-	permission can_review = review
-	permission can_view = view
-	permission can_view_groups = view_groups
-	permission can_view_permissions = view_permissions
-	permission can_view_users = view_users
-	permission can_view_zone = view_zone
-	permission can_write = write
-	permission can_create_skill = create_skill
-}
+		permission can_admin = admin
+		permission can_create_child_groups = create_child_groups
+		permission can_create_groups = create_groups
+		permission can_deploy = deploy
+		permission can_edit = edit
+		permission can_execute = execute
+		permission can_list = list
+		permission can_manage = manage
+		permission can_manage_groups = manage_groups
+		permission can_manage_members = manage_members
+		permission can_manage_permissions = manage_permissions
+		permission can_manage_users = manage_users
+		permission can_operate = operate
+		permission can_publish = publish
+		permission can_read = read
+		permission can_review = review
+		permission can_view = view
+		permission can_view_groups = view_groups
+		permission can_view_permissions = view_permissions
+		permission can_view_users = view_users
+		permission can_view_zone = view_zone
+		permission can_write = write
+		permission can_create_skill = create_skill
+		permission can_manage_skills = manage_skills
+	}
 
 definition role_binding {
   relation role: custom_role
@@ -91,10 +92,11 @@ definition role_binding {
 	permission view_groups = role->can_view_groups & grantee
 	permission view_permissions = role->can_view_permissions & grantee
 	permission view_users = role->can_view_users & grantee
-	permission view_zone = role->can_view_zone & grantee
-	permission write = role->can_write & grantee
-	permission create_skill = role->can_create_skill & grantee
-}
+permission view_zone = role->can_view_zone & grantee
+		permission write = role->can_write & grantee
+		permission create_skill = role->can_create_skill & grantee
+		permission manage_skills = role->can_manage_skills & grantee
+	}
 
 definition group {
   // Casdoor Group mapped into an Aisphere availability zone.
@@ -136,7 +138,9 @@ definition zone {
 
 permission view_zone = member + owner + admin + platform->manage_identity + custom_binding->view_zone
 
-	permission create_skill = member + owner + admin + platform->manage_control_plane + custom_binding->create_skill
+permission create_skill = member + owner + admin + platform->manage_control_plane + custom_binding->create_skill
+
+		permission manage_skills = owner + admin + platform->manage_control_plane + custom_binding->manage_skills
 
 	permission view_users = owner + admin + user_viewer + user_manager + platform->manage_identity + custom_binding->view_users
 	permission manage_users = owner + admin + user_manager + platform->manage_identity + custom_binding->manage_users
@@ -216,6 +220,7 @@ definition skill_space {
 
 definition skill {
   relation parent: skill_space
+  relation zone: zone
   relation custom_binding: role_binding
 
   relation owner: user | service | service_account | group#member
@@ -224,12 +229,12 @@ definition skill {
   relation publisher: user | service | service_account | group#member
   relation viewer: user | user:* | service | service:* | service_account | service_account:* | group#member
 
-permission manage = owner + parent->manage + custom_binding->manage
-	permission edit = manage + editor + parent->edit + custom_binding->edit
-	permission review = manage + reviewer + custom_binding->review
-	permission publish = manage + publisher + custom_binding->publish
-	permission view = edit + reviewer + viewer + parent->view + custom_binding->view
-}
+permission manage = owner + parent->manage + zone->manage_skills + custom_binding->manage
+		permission edit = manage + editor + parent->edit + custom_binding->edit
+		permission review = manage + reviewer + custom_binding->review
+		permission publish = manage + publisher + custom_binding->publish
+		permission view = edit + reviewer + viewer + parent->view + custom_binding->view
+	}
 
 definition agent_space {
   relation parent: project
