@@ -9,6 +9,8 @@ import (
 	"github.com/aisphereio/aisphere-iam/internal/data"
 	"github.com/aisphereio/kernel/authn"
 	"github.com/aisphereio/kernel/authz"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -44,5 +46,27 @@ func TestProjectServiceUpdateMaskAndZoneScope(t *testing.T) {
 	}
 	if _, err := service.UpdateProject(ctx, &projectv1.UpdateProjectRequest{ProjectId: created.GetId(), UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"slug"}}}); err == nil {
 		t.Fatal("expected immutable/unknown update path to fail")
+	}
+}
+
+// TestProjectServiceGetProjectNotFound verifies that a missing project is
+// returned as gRPC NOT_FOUND (not a bare sentinel error), so downstream
+// callers like Hub can translate it to HTTP 404 instead of 503.
+func TestProjectServiceGetProjectNotFound(t *testing.T) {
+	repo := data.NewMemoryControlPlaneRepository()
+	biz := projectbiz.NewService(repo, authz.NewMemoryRelationshipStore())
+	service := NewProjectService(biz, repo)
+	ctx := authn.ContextWithPrincipal(context.Background(), authn.Principal{SubjectID: "alice", SubjectType: "user", OrgID: "zone-a"})
+
+	_, err := service.GetProject(ctx, &projectv1.GetProjectRequest{ProjectId: "does-not-exist"})
+	if err == nil {
+		t.Fatal("expected error for missing project, got nil")
+	}
+	st, ok := status.FromError(err)
+	if !ok {
+		t.Fatalf("expected gRPC status error, got %T: %v", err, err)
+	}
+	if st.Code() != codes.NotFound {
+		t.Fatalf("expected codes.NotFound, got %v: %v", st.Code(), st.Message())
 	}
 }
