@@ -30,7 +30,7 @@ require (
 )
 
 require (
-	github.com/aisphereio/kernel v0.4.16
+	github.com/aisphereio/kernel v0.4.17
 	github.com/authzed/authzed-go v1.10.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
