@@ -42,7 +42,7 @@ resource_types:
     auditable: true
     spicedb_type: zone
     relations: [platform, owner, admin, user_viewer, user_manager, group_viewer, group_manager, permission_admin, member, custom_binding]
-    permissions: [view_zone, create_skill, manage_skills, view_users, manage_users, view_groups, create_groups, manage_groups, view_permissions, manage_permissions]
+    permissions: [view_zone, create_skill, manage_skills, create_cluster, manage_clusters, view_users, manage_users, view_groups, create_groups, manage_groups, view_permissions, manage_permissions]
     status: active
   - type: group
     capability_id: iam
@@ -163,6 +163,26 @@ resource_types:
     spicedb_type: deployment
     relations: [parent, owner, operator, viewer, runs_agent, custom_binding]
     permissions: [manage, operate, view]
+    status: active
+  - type: k8s_cluster
+    capability_id: hub
+    owner_service: aisphere-hub
+    parent_types: [zone]
+    grantable: true
+    auditable: true
+    spicedb_type: k8s_cluster
+    relations: [zone, owner, admin, operator, viewer, custom_binding]
+    permissions: [manage, operate, view, create_namespace]
+    status: active
+  - type: k8s_namespace
+    capability_id: hub
+    owner_service: aisphere-hub
+    parent_types: [k8s_cluster]
+    grantable: true
+    auditable: true
+    spicedb_type: k8s_namespace
+    relations: [cluster, owner, editor, user, viewer, custom_binding]
+    permissions: [manage, edit, use, view]
     status: active
 
 role_templates:
