@@ -39,6 +39,7 @@ definition custom_role {
   relation view_permissions: user:*
   relation view_users: user:*
   relation view_zone: user:*
+  relation view_skills: user:*
   relation write: user:*
   relation create_skill: user:*
   relation manage_skills: user:*
@@ -68,6 +69,7 @@ definition custom_role {
 		permission can_view_permissions = view_permissions
 		permission can_view_users = view_users
 		permission can_view_zone = view_zone
+		permission can_view_skills = view_skills
 		permission can_write = write
 		permission can_create_skill = create_skill
 		permission can_manage_skills = manage_skills
@@ -101,7 +103,8 @@ definition role_binding {
 	permission view_groups = role->can_view_groups & grantee
 	permission view_permissions = role->can_view_permissions & grantee
 	permission view_users = role->can_view_users & grantee
-permission view_zone = role->can_view_zone & grantee
+	permission view_zone = role->can_view_zone & grantee
+		permission view_skills = role->can_view_skills & grantee
 		permission write = role->can_write & grantee
 		permission create_skill = role->can_create_skill & grantee
 		permission manage_skills = role->can_manage_skills & grantee
@@ -150,6 +153,8 @@ definition zone {
   relation custom_binding: role_binding
 
 permission view_zone = member + owner + admin + platform->manage_identity + custom_binding->view_zone
+
+permission view_skills = member + owner + admin + platform->manage_control_plane + custom_binding->view_skills
 
 permission create_skill = member + owner + admin + platform->manage_control_plane + custom_binding->create_skill
 
@@ -250,7 +255,7 @@ permission manage = owner + parent->manage + zone->manage_skills + custom_bindin
 		permission edit = manage + editor + parent->edit + custom_binding->edit
 		permission review = manage + reviewer + custom_binding->review
 		permission publish = manage + publisher + custom_binding->publish
-		permission view = edit + reviewer + viewer + parent->view + custom_binding->view
+		permission view = edit + reviewer + viewer + parent->view + zone->view_skills + custom_binding->view
 	}
 
 definition agent_space {
@@ -394,4 +399,23 @@ definition k8s_namespace {
   permission edit = manage + editor + custom_binding->edit
   permission use = edit + user + custom_binding->use
   permission view = use + viewer + custom_binding->view
+}
+
+// K8s Agent Sandbox (design §11). A sandbox lives inside a namespace; the
+// namespace `use` permission gates creation. The owner gets full manage; the
+// namespace's use/view permissions propagate down so namespace members can
+// see and interact with sandboxes in their namespace.
+definition k8s_sandbox {
+  relation namespace: k8s_namespace
+  relation custom_binding: role_binding
+
+  relation owner: user | service | service_account | group#member
+  relation editor: user | service | service_account | group#member
+  relation user: user | service | service_account | group#member
+  relation viewer: user | user:* | service | service:* | service_account | service_account:* | group#member
+
+  permission manage = owner + namespace->manage + custom_binding->manage
+  permission edit = manage + editor + custom_binding->edit
+  permission use = edit + user + namespace->use + custom_binding->use
+  permission view = use + viewer + namespace->view + custom_binding->view
 }
