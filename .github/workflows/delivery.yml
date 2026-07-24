@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  KERNEL_VERSION: v0.4.17
+  KERNEL_VERSION: v0.4.19
   KUSTOMIZE_VERSION: v5.7.1
   REGISTRY: registry.cn-beijing.aliyuncs.com
   IMAGE_NAMESPACE: ainfracn
