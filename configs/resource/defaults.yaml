@@ -42,7 +42,7 @@ resource_types:
     auditable: true
     spicedb_type: zone
     relations: [platform, owner, admin, user_viewer, user_manager, group_viewer, group_manager, permission_admin, member, custom_binding]
-    permissions: [view_zone, create_skill, manage_skills, create_cluster, manage_clusters, view_users, manage_users, view_groups, create_groups, manage_groups, view_permissions, manage_permissions]
+    permissions: [view_zone, view_skills, create_skill, manage_skills, create_cluster, manage_clusters, view_users, manage_users, view_groups, create_groups, manage_groups, view_permissions, manage_permissions]
     status: active
   - type: group
     capability_id: iam
