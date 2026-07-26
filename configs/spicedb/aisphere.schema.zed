@@ -1,4 +1,12 @@
-definition user {}
+// user is an authenticated human principal. The delegate relation lets a user
+// launch an agent that acts under another identity (another user or a service
+// account they are authorized to represent). Self-delegation (acting_as = the
+// launcher themselves) does not require this relation; it is the default.
+// (agent-identity-delegation-design §3.2)
+definition user {
+  relation delegate: user | service_account
+  permission can_act_as = delegate
+}
 
 definition service {}
 
