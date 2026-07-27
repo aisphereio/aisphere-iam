@@ -32,6 +32,11 @@ capabilities:
     display_name: Runtime Service
     owner_service: aisphere-runtime
     status: active
+  - id: models
+    name: models
+    display_name: Model Registry
+    owner_service: aisphere-hub
+    status: active
 
 resource_types:
   - type: zone
@@ -123,6 +128,16 @@ resource_types:
     spicedb_type: tool
     relations: [parent, owner, editor, executor, viewer, custom_binding]
     permissions: [manage, edit, execute, view]
+    status: active
+  - type: model_profile
+    capability_id: models
+    owner_service: aisphere-hub
+    parent_types: [project]
+    grantable: true
+    auditable: true
+    spicedb_type: model_profile
+    relations: [parent, owner, editor, viewer, executor, custom_binding]
+    permissions: [manage, edit, view, execute]
     status: active
   - type: sandbox_space
     capability_id: sandbox
