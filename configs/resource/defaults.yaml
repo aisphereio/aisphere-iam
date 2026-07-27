@@ -132,7 +132,7 @@ resource_types:
   - type: model_profile
     capability_id: models
     owner_service: aisphere-hub
-    parent_types: [zone]
+    parent_types: [project]
     grantable: true
     auditable: true
     spicedb_type: model_profile

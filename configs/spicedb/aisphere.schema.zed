@@ -325,14 +325,12 @@ definition tool {
 }
 
 // model_profile is an enterprise-controlled LLM model configuration. Hub owns
-// the catalog (endpoint/protocol/capability/credential_ref/limits); Runtime
+// the catalog (endpoint/protocol/capabilities/credential_ref/limits); Runtime
 // resolves an immutable revision to build an ADK model.LLM via the
-// aisphere:// factory. parent is zone (org), whose manage_skills/view_skills
-// permissions flow down — zone admins can manage models, zone members can
-// view/execute them. (project IDs in IAM carry a "/" which SpiceDB objectIds
-// reject, so zone — not project — is the stable parent.)
+// aisphere:// factory. parent is project (which carries manage/write/read/
+// operate), so project operators can execute models.
 definition model_profile {
-  relation parent: zone
+  relation parent: project
   relation custom_binding: role_binding
 
   relation owner: user | service | service_account | group#member
@@ -340,10 +338,10 @@ definition model_profile {
   relation viewer: user | user:* | service | service:* | service_account | service_account:* | group#member
   relation executor: user | service | service_account | agent | group#member
 
-	permission manage = owner + parent->manage_skills + custom_binding->manage
-	permission edit = manage + editor + parent->manage_skills + custom_binding->edit
-	permission view = edit + viewer + parent->view_skills + custom_binding->view
-	permission execute = manage + executor + parent->view_skills + custom_binding->execute
+	permission manage = owner + parent->manage + custom_binding->manage
+	permission edit = manage + editor + parent->write + custom_binding->edit
+	permission view = edit + viewer + parent->read + custom_binding->view
+	permission execute = manage + executor + parent->operate + custom_binding->execute
 }
 
 definition sandbox_space {
