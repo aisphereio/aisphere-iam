@@ -124,6 +124,16 @@ resource_types:
     relations: [parent, owner, editor, executor, viewer, custom_binding]
     permissions: [manage, edit, execute, view]
     status: active
+  - type: model_profile
+    capability_id: models
+    owner_service: aisphere-hub
+    parent_types: [project]
+    grantable: true
+    auditable: true
+    spicedb_type: model_profile
+    relations: [parent, owner, editor, viewer, executor, custom_binding]
+    permissions: [manage, edit, view, execute]
+    status: active
   - type: sandbox_space
     capability_id: sandbox
     owner_service: aisphere-sandbox
