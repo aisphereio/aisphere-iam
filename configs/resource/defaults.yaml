@@ -32,6 +32,11 @@ capabilities:
     display_name: Runtime Service
     owner_service: aisphere-runtime
     status: active
+  - id: models
+    name: models
+    display_name: Model Registry
+    owner_service: aisphere-hub
+    status: active
 
 resource_types:
   - type: zone
