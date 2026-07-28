@@ -48,6 +48,8 @@ definition custom_role {
   relation view_users: user:*
   relation view_zone: user:*
   relation view_skills: user:*
+  relation use_models: user:*
+  relation manage_models: user:*
   relation write: user:*
   relation create_skill: user:*
   relation manage_skills: user:*
@@ -78,6 +80,8 @@ definition custom_role {
 		permission can_view_users = view_users
 		permission can_view_zone = view_zone
 		permission can_view_skills = view_skills
+		permission can_use_models = use_models
+		permission can_manage_models = manage_models
 		permission can_write = write
 		permission can_create_skill = create_skill
 		permission can_manage_skills = manage_skills
@@ -113,6 +117,8 @@ definition role_binding {
 	permission view_users = role->can_view_users & grantee
 	permission view_zone = role->can_view_zone & grantee
 		permission view_skills = role->can_view_skills & grantee
+		permission use_models = role->can_use_models & grantee
+		permission manage_models = role->can_manage_models & grantee
 		permission write = role->can_write & grantee
 		permission create_skill = role->can_create_skill & grantee
 		permission manage_skills = role->can_manage_skills & grantee
@@ -163,6 +169,10 @@ definition zone {
 permission view_zone = member + owner + admin + platform->manage_identity + custom_binding->view_zone
 
 permission view_skills = member + owner + admin + platform->manage_control_plane + custom_binding->view_skills
+
+permission use_models = member + owner + admin + platform->manage_control_plane + custom_binding->use_models
+
+permission manage_models = owner + admin + platform->manage_control_plane + custom_binding->manage_models
 
 permission create_skill = member + owner + admin + platform->manage_control_plane + custom_binding->create_skill
 
