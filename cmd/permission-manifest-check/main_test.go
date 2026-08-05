@@ -17,7 +17,7 @@ func TestRunValidatesCommittedPermissionManifest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "permission manifest valid: 16 resource types, 23 role templates, 25 schema definitions"
+	want := "permission manifest valid: 16 resource types, 26 role templates, 25 schema definitions"
 	if !strings.Contains(output.String(), want) {
 		t.Fatalf("output = %q, want %q", output.String(), want)
 	}
