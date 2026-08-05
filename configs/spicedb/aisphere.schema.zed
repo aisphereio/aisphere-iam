@@ -52,6 +52,8 @@ definition custom_role {
   relation manage_models: user:*
   relation write: user:*
   relation create_skill: user:*
+  relation create_agent: user:*
+  relation manage_agents: user:*
   relation manage_skills: user:*
   relation create_cluster: user:*
   relation manage_clusters: user:*
@@ -84,6 +86,8 @@ definition custom_role {
 		permission can_manage_models = manage_models
 		permission can_write = write
 		permission can_create_skill = create_skill
+		permission can_create_agent = create_agent
+		permission can_manage_agents = manage_agents
 		permission can_manage_skills = manage_skills
 		permission can_create_cluster = create_cluster
 		permission can_manage_clusters = manage_clusters
@@ -121,6 +125,8 @@ definition role_binding {
 		permission manage_models = role->can_manage_models & grantee
 		permission write = role->can_write & grantee
 		permission create_skill = role->can_create_skill & grantee
+		permission create_agent = role->can_create_agent & grantee
+		permission manage_agents = role->can_manage_agents & grantee
 		permission manage_skills = role->can_manage_skills & grantee
 		permission create_cluster = role->can_create_cluster & grantee
 		permission manage_clusters = role->can_manage_clusters & grantee
@@ -175,6 +181,8 @@ permission use_models = member + owner + admin + platform->manage_control_plane 
 permission manage_models = owner + admin + platform->manage_control_plane + custom_binding->manage_models
 
 permission create_skill = member + owner + admin + platform->manage_control_plane + custom_binding->create_skill
+	permission create_agent = member + owner + admin + platform->manage_control_plane + custom_binding->create_agent
+	permission manage_agents = owner + admin + platform->manage_control_plane + custom_binding->manage_agents
 
 		permission manage_skills = owner + admin + platform->manage_control_plane + custom_binding->manage_skills
 
@@ -243,6 +251,7 @@ definition project {
 	permission read = write + operate + viewer + zone->view_zone + custom_binding->read
 	permission list = read + custom_binding->list
 	permission create_skill = owner + admin + developer + zone->create_skill + custom_binding->create_skill
+	permission create_agent = owner + admin + developer + zone->create_agent + custom_binding->create_agent
 }
 
 definition skill_space {
@@ -298,12 +307,14 @@ definition agent {
   relation operator: user | group#member
   relation executor: user | group#member | service_account
   relation viewer: user | group#member
+  relation public_viewer: user:*
+  relation public_executor: user:*
 
 	permission manage = owner + parent->manage + custom_binding->manage
 	permission edit = manage + editor + parent->edit + custom_binding->edit
 	permission operate = manage + operator + custom_binding->operate
-	permission execute = manage + executor + custom_binding->execute
-	permission view = edit + operate + viewer + parent->view + custom_binding->view
+	permission execute = manage + executor + public_executor + custom_binding->execute
+	permission view = edit + operate + viewer + public_viewer + parent->view + custom_binding->view
 }
 
 definition tool_space {
